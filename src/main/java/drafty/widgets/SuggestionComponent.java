@@ -148,20 +148,26 @@ public class SuggestionComponent extends CustomComponent {
 	    suggestionModal.addComponents(label_suggestions, suggestions_optiongroup);
 	    
 	    if (suggestionType.equals("Subfield")) {
-	    	subfields.addItems(_MainUI.getDataProvider().getSubfields());
+	    	List<String> fieldlist = _MainUI.getDataProvider().getSubfields();
+	    	subfields.addItems(fieldlist);
 	    	suggestionModal.addComponent(subfields);
 	    	subfields.setWidth("100%");
+	    	subfields.setPageLength(fieldlist.size());
 	    	subfields.setStyleName("option-group-padding-left");
 	    }
 	    
 	    if (suggestionType.equals("University") || suggestionType.equals("Bachelors") || suggestionType.equals("Masters") || suggestionType.equals("Doctorate") || suggestionType.equals("PostDoc")) {
+	    	List<String> unis;
 	    	if (suggestionType.equals("University")) {
-		    	universities.addItems(_MainUI.getDataProvider().getUniversitiesUSACan());
+	    		unis = _MainUI.getDataProvider().getUniversitiesUSACan();
+		    	universities.addItems(unis);
 	    	} else {
-		    	universities.addItems(_MainUI.getDataProvider().getUniversities());	
+	    		unis = _MainUI.getDataProvider().getUniversities();
+		    	universities.addItems(unis);	
 	    	}
 	    	suggestionModal.addComponent(universities);
 	    	universities.setWidth("100%");
+	    	universities.setPageLength(unis.size());
 	    	universities.setStyleName("option-group-padding-left");
 	    }
 	    
