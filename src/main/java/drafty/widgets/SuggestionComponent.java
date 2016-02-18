@@ -44,10 +44,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.server.Page;
-import com.vaadin.server.ThemeResource;
-import com.vaadin.ui.Link;
-import com.vaadin.server.ExternalResource;
 
 import drafty.views._MainUI;
 
@@ -120,9 +116,6 @@ public class SuggestionComponent extends CustomComponent {
 	    suggestions_optiongroup.setMultiSelect(false);
 	    suggestions_optiongroup.addValueChangeListener(e -> submitSuggestion_button.setEnabled(true));
 	    
-	    //tests for link button from PhotoUrl or Sources
-	    Boolean createLinkButton = false;
-	    
 	    List<String> suggestions_list = new ArrayList<String>();
 	    try {
 	    	suggestions_list = getSuggestions();
@@ -144,11 +137,9 @@ public class SuggestionComponent extends CustomComponent {
     		//get suggestions for option group
 	    	
 	    	//if there are no suggestions
-	    	Boolean createOption = false;
 	    	for (int i = 0; i < suggestions_list.size(); i++) {
 				if (suggestions_list.get(i).isEmpty()) {
-					suggestions_list.set(i, "[blank]"); //test other words for this
-					createOption = true;
+					suggestions_list.set(i, "[blank]");
 				}
 			}
 	    	
@@ -156,7 +147,6 @@ public class SuggestionComponent extends CustomComponent {
 			
 			if(suggestionType.equals("PhotoUrl") || suggestionType.equals("Sources")) {
 				suggestions_optiongroup.addItem(new_sugg_text_url);	
-				createLinkButton = true;
 			} else {
 				suggestions_optiongroup.addItem(new_sugg_text);	
 			}
