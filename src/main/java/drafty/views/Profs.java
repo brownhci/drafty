@@ -329,6 +329,7 @@ public class Profs extends VerticalLayout implements View {
 		
 		//resultsPanelLayout.addComponent(resultsGrid);
 		panelWrap.addComponent(resultsGrid);
+		resultsGrid.setColumnReorderingAllowed(true);
 		resultsGrid.setWidth("100%");
 	    //resultsGrid.setHeightMode(HeightMode.ROW);
 	    //resultsGrid.setHeightByRows(15);
