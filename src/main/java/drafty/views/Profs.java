@@ -834,6 +834,10 @@ public class Profs extends VerticalLayout implements View {
             			}	
         			}
         		}
+        		
+        		//popgrid -> rest of info; not totally great implementation but it works
+        		populateGrid("> 32");	
+        		resultsGrid.sort("University");
             }
         });
 	}
@@ -887,10 +891,6 @@ public class Profs extends VerticalLayout implements View {
 			
 		//update Badges now that we have idProfile
 		updateBadges();
-		
-		//popgrid -> rest of info; not totally great implementation but it works
-		populateGrid("> 32");	
-		resultsGrid.sort("University");
 		
 		try {
 	      Context initialContext = new InitialContext();
