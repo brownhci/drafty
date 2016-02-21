@@ -1,5 +1,12 @@
 package drafty.widgets;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,6 +29,7 @@ import com.vaadin.event.FieldEvents.BlurListener;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.ui.colorpicker.Color;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -127,6 +135,14 @@ public class SuggestionComponent extends CustomComponent {
 	    	submitSuggestion_button.setEnabled(true);
 	    } else {
     		//get suggestions for option group
+	    	
+	    	//if there are no suggestions
+	    	for (int i = 0; i < suggestions_list.size(); i++) {
+				if (suggestions_list.get(i).isEmpty()) {
+					suggestions_list.set(i, "[blank]");
+				}
+			}
+	    	
 			suggestions_optiongroup.addItems(suggestions_list);
 			
 			if(suggestionType.equals("PhotoUrl") || suggestionType.equals("Sources")) {
@@ -134,6 +150,7 @@ public class SuggestionComponent extends CustomComponent {
 			} else {
 				suggestions_optiongroup.addItem(new_sugg_text);	
 			}
+			
 	    }
 	    
 	    label_suggestions = new Label("<h3 style=\"margin-top: 0px;\">Make a suggestion for <br>"  + person_name + "'s " + suggestionType + "</h3>", ContentMode.HTML);
@@ -142,9 +159,8 @@ public class SuggestionComponent extends CustomComponent {
 	    submitSuggestion_button.setIcon(FontAwesome.FLOPPY_O);
 	    submitSuggestion_button.setWidth("100%");
 	    submitSuggestion_button.setEnabled(false);
-		
 		submitSuggestion_button.addClickListener(e -> submitSuggestion());
-	    
+		
 	    suggestionModal.addComponents(label_suggestions, suggestions_optiongroup);
 	    
 	    if (suggestionType.equals("Subfield")) {
@@ -176,6 +192,7 @@ public class SuggestionComponent extends CustomComponent {
 	    	suggestion_textbox.setStyleName("text-field-margin-left");
 	    	suggestion_textbox.setWidth("350px"); //need to come up with a better implementation
 	    }
+	    
 	    
 	    suggestionModal.addComponents(label_hr, submitSuggestion_button);
 	    suggestionModal.setComponentAlignment(submitSuggestion_button, Alignment.MIDDLE_RIGHT);
@@ -219,7 +236,23 @@ public class SuggestionComponent extends CustomComponent {
 			    if(createNewSuggCheck) {
 			    	newSuggestion();	
 			    }
-			} else if(suggestionType.equals("Rank") || suggestionType.equals("Gender")) {
+			    
+			    //else if does not exist
+			    //check if sugg exists, update confidence value
+			    //use cheetah person
+			    //if selected.equals DOES NOT EXIST
+			    
+			} else if(selected.equals("[blank]")) {
+				newSuggestion = "";
+                createNewSuggCheck = checkNewSuggestion();
+                if(createNewSuggCheck) {
+                    newSuggestion();    
+                } else {
+                    updateSuggestionConf();
+                }
+            }
+			
+			else if(suggestionType.equals("Rank") || suggestionType.equals("Gender")) {
 				//NEW SUGGESTION!..possibly
 				createNewSuggCheck = checkNewSuggestion();
 			    if(createNewSuggCheck) {
@@ -657,7 +690,7 @@ public class SuggestionComponent extends CustomComponent {
 	    suggestion_textbox.setValue("");
 	    suggestion_textbox.removeAllValidators();
 	    suggestion_textbox.setWidth("100%");
-	    suggestion_textbox.setInputPrompt("Enter new value or leave blank for no value.");
+	    suggestion_textbox.setInputPrompt("Enter new value.");
 	    suggestion_textbox.setMaxLength(1400);
 	}
 	

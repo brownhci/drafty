@@ -367,6 +367,7 @@ public class Profs extends VerticalLayout implements View {
 		
 		//resultsPanelLayout.addComponent(resultsGrid);
 		panelWrap.addComponent(resultsGrid);
+		resultsGrid.setColumnReorderingAllowed(true);
 		resultsGrid.setWidth("100%");
 	    //resultsGrid.setHeightMode(HeightMode.ROW);
 	    //resultsGrid.setHeightByRows(15);
@@ -872,6 +873,10 @@ public class Profs extends VerticalLayout implements View {
             			}	
         			}
         		}
+        		
+        		//popgrid -> rest of info; not totally great implementation but it works
+        		populateGrid("> 32");	
+        		resultsGrid.sort("University");
             }
         });
 	}
@@ -925,10 +930,6 @@ public class Profs extends VerticalLayout implements View {
 			
 		//update Badges now that we have idProfile
 		updateBadges();
-		
-		//popgrid -> rest of info; not totally great implementation but it works
-		populateGrid("> 32");	
-		resultsGrid.sort("University");
 		
 		try {
 	      Context initialContext = new InitialContext();
