@@ -2,6 +2,7 @@ package drafty.data;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import drafty.models.DraftyNotification;
@@ -41,6 +42,10 @@ public interface DataProvider {
      */
 	List<String> getSubfields();
 	
+	/**
+	 * @return domains and associated university names
+	 */
+	HashMap<String,String> getDomains();
 	/**
      * @return idSuggestion, limit 1, returns w/ highest conf level; protects against duplicates from old data import
 	 * @throws SQLException 

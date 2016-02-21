@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.naming.Context;
@@ -173,6 +174,38 @@ public class DataProviderImpl implements DataProvider {
         }	
 		
 		return list;
+	}
+    
+    public HashMap<String,String> getDomains() {
+		HashMap<String,String> domainToName = new HashMap();
+		
+		try {
+	      Context initialContext = new InitialContext();
+	      DataSource datasource = (DataSource)initialContext.lookup(getJNDI());
+	      if (datasource != null) {
+	        Connection conn = datasource.getConnection();
+	        String sql = 
+	        		"SELECT name,domain FROM UniversityName "
+	        		+ "WHERE domain <> ''";
+	        PreparedStatement stmt = conn.prepareStatement(sql);
+	        try {
+	        	ResultSet rs = stmt.executeQuery();
+				while (rs.next()) {
+					domainToName.put(rs.getString("domain"), rs.getString("name"));
+				}
+	        } catch (SQLException e) {
+				System.out.println("Error: 1 getDomains(): " + e.getMessage());
+			}
+	        stmt.close();
+	        conn.close();
+	      }
+	    }
+        catch (Exception ex)
+        {
+        	System.out.println("Error: 2 getDomains():  " + ex);
+        }	
+		
+		return domainToName;
 	}
 	
     public List<String> getSubfields() {

@@ -1,5 +1,7 @@
 package drafty.views;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,6 +9,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.HashSet;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -125,6 +131,7 @@ public class Profs extends VerticalLayout implements View {
 	public Profs() {
 		detectBrowser();
 		detectCookie(); //first set check and set cookie value
+		checkHostName();
 		
 		buildMenu();
 		
@@ -186,6 +193,37 @@ public class Profs extends VerticalLayout implements View {
 		} else {
 			submitEmail.setEnabled(false);
 		}
+	}
+	
+	private void checkHostName(){ 
+		InetAddress addr = null;
+		try {
+			addr = InetAddress.getByName(ipAddress);
+		} catch (UnknownHostException e) {
+			System.out.println("Cannot resolve host name");
+		}
+		if (addr != null){
+			String domainName = addr.getCanonicalHostName();
+			System.out.println("Domain Name: " + domainName);
+			String strippedName = stripName(domainName);
+			System.out.println("Stripped Domain Name:" + strippedName);
+			HashMap<String,String> uniHash = _MainUI.getDataProvider().getDomains();
+			//System.out.println(uniHash);
+			if (uniHash.containsKey(strippedName)){
+				System.out.println("The domain name matches a university: " + uniHash.get(strippedName));
+				//TO-DO - updateProfile(strippedName);
+			}
+		}
+	}
+	
+	private String stripName(String s){
+		String[] split = s.split(Pattern.quote("."));		
+		if (split.length >= 2){
+			String extension = split[split.length-1].toLowerCase();
+			String domain = split[split.length-2].toLowerCase(); 
+			s = domain.concat(".").concat(extension); 
+		}
+		return s;
 	}
 	
 	private void updateBadges() {
