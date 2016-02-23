@@ -47,6 +47,7 @@ import com.vaadin.server.Responsive;
 import com.vaadin.server.WebBrowser;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -423,26 +424,40 @@ public class Profs extends VerticalLayout implements View {
 				menuModal.setMargin(true);
 				menuModal.setSpacing(true);
 				
-			    Label label_about_title = new Label("<h3 style=\"margin-top: 0px;\">Computer Science Professors from Top US and Canadien Schools (Brown University HCI project)</h3>", ContentMode.HTML);
+			    Label label_drafty_title = new Label("<h2 style=\"margin-top: 0px; color:#0095da; margin-bottom: 0px;\"> Drafty </h1>", ContentMode.HTML);
+			    Label label_about_title = new Label("<h3 style=\"margin-top: 0px; margin-bottom: 0px;\">Computer Science Professors from Top US and Canadian Schools</h3>", ContentMode.HTML);
+			    Label label_hci_title = new Label("<h3 style=\"margin-top: 0px;\">Brown University HCI Project</h3>", ContentMode.HTML);
 			    label_about_title.addStyleName("padding-top-none");
+			    label_drafty_title.addStyleName("padding-top-none");
+			    label_hci_title.addStyleName("padding-top-none");
+			    label_drafty_title.setWidth("40px");
+			    label_about_title.setWidth("564px");
+			    label_hci_title.setWidth("247");
+			    
+			    Label label_sugg = new Label("<p style=\"margin-top: 0px; padding: 10px; color: #666666; border-radius: 10px; text-align: center; background-color: #f1f1f1;\"<span class=\"v-icon FontAwesome\"></span> <b>Wondering how to make a Suggestion?</b> Double click any cell.</p>", ContentMode.HTML);
+			    label_sugg.addStyleName("padding-top-none");
+			    label_sugg.setWidth("519px");
 			    
 			    Label label_about = new Label(
-			    		"<p class=\"projectinfo\">Drafty recruits editors from the crowd of web visitors. For visitors to a "
-			    		+ "computer science professor dataset which may contain errors, they are asked what the correct entry for a particular data "
-			    		+ "field is. The key trick is to capture user interactions such as text highlighting, cursor hover and clicks, and network "
-			    		+ "hostname to infer what topics the visitor has expertise in. For example, a visitor from brown.edu who copies entries of "
-			    		+ "graphics professors will be asked to correct an entry about graphics professors at Brown. Visitors also have the opportunity "
-			    		+ "to suggest fixes to other parts of the document. This project is currently being used to revise and update data from "
-			    		+ "<a style=\"color: blue;\" href=\"http://jeffhuang.com/computer_science_professors.html\">this dataset</a>.</p>"
-			    		+ "<p><br><b>Related Paper (HCOMP 2015): </b><br>"
-			    		+ "<a style=\"color: blue;\" href=\"[in press]\"><br>Crowdsourcing from Scratch: A Pragmatic Experiment in Data Collection by "
-			    		+ "Novice Requesters</a></p>"
-			    		+ "<p><br><b>How to make a Suggestion:</b><br>"
-			    		+ "Method 1: Double click any cell.<br>"
-			    		+ "Method 2: Click on a cell. Then click the menu button on the top right of the screen.",
-			    		ContentMode.HTML);
+
+			    	    "<p class=\"projectinfo\" style=\"margin-top: 0px; margin-bottom: 0px;\">"
+			    	    + "Drafty turns its web visitors into editors. A visitor to a potentially flawed "
+			    	    + "computer science professor dataset may be asked to correct or suggest an entry in the data. "
+			    	    + "The key is to capture user interactions such as text highlighting, cursor hovering, clicks, and network "
+			    	    + "hostname to infer what topics the visitor has expertise in."
+			    	    + "<p style=\"margin-bottom: 0px;\">For example, a visitor from brown.edu who copies entries of graphics professors may be asked "
+			    	    + "to correct an entry about graphics professors at Brown. This project is currently being used to "
+			    	    + "revise and update data from "
+			    	    + "<a style=\"color: blue;\" href=\"http://jeffhuang.com/computer_science_professors.html\">this dataset</a>.</p>"
+			    	    + "<p><br><b>Related Paper (HCOMP 2015): </b>"
+			    	    + "<a style=\"color: blue;\" href=\"[in press]\"><br>Crowdsourcing from Scratch: A Pragmatic Experiment in Data Collection by "
+			    	    + "Novice Requesters</a></p>", ContentMode.HTML);
 			    
-			    menuModal.addComponents(label_about_title, label_about);
+			    menuModal.addComponents(label_drafty_title,label_about_title, label_hci_title, label_sugg, label_about);
+			    menuModal.setComponentAlignment(label_drafty_title, Alignment.MIDDLE_CENTER);
+			    menuModal.setComponentAlignment(label_about_title, Alignment.MIDDLE_CENTER);
+			    menuModal.setComponentAlignment(label_hci_title, Alignment.MIDDLE_CENTER);
+			    menuModal.setComponentAlignment(label_sugg, Alignment.MIDDLE_CENTER);
 				sub.setContent(menuModal);
 				sub.setModal(true);
 				UI.getCurrent().addWindow(sub);
