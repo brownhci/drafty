@@ -411,7 +411,7 @@ public class Profs extends VerticalLayout implements View {
 		});
 		
 		//aboutMenu
-		draftyMenu.addItem("Computer Science Professors from top US and Canada Schools", FontAwesome.GRADUATION_CAP, new MenuBar.Command() {
+		draftyMenu.addItem("Computer Science Professors", FontAwesome.GRADUATION_CAP, new MenuBar.Command() {
 			
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
