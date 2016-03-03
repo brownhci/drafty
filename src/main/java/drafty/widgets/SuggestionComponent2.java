@@ -111,6 +111,13 @@ public class SuggestionComponent2 extends CustomComponent {
 	    List<String> suggestions_list = new ArrayList<String>();
 	    try {
 	    	suggestions_list = getSuggestions();
+	    	
+	    	//if there are no suggestions add [blank]
+	    	for (int i = 0; i < suggestions_list.size(); i++) {
+				if (suggestions_list.get(i).isEmpty()) {
+					suggestions_list.set(i, "[blank]");
+				}
+			}
 		} catch (SQLException e) {
 			System.out.println("getSuggestions() SQL error " + e);
 		}
@@ -170,6 +177,7 @@ public class SuggestionComponent2 extends CustomComponent {
 	    	universities.setPageLength(unis.size());
 	    	universities.setStyleName("option-group-padding-left");
 	    }
+	  
 	    
 	    if(suggestionType.equals("JoinYear") || suggestionType.equals("Sources") || suggestionType.equals("PhotoUrl")) {
 	    	suggestionModal.addComponent(suggestion_textbox);
@@ -223,7 +231,15 @@ public class SuggestionComponent2 extends CustomComponent {
 			    if(createNewSuggCheck) {
 			    	newSuggestion();	
 			    }
-			} else if(suggestionType.equals("Rank") || suggestionType.equals("Gender")) {
+			} else if(selected.equals("[blank]")) {
+				newSuggestion = "";
+                createNewSuggCheck = checkNewSuggestion();
+                if(createNewSuggCheck) {
+                    newSuggestion();    
+                } else {
+                    updateSuggestionConf();
+                }
+            } else if(suggestionType.equals("Rank") || suggestionType.equals("Gender")) {
 				//NEW SUGGESTION!..possibly
 				createNewSuggCheck = checkNewSuggestion();
 			    if(createNewSuggCheck) {
@@ -650,10 +666,16 @@ public class SuggestionComponent2 extends CustomComponent {
 	    	//System.out.println("list add: " + entry.getValue().toString());
 	        list.add(entry.getValue().toString());
 	    }
-	    
 	    return list;
 	}
 	
+	private void newUniversityItem(String e) {
+		System.out.println("New Uni ComboBox = " + e);
+		universities.addItem(e);
+		universities.select(e);
+	}
+
+
 	private void addValidators() {
 		suggestion_textbox.setRequiredError("Suggestion cannot be the same as previous entry.");
 		
