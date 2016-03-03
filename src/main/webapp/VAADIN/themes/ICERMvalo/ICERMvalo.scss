@@ -238,7 +238,16 @@ $v-component-group-spacing: 6px;
   	
   }
   
-  
+  //spacing for radio buttons
+	.v-radiobutton {
+		padding-bottom: 10px;
+	}
+	.v-filterselect {
+		margin-top: -55px
+	}
+	.margin-top-negative {
+		margin-top: -55px
+	}
  
  	// form components
   .v-button {

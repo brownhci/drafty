@@ -1,7 +1,6 @@
 package drafty.views;
 
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -25,9 +24,13 @@ import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
+import drafty.event.DraftyEvent.BrowserResizeEvent;
+import drafty.event.DraftyEvent.CloseOpenWindowsEvent;
+import com.vaadin.server.Page.BrowserWindowResizeEvent;
+import com.vaadin.server.Page.BrowserWindowResizeListener;
+
 import drafty.data.DataProvider;
 import drafty.data.DataProviderImpl;
-import drafty.event.DraftyEvent.CloseOpenWindowsEvent;
 import drafty.event.DraftyEventBus;
 
 @Viewport("width=device-width, initial-scale=1.0")
@@ -77,24 +80,25 @@ public class _MainUI extends UI {
 		DraftyEventBus.register(this);
 		Responsive.makeResponsive(this);
 		
+		
+		// Some views need to be aware of browser resize events so a
+        // BrowserResizeEvent gets fired to the event bus on every occasion.
+        Page.getCurrent().addBrowserWindowResizeListener(
+        new BrowserWindowResizeListener() {
+            @Override
+            public void browserWindowResized(
+                    final BrowserWindowResizeEvent event) {
+                DraftyEventBus.post(new BrowserResizeEvent());
+            }
+        });
+		
+		
 		if(Page.getCurrent().getWebBrowser().isTooOldToFunctionProperly()) {
 			//too old won't work with Vaadin
 		} else {
 			navigator.addView("professors", new Profs());
+			navigator.addView("secretview", new SecretView());
 			navigator.navigateTo("professors");
-			
-			//Profs profs = new Profs();
-			//setContent(profs);
-			//setContent(new Test());
-			/*
-			System.out.println("timeout start main");
-			try {
-				TimeUnit.SECONDS.sleep(0);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			System.out.println("timeout end main");
-			*/
 		}
 	}
 

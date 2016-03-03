@@ -12981,6 +12981,18 @@ div.v-layout.v-horizontal.v-widget {
 	border-top-left-radius: 2px;
 }
 
+.ICERMvalo .v-radiobutton {
+	padding-bottom: 10px;
+}
+
+.ICERMvalo .v-filterselect {
+	margin-top: -55px;
+}
+
+.ICERMvalo .margin-top-negative {
+	margin-top: -55px;
+}
+
 .ICERMvalo .v-button {
 	color: #FFFFFF;
 	border: 1px solid #006b9c;
