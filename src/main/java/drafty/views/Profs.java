@@ -378,15 +378,15 @@ public class Profs extends VerticalLayout implements View {
 	    //Set Column header names
 	    resultsGrid.getColumn("id").setHeaderCaption("ID");
 		resultsGrid.getColumn("FullName").setHeaderCaption("Name").setExpandRatio(0);
-		resultsGrid.getColumn("University").setHeaderCaption("University").setWidth(320);
-		resultsGrid.getColumn("JoinYear").setHeaderCaption("Join Year").setWidth(80);
-		resultsGrid.getColumn("Rank").setHeaderCaption("Rank").setWidth(100);
-		resultsGrid.getColumn("Subfield").setHeaderCaption("Subfield");
+		resultsGrid.getColumn("University").setHeaderCaption("University").setWidth(200);
+		resultsGrid.getColumn("JoinYear").setHeaderCaption("Join Year").setWidth(70);
+		resultsGrid.getColumn("Rank").setHeaderCaption("Rank").setWidth(70);
+		resultsGrid.getColumn("Subfield").setHeaderCaption("Subfield").setWidth(200);
 		resultsGrid.getColumn("Bachelors").setHeaderCaption("Bachelors").setExpandRatio(0);
 		resultsGrid.getColumn("Masters").setHeaderCaption("Masters");
 		resultsGrid.getColumn("Doctorate").setHeaderCaption("Doctorate");
 		resultsGrid.getColumn("PostDoc").setHeaderCaption("PostDoc");
-		resultsGrid.getColumn("Gender").setHeaderCaption("Gender").setWidth(100);
+		resultsGrid.getColumn("Gender").setHeaderCaption("Gender").setWidth(70);
 		resultsGrid.getColumn("PhotoUrl").setHeaderCaption("PhotoUrl");
 		resultsGrid.getColumn("Sources").setHeaderCaption("Sources");
 		resultsGrid.setFrozenColumnCount(1);
