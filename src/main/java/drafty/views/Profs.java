@@ -368,7 +368,7 @@ public class Profs extends VerticalLayout implements View {
 		resultsGrid.getColumn("University").setHeaderCaption("University").setWidth(200);
 		resultsGrid.getColumn("JoinYear").setHeaderCaption("Join Year").setWidth(70);
 		resultsGrid.getColumn("Rank").setHeaderCaption("Rank").setWidth(70);
-		resultsGrid.getColumn("Subfield").setHeaderCaption("Subfield").setWidth(200);
+		resultsGrid.getColumn("Subfield").setHeaderCaption("Subfield").setWidth(250);
 		resultsGrid.getColumn("Bachelors").setHeaderCaption("Bachelors").setExpandRatio(0);
 		resultsGrid.getColumn("Masters").setHeaderCaption("Masters");
 		resultsGrid.getColumn("Doctorate").setHeaderCaption("Doctorate");
@@ -376,8 +376,9 @@ public class Profs extends VerticalLayout implements View {
 		resultsGrid.getColumn("Gender").setHeaderCaption("Gender").setWidth(70);
 		resultsGrid.getColumn("PhotoUrl").setHeaderCaption("PhotoUrl");
 		resultsGrid.getColumn("Sources").setHeaderCaption("Sources");
-		resultsGrid.setFrozenColumnCount(1);	
+		resultsGrid.setFrozenColumnCount(1);
 	}
+	
 
 	@SuppressWarnings({"serial"})
 	private void buildMenu() {
@@ -426,13 +427,13 @@ resetSuggestionMenuItem();
 			    label_about_title.addStyleName("padding-top-none");
 			    label_drafty_title.addStyleName("padding-top-none");
 			    label_hci_title.addStyleName("padding-top-none");
-			    label_drafty_title.setWidth("40px");
-			    label_about_title.setWidth("564px");
-			    label_hci_title.setWidth("247");
+			    label_drafty_title.setWidth("30px");
+			    label_about_title.setWidth("458px");
+			    label_hci_title.setWidth("201px");
 			    
-			    Label label_sugg = new Label("<p style=\"margin-top: 0px; padding: 10px; color: #666666; border-radius: 10px; text-align: center; background-color: #f1f1f1;\"<span class=\"v-icon FontAwesome\"></span> <b>Wondering how to make a Suggestion?</b> Double click any cell.</p>", ContentMode.HTML);
+			    Label label_sugg = new Label("<p style=\"margin-top: 0px; padding: 10px; color: #666666; border-radius: 5px; text-align: center; background-color: #f1f1f1;\"<span class=\"v-icon FontAwesome\"></span> <b>Wondering how to make a Suggestion?</b> Double click any cell.</p>", ContentMode.HTML);
 			    label_sugg.addStyleName("padding-top-none");
-			    label_sugg.setWidth("519px");
+			    label_sugg.setWidth("425px");
 			    
 			    Label label_about = new Label(
 

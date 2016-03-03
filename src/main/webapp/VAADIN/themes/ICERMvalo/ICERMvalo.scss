@@ -29,7 +29,7 @@ $v-bevel-depth: 40%;
 //$v-friendly-color: #2c9720;
 //$v-error-indicator-color: #ed473b;
 
-$v-focus-color: #000000; //#1F4467;
+$v-focus-color: #0095da; //#1F4467;
 $v-focus-style: 0 0 1px 1px $v-focus-color;
 //marianne edits
 
@@ -238,16 +238,7 @@ $v-component-group-spacing: 6px;
   	
   }
   
-  //spacing for radio buttons
-	.v-radiobutton {
-		padding-bottom: 10px;
-	}
-	.v-filterselect {
-		margin-top: -55px
-	}
-	.margin-top-negative {
-		margin-top: -55px
-	}
+  
  
  	// form components
   .v-button {

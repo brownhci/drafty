@@ -1596,7 +1596,7 @@ div.v-layout.v-horizontal.v-widget {
 	width: 50%;
 	opacity: 1;
 	height: 4px;
-	background-color: #000000;
+	background-color: #0095da;
 	pointer-events: none;
 	-webkit-transition: none;
 	-moz-transition: none;
@@ -1720,8 +1720,8 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo select:focus {
 	outline: none;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo button {
@@ -1732,7 +1732,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo a {
 	cursor: pointer;
-	color: #000000;
+	color: #0095da;
 	text-decoration: underline;
 	font-weight: inherit;
 	-webkit-transition: color 140ms;
@@ -1741,7 +1741,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo a:hover {
-	color: #1a1a1a;
+	color: #0eb3ff;
 }
 
 .ICERMvalo a.v-disabled {
@@ -1859,7 +1859,7 @@ div.v-layout.v-horizontal.v-widget {
 	right: 0;
 	bottom: 0;
 	left: 0;
-	background: black;
+	background: #006899;
 	opacity: 0.15;
 	filter: alpha(opacity=15.0) ;
 	pointer-events: none;
@@ -1873,10 +1873,10 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-contextmenu .gwt-MenuItem-selected {
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
-	color: #e6e6e6;
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
+	color: #e8f3f8;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
 }
 
@@ -2078,9 +2078,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-button:focus:after {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-button:active:after {
@@ -2090,19 +2090,19 @@ div.v-layout.v-horizontal.v-widget {
 .ICERMvalo .v-button-primary {
 	height: 38px;
 	padding: 0 17px;
-	color: #e6e6e6;
+	color: #e8f3f8;
 	font-weight: 400;
 	
 	
 	border-radius: 3px;
-	border: 1px solid black;
-	border-top-color: black;
-	border-bottom-color: black;
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
-	-webkit-box-shadow: inset 0 1px 2px #1a1a1a, inset 0 0 1px #030303, 0 0 0 0px black;
-	box-shadow: inset 0 1px 2px #1a1a1a, inset 0 0 1px #030303, 0 0 0 0px black;
+	border: 1px solid #006b9c;
+	border-top-color: #00719e;
+	border-bottom-color: #006094;
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
+	-webkit-box-shadow: inset 0 1px 2px #28b2f9, inset 0 0 1px #179fdf, 0 0 0 0px black;
+	box-shadow: inset 0 1px 2px #28b2f9, inset 0 0 1px #179fdf, 0 0 0 0px black;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
 	padding: 0 19px;
 	font-weight: bold;
@@ -2118,17 +2118,17 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-button-primary:hover:after {
-	background-color: rgba(38, 38, 38, 0.1);
+	background-color: rgba(40, 187, 255, 0.1);
 }
 
 .ICERMvalo .v-button-primary:focus:after {
 	border: inherit;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-button-primary:active:after {
-	background-color: rgba(0, 0, 0, 0.2);
+	background-color: rgba(0, 74, 109, 0.2);
 }
 
 .v-ie8 .ICERMvalo .v-button-primary {
@@ -2167,9 +2167,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-button-friendly:focus:after {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border: inherit;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-button-friendly:active:after {
@@ -2208,9 +2208,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-button-danger:focus:after {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border: inherit;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-button-danger:active:after {
@@ -2243,11 +2243,11 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-box-shadow: none;
 	box-shadow: none;
 	background: transparent;
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-button-borderless-colored:hover {
-	color: #1a1a1a;
+	color: #0eb3ff;
 }
 
 .ICERMvalo .v-button-borderless-colored:hover:after {
@@ -2286,7 +2286,7 @@ div.v-layout.v-horizontal.v-widget {
 	background: transparent;
 	color: inherit;
 	cursor: pointer;
-	color: #000000;
+	color: #0095da;
 	text-decoration: underline;
 	font-weight: inherit;
 	-webkit-transition: color 140ms;
@@ -2308,7 +2308,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-button-link:hover {
-	color: #1a1a1a;
+	color: #0eb3ff;
 }
 
 .ICERMvalo .v-button-link.v-disabled {
@@ -2478,11 +2478,11 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-checkbox > input:focus ~ label:before {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
 }
 
 :root .ICERMvalo .v-checkbox > input ~ label:before, :root .ICERMvalo .v-checkbox > input ~ label:after {
@@ -2536,7 +2536,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-checkbox > input:checked ~ label:after {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-checkbox > .v-icon, .ICERMvalo .v-checkbox > label .v-icon {
@@ -2608,11 +2608,11 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-checkbox-small > input:focus ~ label:before {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
 }
 
 :root .ICERMvalo .v-checkbox-small > input ~ label:before, :root .ICERMvalo .v-checkbox-small > input ~ label:after {
@@ -2666,7 +2666,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-checkbox-small > input:checked ~ label:after {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-checkbox-small > .v-icon, .ICERMvalo .v-checkbox-small > label .v-icon {
@@ -2738,11 +2738,11 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-checkbox-large > input:focus ~ label:before {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
 }
 
 :root .ICERMvalo .v-checkbox-large > input ~ label:before, :root .ICERMvalo .v-checkbox-large > input ~ label:after {
@@ -2796,7 +2796,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-checkbox-large > input:checked ~ label:after {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-checkbox-large > .v-icon, .ICERMvalo .v-checkbox-large > label .v-icon {
@@ -2895,11 +2895,11 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-transition: none;
 	-moz-transition: none;
 	transition: none;
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-filterselect [class*="input"][class*="prompt"] {
@@ -3080,7 +3080,7 @@ div.v-layout.v-horizontal.v-widget {
 	right: 0;
 	bottom: 0;
 	left: 0;
-	background: black;
+	background: #006899;
 	opacity: 0.15;
 	filter: alpha(opacity=15.0) ;
 	pointer-events: none;
@@ -3094,10 +3094,10 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-filterselect-suggestpopup .gwt-MenuItem-selected {
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
-	color: #e6e6e6;
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
+	color: #e8f3f8;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
 }
 
@@ -3240,11 +3240,11 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-transition: none;
 	-moz-transition: none;
 	transition: none;
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-filterselect-no-input [class$="button"] {
@@ -4068,11 +4068,11 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-transition: none;
 	-moz-transition: none;
 	transition: none;
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, none;
-	box-shadow: 0 0 1px 1px #000000, none;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, none;
+	box-shadow: 0 0 1px 1px #0095da, none;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-formlayout.light  > table > tbody > [class*="row"] > [class*="contentcell"]  > .v-textfield:focus, .ICERMvalo .v-formlayout.light  > table > tbody > [class*="row"] > [class*="contentcell"]  > .v-textarea:focus, .ICERMvalo .v-formlayout.light  > table > tbody > [class*="row"] > [class*="contentcell"]  > .v-filterselect input:focus, .ICERMvalo .v-formlayout.light  > table > tbody > [class*="row"] > [class*="contentcell"]  > .v-datefield input:focus, .ICERMvalo .v-formlayout.light  > table > tbody > [class*="row"] > [class*="contentcell"]  > .v-richtextarea:focus {
@@ -4299,7 +4299,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-grid .header-drag-table .v-grid-header  > .v-grid-drop-marker {
-	background-color: #000000;
+	background-color: #0095da;
 	position: absolute;
 	width: 3px;
 }
@@ -4422,7 +4422,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-grid-row-selected > td {
-	background: #000000;
+	background: #0095da;
 }
 
 .ICERMvalo .v-grid-row-focused > td {
@@ -4503,7 +4503,7 @@ div.v-layout.v-horizontal.v-widget {
 	right: 0;
 	bottom: 0;
 	left: 0;
-	border: 2px solid #000000;
+	border: 2px solid #0095da;
 	display: none;
 	pointer-events: none;
 }
@@ -4669,7 +4669,7 @@ div.v-layout.v-horizontal.v-widget {
 	top: 0;
 	left: 0;
 	width: 2px;
-	background-color: #000000;
+	background-color: #0095da;
 	position: absolute;
 	height: 100%;
 	pointer-events: none;
@@ -4735,22 +4735,22 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-grid-row-selected  > .v-grid-cell {
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
-	color: #b8b8b8;
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
+	color: #bce0f0;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
-	border-color: black;
+	border-color: #0777aa;
 }
 
 .ICERMvalo .v-grid-row-selected  > .v-grid-cell-focused:before {
-	border-color: #333333;
+	border-color: #41c3ff;
 }
 
 .ICERMvalo .v-grid-editor {
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
-	border-color: #000000;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
+	border-color: #0095da;
 }
 
 .ICERMvalo .v-grid-editor-footer {
@@ -4832,7 +4832,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-grid-editor-save, .ICERMvalo .v-grid-editor-cancel {
 	cursor: pointer;
-	color: #000000;
+	color: #0095da;
 	text-decoration: underline;
 	font-weight: inherit;
 	-webkit-transition: color 140ms;
@@ -4848,7 +4848,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-grid-editor-save:hover, .ICERMvalo .v-grid-editor-cancel:hover {
-	color: #1a1a1a;
+	color: #0eb3ff;
 }
 
 .ICERMvalo .v-grid-editor-save.v-disabled, .ICERMvalo .v-grid-editor-cancel.v-disabled {
@@ -4936,11 +4936,11 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-transition: none;
 	-moz-transition: none;
 	transition: none;
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-textfield[class*="prompt"] {
@@ -5406,11 +5406,11 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-transition: none;
 	-moz-transition: none;
 	transition: none;
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-textarea[class*="prompt"] {
@@ -5695,11 +5695,11 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-transition: none;
 	-moz-transition: none;
 	transition: none;
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 2px 2px #f1f1f1, 0 0 0 0px black;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-datefield [class*="textfield"][class*="prompt"] {
@@ -5891,7 +5891,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-datefield-popup .v-datefield-calendarpanel-day:hover {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-datefield-popup .v-datefield-calendarpanel-day-offmonth {
@@ -5906,22 +5906,22 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-datefield-popup .v-datefield-calendarpanel-day.v-datefield-calendarpanel-day-selected, .ICERMvalo .v-datefield-popup .v-datefield-calendarpanel-day.v-datefield-calendarpanel-day-selected:hover {
-	color: #b8b8b8;
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
+	color: #bce0f0;
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
 	border: none;
 	font-weight: 600;
 }
 
 .ICERMvalo .v-datefield-popup .v-datefield-calendarpanel-day.v-datefield-calendarpanel-day-focused {
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 	position: relative;
 }
 
 .v-ie8 .ICERMvalo .v-datefield-popup .v-datefield-calendarpanel-day.v-datefield-calendarpanel-day-focused {
-	border-color: #000000;
+	border-color: #0095da;
 }
 
 .ICERMvalo .v-datefield-popup .v-datefield-calendarpanel-day.v-datefield-calendarpanel-day-outside-range, .ICERMvalo .v-datefield-popup .v-datefield-calendarpanel-day.v-datefield-calendarpanel-day-outside-range:hover {
@@ -5973,7 +5973,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-datefield-popup td[class*="year"] button:hover:before, .ICERMvalo .v-datefield-popup td[class*="month"] button:hover:before {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-datefield-popup td[class*="year"] button.outside-range, .ICERMvalo .v-datefield-popup td[class*="month"] button.outside-range {
@@ -6008,7 +6008,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-datefield-popup td.v-datefield-calendarpanel-month {
 	width: 152px;
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-datefield-popup .v-datefield-calendarpanel-year td.v-datefield-calendarpanel-month {
@@ -6084,7 +6084,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-datefield-calendarpanel-day:hover {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-datefield-calendarpanel-day-offmonth {
@@ -6099,22 +6099,22 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-datefield-calendarpanel-day.v-datefield-calendarpanel-day-selected, .ICERMvalo .v-datefield-calendarpanel-day.v-datefield-calendarpanel-day-selected:hover {
-	color: #b8b8b8;
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
+	color: #bce0f0;
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
 	border: none;
 	font-weight: 600;
 }
 
 .ICERMvalo .v-datefield-calendarpanel-day.v-datefield-calendarpanel-day-focused {
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 	position: relative;
 }
 
 .v-ie8 .ICERMvalo .v-datefield-calendarpanel-day.v-datefield-calendarpanel-day-focused {
-	border-color: #000000;
+	border-color: #0095da;
 }
 
 .ICERMvalo .v-datefield-calendarpanel-day.v-datefield-calendarpanel-day-outside-range, .ICERMvalo .v-datefield-calendarpanel-day.v-datefield-calendarpanel-day-outside-range:hover {
@@ -6166,7 +6166,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo td[class*="year"] button:hover:before, .ICERMvalo td[class*="month"] button:hover:before {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo td[class*="year"] button.outside-range, .ICERMvalo td[class*="month"] button.outside-range {
@@ -6201,7 +6201,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo td.v-datefield-calendarpanel-month {
 	width: 152px;
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-datefield-calendarpanel-year td.v-datefield-calendarpanel-month {
@@ -6779,7 +6779,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-inline-datefield-calendarpanel-day:hover {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-inline-datefield-calendarpanel-day-offmonth {
@@ -6794,22 +6794,22 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-inline-datefield-calendarpanel-day.v-inline-datefield-calendarpanel-day-selected, .ICERMvalo .v-inline-datefield-calendarpanel-day.v-inline-datefield-calendarpanel-day-selected:hover {
-	color: #b8b8b8;
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
+	color: #bce0f0;
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
 	border: none;
 	font-weight: 600;
 }
 
 .ICERMvalo .v-inline-datefield-calendarpanel-day.v-inline-datefield-calendarpanel-day-focused {
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 	position: relative;
 }
 
 .v-ie8 .ICERMvalo .v-inline-datefield-calendarpanel-day.v-inline-datefield-calendarpanel-day-focused {
-	border-color: #000000;
+	border-color: #0095da;
 }
 
 .ICERMvalo .v-inline-datefield-calendarpanel-day.v-inline-datefield-calendarpanel-day-outside-range, .ICERMvalo .v-inline-datefield-calendarpanel-day.v-inline-datefield-calendarpanel-day-outside-range:hover {
@@ -6861,7 +6861,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo td[class*="year"] button:hover:before, .ICERMvalo td[class*="month"] button:hover:before {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo td[class*="year"] button.outside-range, .ICERMvalo td[class*="month"] button.outside-range {
@@ -6896,7 +6896,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo td.v-inline-datefield-calendarpanel-month {
 	width: 152px;
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-inline-datefield-calendarpanel-year td.v-inline-datefield-calendarpanel-month {
@@ -7033,9 +7033,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-menubar:focus:after {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-menubar  > .v-menubar-menuitem {
@@ -7157,19 +7157,19 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-menubar > .v-menubar-menuitem-selected {
-	color: #e6e6e6;
+	color: #e8f3f8;
 	
 	
 	
 	border-radius: 0;
-	border: 1px solid black;
-	border-top-color: black;
-	border-bottom-color: black;
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
-	-webkit-box-shadow: inset 0 1px 2px #1a1a1a, inset 0 0 1px #030303;
-	box-shadow: inset 0 1px 2px #1a1a1a, inset 0 0 1px #030303;
+	border: 1px solid #006b9c;
+	border-top-color: #00719e;
+	border-bottom-color: #006094;
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
+	-webkit-box-shadow: inset 0 1px 2px #28b2f9, inset 0 0 1px #179fdf;
+	box-shadow: inset 0 1px 2px #28b2f9, inset 0 0 1px #179fdf;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
 	border-top-width: 0;
 	border-left-width: 0;
@@ -7250,7 +7250,7 @@ div.v-layout.v-horizontal.v-widget {
 	right: 0;
 	bottom: 0;
 	left: 0;
-	background: black;
+	background: #006899;
 	opacity: 0.15;
 	filter: alpha(opacity=15.0) ;
 	pointer-events: none;
@@ -7276,10 +7276,10 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-menubar-popup .v-menubar-menuitem-selected {
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
-	color: #e6e6e6;
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
+	color: #e8f3f8;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
 }
 
@@ -7357,7 +7357,7 @@ div.v-layout.v-horizontal.v-widget {
 	border: none;
 	margin-right: 1px;
 	border-radius: 3px;
-	color: #000000;
+	color: #0095da;
 	padding: 0 13px;
 	-webkit-transition: color 140ms;
 	-moz-transition: color 140ms;
@@ -7373,7 +7373,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-menubar-borderless .v-menubar-menuitem:hover {
-	color: #1a1a1a;
+	color: #0eb3ff;
 }
 
 .ICERMvalo .v-menubar-borderless .v-menubar-menuitem:active {
@@ -7382,7 +7382,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-menubar-borderless .v-menubar-menuitem-checked, .ICERMvalo .v-menubar-borderless .v-menubar-menuitem-checked:first-child {
 	border: 1px solid #b1b1b1;
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-menubar-borderless .v-menubar-menuitem-checked .v-menubar-menuitem-caption, .ICERMvalo .v-menubar-borderless .v-menubar-menuitem-checked:first-child .v-menubar-menuitem-caption {
@@ -7391,12 +7391,12 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-menubar-borderless .v-menubar-menuitem-selected {
-	color: #e6e6e6;
+	color: #e8f3f8;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
 }
 
 .ICERMvalo .v-menubar-borderless .v-menubar-menuitem-selected:hover {
-	color: #e6e6e6;
+	color: #e8f3f8;
 }
 
 .ICERMvalo .v-menubar-borderless .v-menubar-menuitem-disabled, .ICERMvalo .v-menubar-borderless .v-menubar-menuitem-disabled:hover {
@@ -7434,11 +7434,11 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-radiobutton > input:focus ~ label:before {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
 }
 
 :root .ICERMvalo .v-radiobutton > input ~ label:before, :root .ICERMvalo .v-radiobutton > input ~ label:after {
@@ -7492,7 +7492,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-radiobutton > input:checked ~ label:after {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-radiobutton > .v-icon, .ICERMvalo .v-radiobutton > label .v-icon {
@@ -7537,7 +7537,7 @@ div.v-layout.v-horizontal.v-widget {
 	height: 7px;
 	top: 6px;
 	left: 6px;
-	background: #000000;
+	background: #0095da;
 }
 
 :root .ICERMvalo .v-radiobutton > input ~ label:before, :root .ICERMvalo .v-radiobutton > input ~ label:after {
@@ -7597,11 +7597,11 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-select-optiongroup-small .v-checkbox > input:focus ~ label:before {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
 }
 
 :root .ICERMvalo .v-select-optiongroup-small .v-checkbox > input ~ label:before, :root .ICERMvalo .v-select-optiongroup-small .v-checkbox > input ~ label:after {
@@ -7655,7 +7655,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-select-optiongroup-small .v-checkbox > input:checked ~ label:after {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-select-optiongroup-small .v-checkbox > .v-icon, .ICERMvalo .v-select-optiongroup-small .v-checkbox > label .v-icon {
@@ -7726,11 +7726,11 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-select-optiongroup-small .v-radiobutton > input:focus ~ label:before {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
 }
 
 :root .ICERMvalo .v-select-optiongroup-small .v-radiobutton > input ~ label:before, :root .ICERMvalo .v-select-optiongroup-small .v-radiobutton > input ~ label:after {
@@ -7784,7 +7784,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-select-optiongroup-small .v-radiobutton > input:checked ~ label:after {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-select-optiongroup-small .v-radiobutton > .v-icon, .ICERMvalo .v-select-optiongroup-small .v-radiobutton > label .v-icon {
@@ -7829,7 +7829,7 @@ div.v-layout.v-horizontal.v-widget {
 	height: 6px;
 	top: 5px;
 	left: 5px;
-	background: #000000;
+	background: #0095da;
 }
 
 :root .ICERMvalo .v-select-optiongroup-small .v-radiobutton > input ~ label:before, :root .ICERMvalo .v-select-optiongroup-small .v-radiobutton > input ~ label:after {
@@ -7889,11 +7889,11 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-select-optiongroup-large .v-checkbox > input:focus ~ label:before {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
 }
 
 :root .ICERMvalo .v-select-optiongroup-large .v-checkbox > input ~ label:before, :root .ICERMvalo .v-select-optiongroup-large .v-checkbox > input ~ label:after {
@@ -7947,7 +7947,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-select-optiongroup-large .v-checkbox > input:checked ~ label:after {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-select-optiongroup-large .v-checkbox > .v-icon, .ICERMvalo .v-select-optiongroup-large .v-checkbox > label .v-icon {
@@ -8018,11 +8018,11 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-select-optiongroup-large .v-radiobutton > input:focus ~ label:before {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
-	box-shadow: 0 0 1px 1px #000000, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
+	box-shadow: 0 0 1px 1px #0095da, inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px black;
 }
 
 :root .ICERMvalo .v-select-optiongroup-large .v-radiobutton > input ~ label:before, :root .ICERMvalo .v-select-optiongroup-large .v-radiobutton > input ~ label:after {
@@ -8076,7 +8076,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 :root .ICERMvalo .v-select-optiongroup-large .v-radiobutton > input:checked ~ label:after {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-select-optiongroup-large .v-radiobutton > .v-icon, .ICERMvalo .v-select-optiongroup-large .v-radiobutton > label .v-icon {
@@ -8121,7 +8121,7 @@ div.v-layout.v-horizontal.v-widget {
 	height: 8px;
 	top: 8px;
 	left: 8px;
-	background: #000000;
+	background: #0095da;
 }
 
 :root .ICERMvalo .v-select-optiongroup-large .v-radiobutton > input ~ label:before, :root .ICERMvalo .v-select-optiongroup-large .v-radiobutton > input ~ label:after {
@@ -8164,7 +8164,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-link {
 	cursor: pointer;
-	color: #000000;
+	color: #0095da;
 	text-decoration: underline;
 	font-weight: inherit;
 	-webkit-transition: color 140ms;
@@ -8173,7 +8173,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-link:hover {
-	color: #1a1a1a;
+	color: #0eb3ff;
 }
 
 .ICERMvalo .v-link.v-disabled {
@@ -8346,7 +8346,7 @@ div.v-layout.v-horizontal.v-widget {
 .ICERMvalo .v-window-closebox:hover, .ICERMvalo .v-window-maximizebox:hover, .ICERMvalo .v-window-restorebox:hover {
 	opacity: 1;
 	filter: none ;
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-window-closebox:active, .ICERMvalo .v-window-maximizebox:active, .ICERMvalo .v-window-restorebox:active {
@@ -8690,30 +8690,30 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-tree-node-focused:after {
 	opacity: 1;
-	border: 1px solid #000000;
+	border: 1px solid #0095da;
 }
 
 .v-ie8 .ICERMvalo .v-tree-node-focused {
-	outline: 1px dotted #000000;
+	outline: 1px dotted #0095da;
 }
 
 .ICERMvalo .v-tree-node-selected {
-	color: #e6e6e6;
+	color: #e8f3f8;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
 }
 
 .ICERMvalo .v-tree-node-selected:after {
 	opacity: 1;
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
 	border: none;
 }
 
 .v-ie8 .ICERMvalo .v-tree-node-selected {
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
 }
 
 .ICERMvalo .v-tree-node-children {
@@ -8730,10 +8730,10 @@ div.v-layout.v-horizontal.v-widget {
 	position: absolute;
 	height: 2px;
 	width: 100%;
-	background: #000000;
+	background: #0095da;
 	font-size: 26px;
 	line-height: 2px;
-	color: #000000;
+	color: #0095da;
 	text-indent: -3px;
 	text-shadow: 0 0 1px #F6F6F6, 0 0 1px #F6F6F6;
 	opacity: 1;
@@ -8745,14 +8745,14 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-tree-node-caption-drag-center {
-	-webkit-box-shadow: 0 0 0 2px #000000;
-	box-shadow: 0 0 0 2px #000000;
+	-webkit-box-shadow: 0 0 0 2px #0095da;
+	box-shadow: 0 0 0 2px #0095da;
 	position: relative;
 	border-radius: 3px;
 }
 
 .v-ie8 .ICERMvalo .v-tree-node-caption-drag-center {
-	outline: 2px solid #000000;
+	outline: 2px solid #0095da;
 }
 
 .v-ff .ICERMvalo .v-tree-node-drag-top:before, .v-ff .ICERMvalo .v-tree-node-drag-bottom:after {
@@ -8918,25 +8918,25 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-table [class*="-row"].v-selected {
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
 	background-origin: border-box;
-	color: #e6e6e6;
+	color: #e8f3f8;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
 }
 
 .ICERMvalo .v-table [class*="-row"].v-selected  + .v-selected {
-	background: black;
+	background: #0086ce;
 }
 
 .ICERMvalo .v-table [class*="-row"].v-selected  + .v-selected td {
-	border-top-color: black;
+	border-top-color: #0086ce;
 }
 
 .ICERMvalo .v-table [class*="-row"].v-selected .v-table-cell-content {
 	border-color: transparent;
-	border-left-color: black;
+	border-left-color: #0777aa;
 }
 
 .ICERMvalo .v-table [class*="-row"].v-selected .v-table-cell-content:first-child {
@@ -8972,7 +8972,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-table-focus {
-	outline: 1px solid #000000;
+	outline: 1px solid #0095da;
 	outline-offset: -1px;
 }
 
@@ -8990,14 +8990,14 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-table-focus-slot-right {
-	border-right: 3px solid #000000;
+	border-right: 3px solid #0095da;
 	right: -2px;
 	margin-left: -11px !important;
 }
 
 .ICERMvalo .v-table-focus-slot-left {
 	float: left;
-	border-left: 3px solid #000000;
+	border-left: 3px solid #0095da;
 	left: -1px;
 	right: auto;
 	margin-left: 0 !important;
@@ -9054,9 +9054,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-table-column-selector:focus:after {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-table-column-selector:active:after {
@@ -9148,13 +9148,13 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-table-drag .v-table-body {
-	-webkit-box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
-	box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
-	border-color: #000000;
+	-webkit-box-shadow: 0 0 0 2px rgba(0, 149, 218, 0.5);
+	box-shadow: 0 0 0 2px rgba(0, 149, 218, 0.5);
+	border-color: #0095da;
 }
 
 .v-ie8 .ICERMvalo .v-table-drag .v-table-body {
-	border-color: #000000;
+	border-color: #0095da;
 }
 
 .ICERMvalo .v-table-drag .v-table-body .v-table-focus {
@@ -9162,12 +9162,12 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-table-row-drag-middle .v-table-cell-content {
-	background-color: #c8c8c8;
-	color: #383838;
+	background-color: #c8e6f4;
+	color: #244859;
 }
 
 .ICERMvalo .v-table-row-drag-bottom td.v-table-cell-content {
-	border-bottom: 2px solid #000000;
+	border-bottom: 2px solid #0095da;
 	height: 36px;
 }
 
@@ -9176,7 +9176,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-table-row-drag-top td.v-table-cell-content {
-	border-top: 2px solid #000000;
+	border-top: 2px solid #0095da;
 	height: 37px;
 }
 
@@ -9411,9 +9411,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-splitpanel-horizontal  > div > .v-splitpanel-hsplitter div:before:focus:after {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-splitpanel-horizontal  > div > .v-splitpanel-hsplitter div:before:active:after {
@@ -9468,9 +9468,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-splitpanel-vertical  > div > .v-splitpanel-vsplitter div:before:focus:after {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-splitpanel-vertical  > div > .v-splitpanel-vsplitter div:before:active:after {
@@ -9524,9 +9524,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-splitpanel-horizontal.large  > div > .v-splitpanel-hsplitter div:before:focus:after {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-splitpanel-horizontal.large  > div > .v-splitpanel-hsplitter div:before:active:after {
@@ -9595,9 +9595,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-splitpanel-vertical.large  > div > .v-splitpanel-vsplitter div:before:focus:after {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-splitpanel-vertical.large  > div > .v-splitpanel-vsplitter div:before:active:after {
@@ -9633,12 +9633,12 @@ div.v-layout.v-horizontal.v-widget {
 .ICERMvalo .v-progressbar-indicator {
 	border-radius: 3px;
 	height: inherit;
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
 	
 	
-	border: 1px solid black;
+	border: 1px solid #006b9c;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
@@ -9663,12 +9663,12 @@ div.v-layout.v-horizontal.v-widget {
 	display: inline-block;
 	border-radius: 3px;
 	height: inherit;
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
 	
 	
-	border: 1px solid black;
+	border: 1px solid #006b9c;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
@@ -9683,9 +9683,9 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-	border: 2px solid rgba(0, 0, 0, 0.2);
-	border-top-color: #000000;
-	border-right-color: #000000;
+	border: 2px solid rgba(0, 149, 218, 0.2);
+	border-top-color: #0095da;
+	border-right-color: #0095da;
 	border-radius: 100%;
 	-webkit-animation: v-rotate-360 500ms infinite linear;
 	-moz-animation: v-rotate-360 500ms infinite linear;
@@ -9755,18 +9755,18 @@ div.v-layout.v-horizontal.v-widget {
 	left: 11px;
 	width: 6px;
 	border-radius: 3px;
-	border-left: 1px solid black;
+	border-left: 1px solid #006b9c;
 }
 
 .ICERMvalo .v-slider-base:after {
 	border-radius: 3px;
 	height: inherit;
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
 	
 	
-	border: 1px solid black;
+	border: 1px solid #006b9c;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
@@ -9826,9 +9826,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-slider-handle:before:focus:after {
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-slider-handle:before:active:after {
@@ -9837,9 +9837,9 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-slider-handle:after {
 	border: 1px solid #b1b1b1;
-	border-color: #000000;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	border-color: #0095da;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 	opacity: 0;
 	-webkit-transition: opacity 200ms;
 	-moz-transition: opacity 200ms;
@@ -9901,15 +9901,15 @@ div.v-layout.v-horizontal.v-widget {
 	width: auto;
 	height: 6px;
 	border-left: none;
-	border-bottom: 1px solid black;
+	border-bottom: 1px solid #006b9c;
 }
 
 .ICERMvalo .v-slider-vertical .v-slider-base:after {
 	height: 101%;
 	margin-left: 0;
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(left, black 2%, black 98%);
-	background-image: linear-gradient(to right,black 2%, black 98%);
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(left, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to right,#009ddc 2%, #0086ce 98%);
 }
 
 .v-ie8 .ICERMvalo .v-slider-vertical .v-slider-base:after {
@@ -10005,7 +10005,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-tabsheet-tabitemcell .v-caption:hover {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-tabsheet-tabitemcell .v-caption.v-disabled {
@@ -10024,12 +10024,12 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-tabsheet-tabitemcell:focus .v-caption {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-tabsheet-tabitemcell .v-tabsheet-tabitem-selected .v-caption.v-caption {
-	border-bottom-color: #000000;
-	color: #000000;
+	border-bottom-color: #0095da;
+	color: #0095da;
 }
 
 .ICERMvalo .v-tabsheet-tabitemcell .v-caption-closable {
@@ -10055,12 +10055,12 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-tabsheet-tabitemcell .v-tabsheet-caption-close:hover {
 	background: rgba(0, 0, 0, 0.03);
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-tabsheet-tabitemcell .v-tabsheet-caption-close:active {
-	background: #000000;
-	color: #b8b8b8;
+	background: #0095da;
+	color: #bce0f0;
 }
 
 .ICERMvalo .v-tabsheet-scroller {
@@ -10119,13 +10119,13 @@ div.v-layout.v-horizontal.v-widget {
 .ICERMvalo .v-tabsheet-scroller button:hover {
 	opacity: 1;
 	filter: none ;
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-tabsheet-scroller button:active {
 	opacity: 0.7;
 	filter: alpha(opacity=70) ;
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-tabsheet-scroller button::-moz-focus-inner {
@@ -10170,9 +10170,9 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-	border: 2px solid rgba(0, 0, 0, 0.2);
-	border-top-color: #000000;
-	border-right-color: #000000;
+	border: 2px solid rgba(0, 149, 218, 0.2);
+	border-top-color: #0095da;
+	border-right-color: #0095da;
 	border-radius: 100%;
 	-webkit-animation: v-rotate-360 500ms infinite linear;
 	-moz-animation: v-rotate-360 500ms infinite linear;
@@ -10744,8 +10744,8 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-select-twincol select:focus {
 	outline: none;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-select-twincol .v-textfield, .ICERMvalo .v-select-twincol .v-nativebutton {
@@ -10828,8 +10828,8 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-select select:focus {
 	outline: none;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-select-select {
@@ -10936,7 +10936,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-calendar-bottom-spacer:hover {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-calendar-day-number {
@@ -10950,24 +10950,24 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-calendar-day-number:hover {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-calendar-month-day-today {
-	background: #e9e9e9;
+	background: #e9f1f4;
 }
 
 .ICERMvalo .v-calendar-month-day-today .v-calendar-day-number {
 	font-weight: 400;
-	color: #000000;
-	border-top: 2px solid #000000;
+	color: #0095da;
+	border-top: 2px solid #0095da;
 	line-height: 24px;
 	margin: 0;
 	padding: 0 5px;
 }
 
 .ICERMvalo .v-calendar-month-day-selected {
-	background-color: #dddddd;
+	background-color: #ddecf3;
 }
 
 .ICERMvalo .v-calendar-month-day-dragemphasis {
@@ -11037,7 +11037,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-calendar-current-time {
-	background: #000000;
+	background: #0095da;
 	line-height: 1px;
 	pointer-events: none;
 	opacity: 0.5;
@@ -11046,7 +11046,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-calendar-current-time:before {
 	content: "\2022";
-	color: #000000;
+	color: #0095da;
 	font-size: 22px;
 	margin-left: -0.07em;
 }
@@ -11062,7 +11062,7 @@ div.v-layout.v-horizontal.v-widget {
 	right: 0;
 	bottom: -1px;
 	left: 0;
-	background: #000000;
+	background: #0095da;
 	opacity: 0.5;
 	filter: alpha(opacity=50) ;
 	border-radius: 3px 3px 0 0;
@@ -11348,7 +11348,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-label-colored {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-label-large {
@@ -11390,9 +11390,9 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-	border: 2px solid rgba(0, 0, 0, 0.2);
-	border-top-color: #000000;
-	border-right-color: #000000;
+	border: 2px solid rgba(0, 149, 218, 0.2);
+	border-top-color: #0095da;
+	border-right-color: #0095da;
 	border-radius: 100%;
 	-webkit-animation: v-rotate-360 500ms infinite linear;
 	-moz-animation: v-rotate-360 500ms infinite linear;
@@ -11456,7 +11456,7 @@ div.v-layout.v-horizontal.v-widget {
 	right: -1px;
 	bottom: -1px;
 	left: -1px;
-	border: 0 solid #000000;
+	border: 0 solid #0095da;
 }
 
 .ICERMvalo .v-ddwrapper-over-top:before {
@@ -11484,7 +11484,7 @@ div.v-layout.v-horizontal.v-widget {
 	border-radius: 3px;
 	opacity: 0.3;
 	filter: alpha(opacity=30.0) ;
-	background: gray;
+	background: #6dd1ff;
 }
 
 .ICERMvalo .no-vertical-drag-hints .v-ddwrapper-over-bottom:before, .ICERMvalo .no-vertical-drag-hints.v-ddwrapper-over-bottom:before {
@@ -11496,7 +11496,7 @@ div.v-layout.v-horizontal.v-widget {
 	border-radius: 3px;
 	opacity: 0.3;
 	filter: alpha(opacity=30.0) ;
-	background: gray;
+	background: #6dd1ff;
 }
 
 .ICERMvalo .no-horizontal-drag-hints.v-ddwrapper-over-left:before, .ICERMvalo .no-horizontal-drag-hints .v-ddwrapper-over-left:before {
@@ -11508,7 +11508,7 @@ div.v-layout.v-horizontal.v-widget {
 	border-radius: 3px;
 	opacity: 0.3;
 	filter: alpha(opacity=30.0) ;
-	background: gray;
+	background: #6dd1ff;
 }
 
 .ICERMvalo .no-horizontal-drag-hints.v-ddwrapper-over-right:before, .ICERMvalo .no-horizontal-drag-hints .v-ddwrapper-over-right:before {
@@ -11520,7 +11520,7 @@ div.v-layout.v-horizontal.v-widget {
 	border-radius: 3px;
 	opacity: 0.3;
 	filter: alpha(opacity=30.0) ;
-	background: gray;
+	background: #6dd1ff;
 }
 
 .ICERMvalo .v-ddwrapper-over-middle:after, .ICERMvalo .v-ddwrapper-over-center:after {
@@ -11528,7 +11528,7 @@ div.v-layout.v-horizontal.v-widget {
 	border-radius: 3px;
 	opacity: 0.3;
 	filter: alpha(opacity=30.0) ;
-	background: gray;
+	background: #6dd1ff;
 }
 
 .ICERMvalo .no-box-drag-hints.v-ddwrapper:after, .ICERMvalo .no-box-drag-hints .v-ddwrapper:after {
@@ -11550,8 +11550,8 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-select select:focus {
 	outline: none;
-	-webkit-box-shadow: 0 0 1px 1px #000000;
-	box-shadow: 0 0 1px 1px #000000;
+	-webkit-box-shadow: 0 0 1px 1px #0095da;
+	box-shadow: 0 0 1px 1px #0095da;
 }
 
 .ICERMvalo .v-select-select {
@@ -11570,7 +11570,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-popupview {
 	cursor: pointer;
-	color: #000000;
+	color: #0095da;
 	text-decoration: underline;
 	font-weight: inherit;
 	-webkit-transition: color 140ms;
@@ -11579,7 +11579,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-popupview:hover {
-	color: #1a1a1a;
+	color: #0eb3ff;
 }
 
 .ICERMvalo .v-popupview.v-disabled {
@@ -11635,9 +11635,9 @@ div.v-layout.v-horizontal.v-widget {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-	border: 2px solid rgba(0, 0, 0, 0.2);
-	border-top-color: #000000;
-	border-right-color: #000000;
+	border: 2px solid rgba(0, 149, 218, 0.2);
+	border-top-color: #0095da;
+	border-right-color: #0095da;
 	border-radius: 100%;
 	-webkit-animation: v-rotate-360 500ms infinite linear;
 	-moz-animation: v-rotate-360 500ms infinite linear;
@@ -11917,7 +11917,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-Notification .v-Notification-caption {
-	color: #000000;
+	color: #0095da;
 	font-size: 16px;
 	line-height: 1;
 }
@@ -12268,14 +12268,14 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .valo-menu-title {
 	line-height: 1.2;
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
 	color: white;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
 	padding: 13px 19px;
 	font-size: 12px;
-	border-bottom: 1px solid black;
+	border-bottom: 1px solid #006b9c;
 	-webkit-box-shadow: 0 0 0 0px black;
 	box-shadow: 0 0 0 0px black;
 	text-align: center;
@@ -12283,7 +12283,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .valo-menu-title .v-menubar.v-menubar {
 	background: transparent;
-	border-color: black;
+	border-color: #006b9c;
 	color: inherit;
 	-webkit-box-shadow: none;
 	box-shadow: none;
@@ -12292,8 +12292,8 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .valo-menu-title .v-menubar-menuitem {
 	background: transparent;
-	-webkit-box-shadow: inset 0 1px 2px #1a1a1a, inset 0 0 1px #030303;
-	box-shadow: inset 0 1px 2px #1a1a1a, inset 0 0 1px #030303;
+	-webkit-box-shadow: inset 0 1px 2px #28b2f9, inset 0 0 1px #179fdf;
+	box-shadow: inset 0 1px 2px #28b2f9, inset 0 0 1px #179fdf;
 	text-shadow: inherit;
 	font-size: 13px;
 	border-color: inherit;
@@ -12332,7 +12332,7 @@ div.v-layout.v-horizontal.v-widget {
 	border: none;
 	margin-right: 1px;
 	border-radius: 3px;
-	color: #000000;
+	color: #0095da;
 	padding: 0 13px;
 	-webkit-transition: color 140ms;
 	-moz-transition: color 140ms;
@@ -12348,7 +12348,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-menubar-user-menu .v-menubar-menuitem:hover {
-	color: #1a1a1a;
+	color: #0eb3ff;
 }
 
 .ICERMvalo .v-menubar-user-menu .v-menubar-menuitem:active {
@@ -12357,7 +12357,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-menubar-user-menu .v-menubar-menuitem-checked, .ICERMvalo .v-menubar-user-menu .v-menubar-menuitem-checked:first-child {
 	border: 1px solid #b1b1b1;
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .v-menubar-user-menu .v-menubar-menuitem-checked .v-menubar-menuitem-caption, .ICERMvalo .v-menubar-user-menu .v-menubar-menuitem-checked:first-child .v-menubar-menuitem-caption {
@@ -12366,12 +12366,12 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-menubar-user-menu .v-menubar-menuitem-selected {
-	color: #e6e6e6;
+	color: #e8f3f8;
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
 }
 
 .ICERMvalo .v-menubar-user-menu .v-menubar-menuitem-selected:hover {
-	color: #e6e6e6;
+	color: #e8f3f8;
 }
 
 .ICERMvalo .v-menubar-user-menu .v-menubar-menuitem-disabled, .ICERMvalo .v-menubar-user-menu .v-menubar-menuitem-disabled:hover {
@@ -12413,7 +12413,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .valo-menu-subtitle [class*="badge"] {
-	color: #666666;
+	color: #66b0d3;
 }
 
 .ICERMvalo .valo-menuitems {
@@ -12444,7 +12444,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .valo-menu-item [class*="badge"] {
-	color: #000000;
+	color: #66b0d3;
 }
 
 .ICERMvalo .valo-menu-item.selected {
@@ -12452,14 +12452,14 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .valo-menu-item.selected .v-icon {
-	color: #000000;
+	color: #0095da;
 }
 
 .ICERMvalo .valo-menu-item.selected [class*="badge"] {
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
-	color: #b8b8b8;
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
+	color: #bce0f0;
 }
 
 .ICERMvalo .valo-menu-item:focus, .ICERMvalo .valo-menu-item:hover, .ICERMvalo .valo-menu-item.selected {
@@ -12593,9 +12593,9 @@ div.v-layout.v-horizontal.v-widget {
 	height: 46px;
 	border-radius: 3px;
 	text-align: center;
-	background-color: #000000;
-	background-image: -webkit-linear-gradient(top, black 2%, black 98%);
-	background-image: linear-gradient(to bottom,black 2%, black 98%);
+	background-color: #0095da;
+	background-image: -webkit-linear-gradient(top, #009ddc 2%, #0086ce 98%);
+	background-image: linear-gradient(to bottom,#009ddc 2%, #0086ce 98%);
 	color: white;
 	font-size: 25px;
 	line-height: 46px;
@@ -12749,7 +12749,7 @@ div.v-layout.v-horizontal.v-widget {
 	margin: 0;
 	padding: 0;
 	height: 38px;
-	color: gray;
+	color: #7fcaed;
 	max-width: 30%;
 	-webkit-backface-visibility: hidden;
 }
@@ -12979,18 +12979,6 @@ div.v-layout.v-horizontal.v-widget {
 .ICERMvalo .list-group .list-group-item:first-child {
 	border-top-right-radius: 2px;
 	border-top-left-radius: 2px;
-}
-
-.ICERMvalo .v-radiobutton {
-	padding-bottom: 10px;
-}
-
-.ICERMvalo .v-filterselect {
-	margin-top: -55px;
-}
-
-.ICERMvalo .margin-top-negative {
-	margin-top: -55px;
 }
 
 .ICERMvalo .v-button {
