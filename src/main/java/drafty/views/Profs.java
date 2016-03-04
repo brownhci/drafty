@@ -47,6 +47,8 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.CellDescriptionGenerator;
+import com.vaadin.ui.Grid.CellReference;
 import com.vaadin.ui.Grid.HeaderCell;
 import com.vaadin.ui.Grid.HeaderRow;
 import com.vaadin.ui.HorizontalLayout;
@@ -297,6 +299,12 @@ public class Profs extends VerticalLayout implements View {
 		
 		resultsGrid.setContainerDataSource(gpcontainer);
 		resultsGrid.setSelectionMode(Grid.SelectionMode.NONE);
+		
+		CellDescriptionGenerator generator = new CellDescriptionGenerator() {
+			@Override
+			public String getDescription(CellReference cell) { return "Double Click to Edit";}
+		};
+		resultsGrid.setCellDescriptionGenerator(generator);
 		
 		//Gets designated column value from row selection 
 		resultsGrid.addItemClickListener(new ItemClickListener() {
