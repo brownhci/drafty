@@ -38,6 +38,7 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
+import com.vaadin.server.Sizeable;
 import com.vaadin.server.WebBrowser;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -105,6 +106,10 @@ public class Profs extends VerticalLayout implements View {
 	HorizontalLayout horLay2 = new HorizontalLayout();
 	
 	CssLayout panelWrap = new CssLayout();
+	
+	HorizontalLayout horLay = new HorizontalLayout();
+	VerticalLayout vertLayLeft = new VerticalLayout();
+	VerticalLayout vertLayRight = new VerticalLayout();
 	
 	IndexedContainer container = new IndexedContainer();
 	Grid resultsGrid = new Grid();
@@ -299,6 +304,19 @@ public class Profs extends VerticalLayout implements View {
 		
 		resultsGrid.setContainerDataSource(gpcontainer);
 		resultsGrid.setSelectionMode(Grid.SelectionMode.NONE);
+		resultsGrid.setStyleName("v-custom-grid-cell"); //custom style reference in css
+		resultsGrid.setCellStyleGenerator(new Grid.CellStyleGenerator()  {        
+				@Override
+				public String getStyle(CellReference cellReference) {
+				    return "v-grid-cell";
+				}
+         });
+		
+		CellDescriptionGenerator generator = new CellDescriptionGenerator() {
+			@Override
+			public String getDescription(CellReference cell) { return "Double Click to Edit";}
+		};
+		resultsGrid.setCellDescriptionGenerator(generator);
 		
 		CellDescriptionGenerator generator = new CellDescriptionGenerator() {
 			@Override
@@ -361,27 +379,40 @@ public class Profs extends VerticalLayout implements View {
 		Responsive.makeResponsive(panelWrap);
 		panelWrap.addStyleName("panel-padding");
 		
-		panelWrap.addComponent(resultsGrid);
+		panelWrap.addComponent(horLay);
+		
+		horLay.addComponent(vertLayLeft);
+		horLay.addComponent(resultsGrid);
+		horLay.addComponent(vertLayRight);
+		
+		horLay.setWidth("100%");
+		
+		vertLayLeft.setWidth("28px"); //background-image: linear-gradient(to right, #f9f9f9 2%, #f1f1f1 98%)
 		resultsGrid.setWidth("100%");
+		horLay.setExpandRatio(resultsGrid, 1.0f);
+		vertLayRight.setWidth("28px");
+		
+		//panelWrap.addComponent(resultsGrid);
 		resultsGrid.setResponsive(true);
 	    //resultsGrid.setHeightMode(HeightMode.ROW);
 	    //resultsGrid.setHeightByRows(6);
 	    resultsGrid.setHeightMode(HeightMode.CSS);
 		//resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight() - 200), Unit.PIXELS);
-	    resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight() - 150), Unit.PIXELS);
+	    //resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight() - 150), Unit.PIXELS);
+	    resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight()), Unit.PIXELS);
 	    
 	    //Set Column header names
 	    resultsGrid.getColumn("id").setHeaderCaption("ID");
 		resultsGrid.getColumn("FullName").setHeaderCaption("Name").setExpandRatio(0);
-		resultsGrid.getColumn("University").setHeaderCaption("University").setWidth(200);
-		resultsGrid.getColumn("JoinYear").setHeaderCaption("Join Year").setWidth(70);
-		resultsGrid.getColumn("Rank").setHeaderCaption("Rank").setWidth(70);
-		resultsGrid.getColumn("Subfield").setHeaderCaption("Subfield").setWidth(250);
-		resultsGrid.getColumn("Bachelors").setHeaderCaption("Bachelors").setExpandRatio(0);
-		resultsGrid.getColumn("Masters").setHeaderCaption("Masters");
-		resultsGrid.getColumn("Doctorate").setHeaderCaption("Doctorate");
-		resultsGrid.getColumn("PostDoc").setHeaderCaption("PostDoc");
-		resultsGrid.getColumn("Gender").setHeaderCaption("Gender").setWidth(70);
+		resultsGrid.getColumn("University").setHeaderCaption("University").setWidth(280);
+		resultsGrid.getColumn("JoinYear").setHeaderCaption("Join Year").setWidth(100);
+		resultsGrid.getColumn("Rank").setHeaderCaption("Rank").setWidth(100);
+		resultsGrid.getColumn("Subfield").setHeaderCaption("Subfield").setWidth(280);
+		resultsGrid.getColumn("Bachelors").setHeaderCaption("Bachelors").setWidth(280);
+		resultsGrid.getColumn("Masters").setHeaderCaption("Masters").setWidth(280);
+		resultsGrid.getColumn("Doctorate").setHeaderCaption("Doctorate").setWidth(280);
+		resultsGrid.getColumn("PostDoc").setHeaderCaption("PostDoc").setWidth(280);
+		resultsGrid.getColumn("Gender").setHeaderCaption("Gender").setWidth(100);
 		resultsGrid.getColumn("PhotoUrl").setHeaderCaption("PhotoUrl");
 		resultsGrid.getColumn("Sources").setHeaderCaption("Sources");
 		resultsGrid.setFrozenColumnCount(1);
@@ -398,11 +429,13 @@ public class Profs extends VerticalLayout implements View {
 		draftyMenu.setHtmlContentAllowed(true);
 		Responsive.makeResponsive(draftyMenu);
 		
+		/*
 		mainLayout.addComponents(draftyDivider);
 		draftyDivider.setWidth("100%");
 		draftyDivider.addStyleName("panel-bottom-spacing");
 		draftyDivider.addStyleName("divider-header");
 		Responsive.makeResponsive(draftyDivider);
+		*/
 		
 		//draftyLogo MenuItem
 		draftyLogo = draftyMenu.addItem("Drafty", FontAwesome.UNIVERSITY, new MenuBar.Command() {
@@ -420,7 +453,7 @@ public class Profs extends VerticalLayout implements View {
 			
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-resetSuggestionMenuItem();
+				resetSuggestionMenuItem();
 				
 				// Create a sub-window and add it to the main window
 				Window sub = new Window("About Drafty");
@@ -628,13 +661,15 @@ resetSuggestionMenuItem();
 	public void addFilters() {
 		// Create a header row to hold column filters
 		HeaderRow filterRow = resultsGrid.appendHeaderRow();
-
+		
 		// Set up a filter for all columns
 		for (final Object pid: resultsGrid.getContainerDataSource().getContainerPropertyIds()) {
 		    HeaderCell cell = filterRow.getCell(pid);
 		    
 		    // Have an input field to use for filter
 		    final TextField filterField = new TextField();
+		    filterField.setHeight("24px");
+		    
 		    if(pid.equals("JoinYear")) {
 			    filterField.setColumns(5);
 		    } else if (pid.equals("Rank") || pid.equals("Gender")) {

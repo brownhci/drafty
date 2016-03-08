@@ -1,156 +1,113 @@
 // Global variable overrides. Must be declared before importing Valo.
 //cube blue- #0095da
-$cube-blue: #0095DA;
+$cube-blue: #197dea;
 
-// Defines the plaintext font size, weight and family. Font size affects general component sizing.
-$v-font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-$v-font-size: 13px;
-$v-font-weight: 300;
-$v-font-weight--header: 300;
+$v-app-loading-text: "Loading Drafty";
 
-// Defines the border used by all components.
+$v-background-color: hsl(0, 0, 99.5%);
+$v-app-background-color: #f9f9f9;
+$v-focus-color: hsl(218, 80%, 60%);
+$v-border: 1px solid (v-shade 0.6);
 $v-border-radius: 3px;
-$v-border: 1px solid (v-shade 0.7);
-
-// Affects the color of some component elements, e.g Button, Panel title, etc
-$v-background-color: #F6F6F6; //#0095DA;
-
-// Affects the color of content areas, e.g  Panel and Window content, TextField input etc
-//$v-app-background-color: #FFFFFF;
-
-
-// Affects the visual appearance of all components
-$v-gradient: v-linear 8%;
-$v-bevel-depth: 40%;
-//$v-shadow-opacity: 5%;
-
-// Defines colors for indicating status (focus, success, failure)
-//$v-focus-color: valo-focus-color(); // Calculates a suitable color automatically
-//$v-friendly-color: #2c9720;
-//$v-error-indicator-color: #ed473b;
-
-$v-focus-color: #0095da; //#1F4467;
-$v-focus-style: 0 0 1px 1px $v-focus-color;
-//marianne edits
-
-.v-grid-cell-focused {
-    box-shadow: inset 4px 4px 8px 0 #c9c9c9;
-    cursor: text !important;
-}
-
-.v-grid-cell-focused:before {
-	box-shadow: inset 4px 4px 8px 0 #c9c9c9;
-}
-
-//$v-selection-color: #FFF;
-
-// For more information, see: https://vaadin.com/book/-/page/themes.valo.html
-// Example variants can be copy/pasted from https://vaadin.com/wiki/-/wiki/Main/Valo+Examples
-
-$v-app-loading-text: "Loading Cube";
+$v-bevel: inset 0 1px 0 v-tint;
+$v-textfield-bevel: false;
+$v-gradient: v-linear 3%;
+$v-shadow: false;
+$valo-menu-background-color: hsl(218, 20%, 98%);
+$v-friendly-color: hsl(163, 61%, 41%);
+$v-error-indicator-color: hsl(349, 66%, 56%);
 
 
-$v-bevel: inset 0 1px 2px v-tint, inset 0 0 1px (v-tint 0.1);
-
-//$v-shadow: 0 0 0 3px rgba(0,0,0,0.32), 0 1px 0 3px rgba(255,255,255,0.14);
-$v-shadow: 0 0 0 0px black;
-$v-overlay-shadow: 0 0 0 2px (v-shade 8), 0 5px 10px (v-shade 4);
-$v-overlay-border-width: 2px;
-
-$v-textfield-bevel: inset 0 2px 2px v-shade;
-$v-textfield-shadow: $v-shadow;
-
-$v-unit-size: 38px;
-$v-component-group-spacing: 6px;
-
-
-// import Valo SCSS
-@import "../valo/valo.scss";
-
-
-// Mixin or function overrides go after valo @import but before theme @mixin
-
-
+@import "../valo/valo";
 
 @mixin ICERMvalo {
   @include valo;
-
-  // Insert all theme rules here
-
-	// main UI background
-  .v-ui, .flexwrap {
-  	background: url("https://icerm.brown.edu/sites/all/themes/icerm/css/background/icerm/images/content-wrapper-inner-bg.png") repeat scroll 0 0 rgba(0, 0, 0, 0);
-  }
-    
+  
+  background: $v-app-background-color;
+  background-image: background-image: linear-gradient(to top, #fefefe 2%, #f9f9f9 98%);
+  color: $v-selection-color;
+  text-shadow: none;
+  border-color: first-color(valo-border($color: $v-app-background-color, $strength: 0.5));
+  
+  // header / menu
   // menubar
   .v-menubar {
-    border-radius: 0px !important;
-  	border: 0px;
-  	border-color: #f1f1f1;
-  	//color: #6E6E6E;
-  	//color: #454545;
-  	color: #555555;
-  	font-size: 13px;
-  	background-color: #FFFFFF;
-  	background-image: none;
-  	//background-image: -webkit-linear-gradient(top, #f6f6f6 2%, #ebebeb 98%);
-  	//background-image: linear-gradient(to bottom,#f6f6f6 2%, #ebebeb 98%);
-  	//-webkit-box-shadow: inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px #f1f1f1;
-  	//box-shadow: inset 0 1px 2px white, inset 0 0 1px #f9f9f9, 0 0 0 0px #f1f1f1;
-  	height: 45px !important;
-  	line-height: 45px !important;
-  	-webkit-box-shadow: 0 2px 2px rgba(0,0,0,.05),0 1px 0 rgba(0,0,0,.05);
-  	-moz-box-shadow: 0 2px 2px rgba(0,0,0,.05),0 1px 0 rgba(0,0,0,.05);
-  	box-shadow: 0 2px 2px rgba(0,0,0,.05),0 1px 0 rgba(0,0,0,.05);
+    border-width: 0 !important;
+    color: #474747 !important;
+    font-size: 14px !important;
+    font-weight: 300 !important;
+    height: 38px !important;
+    line-height: 37px !important;
+    margin-bottom: 0px !important;
+    padding-bottom: 0px !important;
+    padding-top: 0px !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
   	z-index: 9001;
   }
-  .v-menubar:focus:after {
-  	border: 0 !important;
-	-webkit-box-shadow: 0 0 0 0;
-	box-shadow: 0 0 0 0;
+  
+  .v-slot-divider-header {
+  	background: #f1f1f1 none repeat scroll 0 0 !important;
+    border-top-width: 1px !important;
+    height: 23px !important;
   }
-  .v-menubar-menuitem {
-  	border-color: #f1f1f1 !important;
-  }
-  .v-menubar-menuitem-cubelogo {
-  	font-size: 11px;
-  	.v-icon + span {
-  		margin-left: 4px !important;
-  	}
-  	.v-icon {
-  		margin: -3px 4px 0 -4px !important;
-  	}
-  }
-  .v-menubar-menuitem-cubelogocenter {
-  	font-size: 14px;
-  	display: block !important;
-  	margin-left: auto;
-  	margin-right: auto;
-  	width: 300px;
-  }
-  .cubename {
-  	font-weight: 600;
-  }
-  .v-menubar-menuitem-usermenu {
+  
+  .v-menubar-menuitem-draftylogo {
+  	background: rgb(25, 125, 234) none repeat scroll 0 0 !important;
+    color: white !important;
+   }
+  
+  .draftylogo  .v-menubar-menuitem {
+  	background: rgb(25, 125, 234) none repeat scroll 0 0 !important;
+    color: white !important;
+   }
+   
+   .v-menubar-menuitem .draftylogo {
+  	background: rgb(25, 125, 234) none repeat scroll 0 0 !important;
+    color: white !important;
+   }
+  
+  .v-menubar-menuitem-badgesUsermenu {
     position: absolute !important;
-    right: 10px;
+    right: 265px;
     top: 0;
     border: 0px !important;
     border-left: 1px solid #f1f1f1 !important;
   }
-  .v-menubar-popup {
-  	border-radius: 0px !important;
-  	border: 1px solid #d7d7d7;
-  	box-shadow: 0 0 0 0, 0 0 0 0;
-  	-webkit-box-shadow: 0 0 0 0, 0 0 0 0;
-  	.v-menubar-menuitem {
-  		padding: 4px 20px 4px 20px;
-  	}
+  
+  .v-menubar-menuitem-suggestionUsermenu {
+    position: absolute !important;
+    right: 5px;
+    top: 0;
+    float: right;
+    border: 0px !important;
   }
   
+  	//grid edits
+	.v-grid-cell-focused {
+	    box-shadow: inset 2px 2px 4px 0 #dadada;
+	    //box-shadow: inset 4px 4px 8px 0 #c9c9c9;
+	    cursor: text !important;
+	}
+	
+	.v-grid-cell-focused:before {
+		box-shadow: inset 2px 2px 4px 0 #dadada;
+		//box-shadow: inset 4px 4px 8px 0 #c9c9c9;
+	}
+	
+	v-custom-grid-cell .v-grid-cell {
+		height: 32px !important;
+	    font-size: 14px !important;
+	    //padding: 1px !important;
+    }
+    
+    .v-grid-cell {
+		font-size: 14px !important;
+	    height: 32px !important;
+	    line-height: 31px;
+    }
   
   // headings, text elements, spacers
-  
   hr {
   	color: #d5d5d5;
   	background-color: #d5d5d5;
@@ -167,7 +124,7 @@ $v-component-group-spacing: 6px;
   }
   
   h1, h2, h3 {
-  	color: #666666;
+  	color: #666666 !important;
   }
   
   h4 {
@@ -238,7 +195,16 @@ $v-component-group-spacing: 6px;
   	
   }
   
-  
+  //spacing for radio buttons
+	.v-radiobutton {
+		padding-bottom: 10px;
+	}
+	.v-filterselect {
+		margin-top: -55px
+	}
+	.margin-top-negative {
+		margin-top: -55px
+	}
  
  	// form components
   .v-button {
@@ -292,13 +258,14 @@ $v-component-group-spacing: 6px;
   	white-space: normal !important;
   }
   
+  
   // panel & wrappers
   .main-wrap.v-margin-top {
   	padding-top: 19px !important;
   }
   .main-heading {
-  	background-color: #f6f6f6;
-  	border-bottom: 1px solid #e9e9e9;
+  	//background-color: #f6f6f6;
+  	//border-bottom: 1px solid #e9e9e9;
   }
   
   .panel-bottom-spacing {
@@ -446,86 +413,6 @@ $v-component-group-spacing: 6px;
    	background: #f9f1c7;
   	border-color: #f6deac;
   	color: #af8640;
-  }
-  
-  // containers & admin menu
-  
-  .cube-container {
-  	position: relative;
-  	min-height: 100vh;
-  }
-  .cube-content {
-  	padding-left: 0;
-  	-webkit-transition: all 300ms;
-  	-moz-transition: all 300ms;
-  	transition: all 300ms;
-  }
-  .cube-adminmenu {
-  	background-color: #23272d;
-  	color: #FFF;
-  	
-  	position: absolute;
-  	left: 0;
-  	height: 100%;
-  	z-index: 100;
-  	
-  	width: 240px;
-  	
-  	padding-top: 5px;
-  	
-  	-webkit-transform: translatex(-110%);
-  	-moz-transform: translatex(-110%);
- 	-ms-transform: translatex(-110%);
-  	-o-transform: translatex(-110%);
-  	transform: translatex(-110%);
-  	
-  	-webkit-transition: all 300ms;
-  	-moz-transition: all 300ms;
-  	transition: all 300ms;
-  	
-  	filter: alpha(opacity=94);
-  	opacity: 0.94;
-
-  	-webkit-box-shadow: 1px 0px 6px rgba(35, 39, 45, 0.8);
-	-moz-box-shadow:    1px 0px 6px rgba(35, 39, 45, 0.8);
-	box-shadow:         1px 0px 6px rgba(35, 39, 45, 0.8);
-  	
-  }
-  .cube-adminmenu-visible {
-  	.cube-adminmenu {
-  		-webkit-transform: translatex(0%);
-  		-moz-transform: translatex(0%);
-  		-ms-transform: translatex(0%);
-  		-o-transform: translatex(0%);
-  		transform: translatex(0%);
-  	}
-  }
-  .v-menubar-menuitem-cubeadmintoggle {
-  	.v-menubar-menuitem-caption {
-  	  margin-left: 8px;
-  	 }
-  }
-  .cube-adminmenu-item {
-  	display:block;
-    outline: none;
-  	font-weight: 400;
-  	padding: 5px 38px 5px 19px;
-  	cursor: pointer;
-  	position: relative;
-  	overflow: hidden;
-  	text-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
-  	-webkit-transition: all 200ms;
-  	-moz-transition: all 200ms;
-  	transition: all 200ms;
-  	
-  	.v-icon {
-  		width: 16px;
-  	}
-  	
-  	&:hover {
-  		color: $cube-blue;
-  		background-color: rgba(0, 0, 0, 0.2);
-  	}
   }
   
   
