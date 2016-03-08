@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 /bin/
 /target/
 /bin/
@@ -43,3 +44,6 @@ Thumbs.db
 
 # Other Drafty Specific files #
 ###############################
+=======
+/target/
+>>>>>>> Stashed changes

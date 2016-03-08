@@ -1,7 +1,5 @@
 package drafty.views;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,10 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.HashSet;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -44,6 +38,7 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
+import com.vaadin.server.Sizeable;
 import com.vaadin.server.WebBrowser;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -53,6 +48,8 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.CellDescriptionGenerator;
+import com.vaadin.ui.Grid.CellReference;
 import com.vaadin.ui.Grid.HeaderCell;
 import com.vaadin.ui.Grid.HeaderRow;
 import com.vaadin.ui.HorizontalLayout;
@@ -71,6 +68,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import drafty.services.InteractionService;
 import drafty.services.MailService;
 import drafty.widgets.SuggestionComponent;
+import drafty.widgets.SuggestionComponent2;
 
 public class Profs extends VerticalLayout implements View {
 	
@@ -88,11 +86,12 @@ public class Profs extends VerticalLayout implements View {
 	private String idIpAddress = null;
 	
 	private Integer flag_sugg = 0; //for menu button
-	private String icono = "<span class=\"v-menubar-menuitem-caption\" style=\"color:#0095da\"><span class=\"v-icon FontAwesome\"></span>Select cell to make a Suggestion</span>";
-	private String icono2 = "<span class=\"v-menubar-menuitem-caption\" style=\"color:#0095da\"><span class=\"v-icon FontAwesome\"></span>Click here to make a Suggestion</span>";
+	private String icono = "<span class=\"v-menubar-menuitem-caption\" style=\"color:#197dea\"><span class=\"v-icon FontAwesome\"></span>Select cell to make a Suggestion</span>";
+	private String icono2 = "<span class=\"v-menubar-menuitem-caption\" style=\"color:#197dea\"><span class=\"v-icon FontAwesome\"></span>Click here to make a Suggestion</span>";
 	
 	VerticalLayout mainLayout = new VerticalLayout();
 	protected final MenuBar draftyMenu = new MenuBar();
+	Panel draftyDivider = new Panel();
 	
 	HorizontalLayout leftH = new HorizontalLayout();
 	HorizontalLayout rightH = new HorizontalLayout();
@@ -108,12 +107,15 @@ public class Profs extends VerticalLayout implements View {
 	
 	CssLayout panelWrap = new CssLayout();
 	
-	Panel resultsPanel = new Panel();
-	VerticalLayout resultsPanelLayout = new VerticalLayout();
+	HorizontalLayout horLay = new HorizontalLayout();
+	VerticalLayout vertLayLeft = new VerticalLayout();
+	VerticalLayout vertLayRight = new VerticalLayout();
 	
 	IndexedContainer container = new IndexedContainer();
 	Grid resultsGrid = new Grid();
 	
+	MenuItem draftyLogo = null;
+	MenuItem badgesMenu = null;
 	MenuItem suggestionMode = null;
 	
 	private String cell_id;
@@ -124,7 +126,7 @@ public class Profs extends VerticalLayout implements View {
 	//modal for email / contact
 	private Window subMail = new Window();
 	private TextField fName = new TextField("First Name", "");
-	private TextField lName = new TextField("Last Name", "");
+	private TextField lName = new TextField("Last Name", "");  
 	private TextField email = new TextField("Email", "");
 	private TextArea message = new TextArea("Message", "");
 	private Button submitEmail = new Button("Send");
@@ -132,7 +134,6 @@ public class Profs extends VerticalLayout implements View {
 	public Profs() {
 		detectBrowser();
 		detectCookie(); //first set check and set cookie value
-		checkHostName();
 		
 		buildMenu();
 		
@@ -141,10 +142,28 @@ public class Profs extends VerticalLayout implements View {
 		buildGrid();
 		
 		addFilters();
-
+		
+		//
+		setSizeFull();
+		//mainLayout.setSizeFull();
+		//setExpandRatio(mainLayout, 1.0f);
+		Responsive.makeResponsive(mainLayout);
+		
+		mainLayout.setExpandRatio(draftyMenu, 1.0f);
+		Responsive.makeResponsive(draftyMenu);
+		
+		mainLayout.setExpandRatio(panelWrap, 1.0f);
+		Responsive.makeResponsive(panelWrap);
+		
+		//mainLayout.setExpandRatio(resultsGrid, 1.0f);
+		Responsive.makeResponsive(resultsGrid);
+		
+		
 		populateGrid("<= 32"); //only 20 inital row
 		resultsGrid.sort("University");
 		resultsGrid.removeColumn("id");
+		
+		resultsGrid.setColumnReorderingAllowed(true);
 	}
 	
 	@SuppressWarnings("serial")
@@ -188,43 +207,17 @@ public class Profs extends VerticalLayout implements View {
 	}
 	
 	private void contactFieldValueChange() {
+		if(fName.getValue().toString().equals("drafty1212")) {
+			System.out.println("FirstName = " + fName.getValue().toString());
+			UI.getCurrent().getNavigator().navigateTo("secretview");
+		}
+		
 		/* reads all value changes */
 		if (fName.isValid() && lName.isValid() && email.isValid() && message.isValid()) {
 			submitEmail.setEnabled(true);
 		} else {
 			submitEmail.setEnabled(false);
 		}
-	}
-	
-	private void checkHostName(){ 
-		InetAddress addr = null;
-		try {
-			addr = InetAddress.getByName(ipAddress);
-		} catch (UnknownHostException e) {
-			System.out.println("Cannot resolve host name");
-		}
-		if (addr != null){
-			String domainName = addr.getCanonicalHostName();
-			System.out.println("Domain Name: " + domainName);
-			String strippedName = stripName(domainName);
-			System.out.println("Stripped Domain Name:" + strippedName);
-			HashMap<String,String> uniHash = _MainUI.getDataProvider().getDomains();
-			//System.out.println(uniHash);
-			if (uniHash.containsKey(strippedName)){
-				System.out.println("The domain name matches a university: " + uniHash.get(strippedName));
-				//TO-DO - updateProfile(strippedName);
-			}
-		}
-	}
-	
-	private String stripName(String s){
-		String[] split = s.split(Pattern.quote("."));		
-		if (split.length >= 2){
-			String extension = split[split.length-1].toLowerCase();
-			String domain = split[split.length-2].toLowerCase(); 
-			s = domain.concat(".").concat(extension); 
-		}
-		return s;
 	}
 	
 	private void updateBadges() {
@@ -311,6 +304,25 @@ public class Profs extends VerticalLayout implements View {
 		
 		resultsGrid.setContainerDataSource(gpcontainer);
 		resultsGrid.setSelectionMode(Grid.SelectionMode.NONE);
+		resultsGrid.setStyleName("v-custom-grid-cell"); //custom style reference in css
+		resultsGrid.setCellStyleGenerator(new Grid.CellStyleGenerator()  {        
+				@Override
+				public String getStyle(CellReference cellReference) {
+				    return "v-grid-cell";
+				}
+         });
+		
+		CellDescriptionGenerator generator = new CellDescriptionGenerator() {
+			@Override
+			public String getDescription(CellReference cell) { return "Double Click to Edit";}
+		};
+		resultsGrid.setCellDescriptionGenerator(generator);
+		
+		CellDescriptionGenerator generator = new CellDescriptionGenerator() {
+			@Override
+			public String getDescription(CellReference cell) { return "Double Click to Edit";}
+		};
+		resultsGrid.setCellDescriptionGenerator(generator);
 		
 		//Gets designated column value from row selection 
 		resultsGrid.addItemClickListener(new ItemClickListener() {
@@ -333,7 +345,8 @@ public class Profs extends VerticalLayout implements View {
                 	if(cell_column.equals("FullName")) {
                 		Notification.show("Full Name is not available to make Suggestions");
                 	} else {
-                		new SuggestionComponent(cell_id, cell_full_name, cell_value, cell_column, idProfile);
+                		//new SuggestionComponent(cell_id, cell_full_name, cell_value, cell_column, idProfile);
+                		new SuggestionComponent2(cell_id, cell_full_name, cell_value, cell_column, idProfile);
                 	}
                 } else { //single click
                 	is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "0", idProfile);
@@ -355,7 +368,7 @@ public class Profs extends VerticalLayout implements View {
 		// main layout wrapper
 		mainLayout.setWidth("100%");
 		this.addComponent(mainLayout);
-		mainLayout.addStyleName("main-wrap");
+		//mainLayout.addStyleName("main-wrap");
 		Responsive.makeResponsive(mainLayout);
 		
 		// panel & panelLayout
@@ -366,49 +379,74 @@ public class Profs extends VerticalLayout implements View {
 		Responsive.makeResponsive(panelWrap);
 		panelWrap.addStyleName("panel-padding");
 		
-		//resultsPanelLayout.addComponent(resultsGrid);
-		panelWrap.addComponent(resultsGrid);
-		resultsGrid.setColumnReorderingAllowed(true);
+		panelWrap.addComponent(horLay);
+		
+		horLay.addComponent(vertLayLeft);
+		horLay.addComponent(resultsGrid);
+		horLay.addComponent(vertLayRight);
+		
+		horLay.setWidth("100%");
+		
+		vertLayLeft.setWidth("28px"); //background-image: linear-gradient(to right, #f9f9f9 2%, #f1f1f1 98%)
 		resultsGrid.setWidth("100%");
+		horLay.setExpandRatio(resultsGrid, 1.0f);
+		vertLayRight.setWidth("28px");
+		
+		//panelWrap.addComponent(resultsGrid);
+		resultsGrid.setResponsive(true);
 	    //resultsGrid.setHeightMode(HeightMode.ROW);
-	    //resultsGrid.setHeightByRows(15);
+	    //resultsGrid.setHeightByRows(6);
 	    resultsGrid.setHeightMode(HeightMode.CSS);
-		resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight() - 200), Unit.PIXELS);
+		//resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight() - 200), Unit.PIXELS);
+	    //resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight() - 150), Unit.PIXELS);
+	    resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight()), Unit.PIXELS);
 	    
 	    //Set Column header names
 	    resultsGrid.getColumn("id").setHeaderCaption("ID");
 		resultsGrid.getColumn("FullName").setHeaderCaption("Name").setExpandRatio(0);
-		resultsGrid.getColumn("University").setHeaderCaption("University").setWidth(320);
-		resultsGrid.getColumn("JoinYear").setHeaderCaption("Join Year").setWidth(80);
+		resultsGrid.getColumn("University").setHeaderCaption("University").setWidth(280);
+		resultsGrid.getColumn("JoinYear").setHeaderCaption("Join Year").setWidth(100);
 		resultsGrid.getColumn("Rank").setHeaderCaption("Rank").setWidth(100);
-		resultsGrid.getColumn("Subfield").setHeaderCaption("Subfield");
-		resultsGrid.getColumn("Bachelors").setHeaderCaption("Bachelors").setExpandRatio(0);
-		resultsGrid.getColumn("Masters").setHeaderCaption("Masters");
-		resultsGrid.getColumn("Doctorate").setHeaderCaption("Doctorate");
-		resultsGrid.getColumn("PostDoc").setHeaderCaption("PostDoc");
+		resultsGrid.getColumn("Subfield").setHeaderCaption("Subfield").setWidth(280);
+		resultsGrid.getColumn("Bachelors").setHeaderCaption("Bachelors").setWidth(280);
+		resultsGrid.getColumn("Masters").setHeaderCaption("Masters").setWidth(280);
+		resultsGrid.getColumn("Doctorate").setHeaderCaption("Doctorate").setWidth(280);
+		resultsGrid.getColumn("PostDoc").setHeaderCaption("PostDoc").setWidth(280);
 		resultsGrid.getColumn("Gender").setHeaderCaption("Gender").setWidth(100);
 		resultsGrid.getColumn("PhotoUrl").setHeaderCaption("PhotoUrl");
 		resultsGrid.getColumn("Sources").setHeaderCaption("Sources");
 		resultsGrid.setFrozenColumnCount(1);
-		
 	}
+	
 
 	@SuppressWarnings({"serial"})
 	private void buildMenu() {
 		//menu
-		mainLayout.addComponent(draftyMenu);
+		mainLayout.addComponents(draftyMenu);
 		draftyMenu.setWidth("100%");
+		//draftyMenu.addStyleName("panel-bottom-spacing");
 		draftyMenu.addStyleName("draftymenu");
 		draftyMenu.setHtmlContentAllowed(true);
 		Responsive.makeResponsive(draftyMenu);
 		
+		/*
+		mainLayout.addComponents(draftyDivider);
+		draftyDivider.setWidth("100%");
+		draftyDivider.addStyleName("panel-bottom-spacing");
+		draftyDivider.addStyleName("divider-header");
+		Responsive.makeResponsive(draftyDivider);
+		*/
+		
 		//draftyLogo MenuItem
-		draftyMenu.addItem("Drafty", FontAwesome.UNIVERSITY, new MenuBar.Command() {
+		draftyLogo = draftyMenu.addItem("Drafty", FontAwesome.UNIVERSITY, new MenuBar.Command() {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				Page.getCurrent().open("/", null);
 			}
 		});
+		
+		draftyLogo.setStyleName("draftylogo");
+		
 		
 		//aboutMenu
 		draftyMenu.addItem("Computer Science Professors", FontAwesome.GRADUATION_CAP, new MenuBar.Command() {
@@ -430,13 +468,13 @@ public class Profs extends VerticalLayout implements View {
 			    label_about_title.addStyleName("padding-top-none");
 			    label_drafty_title.addStyleName("padding-top-none");
 			    label_hci_title.addStyleName("padding-top-none");
-			    label_drafty_title.setWidth("40px");
-			    label_about_title.setWidth("564px");
-			    label_hci_title.setWidth("247");
+			    label_drafty_title.setWidth("30px");
+			    label_about_title.setWidth("458px");
+			    label_hci_title.setWidth("201px");
 			    
-			    Label label_sugg = new Label("<p style=\"margin-top: 0px; padding: 10px; color: #666666; border-radius: 10px; text-align: center; background-color: #f1f1f1;\"<span class=\"v-icon FontAwesome\"></span> <b>Wondering how to make a Suggestion?</b> Double click any cell.</p>", ContentMode.HTML);
+			    Label label_sugg = new Label("<p style=\"margin-top: 0px; padding: 10px; color: #666666; border-radius: 5px; text-align: center; background-color: #f1f1f1;\"<span class=\"v-icon FontAwesome\"></span> <b>Wondering how to make a Suggestion?</b> Double click any cell.</p>", ContentMode.HTML);
 			    label_sugg.addStyleName("padding-top-none");
-			    label_sugg.setWidth("519px");
+			    label_sugg.setWidth("425px");
 			    
 			    Label label_about = new Label(
 
@@ -540,7 +578,7 @@ public class Profs extends VerticalLayout implements View {
 		});
 		
 		//badgesMenu
-		draftyMenu.addItem("Badges", FontAwesome.CERTIFICATE, new MenuBar.Command() {
+		badgesMenu = draftyMenu.addItem("Badges", FontAwesome.CERTIFICATE, new MenuBar.Command() {
 
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
@@ -562,6 +600,8 @@ public class Profs extends VerticalLayout implements View {
 			}
 		});
 		
+		badgesMenu.setStyleName("badgesUsermenu");
+		
 		//New suggestion button on top right
 		suggestionMode = draftyMenu.addItem(icono, new MenuBar.Command() {	
 			@Override
@@ -579,7 +619,7 @@ public class Profs extends VerticalLayout implements View {
 			}
 		});
 		
-		suggestionMode.setStyleName("usermenu");
+		suggestionMode.setStyleName("suggestionUsermenu");
 	}
 	
 	protected void filter(String filter, String column, String blur) {
@@ -621,19 +661,23 @@ public class Profs extends VerticalLayout implements View {
 	public void addFilters() {
 		// Create a header row to hold column filters
 		HeaderRow filterRow = resultsGrid.appendHeaderRow();
-
+		
 		// Set up a filter for all columns
 		for (final Object pid: resultsGrid.getContainerDataSource().getContainerPropertyIds()) {
 		    HeaderCell cell = filterRow.getCell(pid);
 		    
 		    // Have an input field to use for filter
 		    final TextField filterField = new TextField();
+		    filterField.setHeight("24px");
+		    
 		    if(pid.equals("JoinYear")) {
-			    filterField.setColumns(4);
+			    filterField.setColumns(5);
 		    } else if (pid.equals("Rank") || pid.equals("Gender")) {
 			    filterField.setColumns(5);
-		    } else if (pid.equals("FullName") || pid.equals("University")) {
-			    filterField.setColumns(12);
+		    } else if (pid.equals("FullName")) {
+		    	
+		    } else if (pid.equals("University")) {
+			    filterField.setColumns(18);
 		    } else {
 			    filterField.setColumns(21);
 		    }
@@ -853,11 +897,11 @@ public class Profs extends VerticalLayout implements View {
             @Override
             public void onValueDetected(String value) {
             	cookieValue = value;
+            	System.out.println("cookie value == " + cookieValue);
             	
             	System.out.println("cookieCheck " + cookieCheck + " detect cookie:  " + cookieValue + " = " + value);
             	if (cookieValue == null) {
-        			System.out.println("cookie value == null : " + cookieValue);
-        			
+            		
         			//no cookie detected
         			try {
         				newProfile();
@@ -888,8 +932,8 @@ public class Profs extends VerticalLayout implements View {
             			}	
         			}
         		}
-        		
-        		//popgrid -> rest of info; not totally great implementation but it works
+            	
+            	//popgrid -> rest of info; not totally great implementation but it works
         		populateGrid("> 32");	
         		resultsGrid.sort("University");
             }

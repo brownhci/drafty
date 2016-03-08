@@ -5,7 +5,7 @@ $cube-blue: #197dea;
 $v-app-loading-text: "Loading Drafty";
 
 $v-background-color: hsl(0, 0, 99.5%);
-$v-app-background-color: #f1f1f1;
+$v-app-background-color: #f9f9f9;
 $v-focus-color: hsl(218, 80%, 60%);
 $v-border: 1px solid (v-shade 0.6);
 $v-border-radius: 3px;
@@ -24,6 +24,7 @@ $v-error-indicator-color: hsl(349, 66%, 56%);
   @include valo;
   
   background: $v-app-background-color;
+  background-image: background-image: linear-gradient(to top, #fefefe 2%, #f9f9f9 98%);
   color: $v-selection-color;
   text-shadow: none;
   border-color: first-color(valo-border($color: $v-app-background-color, $strength: 0.5));
@@ -81,6 +82,30 @@ $v-error-indicator-color: hsl(349, 66%, 56%);
     float: right;
     border: 0px !important;
   }
+  
+  	//grid edits
+	.v-grid-cell-focused {
+	    box-shadow: inset 2px 2px 4px 0 #dadada;
+	    //box-shadow: inset 4px 4px 8px 0 #c9c9c9;
+	    cursor: text !important;
+	}
+	
+	.v-grid-cell-focused:before {
+		box-shadow: inset 2px 2px 4px 0 #dadada;
+		//box-shadow: inset 4px 4px 8px 0 #c9c9c9;
+	}
+	
+	v-custom-grid-cell .v-grid-cell {
+		height: 32px !important;
+	    font-size: 14px !important;
+	    //padding: 1px !important;
+    }
+    
+    .v-grid-cell {
+		font-size: 14px !important;
+	    height: 32px !important;
+	    line-height: 31px;
+    }
   
   // headings, text elements, spacers
   hr {
@@ -175,6 +200,9 @@ $v-error-indicator-color: hsl(349, 66%, 56%);
 		padding-bottom: 10px;
 	}
 	.v-filterselect {
+		margin-top: -55px
+	}
+	.margin-top-negative {
 		margin-top: -55px
 	}
  
