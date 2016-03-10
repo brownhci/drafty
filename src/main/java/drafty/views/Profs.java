@@ -312,13 +312,11 @@ public class Profs extends VerticalLayout implements View {
 				}
          });
 		
-		CellDescriptionGenerator generator = new CellDescriptionGenerator() {
+		CellDescriptionGenerator tooltip = new CellDescriptionGenerator() {
 			@Override
 			public String getDescription(CellReference cell) { return "Double Click to Edit";}
 		};
-		resultsGrid.setCellDescriptionGenerator(generator);
-		
-		resultsGrid.setCellDescriptionGenerator(generator);
+		resultsGrid.setCellDescriptionGenerator(tooltip);
 		
 		//Gets designated column value from row selection 
 		resultsGrid.addItemClickListener(new ItemClickListener() {

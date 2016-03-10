@@ -14,13 +14,18 @@ import com.vaadin.ui.Upload.SucceededListener;
 
 public class CSVReceiver implements Receiver, SucceededListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -190765906348141352L;
+	
 	protected File temp;
 	
 	@Override
 	public OutputStream receiveUpload(String filename, String mimType){
 		try {
-			System.out.println(filename);
-			System.out.println(mimType);
+			System.out.println("Recieve Upload - filename = " + filename);
+			System.out.println("Recieve Upload - mimType = " + mimType);
 			//temp = File.createTempFile("temp", ".csv");
 			temp = new File("temp");
 			return new FileOutputStream(temp);
@@ -30,7 +35,8 @@ public class CSVReceiver implements Receiver, SucceededListener {
 			return null;
 		}
 	}
-	public void uploadSucceeded(SucceededEvent event){
+	
+	public void uploadSucceeded(SucceededEvent event) {
 		//TO-DO
 		try {
 			FileReader reader = new FileReader(temp);
@@ -38,19 +44,16 @@ public class CSVReceiver implements Receiver, SucceededListener {
 			try {
 				importer.readCSVSuggestion(temp);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Error Exception - uploadSucceeded(SucceededEvent event) - importer.readCSVSuggestion(temp): " + e);
 			}
 			try {
 				reader.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Error IOException - uploadSucceeded(SucceededEvent event) - reader.close(): " + e);
 			}
 			temp.delete();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error FileNotFoundException - uploadSucceeded(SucceededEvent event): " + e);
 		}
 		
 	}

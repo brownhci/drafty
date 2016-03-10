@@ -6,6 +6,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import au.com.bytecode.opencsv.CSVReader;
+import drafty.views._MainUI;
 
 import java.io.File;
 import java.io.FileReader;
@@ -21,23 +22,26 @@ public class DataImporter {
 	//- Put data into OpenRefine, see if there are more duplicates
 	//- Read gender and cs hires paper to see if there is anything we can do differently
 
+	String DATASOURCE_CONTEXT = _MainUI.getDataProvider().getJNDI();
+	
 	public DataImporter(){
 		
 	}
+	
 	//TO-DO: methods for updating other tables
 	public int readCSVSuggestion(File CSV_FILE) throws Exception
 	{	
 		Context initialContext = new InitialContext();
-	    DataSource datasource = (DataSource)initialContext.lookup("java:jboss/datasources/MySqlDS_Drafty");
+	    DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
 	    Connection conn = datasource.getConnection();
 	    conn.setAutoCommit(false);
 	    
 	    System.out.println("inserting from " + CSV_FILE + " into suggestion");
 		
 		String query = "UPDATE Suggestion "
-				+ "SET idPerson = ?, idEntryType = ?, idSuggestionType = ?,"
-				+ "suggestion = ?, suggestion_original = ?, comment = ?, date = ?, confidence = ?"
-				+ "WHERE idSuggestion = ?";
+				+ "SET idPerson = ?, idEntryType = ?, idSuggestionType = ?, "
+				+ "suggestion = ?, suggestion_original = ?, comment = ?, date = ?, confidence = ? "
+				+ "WHERE idSuggestion = ? ";
 		PreparedStatement prep = conn.prepareStatement(query);
 		
 		CSVReader reader = new CSVReader(new FileReader(CSV_FILE));
@@ -62,6 +66,8 @@ public class DataImporter {
 		conn.commit();
 		conn.setAutoCommit(true);
 		conn.close();
+		prep.close();
+		reader.close();
 	    return 0;
 	}
 	

@@ -2,8 +2,6 @@ package drafty.data;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -12,16 +10,19 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import drafty.views._MainUI;
 
 
 public class DataCleaner {
+	
+	String DATASOURCE_CONTEXT = _MainUI.getDataProvider().getJNDI();
 	
 	public DataCleaner(){
 		
 	}
 	
 	public int CleanDuplicates(){
-		HashMap<Integer, Integer> duplicateIDs = new HashMap();
+		HashMap<Integer, Integer> duplicateIDs = new HashMap<Integer, Integer>();
 		duplicateIDs.put(14899, 1868);
 		duplicateIDs.put(15367, 1620);
 		duplicateIDs.put(15413, 1657);
@@ -144,13 +145,13 @@ public class DataCleaner {
 		
 		try {
 		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup("java:jboss/datasources/MySqlDS_Drafty");
+		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
 		      if (datasource != null) {
 		    	Connection conn = datasource.getConnection();  
 		    	String sql = 
-			        		"UPDATE suggestion"
-			        		+ "SET idPerson = ?"
-			        		+ "WHERE idPerson = ?";
+			        		"UPDATE Suggestion "
+			        		+ "SET idPerson = ? "
+			        		+ "WHERE idPerson = ? ";
 			    PreparedStatement stmt = conn.prepareStatement(sql); 
 			    conn.setAutoCommit(false);
 		        Iterator it = duplicateIDs.entrySet().iterator();

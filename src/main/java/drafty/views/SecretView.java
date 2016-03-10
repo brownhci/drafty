@@ -1,20 +1,11 @@
 package drafty.views;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Upload;
-import com.vaadin.ui.Upload.SucceededEvent;
+import com.vaadin.ui.VerticalLayout;
 
 import drafty.data.CSVReceiver;
 
@@ -35,6 +26,8 @@ public class SecretView extends VerticalLayout implements View {
 		this.addComponent(mainLayout);
 		FormLayout content = new FormLayout();
 		//table_list.addItems("person","suggestion");
+		
+		//CSV
 		CSVReceiver receiver = new CSVReceiver();
 		Upload upload = new Upload("Update Suggestion Table", receiver);
 		upload.addSucceededListener(receiver);
