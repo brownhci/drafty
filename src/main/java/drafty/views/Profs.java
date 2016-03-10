@@ -318,10 +318,6 @@ public class Profs extends VerticalLayout implements View {
 		};
 		resultsGrid.setCellDescriptionGenerator(generator);
 		
-		CellDescriptionGenerator generator = new CellDescriptionGenerator() {
-			@Override
-			public String getDescription(CellReference cell) { return "Double Click to Edit";}
-		};
 		resultsGrid.setCellDescriptionGenerator(generator);
 		
 		//Gets designated column value from row selection 
