@@ -6,24 +6,28 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+
 import javax.annotation.Resource;
+/*
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
+*/
 
 import drafty.views._MainUI;
 
 public class MailService {
 	
-	@Resource(mappedName="java:jboss/mail/gmail")
-    private Session mailSession;
+	
+	//@Resource(mappedName="java:jboss/mail/gmail")
+   // private Session mailSession;
 	
 	String DATASOURCE_CONTEXT = _MainUI.getDataProvider().getJNDI();
 	
@@ -32,7 +36,7 @@ public class MailService {
 	}
 	
 	public void sendMail(String email_from, String email_to, String body, String fName, String lName, String idProfile) {
-		
+		/*
 		try {
         	MimeMessage m = new MimeMessage(mailSession);
             Address from = new InternetAddress(email_from);
@@ -56,6 +60,7 @@ public class MailService {
 		finally {
 			//Success!
 		}
+		*/
 	}
 	
 	public void updateProfile(String name, String email, String idProfile) {

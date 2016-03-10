@@ -12,6 +12,8 @@ import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Viewport;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.Page;
+import com.vaadin.server.Page.BrowserWindowResizeEvent;
+import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.ServiceException;
 import com.vaadin.server.SessionDestroyEvent;
@@ -24,13 +26,10 @@ import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
-import drafty.event.DraftyEvent.BrowserResizeEvent;
-import drafty.event.DraftyEvent.CloseOpenWindowsEvent;
-import com.vaadin.server.Page.BrowserWindowResizeEvent;
-import com.vaadin.server.Page.BrowserWindowResizeListener;
-
 import drafty.data.DataProvider;
 import drafty.data.DataProviderImpl;
+import drafty.event.DraftyEvent.BrowserResizeEvent;
+import drafty.event.DraftyEvent.CloseOpenWindowsEvent;
 import drafty.event.DraftyEventBus;
 
 @Viewport("width=device-width, initial-scale=1.0")

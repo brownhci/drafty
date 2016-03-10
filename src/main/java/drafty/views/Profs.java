@@ -37,6 +37,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
+import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.WebBrowser;
@@ -140,32 +141,30 @@ public class Profs extends VerticalLayout implements View {
 		addContactValidators();
 		
 		buildGrid();
-		
 		addFilters();
-		
-		//
-		setSizeFull();
-		//mainLayout.setSizeFull();
-		//setExpandRatio(mainLayout, 1.0f);
-		Responsive.makeResponsive(mainLayout);
-		
-		mainLayout.setExpandRatio(draftyMenu, 1.0f);
-		Responsive.makeResponsive(draftyMenu);
-		
-		mainLayout.setExpandRatio(panelWrap, 1.0f);
-		Responsive.makeResponsive(panelWrap);
-		
-		//mainLayout.setExpandRatio(resultsGrid, 1.0f);
-		Responsive.makeResponsive(resultsGrid);
-		
+
+		//bottom page divder
+		panelWrap.addComponents(draftyDivider);
+		draftyDivider.setWidth("100%");
+		//draftyDivider.addStyleName("panel-bottom-spacing");
+		//draftyDivider.addStyleName("divider-header");
+		Responsive.makeResponsive(draftyDivider);
 		
 		populateGrid("<= 32"); //only 20 inital row
 		resultsGrid.sort("University");
 		resultsGrid.removeColumn("id");
 		
 		resultsGrid.setColumnReorderingAllowed(true);
+		
+		Page.getCurrent().addBrowserWindowResizeListener(e -> BrowserResize(e));
+		//UI.setResizeLazy(true);
 	}
 	
+	private void BrowserResize(BrowserWindowResizeEvent e) {
+		System.out.println("Browser Resize = " + e.getHeight() +  " : "+ e.getWidth());
+	}
+
+
 	@SuppressWarnings("serial")
 	private void addContactValidators() {
 		fName.setBuffered(true);
@@ -392,8 +391,8 @@ public class Profs extends VerticalLayout implements View {
 	    //resultsGrid.setHeightByRows(6);
 	    resultsGrid.setHeightMode(HeightMode.CSS);
 		//resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight() - 200), Unit.PIXELS);
-	    //resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight() - 150), Unit.PIXELS);
-	    resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight()), Unit.PIXELS);
+	    resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight() - 165), Unit.PIXELS);
+	    //resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight()), Unit.PIXELS);
 	    
 	    //Set Column header names
 	    resultsGrid.getColumn("id").setHeaderCaption("ID");
@@ -418,18 +417,9 @@ public class Profs extends VerticalLayout implements View {
 		//menu
 		mainLayout.addComponents(draftyMenu);
 		draftyMenu.setWidth("100%");
-		//draftyMenu.addStyleName("panel-bottom-spacing");
 		draftyMenu.addStyleName("draftymenu");
 		draftyMenu.setHtmlContentAllowed(true);
 		Responsive.makeResponsive(draftyMenu);
-		
-		/*
-		mainLayout.addComponents(draftyDivider);
-		draftyDivider.setWidth("100%");
-		draftyDivider.addStyleName("panel-bottom-spacing");
-		draftyDivider.addStyleName("divider-header");
-		Responsive.makeResponsive(draftyDivider);
-		*/
 		
 		//draftyLogo MenuItem
 		draftyLogo = draftyMenu.addItem("Drafty", FontAwesome.UNIVERSITY, new MenuBar.Command() {
@@ -466,7 +456,7 @@ public class Profs extends VerticalLayout implements View {
 			    label_about_title.setWidth("458px");
 			    label_hci_title.setWidth("201px");
 			    
-			    Label label_sugg = new Label("<p style=\"margin-top: 0px; padding: 10px; color: #666666; border-radius: 5px; text-align: center; background-color: #f1f1f1;\"<span class=\"v-icon FontAwesome\"></span> <b>Wondering how to make a Suggestion?</b> Double click any cell.</p>", ContentMode.HTML);
+			    Label label_sugg = new Label("<p style=\"margin-top: 0px; padding: 10px; color: #666666; border-radius: 5px; text-align: center; background-color: #f1f1f1;\"<span class=\"v-icon FontAwesome\"></span> <b>Wondering how to make a Suggestion?</b> <br>Double click any cell.</p>", ContentMode.HTML);
 			    label_sugg.addStyleName("padding-top-none");
 			    label_sugg.setWidth("425px");
 			    
@@ -594,7 +584,7 @@ public class Profs extends VerticalLayout implements View {
 			}
 		});
 		
-		badgesMenu.setStyleName("badgesUsermenu");
+		//badgesMenu.setStyleName("badgesUsermenu");
 		
 		//New suggestion button on top right
 		suggestionMode = draftyMenu.addItem(icono, new MenuBar.Command() {	
@@ -613,7 +603,7 @@ public class Profs extends VerticalLayout implements View {
 			}
 		});
 		
-		suggestionMode.setStyleName("suggestionUsermenu");
+		//suggestionMode.setStyleName("suggestionUsermenu");
 	}
 	
 	protected void filter(String filter, String column, String blur) {
