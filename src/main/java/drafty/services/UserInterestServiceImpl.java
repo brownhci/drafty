@@ -1,7 +1,9 @@
 package drafty.services;
 
-public interface UserInterestServiceImpl {
+import java.util.HashMap;
+import java.util.List;
 
+public interface UserInterestServiceImpl {
 	
 	/*
 	 * 
@@ -10,31 +12,30 @@ public interface UserInterestServiceImpl {
 	 */
 	public void genUserInterest(String user_id);
 	
+	public void genUserIntCols(String user_id);
 	
-	/*
-	 * 
-	 * generate individual user interest scores
-	 * 
-	 */
-	public void genUserIntUni(String user_id);
+	public void genUserIntRow(String user_id);
 	
-	public void genUserIntJoinYear(String user_id);
+	public void genUserInt(String user_id, HashMap<String, Integer> hm, String suggType);
 	
-	public void genUserIntRank(String user_id);
+	public void addToHM(HashMap<String, Integer> hm, List<String> list, int weight);
 	
-	public void genUserIntSubfield(String user_id);
+	public void addToPQ(List<String> list, HashMap<String, Integer> hm);
 	
-	public void genUserIntBach(String user_id);
+	public List<String> getClickCol(String user_id, String dclick);
 	
-	public void genUserIntMast(String user_id);
+	public List<String> getSuggCol(String user_id, String val);
 	
-	public void genUserIntDoct(String user_id);
+	public List<String> getFilterCol(String user_id, String val);
 	
-	public void genUserIntPostDoc(String user_id);
+	public List<String> getClickRow(String user_id, String dclick);
 	
-	public void genUserIntGender(String user_id);
+	public List<String> getSuggRow(String user_id, String val);
 	
-	public void genUserIntPhotoUrl(String user_id);
+	public List<String> getClickTypes(String user_id, String dclick, String sugg_id);
 	
-	public void genUserIntSources(String user_id);
+	public List<String> getSuggTypes(String user_id, String sugg_id, String val);
+	
+	public List<String> getFilterTypes(String user_id, String bfilter, String sugg_id);
+	
 }
