@@ -999,7 +999,7 @@
  */
 
 .v-vaadin-version:after {
-	content: "7.6.2";
+	content: "7.6.4";
 }
 
 .v-widget {
@@ -1559,6 +1559,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo {
 	background: #f9f9f9;
+	background-image: linear, to top, #fefefe 2%, #f9f9f9 98%;
 	color: #4783eb;
 	text-shadow: none;
 	border-color: #e2e2e2;

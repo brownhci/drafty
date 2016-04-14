@@ -1,5 +1,7 @@
 package drafty.views;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Locale;
 
 import javax.servlet.ServletException;
@@ -12,8 +14,6 @@ import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Viewport;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.Page;
-import com.vaadin.server.Page.BrowserWindowResizeEvent;
-import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.ServiceException;
 import com.vaadin.server.SessionDestroyEvent;
@@ -26,9 +26,8 @@ import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
-import drafty.data.DataProvider;
-import drafty.data.DataProviderImpl;
-import drafty.event.DraftyEvent.BrowserResizeEvent;
+import drafty.api.ApiProvider;
+import drafty.api.ApiProviderImpl;
 import drafty.event.DraftyEvent.CloseOpenWindowsEvent;
 import drafty.event.DraftyEventBus;
 
@@ -45,14 +44,13 @@ public class _MainUI extends UI {
      * injection; and not in the UI but somewhere closer to where they're
      * actually accessed.
      */
-    private final DataProvider dataProvider = new DataProviderImpl();
+    private final ApiProvider dataProvider = new ApiProviderImpl();
 	private final DraftyEventBus draftyEventbus = new DraftyEventBus();
 	
 	public Navigator navigator = new Navigator(this, this);;
 	
 	@WebServlet(value = {"/*", "/Drafty/*", "/professors/*", "/VAADIN/*"}, asyncSupported = true)
-	//@WebServlet(value = "/*", asyncSupported = true)
-	@VaadinServletConfiguration(productionMode = false, ui = _MainUI.class)
+	@VaadinServletConfiguration(productionMode = true, ui = _MainUI.class, heartbeatInterval = 1, closeIdleSessions = true)
 	public static class Servlet extends VaadinServlet implements SessionInitListener, SessionDestroyListener {
 		@Override
 	    protected void servletInitialized() throws ServletException {
@@ -60,37 +58,27 @@ public class _MainUI extends UI {
 	        getService().addSessionInitListener(this);
 	        getService().addSessionDestroyListener(this);
 	    }
-
+		
 	    @Override
 	    public void sessionInit(SessionInitEvent event)
 	            throws ServiceException {
 	        // Do session start stuff here
+	    	System.out.println("START SESSION: " + LocalDateTime.now() + " - " + ZonedDateTime.now());
 	    }
 
 	    @Override
 	    public void sessionDestroy(SessionDestroyEvent event) {
 	        // Do session end stuff here
+	    	System.out.println("STOP SESSION: " + LocalDateTime.now() + " - " + ZonedDateTime.now());
 	    }
 	}
 	
 	@Override
 	protected void init(VaadinRequest request) {
+		
 		setLocale(Locale.US);
 		DraftyEventBus.register(this);
 		Responsive.makeResponsive(this);
-		
-		
-		// Some views need to be aware of browser resize events so a
-        // BrowserResizeEvent gets fired to the event bus on every occasion.
-        Page.getCurrent().addBrowserWindowResizeListener(
-        new BrowserWindowResizeListener() {
-            @Override
-            public void browserWindowResized(
-                    final BrowserWindowResizeEvent event) {
-                DraftyEventBus.post(new BrowserResizeEvent());
-            }
-        });
-		
 		
 		if(Page.getCurrent().getWebBrowser().isTooOldToFunctionProperly()) {
 			//too old won't work with Vaadin
@@ -98,20 +86,22 @@ public class _MainUI extends UI {
 			navigator.addView("professors", new Profs());
 			navigator.addView("secretview", new SecretView());
 			navigator.navigateTo("professors");
+			//navigator.navigateTo("secretview");
 		}
 	}
 
 	@Subscribe
     public void closeOpenWindows(final CloseOpenWindowsEvent event) {
         for (Window window : getWindows()) {
+        	System.out.println("STOP SESSION close window: " + LocalDateTime.now() + " - " + ZonedDateTime.now());
             window.close();
         }
     }
 	
 	/**
-     * @return An instance for accessing the (dummy) services layer.
+     * @return An instance for accessing the global API services layer.
      */
-    public static DataProvider getDataProvider() {
+    public static ApiProvider getApi() {
         return ((_MainUI) getCurrent()).dataProvider;
     }
 

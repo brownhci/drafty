@@ -273,7 +273,7 @@ public class Profs_Old extends VerticalLayout implements View, Property.ValueCha
     	//clears grid data from grid datasource
 		resultsGrid.getContainerDataSource().removeAllItems();
     	
-		String DATASOURCE_CONTEXT = _MainUI.getDataProvider().getJNDI();
+		String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	    
 	    try {
 	      Context initialContext = new InitialContext();

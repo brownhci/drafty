@@ -4,10 +4,10 @@ import test.DraftyViewType;
 
 
 /*
- * Event bus events used in Dashboard are listed here as inner classes.
+ * Event bus events used in Drafty are listed here as inner classes.
  */
 public abstract class DraftyEvent {
-
+	
     public static class BrowserResizeEvent {
 
     }
@@ -16,7 +16,6 @@ public abstract class DraftyEvent {
     
     }
     
-    /*
     public static final class PostViewChangeEvent {
         private final DraftyViewType view;
 
@@ -28,11 +27,12 @@ public abstract class DraftyEvent {
             return view;
         }
     }
-	*/
+    
     public static class CloseOpenWindowsEvent {
+    
     }
 
-  //to find page loaded
+    //to find page loaded
     public static class ProfsPageLoadEvent {
     	private final String pageLoad;
 

@@ -5,24 +5,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.PriorityQueue;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
-import com.vaadin.ui.Grid;
-
 import drafty.views._MainUI;
 
-public class UserInterestService implements UserInterestServiceImpl {
+public class UserInterestService {
 	
 	/**
 	 * The basic premise of this class is upon loading the page, it queries the
-	 * database  to  adsfiscalculate your history of interactions. Each tracked interaction
+	 * database  to  calculate your history of interactions. Each tracked interaction
 	 * is added to a hashmap based on weight of interaction. These can then be dynamically 
 	 * added to as the user interacts with the database. When the program decides to ask a
 	 * question, the getMostInterested() function can be called. This turns the pertinent hashmap
@@ -50,49 +46,42 @@ public class UserInterestService implements UserInterestServiceImpl {
 	private HashMap<String, Integer> _colInterest;
 	private List<String> _finalColInterest;
 	
-	//row
-	private HashMap<String, Integer> _rowInterest;
-	private List<String> _finalRowInterest;
-	
 	//specific interests
+	private HashMap<String, Integer> _profInterest;
 	private HashMap<String, Integer> _uniInterest;
 	private HashMap<String, Integer> _yearInterest;
 	private HashMap<String, Integer> _rankInterest;
 	private HashMap<String, Integer> _fieldInterest;
 	private HashMap<String, Integer> _bachInterest;
 	private HashMap<String, Integer> _mastInterest;
-	private HashMap<String, Integer> _doctInterest;	
-	private HashMap<String, Integer> _postDocInterest;	
+	private HashMap<String, Integer> _doctInterest;
+	private HashMap<String, Integer> _postDocInterest;
 	private HashMap<String, Integer> _genderInterest;
 	
 	//global universities tracker
 	private HashMap<String, Integer> _allUniInterest;
-	
-	//user profile info
-	//private int _sessions;
+	private int _maxPerson;
 
-	String DATASOURCE_CONTEXT = _MainUI.getDataProvider().getJNDI();
+	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
 	public UserInterestService(String user_id) {
-		
-		//determine which session
-		//_sessions = getSessions(user_id);
+		_maxPerson = Integer.parseInt(this.getHighestPersonNum());
 		this.genUserInterest(user_id);
 	}
 	
-	@Override
+	
 	public void genUserInterest(String user_id) {
-		
 		//initialise total uni list & hashmap
 		_allUniInterest = new HashMap<String, Integer>();
 		_finalColInterest = new ArrayList<String>();
-		_finalRowInterest = new ArrayList<String>();
+		//_finalRowInterest = new ArrayList<String>();
 		
 		//generate most interested overall col, row
 		this.genUserIntCols(user_id);
-		this.genUserIntRow(user_id);
+		//this.genUserIntRow(user_id);
 		
 		//initialise hashmaps
+		_profInterest = new HashMap<String, Integer>();
 		_uniInterest = new HashMap<String, Integer>();
 		_yearInterest = new HashMap<String, Integer>();
 		_rankInterest = new HashMap<String, Integer>();
@@ -105,6 +94,7 @@ public class UserInterestService implements UserInterestServiceImpl {
 
 		//generate individual interests
 		//updates hashmaps
+		this.genUserInt(user_id, _profInterest, "1");
 		this.genUserInt(user_id, _uniInterest, "2");
 		this.genUserInt(user_id, _yearInterest, "7");
 		this.genUserInt(user_id, _rankInterest, "8");
@@ -114,16 +104,13 @@ public class UserInterestService implements UserInterestServiceImpl {
 		this.genUserInt(user_id, _doctInterest, "5");
 		this.genUserInt(user_id, _postDocInterest, "6");
 		this.genUserInt(user_id, _genderInterest, "10");
-		
-		this.getMostInterested(user_id);
-		
+				
 	}
 	
 	public void genUserIntCols(String user_id) {
 		
 		//generating column interest based on clicks
 		_colInterest = new HashMap<String, Integer>();
-		_finalColInterest = new ArrayList<String>();
 		
 		//adding to hashmap for the suggestiontypes based on single clicks
 		List<String> clickList = this.getClickCol(user_id, "0");
@@ -148,42 +135,7 @@ public class UserInterestService implements UserInterestServiceImpl {
 		//adding to hashmap based on validation
 		List<String> valList = this.getSuggCol(user_id, "0");
 		this.addToHM(_colInterest, valList, _val);
-		
-		//turning the hashmap into a sorted list
-		this.addToPQ(_finalColInterest, _colInterest);
-	}
-	
-	public void genUserIntRow(String user_id) {
-		//generating row interest based on clicks
-		_rowInterest = new HashMap<String, Integer>();
-		_colInterest = new HashMap<String, Integer>();
-		
-		//adding to hashmap for the suggestiontypes based on single clicks
-		List<String> clickList = this.getClickRow(user_id, "0");
-		this.addToHM(_rowInterest, clickList, _click);
-
-		//adding to hashmap for suggestiontypes based on double clicks
-		List<String> dclickList = this.getClickRow(user_id, "1");
-		this.addToHM(_rowInterest, dclickList, _dclick);
-		
-		//adding to the hashmap based on filters
-		List<String> filterList = this.getFilterRow(user_id, "0");
-		this.addToHM(_colInterest, filterList, _filter);
-		
-		//adding to the hashmap based on filters
-		List<String> bfilterList = this.getFilterRow(user_id, "1");
-		this.addToHM(_colInterest, bfilterList, _bfilter);
-		
-		//adding to hashmap based on suggestion
-		List<String> suggList = this.getSuggRow(user_id, "1");
-		this.addToHM(_rowInterest, suggList, _sugg);
-		
-		//adding to hashmap based on validation
-		List<String> valList = this.getSuggRow(user_id, "0");
-		this.addToHM(_rowInterest, valList, _val);
-		
-		//turning the hashmap into a sorted list
-		this.addToPQ(_finalRowInterest, _rowInterest);
+				
 	}
 	
 	public void genUserInt(String user_id, HashMap<String, Integer> hm, String suggType) {
@@ -221,9 +173,6 @@ public class UserInterestService implements UserInterestServiceImpl {
 			this.addToHM(_allUniInterest, suggList, _sugg);
 			this.addToHM(_allUniInterest, valList, _val);
 		}
-		
-		//this.addToPQ(pq, hm);
-		//return pq;
 	}
 	
 	//add to hashmap
@@ -665,10 +614,10 @@ public class UserInterestService implements UserInterestServiceImpl {
 	}
 	
 	//called when a user clicks on something
-	public void addClickInt(String cell_id, String cell_full_name, String cell_value, String cell_column, String user_id) {
+	public void recordClick(String cell_id, String cell_full_name, String cell_value, String cell_column, String user_id, boolean doubleClick) {
 		
 		List<String> col = new ArrayList<String>();
-		col.add(cell_column);
+		col.add(this.getSuggNum(cell_column));
 		
 		List<String> row = new ArrayList<String>();
 		row.add(cell_id);
@@ -679,42 +628,20 @@ public class UserInterestService implements UserInterestServiceImpl {
 		//add to column hashmap
 		this.addToHM(_colInterest, col, _click);
 		
-		//add to row hashmap
-		this.addToHM(_rowInterest, row, _click);
-		
 		//add to corresponding type hashmap
-		this.addToHM(this.getHashMap(cell_column), spec, _click);
-		
-	}
-	
-	//called when a user double clicks on something
-	public void adddClickInt(String cell_id, String cell_full_name, String cell_value, String cell_column, String user_id) {
-		
-		List<String> col = new ArrayList<String>();
-		col.add(cell_column);
-		
-		List<String> row = new ArrayList<String>();
-		row.add(cell_id);
-		
-		List<String> spec = new ArrayList<String>();
-		spec.add(cell_value);
-		
-		//add to column hashmap
-		this.addToHM(_colInterest, col, _dclick);
-		
-		//add to row hashmap
-		this.addToHM(_rowInterest, row, _dclick);
-		
-		//add to corresponding type hashmap
-		this.addToHM(this.getHashMap(cell_column), spec, _dclick);
+		if(doubleClick) {
+			this.addToHM(this.getHashMap(cell_column), spec, _dclick);
+		} else {
+			this.addToHM(this.getHashMap(cell_column), spec, _click);
+		}
 		
 	}
 	
 	//called when a user makes a suggestion
-	public void addSuggInt(String cell_id, String cell_full_name, String cell_value, String cell_column, String user_id) {
+	public void recordSugg(String cell_id, String cell_full_name, String cell_value, String cell_column, String user_id) {
 		
 		List<String> col = new ArrayList<String>();
-		col.add(cell_column);
+		col.add(this.getSuggNum(cell_column));
 		
 		List<String> row = new ArrayList<String>();
 		row.add(cell_id);
@@ -724,9 +651,6 @@ public class UserInterestService implements UserInterestServiceImpl {
 		
 		//add to column hashmap
 		this.addToHM(_colInterest, col, _sugg);
-		
-		//add to row hashmap
-		this.addToHM(_rowInterest, row, _sugg);
 		
 		//add to corresponding type hashmap
 		this.addToHM(this.getHashMap(cell_column), spec, _sugg);
@@ -734,10 +658,10 @@ public class UserInterestService implements UserInterestServiceImpl {
 	}
 	
 	//called when a user validates an existing suggestion
-	public void addValInt(String cell_id, String cell_full_name, String cell_value, String cell_column, String user_id) {
+	public void recordVal(String cell_id, String cell_full_name, String cell_value, String cell_column, String user_id) {
 		
 		List<String> col = new ArrayList<String>();
-		col.add(cell_column);
+		col.add(this.getSuggNum(cell_column));
 		
 		List<String> row = new ArrayList<String>();
 		row.add(cell_id);
@@ -748,16 +672,13 @@ public class UserInterestService implements UserInterestServiceImpl {
 		//add to column hashmap
 		this.addToHM(_colInterest, col, _sugg);
 		
-		//add to row hashmap
-		this.addToHM(_rowInterest, row, _sugg);
-		
 		//add to corresponding type hashmap
 		this.addToHM(this.getHashMap(cell_column), spec, _sugg);
 		
 	}
 	
 	//called when a user applies a filter
-	public void addFilterInt(String blur, String filter, String column, String idProfile) {
+	public void recordFilter(String blur, String filter, String column, String idProfile) {
 		//need to adjust this to not query the database each time
 		
 		List<String> filterList = new ArrayList<String>();
@@ -863,6 +784,52 @@ public class UserInterestService implements UserInterestServiceImpl {
 		}
 	}
 	
+	public String getSuggNum(String sugg) {
+		switch(sugg) {
+			case "University":
+				return "2";
+			case "Bachelors":
+				return "3";
+			case "Masters":
+				return "4";
+			case "Doctorate":
+				return "5";
+			case "PostDoc":
+				return "6";
+			case "JoinYear":
+				 return "7";
+			case "Rank":
+				return "8";
+			case "Subfield":
+				return "9";
+			default:
+				return "10";
+		}
+	}
+	
+	public HashMap<String, Integer> getSuggMap(String sugg_type) {
+		switch(sugg_type) {
+			case "2":
+				return _uniInterest;
+			case "3":
+				return _bachInterest;
+			case "4":
+				return _mastInterest;
+			case "5":
+				return _doctInterest;
+			case "6":
+				return _postDocInterest;
+			case "7":
+				 return _yearInterest;
+			case "8":
+				return _rankInterest;
+			case "9":
+				return _fieldInterest;
+			default:
+				return _genderInterest;
+		}
+	}
+	
 	public String getProfName(String prof_id) {
 		List<String> prof = new ArrayList<String>();
 		
@@ -894,13 +861,124 @@ public class UserInterestService implements UserInterestServiceImpl {
 		return prof.get(0);
 	}
 	
-	public void getMostInterested(String user_id) {
+	public void getMostInterestedSuggType() {
 		
-		if (_finalColInterest.size() > 0) {
-			System.out.println("final col is " + this.getSuggType(_finalColInterest.get(0)));
+		this.addToPQ(_finalColInterest, _colInterest);
+		
+		if (!_finalColInterest.isEmpty()) {
+			System.out.println("choose sugg type " + _finalColInterest.get(0));
 		}
-		if (_finalRowInterest.size() > 0) {
-			System.out.println("final row is " + this.getProfName(_finalRowInterest.get(0)));
+		
+	}
+	
+	//whenever we need to get the interest for a specific suggestion
+	public void getInterest(String sugg_type) {
+		List<String> interestList = new ArrayList<String>();
+		HashMap<String, Integer> hm = this.getSuggMap(sugg_type);
+		this.addToPQ(interestList, hm);
+		
+		String sugg = this.getSuggType(sugg_type);
+		if (!interestList.isEmpty()) {
+			System.out.println("most interested " + sugg + " is " + interestList.get(0));
 		}
 	}
+	
+	//if we need to get something they have never made a suggestion or validation for
+	public void getNoInterest(String user_id) {
+		//randomise person
+		int randPerson = (int) (Math.random() * _maxPerson);
+		//randomise col (not including photo url or sources)
+		int randCol = (int) (Math.random()*10);
+		//make sure the column is not name
+		while (randCol == 1) {
+			randCol = (int) (Math.random()*10);
+		}
+		//check that this cell is not in their interests
+		while (this.checkNoInterest(user_id, randCol, randPerson)) {
+			randPerson = (int) (Math.random() * _maxPerson);
+			//randomise col (not including photo url or sources)
+			randCol = (int) (Math.random()*10);
+			//make sure the column is not name
+			while (randCol == 1) {
+				randCol = (int) (Math.random()*10);
+			}
+		}
+		
+		//return corresponding cell
+		System.out.println("current uninterested cell is person " + randPerson + " column " + randCol);
+	}
+	
+	public boolean checkNoInterest(String user_id, int randCol, int randPerson) {
+		
+		List<String> row = new ArrayList<String>();
+		List<String> col = new ArrayList<String>();
+		
+		String rCol = Integer.toString(randCol);
+		String rPerson = Integer.toString(randPerson);
+		
+		try {
+		      Context initialContext = new InitialContext();
+		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
+		      if (datasource != null) {
+		        Connection conn = datasource.getConnection();
+		        String sql = "SELECT * FROM `Suggestion` WHERE idProfile = (?) ";
+		        PreparedStatement stmt = conn.prepareStatement(sql);
+		        stmt.setString(1, user_id);
+		        try {
+		        	ResultSet rs = stmt.executeQuery();
+					while (rs.next()) {
+						row.add(rs.getString("idPerson"));
+						col.add(rs.getString("idSuggestionType"));
+					}
+		        } catch (SQLException e) {
+					System.out.println(e.getMessage());
+				}
+		        stmt.close();
+		        conn.close();
+		      }
+		    }
+	        catch (Exception ex)
+	        {
+	        	System.out.println("Exception checkNoInterest() " + ex);
+	        }
+		
+		for (int i = 0; i < row.size(); i++) {
+			if (row.get(i) == rPerson && col.get(i) == rCol) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public String getHighestPersonNum() {
+		
+		List<String> prof = new ArrayList<String>();
+		
+		try {
+		      Context initialContext = new InitialContext();
+		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
+		      if (datasource != null) {
+		        Connection conn = datasource.getConnection();
+		        String sql = "SELECT MAX(idPerson) FROM Person ";
+		        PreparedStatement stmt = conn.prepareStatement(sql);
+		        try {
+		        	ResultSet rs = stmt.executeQuery();
+					while (rs.next()) {
+						prof.add(rs.getString("MAX(idPerson)"));
+					}
+		        } catch (SQLException e) {
+					System.out.println(e.getMessage());
+				}
+		        stmt.close();
+		        conn.close();
+		      }
+		    }
+	        catch (Exception ex)
+	        {
+	        	System.out.println("Exception getClickType() get suggestion " + ex);
+	        }
+		return prof.get(0);
+	}
+	
 }

@@ -37,13 +37,15 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import drafty.services.ExperimentService;
+import drafty.services.UserInterestService;
 import drafty.views._MainUI;
 
 public class SuggestionComponent extends CustomComponent {
 
 	private static final long serialVersionUID = -4092675275245757132L;
 
-	String DATASOURCE_CONTEXT = _MainUI.getDataProvider().getJNDI();
+	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
 	// Create a sub-window and add it to the main window
 	final Window sub = new Window("Suggestion");
@@ -57,6 +59,14 @@ public class SuggestionComponent extends CustomComponent {
 	private String origSuggestion;
 	private String person_name;
 	private String suggestionType;
+	
+	/*
+	 * Mode types:
+	 * normal - a user double clicked
+	 * exp1_no_interest
+	 * exp1_user_interest
+	 */
+	private String suggestionMode;
 	
 	private String newMaxConf;
 	
@@ -78,15 +88,17 @@ public class SuggestionComponent extends CustomComponent {
 	private String chosenSug;
 	
 	private String new_sugg_text = "Select or enter new value below:";
-	private String new_sugg_text_url = "Enter new value below:";
+	private String new_sugg_text_url_or_year = "";
 
 	
-	public SuggestionComponent(String person_id, String name, String value, String column, String idProfile) {
+	public SuggestionComponent(String person_id, String name, String value, String column, String idProfile, 
+								String mode) {
 			this.profile_id = idProfile;
 			this.person_id = person_id;
 			this.person_name = name;
 			this.origSuggestion = value;
 			this.suggestionType = column;
+			this.suggestionMode = mode;
 			
 			addValidators();
 			addListeners();
@@ -111,6 +123,13 @@ public class SuggestionComponent extends CustomComponent {
 	    List<String> suggestions_list = new ArrayList<String>();
 	    try {
 	    	suggestions_list = getSuggestions();
+	    	
+	    	//if there are no suggestions add [blank]
+	    	for (int i = 0; i < suggestions_list.size(); i++) {
+				if (suggestions_list.get(i).isEmpty()) {
+					suggestions_list.set(i, "[blank]");
+				}
+			}
 		} catch (SQLException e) {
 			System.out.println("getSuggestions() SQL error " + e);
 		}
@@ -119,6 +138,7 @@ public class SuggestionComponent extends CustomComponent {
 	    if (suggestionType.equals("Gender")) {
 	    	suggestions_optiongroup.addItem("Male");
 	    	suggestions_optiongroup.addItem("Female");
+	    	//suggestions_optiongroup.addItem("Other");
 	    	submitSuggestion_button.setEnabled(true);
 	    } else if (suggestionType.equals("Rank")) {
 	    	suggestions_optiongroup.addItem("Full");
@@ -127,36 +147,35 @@ public class SuggestionComponent extends CustomComponent {
 	    	submitSuggestion_button.setEnabled(true);
 	    } else {
     		//get suggestions for option group
-	    	
-	    	//if there are no suggestions
-	    	for (int i = 0; i < suggestions_list.size(); i++) {
-				if (suggestions_list.get(i).isEmpty()) {
-					suggestions_list.set(i, "[blank]");
-				}
-			}
-	    	
 			suggestions_optiongroup.addItems(suggestions_list);
 			
-			if(suggestionType.equals("PhotoUrl") || suggestionType.equals("Sources")) {
-				suggestions_optiongroup.addItem(new_sugg_text_url);	
+			if(suggestionType.equals("PhotoUrl") || suggestionType.equals("Sources") || suggestionType.equals("JoinYear")) {
+				suggestions_optiongroup.addItem(new_sugg_text_url_or_year);	
 			} else {
 				suggestions_optiongroup.addItem(new_sugg_text);	
 			}
-			
 	    }
 	    
-	    label_suggestions = new Label("<h3 style=\"margin-top: 0px;\">Make a suggestion for <br>"  + person_name + "'s " + suggestionType + "</h3>", ContentMode.HTML);
+	    if(suggestionMode.equals("experiment")) {
+	    	label_suggestions = new Label("<h3 style=\"margin-top: 0px; line-height: 25px;\">"
+	    			+ "Thank you for using Drafty. <br>"
+	    			+ "Could you please make a suggestion for <br>"
+	    			+ person_name + "'s " + suggestionType + ".</h3>", ContentMode.HTML);
+	    } else {
+	    	label_suggestions = new Label("<h3 style=\"margin-top: 0px; line-height: 25px;\">Make a suggestion for <br>"  + person_name + "'s " + suggestionType + ".</h3>", ContentMode.HTML);	
+	    }
 	    
 	    label_suggestions.addStyleName("padding-top-none");
 	    submitSuggestion_button.setIcon(FontAwesome.FLOPPY_O);
 	    submitSuggestion_button.setWidth("100%");
 	    submitSuggestion_button.setEnabled(false);
-		submitSuggestion_button.addClickListener(e -> submitSuggestion());
 		
+		submitSuggestion_button.addClickListener(e -> submitSuggestion());
+	    
 	    suggestionModal.addComponents(label_suggestions, suggestions_optiongroup);
 	    
 	    if (suggestionType.equals("Subfield")) {
-	    	List<String> fieldlist = _MainUI.getDataProvider().getSubfields();
+	    	List<String> fieldlist = _MainUI.getApi().getSubfields();
 	    	subfields.addItems(fieldlist);
 	    	suggestionModal.addComponent(subfields);
 	    	subfields.setWidth("100%");
@@ -167,10 +186,10 @@ public class SuggestionComponent extends CustomComponent {
 	    if (suggestionType.equals("University") || suggestionType.equals("Bachelors") || suggestionType.equals("Masters") || suggestionType.equals("Doctorate") || suggestionType.equals("PostDoc")) {
 	    	List<String> unis;
 	    	if (suggestionType.equals("University")) {
-	    		unis = _MainUI.getDataProvider().getUniversitiesUSACan();
+	    		unis = _MainUI.getApi().getUniversitiesUSACan();
 		    	universities.addItems(unis);
 	    	} else {
-	    		unis = _MainUI.getDataProvider().getUniversities();
+	    		unis = _MainUI.getApi().getUniversities();
 		    	universities.addItems(unis);	
 	    	}
 	    	suggestionModal.addComponent(universities);
@@ -178,13 +197,17 @@ public class SuggestionComponent extends CustomComponent {
 	    	universities.setPageLength(unis.size());
 	    	universities.setStyleName("option-group-padding-left");
 	    }
+	  
 	    
-	    if(!suggestionType.equals("Rank") && !suggestionType.equals("Gender") && !suggestionType.equals("Subfield")) {
+	    if(suggestionType.equals("JoinYear") || suggestionType.equals("Sources") || suggestionType.equals("PhotoUrl")) {
 	    	suggestionModal.addComponent(suggestion_textbox);
 	    	suggestion_textbox.setStyleName("text-field-margin-left");
+	    	suggestion_textbox.addStyleName("margin-top-negative");
 	    	suggestion_textbox.setWidth("350px"); //need to come up with a better implementation
+	    	if(suggestionType.equals("JoinYear")) {
+	    		suggestion_textbox.setWidth("180px"); 
+	    	}
 	    }
-	    
 	    
 	    suggestionModal.addComponents(label_hr, submitSuggestion_button);
 	    suggestionModal.setComponentAlignment(submitSuggestion_button, Alignment.MIDDLE_RIGHT);
@@ -200,7 +223,7 @@ public class SuggestionComponent extends CustomComponent {
 		boolean createNewSuggCheck = false;
 		
 		if(!suggestions_optiongroup.isEmpty()) {
-			if(selected.equals(new_sugg_text) || selected.equals(new_sugg_text_url)) {
+			if(selected.equals(new_sugg_text) || selected.equals(new_sugg_text_url_or_year)) {
 				
 				if (suggestionType.equals("Subfield")) {
 					if (!subfields.isEmpty()) {
@@ -228,12 +251,6 @@ public class SuggestionComponent extends CustomComponent {
 			    if(createNewSuggCheck) {
 			    	newSuggestion();	
 			    }
-			    
-			    //else if does not exist
-			    //check if sugg exists, update confidence value
-			    //use cheetah person
-			    //if selected.equals DOES NOT EXIST
-			    
 			} else if(selected.equals("[blank]")) {
 				newSuggestion = "";
                 createNewSuggCheck = checkNewSuggestion();
@@ -242,9 +259,7 @@ public class SuggestionComponent extends CustomComponent {
                 } else {
                     updateSuggestionConf();
                 }
-            }
-			
-			else if(suggestionType.equals("Rank") || suggestionType.equals("Gender")) {
+            } else if(suggestionType.equals("Rank") || suggestionType.equals("Gender")) {
 				//NEW SUGGESTION!..possibly
 				createNewSuggCheck = checkNewSuggestion();
 			    if(createNewSuggCheck) {
@@ -274,9 +289,9 @@ public class SuggestionComponent extends CustomComponent {
 				newValidationSuggestion(map.getKey(), "0", chosenSug); //map.getKey() = idSuggestion
 			} 
 			
-			if ((selected.equals(new_sugg_text) || selected.equals(new_sugg_text_url)) && flag == 0) {
+			if ((selected.equals(new_sugg_text) || selected.equals(new_sugg_text_url_or_year)) && flag == 0) {
 				newValidationSuggestion(idNewSuggestion, "1", "1");
-			} else if(selected.equals(new_sugg_text) || selected.equals(new_sugg_text_url) && flag == 1) {
+			} else if(selected.equals(new_sugg_text) || selected.equals(new_sugg_text_url_or_year) && flag == 1) {
 				newValidationSuggestion(idNewSuggestion, "0", "1");
 			}
 			
@@ -323,7 +338,7 @@ public class SuggestionComponent extends CustomComponent {
 		        	newSuggestion = getUniSuggestion(uni_name_check);
 			    }
 		        
-		        idNewSuggestion = _MainUI.getDataProvider().getIdSuggestion(person_id, newSuggestion, suggestionType);
+		        idNewSuggestion = _MainUI.getApi().getIdSuggestion(person_id, newSuggestion, suggestionType);
 		        
 		        stmt.setString(1, newMaxConf);
 		        stmt.setString(2, idNewSuggestion);
@@ -467,6 +482,10 @@ public class SuggestionComponent extends CustomComponent {
 	      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
 	      //System.out.println("newSuggestion() idNewSuggestion try " + suggestionType);
 	      
+	     //update uiService
+	     //waiting for Marianne to update UIService 
+	     //_MainUI.getApi().getUIService().addSuggInt(person_id, person_name, newSuggestion, suggestionType, profile_id);
+	      
 	      if (datasource != null) {
 	        Connection conn = datasource.getConnection();
 	        String sql = "INSERT INTO Suggestion " +
@@ -482,7 +501,7 @@ public class SuggestionComponent extends CustomComponent {
 	        stmt.setString(3, "4"); //idEntryType, always the same from web browser
 	        stmt.setString(4, sugTypeId);
 	        stmt.setString(5, newSuggestion);
-	        stmt.setString(6, _MainUI.getDataProvider().getIdSuggestion(person_id, origSuggestion, suggestionType)); 
+	        stmt.setString(6, _MainUI.getApi().getIdSuggestion(person_id, origSuggestion, suggestionType)); 
 		    stmt.setString(7, newMaxConf); //confidence from max confidence, new_sugg_conf	
 	        
 	        try {
@@ -517,6 +536,10 @@ public class SuggestionComponent extends CustomComponent {
 		try {
 	      Context initialContext = new InitialContext();
 	      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
+
+	      //update uiService
+	      //waiting for Marianne to update UIService 
+		  //_MainUI.getApi().getUIService().addValInt(person_id, person_name, origSuggestion, suggestionType, profile_id);
 	      
 	      if (datasource != null) {
 	        Connection conn = datasource.getConnection();
@@ -535,9 +558,12 @@ public class SuggestionComponent extends CustomComponent {
 		            if (generatedKeys.next()) {
 		        		idValidation = generatedKeys.getString(1);
 		        		System.out.println("newValidation() idNewValidation = " + idValidation);
+		        		if(suggestionMode.equals("experiment")) {
+		    	        	ExperimentService.insertExperimentValidation(idValidation);	
+		    	        }
 		            }
 		            else {
-		                throw new SQLException("Creating failed, no ID obtained.");
+		                throw new SQLException("ERROR newValidation() Creating failed, no ID obtained.");
 		            }
 		        }
 	        } catch (SQLException e) {
@@ -549,7 +575,7 @@ public class SuggestionComponent extends CustomComponent {
 	    }
         catch (Exception ex)
         {
-        	System.out.println("Exception: " + ex);
+        	System.out.println("Exception newValidation(): " + ex);
         }
 	}
 	
@@ -629,7 +655,7 @@ public class SuggestionComponent extends CustomComponent {
         }
 		
 		//add original suggestion first, to make sure it shows up for the end user
-		suggestionsMap.put(_MainUI.getDataProvider().getIdSuggestion(person_id, origSuggestion, suggestionType), origSuggestion);
+		suggestionsMap.put(_MainUI.getApi().getIdSuggestion(person_id, origSuggestion, suggestionType), origSuggestion);
 				
 		//Cleans list of duplicate university names
 		if(uni_clean) {
@@ -671,10 +697,16 @@ public class SuggestionComponent extends CustomComponent {
 	    	//System.out.println("list add: " + entry.getValue().toString());
 	        list.add(entry.getValue().toString());
 	    }
-	    
 	    return list;
 	}
 	
+	private void newUniversityItem(String e) {
+		//System.out.println("New Uni ComboBox = " + e);
+		universities.addItem(e);
+		universities.select(e);
+	}
+
+
 	private void addValidators() {
 		suggestion_textbox.setRequiredError("Suggestion cannot be the same as previous entry.");
 		
@@ -682,8 +714,14 @@ public class SuggestionComponent extends CustomComponent {
 	    suggestion_textbox.setValue("");
 	    suggestion_textbox.removeAllValidators();
 	    suggestion_textbox.setWidth("100%");
-	    suggestion_textbox.setInputPrompt("Enter new value.");
-	    suggestion_textbox.setMaxLength(1400);
+	    if(suggestionType.equals("PhotoUrl") || suggestionType.equals("Sources")) {
+		    suggestion_textbox.setInputPrompt("Enter a new URL");
+		    suggestion_textbox.setMaxLength(1000);
+			suggestions_optiongroup.setValue(new_sugg_text_url_or_year);
+		} else {
+		    suggestion_textbox.setInputPrompt("Enter a new Join Year");
+		    suggestion_textbox.setMaxLength(4);
+		}
 	}
 	
 	@SuppressWarnings("serial")
@@ -714,7 +752,7 @@ public class SuggestionComponent extends CustomComponent {
 				
 				for (Object item : suggestions_optiongroup.getItemIds()) {
 					if (item.toString().equals(change.getText()) || change.getText().equals(new_sugg_text) 
-							|| change.getText().equals(new_sugg_text_url) || change.getText().equals("other")) {
+							|| change.getText().equals(new_sugg_text_url_or_year) || change.getText().equals("other")) {
 						flag = 1;
 					} else if (flag != 1) {
 						//System.out.println("NoM: " + change.getText() + " = " + item.toString());
@@ -736,7 +774,7 @@ public class SuggestionComponent extends CustomComponent {
 
 	private Object selectNew() {
 		if(suggestionType.equals("PhotoUrl") || suggestionType.equals("Sources")) {
-			suggestions_optiongroup.setValue(new_sugg_text_url);
+			suggestions_optiongroup.setValue(new_sugg_text_url_or_year);
 		} else {
 			suggestions_optiongroup.setValue(new_sugg_text);
 		}

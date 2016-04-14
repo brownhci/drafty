@@ -29,7 +29,7 @@ public class MailService {
 	//@Resource(mappedName="java:jboss/mail/gmail")
    // private Session mailSession;
 	
-	String DATASOURCE_CONTEXT = _MainUI.getDataProvider().getJNDI();
+	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
 	public MailService() {
 		 

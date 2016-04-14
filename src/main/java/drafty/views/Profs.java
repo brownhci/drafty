@@ -1,5 +1,6 @@
 package drafty.views;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,6 +15,7 @@ import javax.sql.DataSource;
 
 import org.vaadin.viritin.util.BrowserCookie;
 
+import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -33,13 +35,13 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.event.SortEvent;
 import com.vaadin.event.SortEvent.SortListener;
 import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.FileDownloader;
+import com.vaadin.server.FileResource;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Responsive;
-import com.vaadin.server.Sizeable;
 import com.vaadin.server.WebBrowser;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -66,15 +68,17 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+import drafty.data.DataExporter;
+import drafty.models.InteractionType;
+import drafty.services.ExperimentService;
 import drafty.services.InteractionService;
 import drafty.services.MailService;
 import drafty.widgets.SuggestionComponent;
-import drafty.widgets.SuggestionComponent2;
 
 public class Profs extends VerticalLayout implements View {
 	
 	private static final long serialVersionUID = -6955613369737022454L;
-	String DATASOURCE_CONTEXT = _MainUI.getDataProvider().getJNDI();
+	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
 	//set Drafty cookie value
 	private String cookieCheck = "brown_university_drafty_cookie";
@@ -102,6 +106,7 @@ public class Profs extends VerticalLayout implements View {
 	Label label_headingR = new Label("<h5>Brown University HCI Research Group</h5>", ContentMode.HTML);
 	Label label_badges = new Label();
 	Label label_badges_info = new Label("Suggest new data or validate existing data to earn more badges!");
+	Label label_footer = new Label("<p>Brown University - Computer Science - Human Computer Interaction Research Group</p>", ContentMode.HTML);
 	
 	HorizontalLayout horLay1 = new HorizontalLayout();
 	HorizontalLayout horLay2 = new HorizontalLayout();
@@ -115,6 +120,7 @@ public class Profs extends VerticalLayout implements View {
 	IndexedContainer container = new IndexedContainer();
 	Grid resultsGrid = new Grid();
 	
+	MenuItem exportButton = null;
 	MenuItem draftyLogo = null;
 	MenuItem badgesMenu = null;
 	MenuItem suggestionMode = null;
@@ -146,25 +152,75 @@ public class Profs extends VerticalLayout implements View {
 		//bottom page divder
 		panelWrap.addComponents(draftyDivider);
 		draftyDivider.setWidth("100%");
-		//draftyDivider.addStyleName("panel-bottom-spacing");
-		//draftyDivider.addStyleName("divider-header");
 		Responsive.makeResponsive(draftyDivider);
-		
-		populateGrid("<= 32"); //only 20 inital row
+		draftyDivider.setCaption("<span style='margin-left: 20px; margin-top: 4px, margin-bottom: 4px; margin-right: 0px; color: #d9d9d9;'>&copy; Brown University - Computer Science - Human Computer Interaction Research Group</span>");
+		draftyDivider.setCaptionAsHtml(true);
+
+		//finish off building grid
+		populateGrid("<= 50"); //Initial rows
 		resultsGrid.sort("University");
 		resultsGrid.removeColumn("id");
 		
-		resultsGrid.setColumnReorderingAllowed(true);
-		
+		//For Grid and Footer Size
 		Page.getCurrent().addBrowserWindowResizeListener(e -> BrowserResize(e));
-		//UI.setResizeLazy(true);
+		resultsGrid.setHeight((Page.getCurrent().getBrowserWindowHeight() - 77), Unit.PIXELS);
 	}
 	
 	private void BrowserResize(BrowserWindowResizeEvent e) {
-		System.out.println("Browser Resize = " + e.getHeight() +  " : "+ e.getWidth());
+		resultsGrid.setHeightMode(HeightMode.CSS);
+		resultsGrid.setHeight(String.valueOf(e.getHeight() - 77));
 	}
 
-
+	public void recordInteraction(InteractionType interactionType) {
+		Integer intCount = 0;
+		boolean doNotAsk = false;
+		
+		if(interactionType.equals(InteractionType.CLICK)) {
+			
+		} else if(interactionType.equals(InteractionType.DblCLICK)) {
+			doNotAsk = true;
+		} else if(interactionType.equals(InteractionType.CLICKPROF)) {
+			
+		} else if(interactionType.equals(InteractionType.DblCLICKPROF)) {
+			doNotAsk = true;
+		} else if(interactionType.equals(InteractionType.FILTER)) {
+			
+		} else if(interactionType.equals(InteractionType.FILTERBLUR)) {
+			
+		} else if(interactionType.equals(InteractionType.SORT)) {
+			
+		}
+		
+		if(!doNotAsk) {
+			intCount = 1 + _MainUI.getApi().getInteractionCount();
+			_MainUI.getApi().setInteractionCount(intCount);
+		}
+		
+		//experiment 1 code
+		String experiment_id = _MainUI.getApi().getProfile().getIdExperiment();
+		if(intCount % 8 == 0 && intCount != 0) { //activates every 8 interactions
+			if(experiment_id.equals("1")) { //Ask Fix Random (or No-Interest)
+				
+			} else if (experiment_id.equals("2")) { //Ask Fix User Interest
+				
+				/*need to wait for Marianne to finish UserInterestService
+				 * 
+				String person_id = _MainUI.getApi().getUIService().getMostInterestedProfessorId();
+				String prof_name = _MainUI.getApi().getUIService().getMostInterestedProfessorName();
+				String suggestion_type_id = ExperimentService.getRandomSuggestionType();
+				String suggestion_with_max_conf = ExperimentService.getSuggestionWithMaxConf(person_id, suggestion_type_id);
+				
+				//new SuggestionComponent(person_id, name, value, column, experiment_id, mode);
+				new SuggestionComponent(person_id, prof_name, suggestion_with_max_conf, suggestion_type_id, 
+										_MainUI.getApi().getProfile().getIdProfile(), "experiment");
+				*/
+			}
+		}
+		
+		//50 / 50 ask by prof or by column
+		//get column type - uni, bach, mast, phd, subfield, joinyear, rank 
+	}
+	
 	@SuppressWarnings("serial")
 	private void addContactValidators() {
 		fName.setBuffered(true);
@@ -209,6 +265,11 @@ public class Profs extends VerticalLayout implements View {
 		if(fName.getValue().toString().equals("drafty1212")) {
 			System.out.println("FirstName = " + fName.getValue().toString());
 			UI.getCurrent().getNavigator().navigateTo("secretview");
+		}
+		
+		if(lName.getValue().toString().equals("dev2323")) {
+			System.out.println("LastName = " + lName.getValue().toString());
+			resultsGrid.addColumn("id");
 		}
 		
 		/* reads all value changes */
@@ -267,7 +328,7 @@ public class Profs extends VerticalLayout implements View {
 				
 				String badge_info = "<p class=\"projectinfo\">You have earned the ";
 				if (count == 0) {
-					label_badges.setValue(badge_info + "Unhappy badge. " + FontAwesome.FROWN_O.getHtml() +  "  Make a suggestion and turn that frown upside down. :) ");
+					label_badges.setValue(badge_info + "Anchor badge. " + FontAwesome.ANCHOR.getHtml() +  "  Make a suggestion and turn that frown upside down. :) ");
 				} else if (count < 5) {
 					label_badges.setValue(badge_info + "Happy badge. " + FontAwesome.SMILE_O.getHtml() +  "  Thank you for making a suggestion! Keep going to upgrade your badge. ");
 				} else if (count < 8) {
@@ -280,6 +341,19 @@ public class Profs extends VerticalLayout implements View {
 					label_badges.setValue(badge_info + "Galactic Empire badge. " + FontAwesome.GE.getHtml() +  "  You are the most dominant force in the galaxy!  ");
 				}
 			}
+		}
+	}
+	
+	public void tooltipMod(boolean active) {
+		if(active) {
+			@SuppressWarnings("serial")
+			CellDescriptionGenerator tooltip = new CellDescriptionGenerator() {
+				@Override
+				public String getDescription(CellReference cell) { return "Double Click to Edit";}
+			};
+			resultsGrid.setCellDescriptionGenerator(tooltip);
+		} else {
+			resultsGrid.setCellDescriptionGenerator(null);
 		}
 	}
 	
@@ -311,49 +385,72 @@ public class Profs extends VerticalLayout implements View {
 				}
          });
 		
-		CellDescriptionGenerator tooltip = new CellDescriptionGenerator() {
-			@Override
-			public String getDescription(CellReference cell) { return "Double Click to Edit";}
-		};
-		resultsGrid.setCellDescriptionGenerator(tooltip);
-		
 		//Gets designated column value from row selection 
 		resultsGrid.addItemClickListener(new ItemClickListener() {
             @Override
             public void itemClick(ItemClickEvent e) {
             	//System.out.println("Click Name: " + (String) e.getItem().getItemProperty("FullName").getValue());
-            	
-            	flag_sugg = 1;
-            	suggestionMode.setText(icono2);
+            	String rowValues = (String) e.getItem().getItemProperty("FullName").getValue()+","+
+                    	(String) e.getItem().getItemProperty("University").getValue() +","+
+                    	(String) e.getItem().getItemProperty("JoinYear").getValue()+","+
+                    	(String) e.getItem().getItemProperty("Rank").getValue()+ ","+
+                    	(String) e.getItem().getItemProperty("Subfield").getValue()+","+
+                    	(String) e.getItem().getItemProperty("Bachelor").getValue()+","+
+                    	(String) e.getItem().getItemProperty("Doctorate").getValue()+","+
+                    	(String) e.getItem().getItemProperty("PostDoc").getValue()+","+
+                    	(String) e.getItem().getItemProperty("Gender").getValue();
             	
             	cell_id = (String) e.getItem().getItemProperty("id").getValue();
 				cell_full_name = (String) e.getItem().getItemProperty("FullName").getValue();
 				cell_value = container.getContainerProperty(e.getItemId(), e.getPropertyId()).getValue().toString();
 				cell_column = e.getPropertyId().toString();
-            	
+    			
+        		flag_sugg = 1;
+            	icono2 = "<span class=\"v-menubar-menuitem-caption\" style=\"color:#197dea\"><span class=\"v-icon FontAwesome\"></span>"
+            			+ "Click here to make a Suggestion for " + cell_full_name + "'s " + cell_column + "</span>";
+				
+				//tooltip
+				if(cell_column.equals("FullName")) {
+					tooltipMod(false);
+				} else {
+					tooltipMod(true);
+				}
+				
             	InteractionService is = new InteractionService();
 				
-                if (e.isDoubleClick()) {
-                	is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "1", idProfile); //1 to record it as double click
+                if (e.isDoubleClick()) { //double click
+            		//waiting for Marianne to tweak UserInterstService
+                	//_MainUI.getApi().getUIService().addClickInt(cell_id, cell_full_name, cell_value, cell_column, idProfile, true);
+            		
                 	if(cell_column.equals("FullName")) {
+                		resetSuggestionMenuItem();
+                		recordInteraction(InteractionType.DblCLICKPROF);
                 		Notification.show("Full Name is not available to make Suggestions");
+                		is.recordClickPerson(cell_id, "1", idProfile);
                 	} else {
-                		//new SuggestionComponent(cell_id, cell_full_name, cell_value, cell_column, idProfile);
-                		new SuggestionComponent2(cell_id, cell_full_name, cell_value, cell_column, idProfile);
+                		recordInteraction(InteractionType.DblCLICK);
+                		is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "1", idProfile, rowValues); //1 to record it as double click
+                		new SuggestionComponent(cell_id, cell_full_name, cell_value, cell_column, idProfile, "normal");
+                		
+                    	suggestionMode.setText(icono2);
                 	}
                 } else { //single click
-                	is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "0", idProfile);
+                	//waiting for Marianne to tweak UserInterstService
+                	//_MainUI.getApi().getUIService().addClickInt(cell_id, cell_full_name, cell_value, cell_column, idProfile, false);
+                	
+                	if(cell_column.equals("FullName")) {
+                		resetSuggestionMenuItem();
+                		recordInteraction(InteractionType.CLICKPROF);
+                		is.recordClickPerson(cell_id, "0", idProfile);
+                	} else {
+                    	suggestionMode.setText(icono2);
+                		
+                		recordInteraction(InteractionType.CLICK);
+                    	is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "0", idProfile, rowValues);
+                	}
                 }
             }
         });
-		
-		resultsGrid.addSortListener(new SortListener() {
-
-			@Override
-			public void sort(SortEvent event) {
-				resetSuggestionMenuItem();
-			}
-		});
 		
 		setSpacing(false);
 		setMargin(false);
@@ -385,22 +482,16 @@ public class Profs extends VerticalLayout implements View {
 		horLay.setExpandRatio(resultsGrid, 1.0f);
 		vertLayRight.setWidth("28px");
 		
-		//panelWrap.addComponent(resultsGrid);
+		resultsGrid.setColumnReorderingAllowed(true);
 		resultsGrid.setResponsive(true);
-	    //resultsGrid.setHeightMode(HeightMode.ROW);
-	    //resultsGrid.setHeightByRows(6);
-	    resultsGrid.setHeightMode(HeightMode.CSS);
-		//resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight() - 200), Unit.PIXELS);
-	    resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight() - 165), Unit.PIXELS);
-	    //resultsGrid.setHeight((Page.getCurrent().getWebBrowser().getScreenHeight()), Unit.PIXELS);
 	    
 	    //Set Column header names
 	    resultsGrid.getColumn("id").setHeaderCaption("ID");
 		resultsGrid.getColumn("FullName").setHeaderCaption("Name").setExpandRatio(0);
 		resultsGrid.getColumn("University").setHeaderCaption("University").setWidth(280);
-		resultsGrid.getColumn("JoinYear").setHeaderCaption("Join Year").setWidth(100);
+		resultsGrid.getColumn("JoinYear").setHeaderCaption("JoinYear").setWidth(105);
 		resultsGrid.getColumn("Rank").setHeaderCaption("Rank").setWidth(100);
-		resultsGrid.getColumn("Subfield").setHeaderCaption("Subfield").setWidth(280);
+		resultsGrid.getColumn("Subfield").setHeaderCaption("Subfield").setWidth(290);
 		resultsGrid.getColumn("Bachelors").setHeaderCaption("Bachelors").setWidth(280);
 		resultsGrid.getColumn("Masters").setHeaderCaption("Masters").setWidth(280);
 		resultsGrid.getColumn("Doctorate").setHeaderCaption("Doctorate").setWidth(280);
@@ -411,7 +502,6 @@ public class Profs extends VerticalLayout implements View {
 		resultsGrid.setFrozenColumnCount(1);
 	}
 	
-
 	@SuppressWarnings({"serial"})
 	private void buildMenu() {
 		//menu
@@ -440,25 +530,20 @@ public class Profs extends VerticalLayout implements View {
 				resetSuggestionMenuItem();
 				
 				// Create a sub-window and add it to the main window
-				Window sub = new Window("About Drafty");
+				Window sub = new Window();
 				sub.setWidth("67%");
 				VerticalLayout menuModal = new VerticalLayout();
 				menuModal.setMargin(true);
 				menuModal.setSpacing(true);
 				
-			    Label label_drafty_title = new Label("<h2 style=\"margin-top: 0px; color:#0095da; margin-bottom: 0px;\"> Drafty </h1>", ContentMode.HTML);
-			    Label label_about_title = new Label("<h3 style=\"margin-top: 0px; margin-bottom: 0px;\">Computer Science Professors from Top US and Canadian Schools</h3>", ContentMode.HTML);
-			    Label label_hci_title = new Label("<h3 style=\"margin-top: 0px;\">Brown University HCI Project</h3>", ContentMode.HTML);
-			    label_about_title.addStyleName("padding-top-none");
-			    label_drafty_title.addStyleName("padding-top-none");
-			    label_hci_title.addStyleName("padding-top-none");
-			    label_drafty_title.setWidth("30px");
-			    label_about_title.setWidth("458px");
-			    label_hci_title.setWidth("201px");
+			    Label label_drafty_title = new Label("<h2 style=\"margin-top: 0px; width:98%; color:#0095da; margin-bottom: 0px;\"> About Drafty </h1>", ContentMode.HTML);
+			    Label label_about_title = new Label("<h3 style=\"margin-top: 0px; width:98%; margin-bottom: 0px;\">Computer Science Professors from Top US and Canadian Schools</h3>", ContentMode.HTML);
+			    Label label_hci_title = new Label("<h3 style=\"margin-top: 0px; width:98%;\">Brown University HCI Project</h3>", ContentMode.HTML);
 			    
-			    Label label_sugg = new Label("<p style=\"margin-top: 0px; padding: 10px; color: #666666; border-radius: 5px; text-align: center; background-color: #f1f1f1;\"<span class=\"v-icon FontAwesome\"></span> <b>Wondering how to make a Suggestion?</b> <br>Double click any cell.</p>", ContentMode.HTML);
+			    Label label_sugg = new Label("<p style=\"margin-top: 0px; padding: 10px; width:98%; color: #666666; border-radius: 5px; text-align: center; background-color: #f1f1f1;\"<span class=\"v-icon FontAwesome\"></span> "
+			    								+ "<b>Wondering how to make a Suggestion?</b> <br>Double click any cell.</p>", ContentMode.HTML);
 			    label_sugg.addStyleName("padding-top-none");
-			    label_sugg.setWidth("425px");
+			    label_sugg.setWidth("100%");
 			    
 			    Label label_about = new Label(
 
@@ -480,6 +565,19 @@ public class Profs extends VerticalLayout implements View {
 			    menuModal.setComponentAlignment(label_about_title, Alignment.MIDDLE_CENTER);
 			    menuModal.setComponentAlignment(label_hci_title, Alignment.MIDDLE_CENTER);
 			    menuModal.setComponentAlignment(label_sugg, Alignment.MIDDLE_CENTER);
+			    
+			    //basic layout of top
+			    //label_drafty_title.setWidth("100%");
+			    menuModal.setExpandRatio(label_drafty_title, 1.f);
+			    label_about_title.addStyleName("padding-top-none");
+			    //label_about_title.setWidth("100%");
+			    menuModal.setExpandRatio(label_about_title,1.f);
+			    label_drafty_title.addStyleName("padding-top-none");
+		        //label_hci_title.setWidth("100%");
+		        menuModal.setExpandRatio(label_hci_title,1.f);
+		        label_hci_title.addStyleName("padding-top-none");
+		        label_sugg.setWidth("100%");
+			    
 				sub.setContent(menuModal);
 				sub.setModal(true);
 				UI.getCurrent().addWindow(sub);
@@ -584,7 +682,32 @@ public class Profs extends VerticalLayout implements View {
 			}
 		});
 		
-		//badgesMenu.setStyleName("badgesUsermenu");
+		exportButton = draftyMenu.addItem("Export", FontAwesome.DOWNLOAD, new MenuBar.Command(){
+			@Override
+			public void menuSelected(MenuItem selectedItem){
+				
+				Window exportWindow = new Window();
+				exportWindow.setWidth("30%");
+				VerticalLayout exportLay = new VerticalLayout();
+				exportLay.setMargin(true);
+				exportLay.setSpacing(true);
+				Button exportButton = new Button("Export Filtered Data");
+				exportButton.setWidth("100%");
+				exportLay.addComponent(exportButton);
+
+				Container resultsData = resultsGrid.getContainerDataSource();
+				DataExporter exporter = new DataExporter();
+				File file = exporter.getContainerCSVFile(resultsData);
+				FileResource file_resource = new FileResource(file);
+				FileDownloader download = new FileDownloader(file_resource);
+				download.extend(exportButton);
+				
+				exportWindow.setContent(exportLay);
+				exportWindow.setModal(true);
+				UI.getCurrent().addWindow(exportWindow);
+				
+			}
+		});
 		
 		//New suggestion button on top right
 		suggestionMode = draftyMenu.addItem(icono, new MenuBar.Command() {	
@@ -595,26 +718,16 @@ public class Profs extends VerticalLayout implements View {
 	            		//do nothing
 	            		Notification.show("Full Name is not available to make Suggestions");
 	            	} else {
-	            		new SuggestionComponent(cell_id, cell_full_name, cell_value, cell_column, idProfile);
+	            		new SuggestionComponent(cell_id, cell_full_name, cell_value, cell_column, idProfile, "normal");
 	            	}	
 				} else {
 					Notification.show("Please select or double click a cell to make a suggestion.");
 				}
 			}
 		});
-		
-		//suggestionMode.setStyleName("suggestionUsermenu");
 	}
 	
-	protected void filter(String filter, String column, String blur) {
-		try {
-			insertFilter(filter, column, blur);
-		} catch (SQLException e) {
-			System.out.println("Exception  filter(): " + e);
-		}
-	}
-	
-	public void insertFilter(String filter, String column, String blur) throws SQLException {  
+	public void insertFilter(String filter, String column, String blur) {  
 		try {
 	      Context initialContext = new InitialContext();
 	      
@@ -630,7 +743,7 @@ public class Profs extends VerticalLayout implements View {
 	        try {
 		        stmt.executeUpdate();
 	        } catch (SQLException e) {
-				System.out.println(e.getMessage());
+				System.out.println("ERROR MySQL insertFilter(): " + e.getMessage());
 			}
 	        stmt.close();
 	        conn.close();
@@ -638,7 +751,7 @@ public class Profs extends VerticalLayout implements View {
 	    }
       catch (Exception ex)
       {
-      	System.out.println("Exception" + ex);
+      	System.out.println("Exception insertFilter(): " + ex);
       }
 	}
 	
@@ -694,14 +807,15 @@ public class Profs extends VerticalLayout implements View {
 			    	filterText = change.getText();
 			    	
 			    	//Notification.show("Filter Activate: " + pid + " - " + change.getText());
-			    	filter(filterText, pid.toString(), "0");
-			    	
+			    	insertFilter(filterText, pid.toString(), "0");
+            		recordInteraction(InteractionType.FILTER);
 			    	
 			    	filterField.addBlurListener(new BlurListener() {
 						@Override
 						public void blur(BlurEvent event) {
 							//Notification.show("Filter Activate Blur: " + pid + " - " + filterText);
-							filter(filterText, pid.toString(), "1");
+							insertFilter(filterText, pid.toString(), "1");
+							recordInteraction(InteractionType.FILTERBLUR);
 						}	
 			    	});
 
@@ -714,11 +828,8 @@ public class Profs extends VerticalLayout implements View {
 		} 
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private void populateGrid(String lookup) {
-		//System.out.println("popgrid 2 start ");
-		//clears grid data from grid datasource
-		//resultsGrid.getContainerDataSource().removeAllItems();
 	    
 	    try {
 	      Context initialContext = new InitialContext();
@@ -726,7 +837,7 @@ public class Profs extends VerticalLayout implements View {
 	      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
 	      if (datasource != null) {
 	        Connection conn = datasource.getConnection();
-	        //String sql = "SELECT idPerson, idSuggestionType, suggestion, confidence, name  FROM _view_csv_name";
+	        
 	        String sql = 
 	        		"select o.idPerson AS idPerson,o.idSuggestionType AS idSuggestionType, o.suggestion AS suggestion, o.confidence AS confidence, p.name AS name "
 	        		+ "from ((drafty.Suggestion o "
@@ -764,7 +875,7 @@ public class Profs extends VerticalLayout implements View {
 					if(personId.equals(personIdSt)) {
 						Full_Name = rs.getString("name"); //always the same
 						if(typeId.equals("2")) { //
-							University = _MainUI.getDataProvider().cleanUniversityName(rs.getString("suggestion"));
+							University = _MainUI.getApi().cleanUniversityName(rs.getString("suggestion"));
 						} else if(typeId.equals("3")) { //
 							Bachelors = rs.getString("suggestion");
 						} else if(typeId.equals("4")) { //
@@ -815,7 +926,7 @@ public class Profs extends VerticalLayout implements View {
 						
 						//clears variables
 						Full_Name = "";
-						University = _MainUI.getDataProvider().cleanUniversityName(rs.getString("suggestion")); //skipped due to logic
+						University = _MainUI.getApi().cleanUniversityName(rs.getString("suggestion")); //skipped due to logic
 			        	Bachelors = "";
 			        	Masters = "";
 			        	Doctorate = "";
@@ -878,50 +989,86 @@ public class Profs extends VerticalLayout implements View {
 		//Check for Cookie
 		BrowserCookie.detectCookieValue(cookieCheck, new BrowserCookie.Callback() {
 
-            @Override
+            @SuppressWarnings("serial")
+			@Override
             public void onValueDetected(String value) {
             	cookieValue = value;
             	System.out.println("cookie value == " + cookieValue);
             	
-            	System.out.println("cookieCheck " + cookieCheck + " detect cookie:  " + cookieValue + " = " + value);
-            	if (cookieValue == null) {
-            		
-        			//no cookie detected
-        			try {
-        				newProfile();
-        			} catch (SQLException e1) {
-        				System.out.println("Profs() newProfile() error: " + e1);
-        			} finally {
-        				try {
-            				newIp();
-            			} catch (SQLException e1) {
-            				System.out.println("Profs() newIp() error: " + e1);
-            			}
-        				
-            			//sets cookie
-            			setCookie();
-        			}
-        		} else {
-        			System.out.println("else, cookie value == " + cookieValue);
-        			
-        			try {
-        				checkProfile();
-        			} catch (SQLException e1) {
-        				System.out.println("Profs() checkProfile() error: " + e1);
-        			} finally {
-        				try {
-            				checkIpAddress();
-            			} catch (SQLException e1) {
-            				System.out.println("Profs() checkIpAddress() error: " + e1);
-            			}	
-        			}
-        		}
-            	
-            	//popgrid -> rest of info; not totally great implementation but it works
-        		populateGrid("> 32");	
-        		resultsGrid.sort("University");
+	            try {
+	            	//System.out.println("cookieCheck " + cookieCheck + " detect cookie:  " + cookieValue + " = " + value);
+	            	if (cookieValue == null) {
+	            		//no cookies 
+	            		newCookieProfile();
+	        		} else {
+	        			System.out.println("else, cookie value == " + cookieValue);
+	        			
+	        			try {
+	        				if(checkProfile().equals("1")) {
+	        					try {
+	                				checkIpAddress();
+	                			} catch (SQLException e1) {
+	                				System.out.println("Profs() checkIpAddress() error: " + e1);
+	                			}
+	        				} else {
+	        					newCookieProfile();
+	        				}
+	        			} catch (SQLException e1) {
+	        				System.out.println("Profs() checkProfile() error: " + e1);
+	        			}
+	        		}
+	            } catch (Exception e) {
+	            	System.out.println("ERROR detectCookie() valueDetect: " + e);
+	            } finally {  	
+	            	//update Badges now that we have idProfile
+	        		updateBadges();
+	        		
+	        		//build new UserInterest Model
+	            	_MainUI.getApi().setUIService(idProfile);
+	        		
+	            	//popgrid -> rest of info; not a great implementation but it works for now
+	        		populateGrid("> 50");	
+	        		resultsGrid.sort("University");
+
+	        		resultsGrid.addSortListener(new SortListener() {
+	        			@Override
+	        			public void sort(SortEvent event) {
+	        				resetSuggestionMenuItem();
+	        				recordInteraction(InteractionType.SORT);
+	        			}
+	        		});
+	        		
+	        		resultsGrid.addBlurListener(new BlurListener() {
+						
+						@Override
+						public void blur(BlurEvent event) {
+							resetSuggestionMenuItem();
+						}
+					});
+	        		
+	        		//set Experiment id
+	        		ExperimentService.checkExperimentProfile();
+	            }
             }
         });
+	}
+	
+	private void newCookieProfile() {
+		//no cookie detected
+		try {
+			newProfile();
+		} catch (SQLException e1) {
+			System.out.println("Profs() newProfile() error: " + e1);
+		} finally {
+			try {
+				newIp();
+			} catch (SQLException e1) {
+				System.out.println("Profs() newIp() error: " + e1);
+			}
+			
+			//sets cookie
+			setCookie();
+		}
 	}
 	
 	private void setCookie() {
@@ -951,6 +1098,7 @@ public class Profs extends VerticalLayout implements View {
 					while (rs.next()) {
 						if(rs.getString("exist").equals("1")) {
 							idProfile = rs.getString("idProfile");
+			        		_MainUI.getApi().getProfile().setIdProfile(idProfile);
 							updateProfile();
 						}
 						exists = rs.getString("exist");
@@ -970,9 +1118,6 @@ public class Profs extends VerticalLayout implements View {
 	
 	private String checkIpAddress() throws SQLException {
 		String exists = null;
-			
-		//update Badges now that we have idProfile
-		updateBadges();
 		
 		try {
 	      Context initialContext = new InitialContext();
@@ -1083,6 +1228,7 @@ public class Profs extends VerticalLayout implements View {
 		        try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
 		            if (generatedKeys.next()) {
 		        		idProfile = generatedKeys.getString(1);
+		        		_MainUI.getApi().getProfile().setIdProfile(idProfile);
 		        		System.out.println("newProfile() idProfile " + idProfile);
 		            }
 		            else {
@@ -1110,7 +1256,7 @@ public class Profs extends VerticalLayout implements View {
 	        Connection conn = datasource.getConnection();
 	        String sql = "INSERT INTO IpAddress (idProfile, ip, browser, locale, date_created, date_updated, logins) VALUES (?, ?, ?, ?, ?, ?, 1); ";
 	        PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-	        //System.out.println("newIp() idProfile " + idProfile);
+	        System.out.println("newIp() idProfile " + idProfile);
 	        stmt.setString(1, idProfile);
 	        stmt.setString(2, ipAddress);
 	        stmt.setString(3, webBrowser.getLocale().toString());
@@ -1151,9 +1297,5 @@ public class Profs extends VerticalLayout implements View {
 	@Override
 	public void enter(ViewChangeEvent event) {
 		
-	}	
-	
-	public void afterViewChange(ViewChangeListener event) {
-		//System.out.println("View After");
-    }
+	}
 }

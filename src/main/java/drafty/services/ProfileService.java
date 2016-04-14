@@ -14,25 +14,8 @@ import javax.sql.DataSource;
 
 import org.vaadin.viritin.util.BrowserCookie;
 
-import com.vaadin.server.Page;
-import com.vaadin.server.WebBrowser;
-
-import drafty.views._MainUI;
-
-public class BrowserCookies {
-
-	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
-	
-	//set Drafty cookie value
-	private String cookieCheck = "brown_university_drafty_cookie";
-	private String cookieValue = "0";
-	private WebBrowser webBrowser = Page.getCurrent().getWebBrowser();
-	private String browser = webBrowser.getBrowserApplication();
-	private String browserNumber = Integer.toString(webBrowser.getBrowserMajorVersion()) + "." + Integer.toString(webBrowser.getBrowserMinorVersion());
-	private String ipAddress = webBrowser.getAddress();
-	private String idProfile = null;
-	private String idIpAddress = null;
-	
+public class ProfileService {
+/*
 	private void detectCookie() {
 		//look at viritin
 		//https://github.com/viritin/viritin/blob/830c09c74f722fece45d95adde89354959e5dafa/src/test/java/org/vaadin/viritin/it/BrowserCookieTest.java
@@ -43,43 +26,56 @@ public class BrowserCookies {
             @Override
             public void onValueDetected(String value) {
             	cookieValue = value;
+            	System.out.println("cookie value == " + cookieValue);
             	
-            	System.out.println("cookieCheck " + cookieCheck + " detect cookie:  " + cookieValue + " = " + value);
+            	//System.out.println("cookieCheck " + cookieCheck + " detect cookie:  " + cookieValue + " = " + value);
             	if (cookieValue == null) {
-        			System.out.println("cookie value == null : " + cookieValue);
-        			
-        			//no cookie detected
-        			try {
-        				newProfile();
-        			} catch (SQLException e1) {
-        				System.out.println("Profs() newProfile() error: " + e1);
-        			} finally {
-        				try {
-            				newIp();
-            			} catch (SQLException e1) {
-            				System.out.println("Profs() newIp() error: " + e1);
-            			}
-        				
-            			//sets cookie
-            			setCookie();
-        			}
+            		//no cookies 
+            		newCookieProfile();
         		} else {
         			System.out.println("else, cookie value == " + cookieValue);
         			
         			try {
-        				checkProfile();
+        				if(checkProfile().equals("1")) {
+        					try {
+                				checkIpAddress();
+                			} catch (SQLException e1) {
+                				System.out.println("Profs() checkIpAddress() error: " + e1);
+                			}
+        				} else {
+        					newCookieProfile();
+        				}
         			} catch (SQLException e1) {
         				System.out.println("Profs() checkProfile() error: " + e1);
-        			} finally {
-        				try {
-            				checkIpAddress();
-            			} catch (SQLException e1) {
-            				System.out.println("Profs() checkIpAddress() error: " + e1);
-            			}	
         			}
         		}
+            	
+        		//update Badges now that we have idProfile
+        		updateBadges();
+            	
+            	//popgrid -> rest of info; not a great implementation but it works for now
+        		populateGrid("> 50");	
+        		resultsGrid.sort("University");
             }
         });
+	}
+	
+	private void newCookieProfile() {
+		//no cookie detected
+		try {
+			newProfile();
+		} catch (SQLException e1) {
+			System.out.println("Profs() newProfile() error: " + e1);
+		} finally {
+			try {
+				newIp();
+			} catch (SQLException e1) {
+				System.out.println("Profs() newIp() error: " + e1);
+			}
+			
+			//sets cookie
+			setCookie();
+		}
 	}
 	
 	private void setCookie() {
@@ -110,6 +106,7 @@ public class BrowserCookies {
 						if(rs.getString("exist").equals("1")) {
 							idProfile = rs.getString("idProfile");
 							updateProfile();
+							this.buildUIService(idProfile);
 						}
 						exists = rs.getString("exist");
 					}
@@ -128,10 +125,6 @@ public class BrowserCookies {
 	
 	private String checkIpAddress() throws SQLException {
 		String exists = null;
-			
-		//popgrid -> rest of info; not totally great implementation but it works
-		//populateGrid("> 32");	
-		//resultsGrid.sort("University");
 		
 		try {
 	      Context initialContext = new InitialContext();
@@ -243,6 +236,7 @@ public class BrowserCookies {
 		            if (generatedKeys.next()) {
 		        		idProfile = generatedKeys.getString(1);
 		        		System.out.println("newProfile() idProfile " + idProfile);
+		        		this.buildUIService(idProfile);
 		            }
 		            else {
 		                throw new SQLException("Creating failed, no ID obtained.");
@@ -269,7 +263,7 @@ public class BrowserCookies {
 	        Connection conn = datasource.getConnection();
 	        String sql = "INSERT INTO IpAddress (idProfile, ip, browser, locale, date_created, date_updated, logins) VALUES (?, ?, ?, ?, ?, ?, 1); ";
 	        PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-	        //System.out.println("newIp() idProfile " + idProfile);
+	        System.out.println("newIp() idProfile " + idProfile);
 	        stmt.setString(1, idProfile);
 	        stmt.setString(2, ipAddress);
 	        stmt.setString(3, webBrowser.getLocale().toString());
@@ -301,4 +295,5 @@ public class BrowserCookies {
         	System.out.println("Exception" + ex);
         }
 	}
+*/	
 }

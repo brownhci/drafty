@@ -39,7 +39,7 @@ import drafty.views._MainUI;
 public class Test extends VerticalLayout implements View {
 	
 	private static final long serialVersionUID = -6955613369737022400L;
-	String DATASOURCE_CONTEXT = _MainUI.getDataProvider().getJNDI();
+	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
 	VerticalLayout mainLayout = new VerticalLayout();
 	protected final MenuBar draftyMenu = new MenuBar();
