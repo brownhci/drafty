@@ -101,5 +101,4 @@ public class Profile {
 	public void setBrowser(String browser) {
 		this.browser = browser;
 	}
-
 }

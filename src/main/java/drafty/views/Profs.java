@@ -844,7 +844,8 @@ public class Profs extends VerticalLayout implements View {
 	        		+ "left join drafty.Suggestion b on(((o.idPerson = b.idPerson) and (o.confidence < b.confidence) and (o.idSuggestionType = b.idSuggestionType)))) "
 	        		+ "join drafty.Person p on((o.idPerson = p.idPerson))) "
 	        		+ "where o.idPerson " + lookup + " AND isnull(b.confidence) order by o.idPerson, o.idSuggestionType "; 
-	        		
+
+        	int count = 0;		
 	        PreparedStatement stmt = conn.prepareStatement(sql);
 	        try {
 	        	String personId = "";
@@ -922,6 +923,7 @@ public class Profs extends VerticalLayout implements View {
 						    newRow.getItemProperty("Subfield").setValue(Subfield);
 						    newRow.getItemProperty("PhotoUrl").setValue(PhotoUrl);
 						    newRow.getItemProperty("Sources").setValue(Sources);	
+						    count++;
 						}	
 						
 						//clears variables
@@ -945,6 +947,7 @@ public class Profs extends VerticalLayout implements View {
 			} catch (SQLException e) {
 				System.out.println(e.getMessage());
 			}
+	        System.out.println("COUNT = " + count);
 	        conn.close();
 	      }
 	    }
