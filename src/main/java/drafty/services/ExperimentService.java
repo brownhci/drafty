@@ -33,7 +33,7 @@ public class ExperimentService {
 	        if(count.equals("0")) {
 	        	newExperimentProfile(); 
 	        } else {
-	        	//System.out.println("SET EXISTING idExperiment = " + experiment_id);
+	        	System.out.println("SET EXISTING idExperiment = " + experiment_id);
 	        	_MainUI.getApi().getProfile().setIdExperiment(experiment_id);
 	        }
 		} catch (SQLException e) {
@@ -63,7 +63,7 @@ public class ExperimentService {
 	       
 	        try {
 	        	Integer new_id = stmt.executeUpdate();
-	        	//System.out.println("SET NEW idExperiment = " + new_id);
+	        	System.out.println("SET NEW idExperiment = " + new_id);
 	        	_MainUI.getApi().getProfile().setIdExperiment(Integer.toString(new_id));
 	        } catch (SQLException e) {
 				System.out.println(e.getMessage());
@@ -79,7 +79,7 @@ public class ExperimentService {
 		try {
 			String sql = "INSERT INTO Experiment_Validation VALUES (?, ?, CURRENT_TIMESTAMP)";
 	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
-	        stmt.setString(2, _MainUI.getApi().getProfile().getIdExperiment());
+	        stmt.setString(1, _MainUI.getApi().getProfile().getIdExperiment());
 	        stmt.setString(2, validation_id);
 	        
 	        stmt.executeUpdate();

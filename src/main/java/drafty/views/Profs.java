@@ -1,13 +1,21 @@
 package drafty.views;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -196,29 +204,67 @@ public class Profs extends VerticalLayout implements View {
 			_MainUI.getApi().setInteractionCount(intCount);
 		}
 		
+		_MainUI.getApi().getUIService().getInterestedField();
+		_MainUI.getApi().getUIService().getNoInterest();
+		
 		//experiment 1 code
 		String experiment_id = _MainUI.getApi().getProfile().getIdExperiment();
-		if(intCount % 8 == 0 && intCount != 0) { //activates every 8 interactions
-			if(experiment_id.equals("1")) { //Ask Fix Random (or No-Interest)
+		if(intCount % 10 == 0 && intCount != 0) { //activates every 10 interactions
+			if(experiment_id.equals("1")) { //Ask No-Interest)
+				String reco[] = _MainUI.getApi().getUIService().getNoInterest();
+				
+				String person_id = reco[0];
+				String prof_name = reco[1];
+				String suggestion_type_id = reco[2];
+				String suggestion_with_max_conf = ExperimentService.getSuggestionWithMaxConf(person_id, suggestion_type_id);
+				
+				new SuggestionComponent(person_id, prof_name, suggestion_with_max_conf, suggestion_type_id, _MainUI.getApi().getProfile().getIdProfile(), "experiment");
 				
 			} else if (experiment_id.equals("2")) { //Ask Fix User Interest
 				
-				/*need to wait for Marianne to finish UserInterestService
-				 * 
-				String person_id = _MainUI.getApi().getUIService().getMostInterestedProfessorId();
-				String prof_name = _MainUI.getApi().getUIService().getMostInterestedProfessorName();
-				String suggestion_type_id = ExperimentService.getRandomSuggestionType();
+				String reco[] = _MainUI.getApi().getUIService().getInterestedField();
+				
+				String person_id = reco[0];
+				String prof_name = reco[1];
+				String suggestion_type_id = reco[2];
 				String suggestion_with_max_conf = ExperimentService.getSuggestionWithMaxConf(person_id, suggestion_type_id);
 				
-				//new SuggestionComponent(person_id, name, value, column, experiment_id, mode);
-				new SuggestionComponent(person_id, prof_name, suggestion_with_max_conf, suggestion_type_id, 
-										_MainUI.getApi().getProfile().getIdProfile(), "experiment");
-				*/
+				new SuggestionComponent(person_id, prof_name, suggestion_with_max_conf, suggestion_type_id, _MainUI.getApi().getProfile().getIdProfile(), "experiment");
 			}
 		}
 		
 		//50 / 50 ask by prof or by column
 		//get column type - uni, bach, mast, phd, subfield, joinyear, rank 
+	}
+	
+	private void checkHostName(){ 
+		InetAddress addr = null;
+		try {
+			addr = InetAddress.getByName(ipAddress);
+		} catch (UnknownHostException e) {
+			System.out.println("Cannot resolve host name");
+		}
+		if (addr != null){
+			String domainName = addr.getCanonicalHostName();
+			String strippedName = stripName(domainName);
+			System.out.println("Stripped Domain Name:" + strippedName);
+			HashMap<String,String> uniHash = _MainUI.getApi().getDomains();
+			if (uniHash.containsKey(strippedName)){
+				System.out.println("The domain name matches a university: " + uniHash.get(strippedName));
+				_MainUI.getApi().getUIService().recordDomain(uniHash.get(strippedName));
+				//_uis.recordDomain(uniHash.get(strippedName));
+			}
+		}
+	}
+	
+	private String stripName(String s){
+		String[] split = s.split(Pattern.quote("."));		
+		if (split.length >= 2){
+			String extension = split[split.length-1].toLowerCase();
+			String domain = split[split.length-2].toLowerCase(); 
+			s = domain.concat(".").concat(extension); 
+		}
+		return s;
 	}
 	
 	@SuppressWarnings("serial")
@@ -421,12 +467,13 @@ public class Profs extends VerticalLayout implements View {
                 if (e.isDoubleClick()) { //double click
             		//waiting for Marianne to tweak UserInterstService
                 	//_MainUI.getApi().getUIService().addClickInt(cell_id, cell_full_name, cell_value, cell_column, idProfile, true);
-            		
+            		_MainUI.getApi().getUIService().recordClick(cell_id, cell_full_name, cell_value, cell_column, true, rowValues);
+                	
                 	if(cell_column.equals("FullName")) {
                 		resetSuggestionMenuItem();
                 		recordInteraction(InteractionType.DblCLICKPROF);
                 		Notification.show("Full Name is not available to make Suggestions");
-                		is.recordClickPerson(cell_id, "1", idProfile);
+                		is.recordClickPerson(cell_id, "1", idProfile, rowValues);
                 	} else {
                 		recordInteraction(InteractionType.DblCLICK);
                 		is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "1", idProfile, rowValues); //1 to record it as double click
@@ -437,11 +484,12 @@ public class Profs extends VerticalLayout implements View {
                 } else { //single click
                 	//waiting for Marianne to tweak UserInterstService
                 	//_MainUI.getApi().getUIService().addClickInt(cell_id, cell_full_name, cell_value, cell_column, idProfile, false);
+                	_MainUI.getApi().getUIService().recordClick(cell_id, cell_full_name, cell_value, cell_column, false, rowValues);
                 	
                 	if(cell_column.equals("FullName")) {
                 		resetSuggestionMenuItem();
                 		recordInteraction(InteractionType.CLICKPROF);
-                		is.recordClickPerson(cell_id, "0", idProfile);
+                		is.recordClickPerson(cell_id, "0", idProfile, rowValues);
                 	} else {
                     	suggestionMode.setText(icono2);
                 		
@@ -727,32 +775,83 @@ public class Profs extends VerticalLayout implements View {
 		});
 	}
 	
-	public void insertFilter(String filter, String column, String blur) {  
+	public ArrayList<String> getFilteredList(String column) {
+		// Collect the results of the iteration into this string.
+		ArrayList<String> items = new ArrayList<String>();
 		try {
-	      Context initialContext = new InitialContext();
-	      
-	      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-	      if (datasource != null) {
-	        Connection conn = datasource.getConnection();
-	        String sql = "INSERT INTO Filter (idProfile, idSuggestionType, filter, blur) VALUES (?, (SELECT idSuggestionType FROM SuggestionType WHERE type = ?), ?, ?); ";
-	        PreparedStatement stmt = conn.prepareStatement(sql);
-	        stmt.setString(1, idProfile);
-	        stmt.setString(2, column);
-	        stmt.setString(3, filter);
-	        stmt.setString(4, blur);
-	        try {
-		        stmt.executeUpdate();
-	        } catch (SQLException e) {
-				System.out.println("ERROR MySQL insertFilter(): " + e.getMessage());
+			// Iterate over the item identifiers of the table.
+			for (Iterator<?> i = resultsGrid.getContainerDataSource().getItemIds().iterator(); i.hasNext();) {
+			    // Get the current item identifier, which is an integer.
+				int id = (Integer) i.next();
+			    
+			    // Now get the actual item from the table.
+			    Item item = resultsGrid.getContainerDataSource().getItem(id);
+			    
+			    String curr = (String) item.getItemProperty(column).getValue();
+			    //System.out.println("item is " + curr);
+			    
+		    	boolean exists = false;
+		    	
+			    if (curr != null) {
+			    	for (String s: items) {
+			    		if (curr.equals(s)) {
+			    			exists = true;
+			    		}
+			    	}
+			    }
+
+			    if (!exists) {
+			    	items.add(curr);
+			    }
 			}
-	        stmt.close();
-	        conn.close();
-	      }
-	    }
-      catch (Exception ex)
-      {
-      	System.out.println("Exception insertFilter(): " + ex);
-      }
+		} catch (IllegalArgumentException e) {
+			System.out.println("Exception  nofiltermatch(): " + e);
+		}
+				
+		return items;
+	}
+	
+	public void insertFilter(String filter, String column, String blur) {  
+		if (!filter.equals("") && !filter.equals(" ")) {
+			String matchedValues = "";
+			List<String> filterList = this.getFilteredList(column);
+			if (filterList.size() < 10 && filterList.size() > 0) {
+				_MainUI.getApi().getUIService().recordFilter(blur, filter, column, filterList);
+				//_uis.recordFilter(blur, filter, column, filterList);
+				for (String s: filterList) {
+					if (filterList.indexOf(s) != filterList.size()-1) {
+						matchedValues = s + ","; }
+					else {
+						matchedValues += s;
+					}
+				}
+			}
+			
+			try {
+		      Context initialContext = new InitialContext();
+		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
+		      if (datasource != null) {
+					Connection conn = datasource.getConnection();
+					String sql = "INSERT INTO Filter (idProfile, idSuggestionType, filter, blur, matchedValues) "
+							+ "VALUES (?, (SELECT idSuggestionType FROM SuggestionType WHERE type = ?), ?, ?, ?); ";
+					PreparedStatement stmt = conn.prepareStatement(sql);
+					stmt.setString(1, idProfile);
+					stmt.setString(2, column);
+					stmt.setString(3, filter);
+					stmt.setString(4, blur);
+					stmt.setString(5, matchedValues);
+					try {
+					    stmt.executeUpdate();
+					} catch (SQLException e) {
+						System.out.println("ERROR MySQL insertFilter(): " + e.getMessage());
+					}
+					stmt.close();
+					conn.close();
+		      }
+		    } catch (Exception ex) {
+		    	System.out.println("Exception insertFilter(): " + ex);
+	        }
+		}
 	}
 	
 	public void addFilters() {
@@ -866,8 +965,6 @@ public class Profs extends VerticalLayout implements View {
 	        	String PhotoUrl = "";
 	        	String Sources = "";
 	        	
-	        	boolean flag = false;
-	        	
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()) {
 					personId = rs.getString("idPerson");
@@ -901,12 +998,6 @@ public class Profs extends VerticalLayout implements View {
 							//System.out.println(typeId + " " + Full_Name + " " + rs.getString("suggestion"));
 						}
 					} else {
-						if(flag == false) {
-							flag = true;
-						} else {
-							
-						}
-						
 						if(!Full_Name.equals("")) {
 							Item newRow = resultsGrid.getContainerDataSource().getItem(resultsGrid.getContainerDataSource().addItem());
 							
@@ -924,6 +1015,23 @@ public class Profs extends VerticalLayout implements View {
 						    newRow.getItemProperty("PhotoUrl").setValue(PhotoUrl);
 						    newRow.getItemProperty("Sources").setValue(Sources);	
 						    count++;
+						    
+						    ArrayList<String> entryList = new ArrayList<String>();
+						    entryList.add(personIdSt);
+						    entryList.add(Full_Name);
+						    entryList.add(University);
+						    entryList.add(Bachelors);
+						    entryList.add(Masters);
+						    entryList.add(Doctorate);
+						    entryList.add(PostDoc);
+						    entryList.add(JoinYear);
+						    entryList.add(Rank);
+						    entryList.add(Subfield);
+						    entryList.add(Gender);
+						    entryList.add(PhotoUrl);
+						    entryList.add(Sources);
+						    
+						    _MainUI.getApi().getProfessors().newProf(personIdSt, entryList);
 						}	
 						
 						//clears variables
@@ -1026,9 +1134,6 @@ public class Profs extends VerticalLayout implements View {
 	            	//update Badges now that we have idProfile
 	        		updateBadges();
 	        		
-	        		//build new UserInterest Model
-	            	_MainUI.getApi().setUIService(idProfile);
-	        		
 	            	//popgrid -> rest of info; not a great implementation but it works for now
 	        		populateGrid("> 50");	
 	        		resultsGrid.sort("University");
@@ -1051,6 +1156,10 @@ public class Profs extends VerticalLayout implements View {
 	        		
 	        		//set Experiment id
 	        		ExperimentService.checkExperimentProfile();
+	        		
+	        		System.out.println("Profs UserProfileID = " + _MainUI.getApi().getIdProfile());
+	        		//build new UserInterest Model
+	            	_MainUI.getApi().setUIService();
 	            }
             }
         });

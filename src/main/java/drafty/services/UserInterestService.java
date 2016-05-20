@@ -1,17 +1,15 @@
 package drafty.services;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.Random;
+import java.util.TreeMap;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
-
+import drafty.models.Professors;
+import drafty.models.UserInterest;
 import drafty.views._MainUI;
 
 public class UserInterestService {
@@ -20,13 +18,15 @@ public class UserInterestService {
 	 * The basic premise of this class is upon loading the page, it queries the
 	 * database  to  calculate your history of interactions. Each tracked interaction
 	 * is added to a hashmap based on weight of interaction. These can then be dynamically 
-	 * added to as the user interacts with the database. When the program decides to ask a
-	 * question, the getMostInterested() function can be called. This turns the pertinent hashmap
-	 * into a list and returns the first item.
+	 * added to as the user interacts with the database. 
+	 * 
+	 * When the program decides to ask a question, the getInterestedField() method can 
+	 * be called. This works out a likelihood for each prof to be selected based on how 
+	 * much they match the user profile. Profs that do no match the user profile at all
+	 * are added to the _noInterestList, which is randomised when the program calls getNoInterest().
 	 * 
 	 * TO DO: make it so the db is not queried every time a user filters something
-	 * TO DO: make this run in the background so it doesn't slow loading time
-	 * TO DO: fine tune getMostInterested() function 
+	 * TO DO: integrate domain matching
 	 * 
 	 */
 	
@@ -34,17 +34,22 @@ public class UserInterestService {
 	private int _click = 1;
 	//dclick weight is in addition to click weight
 	private int _dclick = 1;
+	private int _clickRow = 1;
 	
 	private int _val = 3;
 	//sugg is in addition to val weight
-	private int _sugg = 1;
+	private int _sugg = 4;
 	
 	private int _filter = 2;
 	private int _bfilter = 3;
 	
-	//column
-	private HashMap<String, Integer> _colInterest;
-	private List<String> _finalColInterest;
+	private int _domain = 3;
+	
+	//cumulative probability of professor matches in navigable map	
+	private NavigableMap<Integer, Integer> _probabilityNM;
+	
+	//list of professor IDs that do not match user profile
+	private ArrayList<Integer> _noInterestList;
 	
 	//specific interests
 	private HashMap<String, Integer> _profInterest;
@@ -57,28 +62,24 @@ public class UserInterestService {
 	private HashMap<String, Integer> _doctInterest;
 	private HashMap<String, Integer> _postDocInterest;
 	private HashMap<String, Integer> _genderInterest;
+	private HashMap<String, Integer> _domainInterest;
 	
-	//global universities tracker
-	private HashMap<String, Integer> _allUniInterest;
-	private int _maxPerson;
+	//variables and external classes
+	private UserBehaviorService _ub = new UserBehaviorService();
+	private UserInterest _model = new UserInterest();
+	private int _totalScore;
 
 	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
-	public UserInterestService(String user_id) {
-		_maxPerson = Integer.parseInt(this.getHighestPersonNum());
-		this.genUserInterest(user_id);
-	}
-	
-	
-	public void genUserInterest(String user_id) {
-		//initialise total uni list & hashmap
-		_allUniInterest = new HashMap<String, Integer>();
-		_finalColInterest = new ArrayList<String>();
-		//_finalRowInterest = new ArrayList<String>();
+	public UserInterestService() {
+		//reset score
+		_totalScore = 0;
 		
-		//generate most interested overall col, row
-		this.genUserIntCols(user_id);
-		//this.genUserIntRow(user_id);
+		//initialising prof score hashmap
+		
+		//initialise prof probability navmap
+		_probabilityNM = new TreeMap<Integer, Integer>();
+		_noInterestList = new ArrayList<Integer>();
 		
 		//initialise hashmaps
 		_profInterest = new HashMap<String, Integer>();
@@ -91,106 +92,109 @@ public class UserInterestService {
 		_doctInterest = new HashMap<String, Integer>();
 		_postDocInterest = new HashMap<String, Integer>();
 		_genderInterest = new HashMap<String, Integer>();
+		_domainInterest = new HashMap<String, Integer>();
 
-		//generate individual interests
-		//updates hashmaps
-		this.genUserInt(user_id, _profInterest, "1");
-		this.genUserInt(user_id, _uniInterest, "2");
-		this.genUserInt(user_id, _yearInterest, "7");
-		this.genUserInt(user_id, _rankInterest, "8");
-		this.genUserInt(user_id, _fieldInterest, "9");
-		this.genUserInt(user_id, _bachInterest, "3");
-		this.genUserInt(user_id, _mastInterest, "4");
-		this.genUserInt(user_id, _doctInterest, "5");
-		this.genUserInt(user_id, _postDocInterest, "6");
-		this.genUserInt(user_id, _genderInterest, "10");
-				
+		//generate individual interests updates hashmaps
+
+		this.genUserInt(_profInterest, "1");
+		this.genUserInt(_uniInterest, "2");
+		this.genUserInt(_yearInterest, "7");
+		this.genUserInt(_rankInterest, "8");
+		this.genUserInt(_fieldInterest, "9");
+		this.genUserInt(_bachInterest, "3");
+		this.genUserInt(_mastInterest, "4");
+		this.genUserInt(_doctInterest, "5");
+		this.genUserInt(_postDocInterest, "6");
+		this.genUserInt(_genderInterest, "10");
+		
+		//add clicks to hm's for entire row of click, not just specific suggestion type
+		this.genUserIntClicks("0", _click);
+		this.genUserIntClicks("1", _dclick);
+		
+		//this.printInterest();
 	}
 	
-	public void genUserIntCols(String user_id) {
+	public void genUserIntClicks(String clickType, Integer weight) {
 		
-		//generating column interest based on clicks
-		_colInterest = new HashMap<String, Integer>();
+		List<String[]> clickList = _ub.getClickRow(clickType);
+		String suggType;
+		String[] vals;
 		
-		//adding to hashmap for the suggestiontypes based on single clicks
-		List<String> clickList = this.getClickCol(user_id, "0");
-		this.addToHM(_colInterest, clickList, _click);
-
-		//adding to hashmap for suggestiontypes based on double clicks
-		List<String> dclickList = this.getClickCol(user_id, "1");
-		this.addToHM(_colInterest, dclickList, _dclick);
+		List<String> profs = new ArrayList<String>();
+		List<String> unis = new ArrayList<String>();
+		List<String> fields = new ArrayList<String>();
 		
-		//adding to the hashmap based on filters
-		List<String> filterList = this.getFilterCol(user_id, "0");
-		this.addToHM(_colInterest, filterList, _filter);
+		List<String> currSuggestion = new ArrayList<String>();
+		for (String[] row : clickList){
+			suggType = row[0];
+			currSuggestion.add(row[2]);
+			this.addToHM(this.getSuggMap(suggType), currSuggestion, weight);
+			
+			vals = row[1].split(",");
+			profs.add(vals[0]);
+			unis.add(vals[1]);
+			fields.add(vals[2]);
+			
+			currSuggestion.clear();
+		}
 		
-		//adding to the hashmap based on filters
-		List<String> bfilterList = this.getFilterCol(user_id, "1");
-		this.addToHM(_colInterest, bfilterList, _bfilter);
-		
-		//adding to hashmap based on suggestion
-		List<String> suggList = this.getSuggCol(user_id, "1");
-		this.addToHM(_colInterest, suggList, _sugg);
-		
-		//adding to hashmap based on validation
-		List<String> valList = this.getSuggCol(user_id, "0");
-		this.addToHM(_colInterest, valList, _val);
-				
+		this.addRowstoHM(profs, unis, fields);
 	}
 	
-	public void genUserInt(String user_id, HashMap<String, Integer> hm, String suggType) {
-
-		//adding to hashmap based on single clicks
-		List<String> clickList = this.getClickTypes(user_id, "0", suggType);
-		this.addToHM(hm, clickList, _click);
+	public void addRowstoHM(List<String> profs, List<String> unis, List<String> fields) {
+		this.addToHM(_profInterest, profs, _clickRow);
+		this.addToHM(_uniInterest, unis, _clickRow);
+		this.addToHM(_fieldInterest, fields, _clickRow);
+	}
+	
+	public void genUserInt(HashMap<String, Integer> hm, String suggType) {
+		
+		//adding to  hashmap based on single clicks
+		//List<String> clickList = db.getClickTypes("0", suggType);
+		//this.addToHM(hm, clickList, _click);
 		
 		//adding to hashmap based on double clicks
-		List<String> dclickList = this.getClickTypes(user_id, "1", suggType);
-		this.addToHM(hm, dclickList, _dclick);
+		//List<String> dclickList = db.getClickTypes("1", suggType);
+		//this.addToHM(hm, dclickList, _dclick);
 		
 		//adding to hashmap based on filtering
-		List<String> filterList = this.getFilterTypes(user_id, "0", suggType);
+		List<String> filterList = _ub.getFilterTypes("0", suggType);
 		this.addToHM(hm, filterList, _filter);
 		
 		//adding to hashmap based on blur filtering
-		List<String> bfilterList = this.getFilterTypes(user_id, "1", suggType);
+		List<String> bfilterList = _ub.getFilterTypes("1", suggType);
 		this.addToHM(hm, bfilterList, _bfilter);
-		
+				
 		//adding to hashmap based on suggestion
-		List<String> suggList = this.getSuggTypes(user_id, suggType, "1");
+		List<String> suggList = _ub.getSuggTypes(suggType, "1");
 		this.addToHM(hm, suggList, _sugg);
 		
 		//adding to hashmap based on validation
-		List<String> valList = this.getSuggTypes(user_id, suggType, "0");
+		List<String> valList = _ub.getSuggTypes(suggType, "0");
 		this.addToHM(hm, valList, _val);
-		
-		//if suggtype corresponds to a university, add to total uni list
-		if (suggType.equals("2") || suggType.equals("3") || suggType.equals("4") || suggType.equals("5") || suggType.equals("6")) {
-			this.addToHM(_allUniInterest, clickList, _click);
-			this.addToHM(_allUniInterest, dclickList, _dclick);
-			this.addToHM(_allUniInterest, filterList, _filter);
-			this.addToHM(_allUniInterest, bfilterList, _bfilter);
-			this.addToHM(_allUniInterest, suggList, _sugg);
-			this.addToHM(_allUniInterest, valList, _val);
-		}
 	}
 	
 	//add to hashmap
 	public void addToHM(HashMap<String, Integer> hm, List<String> list, int weight) {
+		
 		for (String key: list) {
-			if (!hm.containsKey(key)) {
-				hm.put(key, weight);
-			}
-			else {
-				int prev = hm.get(key);
-				hm.remove(key, prev);
-				hm.put(key, prev + weight);
+			if (key != ""){
+				if (!hm.containsKey(key)) {
+					hm.put(key, weight);
+				} else {
+					int prev = hm.get(key);
+					hm.remove(key, prev);
+					hm.put(key, prev + weight);
+				}
 			}
 		}
 	}
 	
+
 	//add to priority queue
-	public void addToPQ(List<String> list, HashMap<String, Integer> hm) {
+	public List<String> convertToPQ(HashMap<String, Integer> hm) {
+		
+		List<String> list = new ArrayList<String>();
 		for (String key: hm.keySet()) {
 			if (list.isEmpty()) {
 				list.add(key);
@@ -205,540 +209,114 @@ public class UserInterestService {
 				}
 			}
 		}
+		return list;
 	}
 	
-	public List<String> getClickCol(String user_id, String dclick) {
-		
-		//col sort interest
-		List<String> colList = new ArrayList<String>();
-		
-		try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        String sql = "SELECT idSuggestionType FROM Click WHERE idProfile = (?) AND doubleclick = (?)";
-		        PreparedStatement stmt = conn.prepareStatement(sql);
-		        stmt.setString(1, user_id);
-		        stmt.setString(2,  dclick);
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						colList.add(rs.getString("idSuggestionType"));
-					}
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception personSelect() get suggestion " + ex);
-	        }
-		return colList;
-	}
 	
-	public List<String> getSuggCol(String user_id, String val) {
-		
-		//col sort interest
-		List<String> colList = new ArrayList<String>();
-		
-		try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        String sql = "SELECT * FROM Validation "
-		        	+ "INNER JOIN Validation_Suggestion ON Validation.idValidation = Validation_Suggestion.idValidation "
-		        	+ "INNER JOIN Suggestion ON Suggestion.idSuggestion = Validation_Suggestion.idSuggestion "
-		        	+ "WHERE Validation.idProfile = (?) AND Suggestion.idSuggestionType = (?)";
-		        PreparedStatement stmt = conn.prepareStatement(sql);
-		        stmt.setString(1, user_id);
-		        stmt.setString(2,  val);
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						colList.add(rs.getString("idSuggestionType"));
-					}
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception personSelect() get suggestion " + ex);
-	        }
-		return colList;
-	}
-
-	public List<String> getFilterCol(String user_id, String val) {
-		
-		//col sort interest
-		List<String> colList = new ArrayList<String>();
-		
-		try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        String sql = "SELECT * FROM `Filter` "
-		        		+ "WHERE filter != '' AND idProfile = (?) AND blur = (?)";
-		        PreparedStatement stmt = conn.prepareStatement(sql);
-		        stmt.setString(1, user_id);
-		        stmt.setString(2,  val);
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						colList.add(rs.getString("idSuggestionType"));
-					}
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception personSelect() get suggestion " + ex);
-	        }
-		return colList;
-	}
-
-	public List<String> getClickRow(String user_id, String dclick) {
-	
-		//col sort interest
-		List<String> rowList = new ArrayList<String>();
-		
-		try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        String sql = "SELECT * FROM Click "
-		        		+ "INNER JOIN Suggestion ON Click.idSuggestion = Suggestion.idSuggestion "
-		        		+ "WHERE Click.idProfile = (?) AND Click.doubleclick = (?) ";
-		        PreparedStatement stmt = conn.prepareStatement(sql);
-		        stmt.setString(1, user_id);
-		        stmt.setString(2,  dclick);
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						rowList.add(rs.getString("idPerson"));
-					}
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception personSelect() get suggestion " + ex);
-	        }
-		return rowList;
-	}
-	
-	public List<String> getSuggRow(String user_id, String val) {
-		
-		//row sort interest
-		List<String> rowList = new ArrayList<String>();
-		
-		try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        String sql = "SELECT * FROM Click "
-		        		+ "INNER JOIN Suggestion ON Click.idSuggestion = Suggestion.idSuggestion "
-		        		+ "WHERE Click.idProfile = (?) AND Click.doubleclick = (?) ";
-		        PreparedStatement stmt = conn.prepareStatement(sql);
-		        stmt.setString(1, user_id);
-		        stmt.setString(2, val);
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						rowList.add(rs.getString("idPerson"));
-					}
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception personSelect() get suggestion " + ex);
-	        }
-		return rowList;
-	}
-	
-	public List<String> getFilterRow(String user_id, String val) {
-		//uni sort interest
-				List<String> finalList = new ArrayList<String>();
-				List<String> idList = this.getSeparateFilterList(user_id, val, null);
-
-				//for each individual filter, retreive the results that would have come up
-				for (int i = 0; i < idList.size(); i++) {
-					try {
-				      Context initialContext = new InitialContext();
-				      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-				      if (datasource != null) {
-				        Connection conn = datasource.getConnection();
-				        
-				        String sql = "SELECT DISTINCT idPerson "
-				        		+ "FROM Suggestion "
-				        		+ "INNER JOIN Filter ON Suggestion.suggestion LIKE CONCAT('%', (?), '%') "
-				        		+ "WHERE Filter.idProfile = (?) AND Filter.blur = (?) AND Filter.filter != '' ";
-				        PreparedStatement stmt = conn.prepareStatement(sql);
-				        stmt.setString(1, idList.get(i));
-				        stmt.setString(2, user_id);
-				        stmt.setString(3, val);
-				        try {
-				        	ResultSet rs = stmt.executeQuery();
-							while (rs.next()) {
-								finalList.add(rs.getString("suggestion"));
-							}
-				        } catch (SQLException e) {
-							System.out.println(e.getMessage());
-						}
-				        stmt.close();
-				        conn.close();
-				      }
-				    }
-			        catch (Exception ex)
-			        {
-			        	System.out.println("Exception getFilterTypes() get suggestion " + ex);
-			        }
-				}
-				return finalList;
-	}
-	
-	public List<String> getClickTypes(String user_id, String dclick, String sugg_id) {
-		
-		//uni sort interest
-		List<String> uniList = new ArrayList<String>();
-		
-		try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        String sql = "SELECT * "
-		        		+ "FROM Click "
-		        		+ "INNER JOIN Suggestion ON Suggestion.idSuggestion = Click.idSuggestion "
-		        		+ "WHERE Click.idProfile = (?) AND Click.idSuggestionType = (?) AND doubleclick = (?) ";
-		        PreparedStatement stmt = conn.prepareStatement(sql);
-		        stmt.setString(1, user_id);
-		        stmt.setString(2, sugg_id);
-		        stmt.setString(3, dclick);
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						uniList.add(rs.getString("suggestion"));
-					}
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception getClickType() get suggestion " + ex);
-	        }
-		return uniList;
-	}
-	
-	public List<String> getSuggTypes(String user_id, String sugg_id, String val) {
-		//uni sort interest
-		List<String> uniList = new ArrayList<String>();
-		
-		try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        String sql = "SELECT * FROM Validation "
-		        	+ "INNER JOIN Validation_Suggestion ON Validation.idValidation = Validation_Suggestion.idValidation "
-		        	+ "INNER JOIN Suggestion ON Suggestion.idSuggestion = Validation_Suggestion.idSuggestion "
-		        	+ "WHERE Validation.idProfile = (?) AND Validation_Suggestion.chosen = (?)";
-		        PreparedStatement stmt = conn.prepareStatement(sql);
-		        stmt.setString(1, user_id);
-		        stmt.setString(2, val);
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						uniList.add(rs.getString("idPerson"));
-					}
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception getClickType() get suggestion " + ex);
-	        }
-		return uniList;
-	}
-	
-	public List<String> getFilterTypes(String user_id, String bfilter, String sugg_id) {
-		
-		//uni sort interest
-		List<String> finalList = new ArrayList<String>();
-		List<String> idList = this.getSeparateFilterList(user_id, bfilter, sugg_id);
-
-		//for each individual filter, retreive the results that would have come up
-		for (int i = 0; i < idList.size(); i++) {
-			try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        
-		        String sql = "SELECT DISTINCT suggestion "
-		        		+ "FROM Suggestion "
-		        		+ "INNER JOIN Filter ON Suggestion.suggestion LIKE CONCAT('%', (?), '%') "
-		        		+ "WHERE Filter.idProfile = (?) AND Suggestion.idSuggestionType = (?) AND Filter.blur = (?) AND Filter.filter != '' ";
-		        PreparedStatement stmt = conn.prepareStatement(sql);
-		        stmt.setString(1, idList.get(i));
-		        stmt.setString(2, user_id);
-		        stmt.setString(3, sugg_id);
-		        stmt.setString(4, bfilter);
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						finalList.add(rs.getString("suggestion"));
-					}
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception getFilterTypes() get suggestion " + ex);
-	        }
-		}
-		return finalList;
-	}
-	
-	public List<String> getSeparateFilterList(String user_id, String bfilter, String sugg_id) {
-		
-		List<String> dateList = new ArrayList<String>();
-		List<String> rawIDList = new ArrayList<String>();
-		
-		try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        
-		        PreparedStatement stmt;
-		        if (bfilter != null) {
-		        	String sql = " SELECT * FROM `Filter` "
-		        			+ "WHERE idProfile = (?) AND idSuggestionType = (?) AND filter != '' AND blur = (?)";
-		        
-			        stmt = conn.prepareStatement(sql);
-			        stmt.setString(1, user_id);
-			        stmt.setString(2, sugg_id);
-			        stmt.setString(3, bfilter);
-		        }
-		        else {
-		        	String sql = " SELECT * FROM `Filter` "
-		        			+ "WHERE idProfile = (?) AND blur = (?) AND filter != ''";
-		        
-			        stmt = conn.prepareStatement(sql);
-			        stmt.setString(1, user_id);
-			        stmt.setString(2, sugg_id);
-		        }
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						rawIDList.add(rs.getString("filter"));
-						dateList.add(rs.getString("date"));
-					}
-					
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception getFilterTypes1() get suggestion " + ex);
-	        }
-		
-		List<String> idList = new ArrayList<String>();
-		if (!rawIDList.isEmpty()) {
-			String startID = rawIDList.get(0);
-			String startDate = dateList.get(0);
-			idList.add(startID);
-			//redact seconds so that count is reset every minute
-			startDate = startDate.substring(0, startDate.length()-5);
-
-			for (int i = 0; i < rawIDList.size(); i++) {
-				String endDate = dateList.get(i);
-				endDate = endDate.substring(0, endDate.length()-5);
-				//if start and end date are more than a minute apart, add the filter id
-				if (!startDate.equals(endDate)) {
-					idList.add(rawIDList.get(i));
-					startDate = endDate;
-					startID = rawIDList.get(i);
-				}
-				//if current filter is different to previous filter, add filter id
-				else if (!startID.equalsIgnoreCase(rawIDList.get(i))) {
-					idList.add(rawIDList.get(i));
-					startID = rawIDList.get(i);
-					startDate = endDate;
-				}
-			}
-		}
-		
-		return idList;
+	public void recordDomain(String matched_domain){
+		List<String> matched = new ArrayList<String>();
+		matched.add(matched_domain);
+		this.addToHM(_domainInterest, matched, _domain);
 	}
 	
 	//called when a user clicks on something
-	public void recordClick(String cell_id, String cell_full_name, String cell_value, String cell_column, String user_id, boolean doubleClick) {
+
+	public void recordClick(String cell_id, String cell_full_name, String cell_value, String cell_column, boolean doubleClick, String rowValues) {
 		
+		System.out.println("recording click " + doubleClick + " for field " + cell_value);
+	
+		String[] vals;
+		vals = rowValues.split(",");
+		
+		List<String> prof = new ArrayList<String>();
+		prof.add(vals[0]);
+		this.addToHM(_profInterest, prof, _clickRow);
+		
+		List<String> uni = new ArrayList<String>();
+		uni.add(vals[1]);
+		this.addToHM(_uniInterest, uni, _clickRow);
+		
+		List<String> field = new ArrayList<String>();
+		field.add(vals[2]);
+		this.addToHM(_fieldInterest, field, _clickRow);
+		
+		//Are these necessary??
 		List<String> col = new ArrayList<String>();
-		col.add(this.getSuggNum(cell_column));
+		col.add(_model.getSuggNum(cell_column));
 		
 		List<String> row = new ArrayList<String>();
 		row.add(cell_id);
 		
 		List<String> spec = new ArrayList<String>();
 		spec.add(cell_value);
-		
-		//add to column hashmap
-		this.addToHM(_colInterest, col, _click);
-		
+				
 		//add to corresponding type hashmap
 		if(doubleClick) {
 			this.addToHM(this.getHashMap(cell_column), spec, _dclick);
 		} else {
 			this.addToHM(this.getHashMap(cell_column), spec, _click);
-		}
+		}	
+		this.addToHM(this.getHashMap(cell_column), spec, _click);	
 		
+		this.printInterest();
 	}
 	
 	//called when a user makes a suggestion
-	public void recordSugg(String cell_id, String cell_full_name, String cell_value, String cell_column, String user_id) {
+	public void recordSugg(String cell_id, String cell_full_name, String cell_value, String newSuggestion, String cell_column) {
 		
 		List<String> col = new ArrayList<String>();
-		col.add(this.getSuggNum(cell_column));
+		col.add(_model.getSuggNum(cell_column));
 		
+		//SW 1.1 - why is this being done? It is not added anywhere 
+		//Tracing the code you are using the user's profile_id not the Person ID related to the professor
 		List<String> row = new ArrayList<String>();
 		row.add(cell_id);
 		
 		List<String> spec = new ArrayList<String>();
 		spec.add(cell_value);
-		
-		//add to column hashmap
-		this.addToHM(_colInterest, col, _sugg);
+		spec.add(newSuggestion);
 		
 		//add to corresponding type hashmap
 		this.addToHM(this.getHashMap(cell_column), spec, _sugg);
 		
+		this.printInterest();
+
 	}
 	
 	//called when a user validates an existing suggestion
-	public void recordVal(String cell_id, String cell_full_name, String cell_value, String cell_column, String user_id) {
+	public void recordVal(String cell_id, String cell_full_name, String cell_value, String cell_column) {
 		
 		List<String> col = new ArrayList<String>();
-		col.add(this.getSuggNum(cell_column));
+		col.add(_model.getSuggNum(cell_column));
 		
+		//SW m1 - why is this being done? It is not added anywhere 
+		//Tracing the code you are using the user's profile_id not the Person ID related to the professor
 		List<String> row = new ArrayList<String>();
 		row.add(cell_id);
 		
 		List<String> spec = new ArrayList<String>();
 		spec.add(cell_value);
 		
-		//add to column hashmap
-		this.addToHM(_colInterest, col, _sugg);
-		
 		//add to corresponding type hashmap
 		this.addToHM(this.getHashMap(cell_column), spec, _sugg);
 		
+		this.printInterest();
 	}
 	
-	//called when a user applies a filter
-	public void recordFilter(String blur, String filter, String column, String idProfile) {
-		//need to adjust this to not query the database each time
+	public void recordFilter(String blur, String filter, String column, List<String> filterList) {
 		
-		List<String> filterList = new ArrayList<String>();
+		System.out.println("blur is " + blur + " and filterList is " + filterList);
 		
-		try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        
-		        String sql = "SELECT DISTINCT suggestion "
-		        		+ "FROM Suggestion "
-		        		+ "INNER JOIN Filter ON Suggestion.suggestion LIKE CONCAT('%', (?), '%') "
-		        		+ "WHERE Filter.idProfile = (?) AND Suggestion.idSuggestionType = (?) AND Filter.blur = (?) AND Filter.filter != '' ";
-		        PreparedStatement stmt = conn.prepareStatement(sql);
-		        stmt.setString(1, filter);
-		        stmt.setString(2, idProfile);
-		        stmt.setString(3, column);
-		        stmt.setString(4, blur);
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						filterList.add(rs.getString("suggestion"));
-					}
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception getFilterTypes() get suggestion " + ex);
-	        }
-		
-		int weight;
-		if (Integer.parseInt(blur) == 0) {
-			weight = _filter;
-		}
-		else {
-			weight = _bfilter;
-		}
-		
-		List<String> col = new ArrayList<String>();
-		col.add(column);
-		
-		List<String> spec = new ArrayList<String>();
-		spec.add(column);
-		
-		//add to column hashmap
-		this.addToHM(_colInterest, col, weight);
-		
-		//add to corresponding type hashmap
-		this.addToHM(this.getHashMap(column), spec, weight);
-		
+		HashMap<String, Integer> hm = this.getSuggMap(column);
+		if (blur.equals("0")) {
+			this.addToHM(hm, filterList, _filter);
+		} else {
+			this.addToHM(hm, filterList, _bfilter);
+		}	
 	}
-	
+		
 	//gets the correct hashmap for suggestion column
-	public HashMap<String, Integer> getHashMap(String sugg_type) {
+	private HashMap<String, Integer> getHashMap(String sugg_type) {
 		switch(sugg_type) {
 			case "University":
 				return _uniInterest;
@@ -756,58 +334,14 @@ public class UserInterestService {
 				return _rankInterest;
 			case "Subfield":
 				return _fieldInterest;
-			default:
+			case "Gender":
 				return _genderInterest;
-		}
-	}
-	
-	public String getSuggType(String sugg_type) {
-		switch(sugg_type) {
-			case "2":
-				return "University";
-			case "3":
-				return "Bachelors";
-			case "4":
-				return "Masters";
-			case "5":
-				return "Doctorate";
-			case "6":
-				return "PostDoc";
-			case "7":
-				 return "Join Year";
-			case "8":
-				return "Rank";
-			case "9":
-				return "Subfield";
 			default:
-				return "Gender";
+				return _profInterest;
 		}
 	}
 	
-	public String getSuggNum(String sugg) {
-		switch(sugg) {
-			case "University":
-				return "2";
-			case "Bachelors":
-				return "3";
-			case "Masters":
-				return "4";
-			case "Doctorate":
-				return "5";
-			case "PostDoc":
-				return "6";
-			case "JoinYear":
-				 return "7";
-			case "Rank":
-				return "8";
-			case "Subfield":
-				return "9";
-			default:
-				return "10";
-		}
-	}
-	
-	public HashMap<String, Integer> getSuggMap(String sugg_type) {
+	private HashMap<String, Integer> getSuggMap(String sugg_type) {
 		switch(sugg_type) {
 			case "2":
 				return _uniInterest;
@@ -830,155 +364,192 @@ public class UserInterestService {
 		}
 	}
 	
-	public String getProfName(String prof_id) {
-		List<String> prof = new ArrayList<String>();
+	//TO BE CALLED FOR THE INTEREST
+	public String[] getInterestedField() {
+		//Map<String, String> recommedation = new HashMap<String, String>();
+		String reco[] = new String[3];
 		
-		try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        String sql = "SELECT * FROM Person "
-		        	+ "WHERE idPerson = (?)";
-		        PreparedStatement stmt = conn.prepareStatement(sql);
-		        stmt.setString(1, prof_id);
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						prof.add(rs.getString("name"));
-					}
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception getClickType() get suggestion " + ex);
-	        }
-		return prof.get(0);
-	}
-	
-	public void getMostInterestedSuggType() {
-		
-		this.addToPQ(_finalColInterest, _colInterest);
-		
-		if (!_finalColInterest.isEmpty()) {
-			System.out.println("choose sugg type " + _finalColInterest.get(0));
+		if (_totalScore == 0) {
+			reco[0] = "noScore";
+			System.out.println("ERROR: user has no interests");
+			return reco;
 		}
 		
-	}
-	
-	//whenever we need to get the interest for a specific suggestion
-	public void getInterest(String sugg_type) {
-		List<String> interestList = new ArrayList<String>();
-		HashMap<String, Integer> hm = this.getSuggMap(sugg_type);
-		this.addToPQ(interestList, hm);
+		Professors profs = _MainUI.getApi().getProfessors();
+		this.createIntHM(profs, 0);
+		int randProf = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();
 		
-		String sugg = this.getSuggType(sugg_type);
-		if (!interestList.isEmpty()) {
-			System.out.println("most interested " + sugg + " is " + interestList.get(0));
-		}
+		//calculate which column to ask on
+		int randCol = this.randCol();
+		
+		String sugg_type = Integer.toString(randCol);
+		
+		System.out.println("ask about professor with id number " + randProf + " and named " + profs.getProfName(randProf) + " about sugg type " + sugg_type + " which is " + _model.getSuggType(sugg_type));
+		
+		reco[0] = String.valueOf(randProf); //prof id
+		reco[1] = profs.getProfName(randProf); //prof name
+		reco[2] =  _model.getSuggType(Integer.toString(randCol)); //column type name
+		
+		return reco;
 	}
 	
-	//if we need to get something they have never made a suggestion or validation for
-	public void getNoInterest(String user_id) {
-		//randomise person
-		int randPerson = (int) (Math.random() * _maxPerson);
-		//randomise col (not including photo url or sources)
-		int randCol = (int) (Math.random()*10);
-		//make sure the column is not name
-		while (randCol == 1) {
-			randCol = (int) (Math.random()*10);
-		}
-		//check that this cell is not in their interests
-		while (this.checkNoInterest(user_id, randCol, randPerson)) {
-			randPerson = (int) (Math.random() * _maxPerson);
-			//randomise col (not including photo url or sources)
-			randCol = (int) (Math.random()*10);
-			//make sure the column is not name
-			while (randCol == 1) {
-				randCol = (int) (Math.random()*10);
+	//GET SOMETHING THEY HAVE NO INTEREST IN
+	public String[] getNoInterest() {
+		Professors profs = _MainUI.getApi().getProfessors();
+		String reco[] = new String[3];
+		
+		int noInt = 0;
+		
+		//update profile interest
+		this.createIntHM(profs, noInt);
+		
+		//if they have some interest in everything, for now, abort
+		while (_noInterestList.isEmpty()) {
+			if (noInt == 0) {
+				noInt = 1;
+			} else {
+				noInt = noInt*2;
 			}
+			this.createIntHM(profs, noInt);
 		}
+		
+		//randomise which entry to ask about
+		//int rand = (int) (Math.random()*_noInterestList.size());
+		int rand = new Random().nextInt(_noInterestList.size());
+		
+		//randomise which col to ask about
+		int randProf = _noInterestList.get(rand);
+		int randCol = this.randCol();
 		
 		//return corresponding cell
-		System.out.println("current uninterested cell is person " + randPerson + " column " + randCol);
+		System.out.println("current uninterested cell is person " + randProf + " named " + profs.getProfName(randProf) +  " sugg type " + randCol + " which is " + _model.getSuggType(Integer.toString(randCol)));
+		
+		reco[0] = String.valueOf(randProf); //prof ID
+		reco[1] = profs.getProfName(randProf); //prof name
+		reco[2] =  _model.getSuggType(Integer.toString(randCol)); //column type name
+		
+		return reco;
 	}
 	
-	public boolean checkNoInterest(String user_id, int randCol, int randPerson) {
+	public Integer randCol() {
+		//calculate which column to ask on
+		/* SW - Misses subfield, rank, gender
+		int rand = (int) (Math.random()*7);
+		while (rand == 1 || rand == 0) {
+			rand = (int) (Math.random()*7);
+		}
+		*/
+		return (new Random().nextInt(9)) + 1;
+	}
+	
+	public void createIntHM(Professors profs, int noInt) {
 		
-		List<String> row = new ArrayList<String>();
-		List<String> col = new ArrayList<String>();
+		_totalScore = 0;
 		
-		String rCol = Integer.toString(randCol);
-		String rPerson = Integer.toString(randPerson);
-		
-		try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        String sql = "SELECT * FROM `Suggestion` WHERE idProfile = (?) ";
-		        PreparedStatement stmt = conn.prepareStatement(sql);
-		        stmt.setString(1, user_id);
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						row.add(rs.getString("idPerson"));
-						col.add(rs.getString("idSuggestionType"));
-					}
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
+		for (int key = 1; key < profs.getMaxProf(); key++) {
+			
+			if (profs.profExists(key)) {
+			
+			    double score = 0;
+			    
+			    //for each hashmap, check if it matches with the item property
+			    //DOES NOT INCLUDE RANK OR GENDER
+			    score += this.compareToGrid(_profInterest, profs.getProfName(key));
+			    score += this.compareToGrid(_uniInterest, profs.getProfUni(key));
+			    score += this.compareToGrid(_yearInterest, profs.getProfJoinYear(key));
+			    score += this.compareToGrid(_fieldInterest, profs.getProfField(key));
+			    score += this.compareToGrid(_bachInterest, profs.getProfBach(key));
+			    score += this.compareToGrid(_mastInterest, profs.getProfMast(key));
+			    score += this.compareToGrid(_doctInterest, profs.getProfDoct(key));
+			    score += this.compareToGrid(_postDocInterest, profs.getProfPostDoc(key));
+			    //_domainInterest
+			    			    
+			    //update totalscore
+			    _totalScore += score;
+			    
+			    //if profile matches professor, add them to the interest navmap
+				if (score >= noInt) {
+				    _probabilityNM.put( _totalScore, key);
+				} else {
+					//otherwise, they have no interest and the professor can be added to the no interest list
+					_noInterestList.add(key);
 				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception checkNoInterest() " + ex);
-	        }
-		
-		for (int i = 0; i < row.size(); i++) {
-			if (row.get(i) == rPerson && col.get(i) == rCol) {
-				return true;
 			}
 		}
-		
-		return false;
 	}
 	
-	public String getHighestPersonNum() {
+	//compares current entry that shows up in grid to see if it matches the user's profile
+	public double compareToGrid(HashMap<String, Integer> hm, String toCompare) {
+		double toReturn = 0;
+		for (String key: hm.keySet()) {
+			if (toCompare.equals(key)) {
+				toReturn = (double) hm.get(key);
+				break;
+			}
+		}
+		return toReturn;
+	}
+	
+	public void printInterest() {
+		if (!_profInterest.isEmpty()) {
+			System.out.println("prof interest hm is " + _profInterest);
+		} else {
+			System.out.println("no profs");
+		}
 		
-		List<String> prof = new ArrayList<String>();
+		if (!_uniInterest.isEmpty()) {
+			System.out.println("uni interest hm is " + _uniInterest);
+		} else {
+			System.out.println("no uni");
+		}
 		
-		try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-		        Connection conn = datasource.getConnection();
-		        String sql = "SELECT MAX(idPerson) FROM Person ";
-		        PreparedStatement stmt = conn.prepareStatement(sql);
-		        try {
-		        	ResultSet rs = stmt.executeQuery();
-					while (rs.next()) {
-						prof.add(rs.getString("MAX(idPerson)"));
-					}
-		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-		        stmt.close();
-		        conn.close();
-		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception getClickType() get suggestion " + ex);
-	        }
-		return prof.get(0);
+		if (!_yearInterest.isEmpty()) {
+			System.out.println("year interest hm is " + _yearInterest);
+		} else {
+			System.out.println("no year");
+		}
+		
+		if (!_rankInterest.isEmpty()) {
+			System.out.println("rank interest hm is " + _rankInterest);
+		} else {
+			System.out.println("no rank");
+		}
+
+		if (!_fieldInterest.isEmpty()) {
+			System.out.println("field interest hm is " + _fieldInterest);
+		} else {
+			System.out.println("no field");
+		}
+
+		if (!_bachInterest.isEmpty()) {
+			System.out.println("bach interest hm is " + _bachInterest);
+		} else {
+			System.out.println("no bach");
+		}
+		
+		if (!_mastInterest.isEmpty()) {
+			System.out.println("mast interest hm is " + _mastInterest);
+		} else {
+			System.out.println("no mast");
+		}
+		
+		if (!_doctInterest.isEmpty()) {
+			System.out.println("doct interest hm is " + _doctInterest);
+		} else {
+			System.out.println("no doct");
+		}
+		
+		if (!_postDocInterest.isEmpty()) {
+			System.out.println("postdoc interest hm is " + _postDocInterest);
+		} else {
+			System.out.println("no postdoc");
+		}
+		
+		if (!_genderInterest.isEmpty()) {
+			System.out.println("gender interest hm is " + _genderInterest);
+		} else {
+			System.out.println("no gender");
+		}
 	}
 	
 }

@@ -38,7 +38,6 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import drafty.services.ExperimentService;
-import drafty.services.UserInterestService;
 import drafty.views._MainUI;
 
 public class SuggestionComponent extends CustomComponent {
@@ -91,8 +90,7 @@ public class SuggestionComponent extends CustomComponent {
 	private String new_sugg_text_url_or_year = "";
 
 	
-	public SuggestionComponent(String person_id, String name, String value, String column, String idProfile, 
-								String mode) {
+	public SuggestionComponent(String person_id, String name, String value, String column, String idProfile, String mode) {
 			this.profile_id = idProfile;
 			this.person_id = person_id;
 			this.person_name = name;
@@ -481,11 +479,7 @@ public class SuggestionComponent extends CustomComponent {
 	      Context initialContext = new InitialContext();
 	      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
 	      //System.out.println("newSuggestion() idNewSuggestion try " + suggestionType);
-	      
-	     //update uiService
-	     //waiting for Marianne to update UIService 
-	     //_MainUI.getApi().getUIService().addSuggInt(person_id, person_name, newSuggestion, suggestionType, profile_id);
-	      
+	     
 	      if (datasource != null) {
 	        Connection conn = datasource.getConnection();
 	        String sql = "INSERT INTO Suggestion " +
@@ -514,8 +508,13 @@ public class SuggestionComponent extends CustomComponent {
 		            if (generatedKeys.next()) {
 		        		idNewSuggestion = generatedKeys.getString(1);
 		        		System.out.println("newSuggestion() idNewSuggestion = " + idNewSuggestion);
-		            }
-		            else {
+		        		//update uiService
+		       	        //waiting for Marianne to update UIService 
+		       	     	//_MainUI.getApi().getUIService().addSuggInt(person_id, person_name, newSuggestion, suggestionType, profile_id);
+		       	      	//_uis.recordSugg(profile_id, person_name, origSuggestion, newSuggestion, suggestionType); 
+		        		_MainUI.getApi().getUIService().recordSugg(profile_id, person_name, origSuggestion, newSuggestion, suggestionType);
+		       	      
+		            } else {
 		                throw new SQLException("Creating failed, no ID obtained.");
 		            }
 		        }
@@ -537,9 +536,6 @@ public class SuggestionComponent extends CustomComponent {
 	      Context initialContext = new InitialContext();
 	      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
 
-	      //update uiService
-	      //waiting for Marianne to update UIService 
-		  //_MainUI.getApi().getUIService().addValInt(person_id, person_name, origSuggestion, suggestionType, profile_id);
 	      
 	      if (datasource != null) {
 	        Connection conn = datasource.getConnection();
@@ -558,6 +554,13 @@ public class SuggestionComponent extends CustomComponent {
 		            if (generatedKeys.next()) {
 		        		idValidation = generatedKeys.getString(1);
 		        		System.out.println("newValidation() idNewValidation = " + idValidation);
+		        		
+		        		//update uiService
+		      	        //waiting for Marianne to update UIService 
+		      		    //_MainUI.getApi().getUIService().addValInt(person_id, person_name, origSuggestion, suggestionType, profile_id);
+		      	        //_uis.recordVal(profile_id, person_name, origSuggestion, suggestionType);
+		        		_MainUI.getApi().getUIService().recordVal(profile_id, person_name, origSuggestion, suggestionType);
+		        		
 		        		if(suggestionMode.equals("experiment")) {
 		    	        	ExperimentService.insertExperimentValidation(idValidation);	
 		    	        }
@@ -698,12 +701,6 @@ public class SuggestionComponent extends CustomComponent {
 	        list.add(entry.getValue().toString());
 	    }
 	    return list;
-	}
-	
-	private void newUniversityItem(String e) {
-		//System.out.println("New Uni ComboBox = " + e);
-		universities.addItem(e);
-		universities.select(e);
 	}
 
 

@@ -17,27 +17,56 @@ public class UserInterest {
 	private HashMap<Integer, String> gender = new HashMap<Integer, String>();
 	private HashMap<Integer, String> photoUrl = new HashMap<Integer, String>();
 	private HashMap<Integer, String> sources = new HashMap<Integer, String>();
-	
-	
-	
-	public UserInterest(HashMap<Integer, String> university, HashMap<Integer, String> joinYear,
-			HashMap<Integer, String> rank, HashMap<Integer, String> subfield, HashMap<Integer, String> bachelors,
-			HashMap<Integer, String> masters, HashMap<Integer, String> doctorate, HashMap<Integer, String> postdoc,
-			HashMap<Integer, String> gender, HashMap<Integer, String> photoUrl, HashMap<Integer, String> sources) {
-		super();
-		this.university = university;
-		this.joinYear = joinYear;
-		this.rank = rank;
-		this.subfield = subfield;
-		this.bachelors = bachelors;
-		this.masters = masters;
-		this.doctorate = doctorate;
-		this.postdoc = postdoc;
-		this.gender = gender;
-		this.photoUrl = photoUrl;
-		this.sources = sources;
-	}
 
+	public String getSuggType(String sugg_type) {
+		switch(sugg_type) {
+			case "2":
+				return "University";
+			case "3":
+				return "Bachelors";
+			case "4":
+				return "Masters";
+			case "5":
+				return "Doctorate";
+			case "6":
+				return "PostDoc";
+			case "7":
+				 return "Join Year";
+			case "8":
+				return "Rank";
+			case "9":
+				return "Subfield";
+			case "10":
+				return "Gender";
+			default:
+				return "FullName";
+		}
+	}
+	
+	public String getSuggNum(String sugg) {
+		switch(sugg) {
+			case "University":
+				return "2";
+			case "Bachelors":
+				return "3";
+			case "Masters":
+				return "4";
+			case "Doctorate":
+				return "5";
+			case "PostDoc":
+				return "6";
+			case "JoinYear":
+				 return "7";
+			case "Rank":
+				return "8";
+			case "Subfield":
+				return "9";
+			case "Gender":
+				return "10";
+			default:
+				return "1";
+		}
+	}
 	
 	public HashMap<Integer, String> getUniversity() {
 		return university;

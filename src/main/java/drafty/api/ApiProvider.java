@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import drafty.models.DraftyNotification;
+import drafty.models.Professors;
 import drafty.models.Profile;
 import drafty.services.UserInterestService;
 
@@ -65,7 +66,12 @@ public interface ApiProvider {
 	 * @return User Interest Service / Additive Model 
 	 */
 	UserInterestService getUIService();
-	void setUIService(String idProfile);
+	void setUIService();
+	
+	/**
+	 * @return List of Professors  
+	 */
+	Professors getProfessors();
 	
 	/**
 	 * @return Profile 

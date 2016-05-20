@@ -20,8 +20,6 @@ public class InteractionWeights {
 	public double dwell_time = 2.0;
 	public double highlight_duration = 2.0;
 	
-	
-	
 	public InteractionWeights(double click, double clickDouble, double filter, double filterBlur, double sorting,
 			double domain, double sugestion, double validation, double verification_correctness, double copy_paste,
 			double scrolling, double dwell_time, double highlight_duration) {

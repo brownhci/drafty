@@ -21,29 +21,27 @@ public class InteractionService {
 	
 	public void recordClick(String person_id, String name, String value, String column, String doubleclick, String idProfile, String rowValues) {
 		String idSuggestion = null;
+		System.out.println("recordClick() ");
 		try {
 			idSuggestion = _MainUI.getApi().getIdSuggestion(person_id, value, column);
 		} catch (SQLException e) {
 			System.out.println("Exception getIdSuggestion() " + e);
 		}
+		
 		if (idSuggestion != null) {
-			try {
-				insertClick(column, idSuggestion, doubleclick, idProfile, rowValues);
-			} catch (SQLException e) {
-				System.out.println("Exception  insertClick() " + e);
-			}	
+			insertClick(column, idSuggestion, doubleclick, idProfile, rowValues);
 		}
 	}
 	
-	public void insertClick(String column, String idSuggestion, String doubleclick, String idProfile, String rowValues) throws SQLException { 
+	public void insertClick(String column, String idSuggestion, String doubleclick, String idProfile, String rowValues) { 
 		java.util.Date date = new java.util.Date();
 		Date click_current_time = new Timestamp(date.getTime());
-
+		
 		try {
 	      Context initialContext = new InitialContext();
 	      
 	      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-	      if (datasource != null && (click_time_flag.equals(click_current_time) && doubleclick.equals("0"))) {
+	      if (datasource != null && (!click_time_flag.equals(click_current_time) && doubleclick.equals("0"))) {
 	        Connection conn = datasource.getConnection();
 	        String sql = "INSERT INTO Click (idProfile, idSuggestionType, idSuggestion, doubleclick, rowvalues) VALUES (?, (SELECT idSuggestionType FROM SuggestionType WHERE type = ?), ?, ?, ?); ";
 	        PreparedStatement stmt = conn.prepareStatement(sql);
@@ -54,16 +52,12 @@ public class InteractionService {
 	        stmt.setString(4, doubleclick);
 	        stmt.setString(5, rowValues);
 	        
-	        try {
-		        stmt.executeUpdate();
-	        } catch (SQLException e) {
-				System.out.println(e.getMessage());
-			}
+		    stmt.executeUpdate();
 	        stmt.close();
 	        conn.close();
 	      }
 	    }
-      catch (Exception ex)
+      catch (SQLException | NamingException ex)
       {
       	System.out.println("Exception: insertClick(String column, String idSuggestion, String doubleclick, String idProfile) = " + ex);
       }
@@ -71,7 +65,7 @@ public class InteractionService {
 		click_time_flag = new Timestamp(date.getTime());
     }
 	
-	public void recordClickPerson(String person_id, String doubleclick, String idProfile) { 
+	public void recordClickPerson(String person_id, String doubleclick, String idProfile, String rowValues) { 
 		java.util.Date date = new java.util.Date();
 		Date click_current_time = new Timestamp(date.getTime());
 
@@ -80,20 +74,17 @@ public class InteractionService {
 		  initialContext = new InitialContext();
 	      
 	      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-	      if (datasource != null || (click_time_flag.equals(click_current_time) && doubleclick.equals("0"))) {
+	      if (datasource != null || (!click_time_flag.equals(click_current_time) && doubleclick.equals("0"))) {
 	        Connection conn = datasource.getConnection();
-	        String sql = "INSERT INTO ClickPerson (idProfile, idPerson, doubleclick) VALUES (?, ?, ?); ";
+	        String sql = "INSERT INTO ClickPerson (idProfile, idPerson, doubleclick, rowvalues) VALUES (?, ?, ?, ?); ";
 	        PreparedStatement stmt = conn.prepareStatement(sql);
 	     
 	        stmt.setString(1, idProfile);
 	        stmt.setString(2, person_id);
 	        stmt.setString(3, doubleclick);
+	        stmt.setString(5, rowValues);
 	        
-	        try {
-		        stmt.executeUpdate();
-	        } catch (SQLException e) {
-				System.out.println(e.getMessage());
-			}
+	        stmt.executeUpdate();
 	        stmt.close();
 	        conn.close();
 	      }

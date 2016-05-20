@@ -30,6 +30,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import drafty.models.DraftyNotification;
+import drafty.models.Professors;
 import drafty.models.Profile;
 import drafty.services.UserInterestService;
 
@@ -44,6 +45,7 @@ public class ApiProviderImpl implements ApiProvider {
     private final Collection<DraftyNotification> notifications = null;	
 
     private Profile profile = new Profile();
+    private Professors professors = new Professors();
     
     private UserInterestService uiService; //create when 
     
@@ -324,9 +326,15 @@ public class ApiProviderImpl implements ApiProvider {
 	}
     
     @Override
-	public void setUIService(String idProfile) {
-    	uiService = new UserInterestService(idProfile);
-    	uiService.genUserInterest(idProfile);
+	public void setUIService() {
+    	uiService = new UserInterestService();
+    	//uiService.genUserInterest(idProfile);
+    	//uiService.genUserInterest();
+	}
+    
+	@Override
+	public Professors getProfessors() {
+		return professors;
 	}
     
     @Override
