@@ -76,7 +76,6 @@ public class _MainUI extends UI {
 	
 	@Override
 	protected void init(VaadinRequest request) {
-		ImportCSV_SuggestionFix csv = new ImportCSV_SuggestionFix();
 		
 		setLocale(Locale.US);
 		DraftyEventBus.register(this);
