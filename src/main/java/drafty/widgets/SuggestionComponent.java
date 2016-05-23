@@ -497,9 +497,7 @@ public class SuggestionComponent extends CustomComponent {
 		        stmt.close();
 		        conn.close();
 		      }
-		    }
-	        catch (Exception ex)
-	        {
+		    } catch (Exception ex) {
 	        	System.out.println("Exception: " + ex);
 	        }
 		
@@ -589,18 +587,19 @@ public class SuggestionComponent extends CustomComponent {
 	      
 	      if (datasource != null) {
 	        Connection conn = datasource.getConnection();
-	        String sql = "INSERT INTO Validation (idValidation, idSuggestion, idProfile, idExperiment, "
+	        String sql = "INSERT INTO Validation (idValidation, idSuggestion, idProfile, idExperiment, mode, "
 	        		+ "interaction_count, interaction_score, interaction_count_total, interaction_score_total, date, date_completed) "
-	        		+ "VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, NULL);";
+	        		+ "VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, NULL);";
 	        
 	        PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 	        stmt.setString(1, idSuggestion);
 	        stmt.setString(2, _MainUI.getApi().getIdProfile());
 	        stmt.setString(3, _MainUI.getApi().getProfile().getIdExperiment());
-	        stmt.setInt(4, _MainUI.getApi().getInteractionCount());
-	        stmt.setInt(5, _MainUI.getApi().getInteractionScore());
-	        stmt.setInt(6, _MainUI.getApi().getInteractionCountTot());
-	        stmt.setInt(7, _MainUI.getApi().getInteractionScoreTot());
+	        stmt.setString(4, suggestionMode);
+	        stmt.setInt(5, _MainUI.getApi().getInteractionCount());
+	        stmt.setInt(6, _MainUI.getApi().getInteractionScore());
+	        stmt.setInt(7, _MainUI.getApi().getInteractionCountTot());
+	        stmt.setInt(8, _MainUI.getApi().getInteractionScoreTot());
 	        
 	        int affectedRows = stmt.executeUpdate();
 	        
