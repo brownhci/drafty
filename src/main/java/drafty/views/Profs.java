@@ -1,6 +1,5 @@
 package drafty.views;
 
-import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Connection;
@@ -14,7 +13,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.naming.Context;
@@ -23,7 +21,6 @@ import javax.sql.DataSource;
 
 import org.vaadin.viritin.util.BrowserCookie;
 
-import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -44,8 +41,6 @@ import com.vaadin.event.SortEvent;
 import com.vaadin.event.SortEvent.SortListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.server.FileDownloader;
-import com.vaadin.server.FileResource;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
@@ -76,8 +71,8 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
-import drafty.data.DataExporter;
 import drafty.models.InteractionType;
+import drafty.models.InteractionWeights;
 import drafty.services.ExperimentService;
 import drafty.services.InteractionService;
 import drafty.services.MailService;
@@ -136,6 +131,7 @@ public class Profs extends VerticalLayout implements View {
 	private String cell_id;
 	private String cell_full_name;
 	private String cell_value;
+	private String cell_value_id;
 	private String cell_column;
 	
 	//modal for email / contact
@@ -147,6 +143,7 @@ public class Profs extends VerticalLayout implements View {
 	private Button submitEmail = new Button("Send");
 	
 	public Profs() {
+		
 		detectBrowser();
 		detectCookie(); //first set check and set cookie value
 		
@@ -180,45 +177,54 @@ public class Profs extends VerticalLayout implements View {
 	}
 
 	public void recordInteraction(InteractionType interactionType) {
-		Integer intCount = 0;
+		int intCount = 0;
+		int intScore = 0;
+		int score = 0;
 		boolean doNotAsk = false;
 		
 		if(interactionType.equals(InteractionType.CLICK)) {
-			
+			score = InteractionWeights.click;
 		} else if(interactionType.equals(InteractionType.DblCLICK)) {
 			doNotAsk = true;
+			score = InteractionWeights.clickDouble;
 		} else if(interactionType.equals(InteractionType.CLICKPROF)) {
-			
+			score = InteractionWeights.click;
 		} else if(interactionType.equals(InteractionType.DblCLICKPROF)) {
 			doNotAsk = true;
+			score = InteractionWeights.clickDouble;
 		} else if(interactionType.equals(InteractionType.FILTER)) {
-			
+			score = InteractionWeights.filter;
 		} else if(interactionType.equals(InteractionType.FILTERBLUR)) {
-			
+			score = InteractionWeights.filterBlur;
 		} else if(interactionType.equals(InteractionType.SORT)) {
-			
+			score = InteractionWeights.sorting;
 		}
 		
-		if(!doNotAsk) {
-			intCount = 1 + _MainUI.getApi().getInteractionCount();
-			_MainUI.getApi().setInteractionCount(intCount);
-		}
+		intCount = 1 + _MainUI.getApi().getInteractionCount();
+		_MainUI.getApi().setInteractionCount(intCount);
 		
-		_MainUI.getApi().getUIService().getInterestedField();
-		_MainUI.getApi().getUIService().getNoInterest();
+		intScore = score + _MainUI.getApi().getInteractionScore();
+		_MainUI.getApi().setInteractionScore(intScore);
+		
+		_MainUI.getApi().incrementInteractionCountTot();
+		_MainUI.getApi().incrementInteractionScoreTot(score);
 		
 		//experiment 1 code
+		ArrayList<String> suggInfo = new ArrayList<String>();
 		String experiment_id = _MainUI.getApi().getProfile().getIdExperiment();
-		if(intCount % 10 == 0 && intCount != 0) { //activates every 10 interactions
+		
+		if(intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0) { //activates every 7-12 interactions
 			if(experiment_id.equals("1")) { //Ask No-Interest)
 				String reco[] = _MainUI.getApi().getUIService().getNoInterest();
 				
 				String person_id = reco[0];
 				String prof_name = reco[1];
 				String suggestion_type_id = reco[2];
-				String suggestion_with_max_conf = ExperimentService.getSuggestionWithMaxConf(person_id, suggestion_type_id);
+				suggInfo = ExperimentService.getSuggestionWithMaxConf(person_id, suggestion_type_id);
+				String suggestion_with_max_conf = suggInfo.get(0);
+				String suggestion_id = suggInfo.get(1);
 				
-				new SuggestionComponent(person_id, prof_name, suggestion_with_max_conf, suggestion_type_id, _MainUI.getApi().getProfile().getIdProfile(), "experiment");
+				new SuggestionComponent(person_id, prof_name, suggestion_with_max_conf, suggestion_id, suggestion_type_id, "experiment");
 				
 			} else if (experiment_id.equals("2")) { //Ask Fix User Interest
 				
@@ -227,9 +233,11 @@ public class Profs extends VerticalLayout implements View {
 				String person_id = reco[0];
 				String prof_name = reco[1];
 				String suggestion_type_id = reco[2];
-				String suggestion_with_max_conf = ExperimentService.getSuggestionWithMaxConf(person_id, suggestion_type_id);
+				suggInfo = ExperimentService.getSuggestionWithMaxConf(person_id, suggestion_type_id);
+				String suggestion_with_max_conf = suggInfo.get(0);
+				String suggestion_id = suggInfo.get(1);
 				
-				new SuggestionComponent(person_id, prof_name, suggestion_with_max_conf, suggestion_type_id, _MainUI.getApi().getProfile().getIdProfile(), "experiment");
+				new SuggestionComponent(person_id, prof_name, suggestion_with_max_conf, suggestion_id, suggestion_type_id, "experiment");
 			}
 		}
 		
@@ -348,7 +356,7 @@ public class Profs extends VerticalLayout implements View {
 							count = rs.getInt("count");
 						}
 			        } catch (SQLException e) {
-						System.out.println(e.getMessage());
+						System.out.println("ERROR updateBadges() SQL 1: " + e.getMessage());
 					}
 			        sql = 
 			        		"SELECT COUNT(v.idValidation) as count "
@@ -361,7 +369,7 @@ public class Profs extends VerticalLayout implements View {
 							count = count + rs.getInt("count");
 						}
 			        } catch (SQLException e) {
-						System.out.println(e.getMessage());
+						System.out.println("ERROR updateBadges() SQL 2: " + e.getMessage());
 					}
 			        stmt.close();
 			        conn.close();
@@ -436,20 +444,25 @@ public class Profs extends VerticalLayout implements View {
             @Override
             public void itemClick(ItemClickEvent e) {
             	//System.out.println("Click Name: " + (String) e.getItem().getItemProperty("FullName").getValue());
-            	String rowValues = (String) e.getItem().getItemProperty("FullName").getValue()+","+
-                    	(String) e.getItem().getItemProperty("University").getValue() +","+
-                    	(String) e.getItem().getItemProperty("JoinYear").getValue()+","+
-                    	(String) e.getItem().getItemProperty("Rank").getValue()+ ","+
-                    	(String) e.getItem().getItemProperty("Subfield").getValue()+","+
-                    	(String) e.getItem().getItemProperty("Bachelor").getValue()+","+
-                    	(String) e.getItem().getItemProperty("Doctorate").getValue()+","+
-                    	(String) e.getItem().getItemProperty("PostDoc").getValue()+","+
-                    	(String) e.getItem().getItemProperty("Gender").getValue();
+            	String separator = "|"; //SW makes it easier to parse in CSV format
+            	String rowValues = 
+            			e.getItem().getItemProperty("FullName").getValue().toString()+separator+
+                    	e.getItem().getItemProperty("University").getValue().toString()+separator+
+                    	e.getItem().getItemProperty("JoinYear").getValue().toString()+separator+
+                    	e.getItem().getItemProperty("Rank").getValue().toString()+separator+
+                    	e.getItem().getItemProperty("Subfield").getValue().toString()+separator+
+                    	e.getItem().getItemProperty("Bachelors").getValue().toString()+separator+
+                    	e.getItem().getItemProperty("Masters").getValue().toString()+separator+
+                    	e.getItem().getItemProperty("Doctorate").getValue().toString()+separator+
+                    	e.getItem().getItemProperty("PostDoc").getValue().toString()+separator+
+                    	e.getItem().getItemProperty("Gender").getValue().toString()+separator+
+                    	e.getItem().getItemProperty("id").getValue().toString(); //fixes null pointer on reload
             	
-            	cell_id = (String) e.getItem().getItemProperty("id").getValue();
+            	cell_id = (String) e.getItem().getItemProperty("id").getValue(); //person_id
 				cell_full_name = (String) e.getItem().getItemProperty("FullName").getValue();
 				cell_value = container.getContainerProperty(e.getItemId(), e.getPropertyId()).getValue().toString();
 				cell_column = e.getPropertyId().toString();
+				cell_value_id = _MainUI.getApi().getIdSuggestion(cell_id, cell_value, cell_column);
     			
         		flag_sugg = 1;
             	icono2 = "<span class=\"v-menubar-menuitem-caption\" style=\"color:#197dea\"><span class=\"v-icon FontAwesome\"></span>"
@@ -465,9 +478,7 @@ public class Profs extends VerticalLayout implements View {
             	InteractionService is = new InteractionService();
 				
                 if (e.isDoubleClick()) { //double click
-            		//waiting for Marianne to tweak UserInterstService
-                	//_MainUI.getApi().getUIService().addClickInt(cell_id, cell_full_name, cell_value, cell_column, idProfile, true);
-            		_MainUI.getApi().getUIService().recordClick(cell_id, cell_full_name, cell_value, cell_column, true, rowValues);
+                	_MainUI.getApi().getUIService().recordClick(cell_id, cell_full_name, cell_value, cell_column, true, rowValues);
                 	
                 	if(cell_column.equals("FullName")) {
                 		resetSuggestionMenuItem();
@@ -477,13 +488,11 @@ public class Profs extends VerticalLayout implements View {
                 	} else {
                 		recordInteraction(InteractionType.DblCLICK);
                 		is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "1", idProfile, rowValues); //1 to record it as double click
-                		new SuggestionComponent(cell_id, cell_full_name, cell_value, cell_column, idProfile, "normal");
+                		new SuggestionComponent(cell_id, cell_full_name, cell_value, cell_value_id, cell_column, "normal");
                 		
                     	suggestionMode.setText(icono2);
                 	}
                 } else { //single click
-                	//waiting for Marianne to tweak UserInterstService
-                	//_MainUI.getApi().getUIService().addClickInt(cell_id, cell_full_name, cell_value, cell_column, idProfile, false);
                 	_MainUI.getApi().getUIService().recordClick(cell_id, cell_full_name, cell_value, cell_column, false, rowValues);
                 	
                 	if(cell_column.equals("FullName")) {
@@ -730,6 +739,7 @@ public class Profs extends VerticalLayout implements View {
 			}
 		});
 		
+		/* SW - left out for now until server bug can be fixed
 		exportButton = draftyMenu.addItem("Export", FontAwesome.DOWNLOAD, new MenuBar.Command(){
 			@Override
 			public void menuSelected(MenuItem selectedItem){
@@ -756,6 +766,7 @@ public class Profs extends VerticalLayout implements View {
 				
 			}
 		});
+		*/
 		
 		//New suggestion button on top right
 		suggestionMode = draftyMenu.addItem(icono, new MenuBar.Command() {	
@@ -766,7 +777,7 @@ public class Profs extends VerticalLayout implements View {
 	            		//do nothing
 	            		Notification.show("Full Name is not available to make Suggestions");
 	            	} else {
-	            		new SuggestionComponent(cell_id, cell_full_name, cell_value, cell_column, idProfile, "normal");
+	            		new SuggestionComponent(cell_id, cell_full_name, cell_value, cell_value_id, cell_column, "normal");
 	            	}	
 				} else {
 					Notification.show("Please select or double click a cell to make a suggestion.");
@@ -820,8 +831,8 @@ public class Profs extends VerticalLayout implements View {
 				//_uis.recordFilter(blur, filter, column, filterList);
 				for (String s: filterList) {
 					if (filterList.indexOf(s) != filterList.size()-1) {
-						matchedValues = s + ","; }
-					else {
+						matchedValues = s + "|"; 
+					} else {
 						matchedValues += s;
 					}
 				}
@@ -1053,7 +1064,7 @@ public class Profs extends VerticalLayout implements View {
 					typeIdSt = typeId;
 				}
 			} catch (SQLException e) {
-				System.out.println(e.getMessage());
+				System.out.println("ERROR populateGrid(): SQL " + e.getMessage());
 			}
 	        System.out.println("COUNT = " + count);
 	        conn.close();
@@ -1216,7 +1227,7 @@ public class Profs extends VerticalLayout implements View {
 						exists = rs.getString("exist");
 					}
 		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
+					System.out.println("ERROR checkProfile(): " + e.getMessage());
 				}
 		        conn.close();
 		      }
@@ -1254,7 +1265,7 @@ public class Profs extends VerticalLayout implements View {
 					exists = rs.getString("exist");
 				}
 	        } catch (SQLException e) {
-				System.out.println(e.getMessage());
+				System.out.println("ERROR checkIpAddress(): " + e.getMessage());
 			}
 	        conn.close();
 	      }
@@ -1280,7 +1291,7 @@ public class Profs extends VerticalLayout implements View {
 		        try {
 			        stmt.executeUpdate();
 		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
+					System.out.println("ERROR updateProfile(): " + e.getMessage());
 				}
 		        conn.close();
 		      }
@@ -1309,7 +1320,7 @@ public class Profs extends VerticalLayout implements View {
 		        try {
 			        stmt.executeUpdate();
 		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
+					System.out.println("ERROR updateIpAddress(): " + e.getMessage());
 				}
 		        conn.close();
 		      }
@@ -1348,7 +1359,7 @@ public class Profs extends VerticalLayout implements View {
 		            }
 		        }
 	        } catch (SQLException e) {
-				System.out.println(e.getMessage());
+				System.out.println("ERROR newProfile(): " + e.getMessage());
 			}
 	        conn.close();
 	      }

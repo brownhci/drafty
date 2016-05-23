@@ -28,6 +28,7 @@ import com.vaadin.ui.Window;
 
 import drafty.api.ApiProvider;
 import drafty.api.ApiProviderImpl;
+import drafty.data.fixes.ImportCSV_SuggestionFix;
 import drafty.event.DraftyEvent.CloseOpenWindowsEvent;
 import drafty.event.DraftyEventBus;
 
@@ -75,6 +76,7 @@ public class _MainUI extends UI {
 	
 	@Override
 	protected void init(VaadinRequest request) {
+		ImportCSV_SuggestionFix csv = new ImportCSV_SuggestionFix();
 		
 		setLocale(Locale.US);
 		DraftyEventBus.register(this);

@@ -45,7 +45,7 @@ public class UserBehaviorService {
 						rowList.add(row);
 					}
 		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
+					System.out.println("ERROR getClickRow(): " + e.getMessage());
 				}
 		        stmt.close();
 		        conn.close();
@@ -74,7 +74,7 @@ public class UserBehaviorService {
 		        	sql = "SELECT * "
 		        		+ "FROM Click c "
 		        		+ "INNER JOIN Suggestion s ON s.idSuggestion = c.idSuggestion "
-		        		+ "WHERE c.idProfile = (?) AND c.idSuggestionType = (?) AND doubleclick = (?) ";
+		        		+ "WHERE c.idProfile = ? AND c.idSuggestionType = ? AND doubleclick = ? ";
 			        stmt = conn.prepareStatement(sql);
 			        stmt.setString(1, _MainUI.getApi().getProfile().getIdProfile());
 			        stmt.setString(2, sugg_id);
@@ -82,7 +82,7 @@ public class UserBehaviorService {
 		        } else {
 		        	sql = "SELECT * "
 			        		+ "FROM ClickPerson "
-			        		+ "WHERE idProfile = (?) AND doubleclick = (?) ";
+			        		+ "WHERE idProfile = ? AND doubleclick = ? ";
 			        stmt = conn.prepareStatement(sql);
 			        stmt.setString(1, _MainUI.getApi().getProfile().getIdProfile());
 			        stmt.setString(2, dclick); 	
@@ -122,7 +122,8 @@ public class UserBehaviorService {
 		        String sql = "SELECT * FROM Validation "
 		        	+ "INNER JOIN Validation_Suggestion ON Validation.idValidation = Validation_Suggestion.idValidation "
 		        	+ "INNER JOIN Suggestion ON Suggestion.idSuggestion = Validation_Suggestion.idSuggestion "
-		        	+ "WHERE Validation.idProfile = (?) AND Validation_Suggestion.chosen = (?) AND idSuggestionType = (?)";
+		        	+ "WHERE Validation.idProfile = ? AND Validation_Suggestion.chosen = ? AND idSuggestionType = ? "
+		        	+ "AND date_completed IS NOT NULL ";
 		        PreparedStatement stmt = conn.prepareStatement(sql);
 		        stmt.setString(1, _MainUI.getApi().getProfile().getIdProfile());
 		        stmt.setString(2, val);
@@ -157,7 +158,7 @@ public class UserBehaviorService {
 	      if (datasource != null) {
 	        Connection conn = datasource.getConnection();
 	        
-	        String sql = "SELECT * FROM Filter WHERE idSuggestionType = (?) AND idProfile = (?) AND blur = (?)";
+	        String sql = "SELECT * FROM Filter WHERE idSuggestionType = ? AND idProfile = ? AND blur = ?";
 	        PreparedStatement stmt = conn.prepareStatement(sql);
 	        stmt.setString(1, sugg_id);
 	        stmt.setString(2, _MainUI.getApi().getProfile().getIdProfile());
@@ -201,7 +202,7 @@ public class UserBehaviorService {
 		      if (datasource != null) {
 		        Connection conn = datasource.getConnection();
 		        String sql = "SELECT * FROM Person "
-		        	+ "WHERE idPerson = (?)";
+		        	+ "WHERE idPerson = ?";
 		        PreparedStatement stmt = conn.prepareStatement(sql);
 		        stmt.setString(1, prof_id);
 		        try {
@@ -210,7 +211,7 @@ public class UserBehaviorService {
 						prof.add(rs.getString("name"));
 					}
 		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
+					System.out.println("ERROR getProfName(): " + e.getMessage());
 				}
 		        stmt.close();
 		        conn.close();
@@ -236,7 +237,7 @@ public class UserBehaviorService {
 		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
 		      if (datasource != null) {
 		        Connection conn = datasource.getConnection();
-		        String sql = "SELECT * FROM Suggestion WHERE idProfile = (?) ";
+		        String sql = "SELECT * FROM Suggestion WHERE idProfile = ? ";
 		        PreparedStatement stmt = conn.prepareStatement(sql);
 		        stmt.setString(1, _MainUI.getApi().getProfile().getIdProfile());
 		        try {
@@ -246,7 +247,7 @@ public class UserBehaviorService {
 						col.add(rs.getString("idSuggestionType"));
 					}
 		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
+					System.out.println("ERROR checkNoInterest(): " + e.getMessage());
 				}
 		        stmt.close();
 		        conn.close();
@@ -283,7 +284,7 @@ public class UserBehaviorService {
 						prof.add(rs.getString("MAX(idPerson)"));
 					}
 		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
+					System.out.println("ERROR getHighestPersonNum(): " + e.getMessage());
 				}
 		        stmt.close();
 		        conn.close();

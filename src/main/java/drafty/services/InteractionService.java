@@ -21,12 +21,8 @@ public class InteractionService {
 	
 	public void recordClick(String person_id, String name, String value, String column, String doubleclick, String idProfile, String rowValues) {
 		String idSuggestion = null;
-		System.out.println("recordClick() ");
-		try {
-			idSuggestion = _MainUI.getApi().getIdSuggestion(person_id, value, column);
-		} catch (SQLException e) {
-			System.out.println("Exception getIdSuggestion() " + e);
-		}
+		
+		idSuggestion = _MainUI.getApi().getIdSuggestion(person_id, value, column);
 		
 		if (idSuggestion != null) {
 			insertClick(column, idSuggestion, doubleclick, idProfile, rowValues);
@@ -82,7 +78,7 @@ public class InteractionService {
 	        stmt.setString(1, idProfile);
 	        stmt.setString(2, person_id);
 	        stmt.setString(3, doubleclick);
-	        stmt.setString(5, rowValues);
+	        stmt.setString(4, rowValues);
 	        
 	        stmt.executeUpdate();
 	        stmt.close();

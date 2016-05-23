@@ -4,6 +4,7 @@ package drafty.services;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Random;
 
 import drafty.views._MainUI;
@@ -14,8 +15,9 @@ public class ExperimentService {
 		try {
 			String experiment_id = null;
 			String count = null;
+			int visits = 0;
 			
-			String sql = "SELECT COUNT(*) as count, idExperiment FROM Experiment_Profile WHERE idProfile = ?";
+			String sql = "SELECT COUNT(*) as count, idExperiment, visits FROM Experiment_Profile WHERE idProfile = ?";
 	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
 	        stmt.setString(1, _MainUI.getApi().getProfile().getIdProfile());
 	        
@@ -24,6 +26,7 @@ public class ExperimentService {
 				count = rs.getString("count");
 				if(!count.equals("0")) {
 					experiment_id = rs.getString("idExperiment");
+					visits = rs.getInt("visits");
 		        }
 			}
 	        
@@ -35,16 +38,38 @@ public class ExperimentService {
 	        } else {
 	        	System.out.println("SET EXISTING idExperiment = " + experiment_id);
 	        	_MainUI.getApi().getProfile().setIdExperiment(experiment_id);
+	        	updateExperimentProfile(visits);
 	        }
 		} catch (SQLException e) {
 			System.out.println("ERROR checkExperimentProfile(): " + e);
 		}
 	}
 	
+	private static void updateExperimentProfile(int visits) {
+		try {
+			String sql = 
+					"UPDATE Experiment_Profile SET last_visit = CURRENT_TIMESTAMP, visits = ? "
+					+ "WHERE idExperiment = ? AND idProfile = ? ";
+	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
+	        visits++;
+	        stmt.setInt(1, visits);
+	        stmt.setString(2, _MainUI.getApi().getProfile().getIdExperiment());
+	        stmt.setString(3, _MainUI.getApi().getProfile().getIdProfile());
+	        
+        	stmt.executeUpdate();
+	        
+	        stmt.getConnection().close();
+	        stmt.close();
+		} catch (SQLException e) {
+			System.out.println("ERROR updateExperimentProfile(): " + e);
+		}
+	}
+
 	private static void newExperimentProfile() {
 		try {
-			String new_experiment_id = null;
-	        
+			String new_experiment_id = String.valueOf(_MainUI.getApi().getRandom(1, 3));
+					
+			/* SW - generate random number from 1 to 3
 			String sql = "SELECT * FROM Experiment_Profile ORDER BY date_created LIMIT 1";
 	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
 	  
@@ -55,9 +80,10 @@ public class ExperimentService {
 				
 	        stmt.getConnection().close();
 	        stmt.close();
+	        */
 	        
-	        sql = "INSERT INTO Experiment_Profile VALUES (?, ?, CURRENT_TIMESTAMP)";
-	        stmt =  _MainUI.getApi().getConnStmt(sql);
+	        String sql = "INSERT INTO Experiment_Profile VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1)";
+	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
 	        stmt.setString(1, new_experiment_id);
 	        stmt.setString(2,  _MainUI.getApi().getProfile().getIdProfile());
 	       
@@ -66,7 +92,7 @@ public class ExperimentService {
 	        	System.out.println("SET NEW idExperiment = " + new_id);
 	        	_MainUI.getApi().getProfile().setIdExperiment(Integer.toString(new_id));
 	        } catch (SQLException e) {
-				System.out.println(e.getMessage());
+				System.out.println("ERROR newExperimentProfile(): " + e.getMessage());
 			}
 	        stmt.getConnection().close();
 	        stmt.close();
@@ -75,25 +101,8 @@ public class ExperimentService {
 		}
 	}
 	
-	public static void insertExperimentValidation(String validation_id) {
-		try {
-			String sql = "INSERT INTO Experiment_Validation VALUES (?, ?, CURRENT_TIMESTAMP)";
-	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
-	        stmt.setString(1, _MainUI.getApi().getProfile().getIdExperiment());
-	        stmt.setString(2, validation_id);
-	        
-	        stmt.executeUpdate();
-	        
-	        stmt.getConnection().close();
-	        stmt.close();
-		} catch (SQLException e) {
-			System.out.println("ERROR insertExperimentValidation(): " + e);
-		}
-	}
-	
-	public static String getSuggestionWithMaxConf(String idPerson, String SuggestionType) {
-
-		String suggestion = null;
+	public static ArrayList<String> getSuggestionWithMaxConf(String idPerson, String SuggestionType) {
+		ArrayList<String> suggInfo = new ArrayList<String>();
 		
 		try {
 			String sql = "SELECT * "
@@ -107,7 +116,8 @@ public class ExperimentService {
 	        
         	ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
-				suggestion = rs.getString("suggestion");
+				suggInfo.add(rs.getString("suggestion"));
+				suggInfo.add(rs.getString("idSuggestion"));
 				break;
 			}
 	        
@@ -117,7 +127,7 @@ public class ExperimentService {
 			System.out.println("ERROR getSuggestionWithMaxConf(): " + e);
 		}
 		
-		return suggestion; 
+		return suggInfo; 
 	}
 	
 	public static String getRandomSuggestionType() {

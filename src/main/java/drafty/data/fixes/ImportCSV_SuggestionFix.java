@@ -6,10 +6,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -22,18 +18,14 @@ import drafty.views._MainUI;
 public class ImportCSV_SuggestionFix {
 	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
-	private static String csvPerson = "/Users/shaunwallace/Downloads/DraftyDataFixingMarathon-Person.csv";
+	private static String csvPerson = "/Users/shaunwallace/Downloads/DraftyDataFixingMarathon-Suggestions1.csv";
 	
 	
 	public ImportCSV_SuggestionFix() {
-		try {
-			importPerson();
-		} catch (SQLException | NamingException e) {
-			System.out.println("importPerson() ERROR -  " + e);
-		}
+		importSuggestions();
 	}
 	
-	private void importPerson() throws SQLException, NamingException {
+	private void importSuggestions() {
 		CSVReader reader = null;
 		
 		try {
@@ -49,46 +41,61 @@ public class ImportCSV_SuggestionFix {
 			    Connection conn = datasource.getConnection();
 			    conn.setAutoCommit(false); //commit transaction manually
 			    
-				String sqlP = 
-							"UPDATE Person SET name = ? WHERE idPerson = ?";
-				String sqlS = 
-							"UPDATE Suggestion SET idPerson = ? WHERE idPerson = ?";
+				String sql = 
+							"UPDATE Suggestion SET suggestion = ?, idSuggestionType = ? WHERE idSuggestion = ?";
 				
-				PreparedStatement stmtP = conn.prepareStatement(sqlP);
-				PreparedStatement stmtS = conn.prepareStatement(sqlS);
+				PreparedStatement stmt = conn.prepareStatement(sql);
 				
 				int count = 0;
 				while ((nextLine = reader.readNext()) != null) {
-					
 					if (nextLine[0].equals("1")) {
-						stmtP.setString(1, nextLine[2]);
-						stmtP.setString(2, nextLine[1]);
-						stmtP.addBatch();
-						
-						if (nextLine[3] != null && !nextLine[3].isEmpty()) {
-							count++;
-							stmtS.setString(1, nextLine[3]);
-							stmtS.setString(2, nextLine[1]);
-							stmtS.addBatch();
-						}
+						stmt.setString(1, nextLine[2]);
+						stmt.setString(2, getSuggestionTypeID(nextLine[3]));
+						stmt.setString(3, nextLine[1]);
+						stmt.addBatch();
+						count++;
 					}
 				}
 				
-				System.out.println("COUNT = " + count);
+				System.out.println("COUNT ImportCSV_SuggestionFix = " + count);
 				
-				stmtP.executeBatch();
-				stmtS.executeBatch();
+				stmt.executeBatch();
 				
 				conn.commit();
 				conn.setAutoCommit(true);
 				
 				conn.close();
 
-			} catch (IOException e) {
-				System.out.println("Error reading line in Person: " + e);
-			} catch (NamingException e) {
-				System.out.println("Error naming in Person: " + e);
+			} catch (IOException | SQLException | NamingException e) {
+				System.out.println("Error reading line in Suggestion: " + e);
 			}
 		}
+	}
+	
+	private String getSuggestionTypeID(String type) {
+		if(type.equals("University")) {
+			return "2";
+		} else if(type.equals("Bachelors")) {
+			return "3";
+		} else if(type.equals("Masters")) {
+			return "4";
+		} else if(type.equals("Doctorate")) {
+			return "5";
+		} else if(type.equals("PostDoc")) {
+			return "6";
+		} else if(type.equals("JoinYear")) {
+			return "7";
+		} else if(type.equals("Rank")) {
+			return "8";
+		} else if(type.equals("Subfield")) {
+			return "9";
+		} else if(type.equals("Gender")) {
+			return "10";
+		} else if(type.equals("PhotoURL")) {
+			return "11";
+		} else if(type.equals("Sources")) {
+			return "12";
+		}
+		return "";
 	}
 }

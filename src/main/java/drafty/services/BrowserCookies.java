@@ -114,7 +114,7 @@ public class BrowserCookies {
 						exists = rs.getString("exist");
 					}
 		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
+					System.out.println("ERROR checkProfile(): " + e.getMessage());
 				}
 		        conn.close();
 		      }
@@ -156,7 +156,7 @@ public class BrowserCookies {
 					exists = rs.getString("exist");
 				}
 	        } catch (SQLException e) {
-				System.out.println(e.getMessage());
+				System.out.println("ERROR checkIpAddress(): " + e.getMessage());
 			}
 	        conn.close();
 	      }
@@ -182,7 +182,7 @@ public class BrowserCookies {
 		        try {
 			        stmt.executeUpdate();
 		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
+					System.out.println("ERROR updateProfile(): " + e.getMessage());
 				}
 		        conn.close();
 		      }
@@ -211,7 +211,7 @@ public class BrowserCookies {
 		        try {
 			        stmt.executeUpdate();
 		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
+					System.out.println("ERROR updateIpAddress(): " + e.getMessage());
 				}
 		        conn.close();
 		      }
@@ -249,7 +249,7 @@ public class BrowserCookies {
 		            }
 		        }
 	        } catch (SQLException e) {
-				System.out.println(e.getMessage());
+				System.out.println("ERROR newProfile(): " + e.getMessage());
 			}
 	        conn.close();
 	      }

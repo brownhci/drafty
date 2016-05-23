@@ -3,11 +3,11 @@ package drafty.services;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TreeMap;
 
+import drafty.models.InteractionWeights;
 import drafty.models.Professors;
 import drafty.models.UserInterest;
 import drafty.views._MainUI;
@@ -31,19 +31,19 @@ public class UserInterestService {
 	 */
 	
 	//weights
-	private int _click = 1;
-	//dclick weight is in addition to click weight
-	private int _dclick = 1;
+	private int _click = InteractionWeights.click;
+	private int _dclick = 1; //dclick weight is in addition to click weight
 	private int _clickRow = 1;
 	
-	private int _val = 3;
+	private int _val = InteractionWeights.validation;
 	//sugg is in addition to val weight
-	private int _sugg = 4;
+	private int _sugg = InteractionWeights.sugestion;
 	
-	private int _filter = 2;
-	private int _bfilter = 3;
+	private int _filter = InteractionWeights.filter;
+	private int _bfilter = InteractionWeights.filterBlur;
 	
-	private int _domain = 3;
+	private int _domain = InteractionWeights.domain;
+	
 	
 	//cumulative probability of professor matches in navigable map	
 	private NavigableMap<Integer, Integer> _probabilityNM;
@@ -119,32 +119,53 @@ public class UserInterestService {
 		List<String[]> clickList = _ub.getClickRow(clickType);
 		String suggType;
 		String[] vals;
+		boolean flag = false; //ignore warning, this var is used
 		
 		List<String> profs = new ArrayList<String>();
 		List<String> unis = new ArrayList<String>();
+		//List<String> joinYear = new ArrayList<String>(); //limited values, everyone will show interest
+		//List<String> rank = new ArrayList<String>(); //if we do rank everyone will show interest
 		List<String> fields = new ArrayList<String>();
+		List<String> bach = new ArrayList<String>();
+		List<String> mast = new ArrayList<String>();
+		List<String> doct = new ArrayList<String>();
+		List<String> postdoc = new ArrayList<String>();
+		//List<String> gender = new ArrayList<String>(); //if we do gender everyone will show interest
 		
 		List<String> currSuggestion = new ArrayList<String>();
 		for (String[] row : clickList){
 			suggType = row[0];
 			currSuggestion.add(row[2]);
 			this.addToHM(this.getSuggMap(suggType), currSuggestion, weight);
-			
-			vals = row[1].split(",");
-			profs.add(vals[0]);
-			unis.add(vals[1]);
-			fields.add(vals[2]);
-			
 			currSuggestion.clear();
+			
+			//SW check for null value first, avoids null pointer exception
+			if(row[1] != null && !row[1].isEmpty()) {
+				vals = row[1].split("\\|"); //SW row[1] from doubleClick contains a String[] of all row values 
+				
+				profs.add(vals[0]);  //0 = professor name
+				unis.add(vals[1]);   //1 = university
+				fields.add(vals[4]); //4 = subfield
+				bach.add(vals[5]);   //5 = bachelors
+				mast.add(vals[6]);
+				doct.add(vals[7]);
+				postdoc.add(vals[8]);
+				flag = true;
+			}
 		}
 		
-		this.addRowstoHM(profs, unis, fields);
-	}
-	
-	public void addRowstoHM(List<String> profs, List<String> unis, List<String> fields) {
-		this.addToHM(_profInterest, profs, _clickRow);
-		this.addToHM(_uniInterest, unis, _clickRow);
-		this.addToHM(_fieldInterest, fields, _clickRow);
+		/*
+		if(flag = true) { //avoids null pointer exception
+			//add rows interest; other 3 are not added because they would the user model to show interest in almost every prof
+			this.addToHM(_profInterest, profs, _clickRow);
+			this.addToHM(_uniInterest, unis, _clickRow);
+			this.addToHM(_fieldInterest, fields, _clickRow);
+			this.addToHM(_bachInterest, bach, _clickRow);
+			this.addToHM(_mastInterest, mast, _clickRow);
+			this.addToHM(_doctInterest, doct, _clickRow);
+			this.addToHM(_postDocInterest, postdoc, _clickRow);	
+		}
+		*/
 	}
 	
 	public void genUserInt(HashMap<String, Integer> hm, String suggType) {
@@ -165,11 +186,11 @@ public class UserInterestService {
 		List<String> bfilterList = _ub.getFilterTypes("1", suggType);
 		this.addToHM(hm, bfilterList, _bfilter);
 				
-		//adding to hashmap based on suggestion
+		//adding to hashmap based on validation_suggestion not chosen
 		List<String> suggList = _ub.getSuggTypes(suggType, "1");
 		this.addToHM(hm, suggList, _sugg);
 		
-		//adding to hashmap based on validation
+		//adding to hashmap based on validation_suggestion chosen
 		List<String> valList = _ub.getSuggTypes(suggType, "0");
 		this.addToHM(hm, valList, _val);
 	}
@@ -178,7 +199,7 @@ public class UserInterestService {
 	public void addToHM(HashMap<String, Integer> hm, List<String> list, int weight) {
 		
 		for (String key: list) {
-			if (key != ""){
+			if (key != "") {
 				if (!hm.containsKey(key)) {
 					hm.put(key, weight);
 				} else {
@@ -223,10 +244,10 @@ public class UserInterestService {
 
 	public void recordClick(String cell_id, String cell_full_name, String cell_value, String cell_column, boolean doubleClick, String rowValues) {
 		
-		System.out.println("recording click " + doubleClick + " for field " + cell_value);
-	
+		//System.out.println("recording click " + doubleClick + " for field " + cell_value);
+		
 		String[] vals;
-		vals = rowValues.split(",");
+		vals = rowValues.split("\\|");
 		
 		List<String> prof = new ArrayList<String>();
 		prof.add(vals[0]);
@@ -240,12 +261,13 @@ public class UserInterestService {
 		field.add(vals[2]);
 		this.addToHM(_fieldInterest, field, _clickRow);
 		
-		//Are these necessary??
-		List<String> col = new ArrayList<String>();
-		col.add(_model.getSuggNum(cell_column));
 		
-		List<String> row = new ArrayList<String>();
-		row.add(cell_id);
+		//Are these necessary? (col & row)
+		//List<String> col = new ArrayList<String>();
+		//col.add(_model.getSuggNum(cell_column));
+		//List<String> row = new ArrayList<String>();
+		//row.add(cell_id);
+		
 		
 		List<String> spec = new ArrayList<String>();
 		spec.add(cell_value);
@@ -255,10 +277,9 @@ public class UserInterestService {
 			this.addToHM(this.getHashMap(cell_column), spec, _dclick);
 		} else {
 			this.addToHM(this.getHashMap(cell_column), spec, _click);
-		}	
-		this.addToHM(this.getHashMap(cell_column), spec, _click);	
+		}
 		
-		this.printInterest();
+		//this.printInterest();
 	}
 	
 	//called when a user makes a suggestion
@@ -300,12 +321,12 @@ public class UserInterestService {
 		//add to corresponding type hashmap
 		this.addToHM(this.getHashMap(cell_column), spec, _sugg);
 		
-		this.printInterest();
+		//this.printInterest();
 	}
 	
 	public void recordFilter(String blur, String filter, String column, List<String> filterList) {
 		
-		System.out.println("blur is " + blur + " and filterList is " + filterList);
+		//System.out.println("blur is " + blur + " and filterList is " + filterList);
 		
 		HashMap<String, Integer> hm = this.getSuggMap(column);
 		if (blur.equals("0")) {
@@ -366,21 +387,21 @@ public class UserInterestService {
 	
 	//TO BE CALLED FOR THE INTEREST
 	public String[] getInterestedField() {
-		//Map<String, String> recommedation = new HashMap<String, String>();
+		Professors profs = _MainUI.getApi().getProfessors();
+		this.createIntHM(profs, 0);
+		
 		String reco[] = new String[3];
 		
 		if (_totalScore == 0) {
 			reco[0] = "noScore";
-			System.out.println("ERROR: user has no interests");
+			System.out.println("ERROR: user has no interests; _totalScore = 0");
 			return reco;
 		}
 		
-		Professors profs = _MainUI.getApi().getProfessors();
-		this.createIntHM(profs, 0);
 		int randProf = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();
 		
 		//calculate which column to ask on
-		int randCol = this.randCol();
+		int randCol = _MainUI.getApi().getRandom(2, 10); //get random 2-10
 		
 		String sugg_type = Integer.toString(randCol);
 		
@@ -419,7 +440,7 @@ public class UserInterestService {
 		
 		//randomise which col to ask about
 		int randProf = _noInterestList.get(rand);
-		int randCol = this.randCol();
+		int randCol = _MainUI.getApi().getRandom(2, 10); //get random 2-10
 		
 		//return corresponding cell
 		System.out.println("current uninterested cell is person " + randProf + " named " + profs.getProfName(randProf) +  " sugg type " + randCol + " which is " + _model.getSuggType(Integer.toString(randCol)));
@@ -429,17 +450,6 @@ public class UserInterestService {
 		reco[2] =  _model.getSuggType(Integer.toString(randCol)); //column type name
 		
 		return reco;
-	}
-	
-	public Integer randCol() {
-		//calculate which column to ask on
-		/* SW - Misses subfield, rank, gender
-		int rand = (int) (Math.random()*7);
-		while (rand == 1 || rand == 0) {
-			rand = (int) (Math.random()*7);
-		}
-		*/
-		return (new Random().nextInt(9)) + 1;
 	}
 	
 	public void createIntHM(Professors profs, int noInt) {
@@ -550,6 +560,5 @@ public class UserInterestService {
 		} else {
 			System.out.println("no gender");
 		}
-	}
-	
+	}	
 }

@@ -165,7 +165,7 @@ public class DataExporter {
 				typeIdSt = typeId;
 			}
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			System.out.println("ERROR api buildRowsFull(): " + e.getMessage());
 		}
         conn.close();
       }

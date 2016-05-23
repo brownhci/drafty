@@ -55,7 +55,7 @@ public interface ApiProvider {
      * @return idSuggestion, limit 1, returns w/ highest conf level; protects against duplicates from old data import
 	 * @throws SQLException 
      */
-	String getIdSuggestion(String person_id, String value, String column) throws SQLException;
+	String getIdSuggestion(String person_id, String value, String column);
 	
 	/**
      * @return clean university name of - USA, - Canada, (USA), (Canada)
@@ -86,10 +86,29 @@ public interface ApiProvider {
 	/**
 	 * @return counts the number of interactions
 	 */
-	Integer getInteractionCount();
-	void setInteractionCount(Integer ineractionCount);
-
+	int getInteractionCount();
+	void setInteractionCount(int interactionCount);
+	int getInteractionScore();
+	void setInteractionScore(int interactionScore);
+	int getInteractionCountTot();
+	void setInteractionCountTot(int interactionCountTot);
+	void incrementInteractionCountTot();
+	int getInteractionScoreTot();
+	void setInteractionScoreTot(int interactionScoreTot);
+	void incrementInteractionScoreTot(int score);	
+	
+	/**
+	 * @return profileId
+	 */
 	void setIdProfile(String idProfile);
 	String getIdProfile();
+
+	/**
+	 * @return random number in given range
+	 */
+	int getRandom(int min, int max);
+
+	int getIntAsk();
+	void resetIntAsk();	
 }
 

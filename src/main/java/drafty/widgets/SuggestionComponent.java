@@ -37,7 +37,6 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-import drafty.services.ExperimentService;
 import drafty.views._MainUI;
 
 public class SuggestionComponent extends CustomComponent {
@@ -52,10 +51,10 @@ public class SuggestionComponent extends CustomComponent {
 	CssLayout panelWrap = new CssLayout();
 	Panel resultsPanel = new Panel();
 	VerticalLayout resultsPanelLayout = new VerticalLayout();
-	
-	private String profile_id;
+
 	private String person_id;
 	private String origSuggestion;
+	private String idSuggestion;
 	private String person_name;
 	private String suggestionType;
 	
@@ -90,22 +89,31 @@ public class SuggestionComponent extends CustomComponent {
 	private String new_sugg_text_url_or_year = "";
 
 	
-	public SuggestionComponent(String person_id, String name, String value, String column, String idProfile, String mode) {
-			this.profile_id = idProfile;
-			this.person_id = person_id;
-			this.person_name = name;
-			this.origSuggestion = value;
-			this.suggestionType = column;
-			this.suggestionMode = mode;
-			
-			addValidators();
-			addListeners();
-			createUI();
-			
-			if (sub.getWidth() < 390) {
-				sub.setWidth("420px");
-			}
-			UI.getCurrent().addWindow(sub);
+	public SuggestionComponent(String person_id, String name, String value, String suggestion_id, String column, String mode) {
+		this.person_id = person_id;
+		this.person_name = name;
+		this.origSuggestion = value;
+		this.idSuggestion = suggestion_id;
+		this.suggestionType = column;
+		this.suggestionMode = mode;
+		
+		//create new validation entry
+		newValidation();
+		
+		//reset score and interaction counters
+		_MainUI.getApi().setInteractionCount(0);
+		_MainUI.getApi().setInteractionScore(0);
+		_MainUI.getApi().resetIntAsk();
+		
+		//UI creation
+		addValidators();
+		addListeners();
+		createUI();
+		
+		if (sub.getWidth() < 390) {
+			sub.setWidth("420px");
+		}
+		UI.getCurrent().addWindow(sub);
 	}
 
 
@@ -157,7 +165,7 @@ public class SuggestionComponent extends CustomComponent {
 	    if(suggestionMode.equals("experiment")) {
 	    	label_suggestions = new Label("<h3 style=\"margin-top: 0px; line-height: 25px;\">"
 	    			+ "Thank you for using Drafty. <br>"
-	    			+ "Could you please make a suggestion for <br>"
+	    			+ "Could you please help and make a suggestion for <br>"
 	    			+ person_name + "'s " + suggestionType + ".</h3>", ContentMode.HTML);
 	    } else {
 	    	label_suggestions = new Label("<h3 style=\"margin-top: 0px; line-height: 25px;\">Make a suggestion for <br>"  + person_name + "'s " + suggestionType + ".</h3>", ContentMode.HTML);	
@@ -271,9 +279,6 @@ public class SuggestionComponent extends CustomComponent {
 				updateSuggestionConf();
 			}
 			
-			//create new validation entry
-			newValidation();
-			
 			flag = 0;
 			//loop through proposed suggestions to write to Validation_Suggestion table w/ new Validation ID
 			for (Map.Entry<String, String> map : suggestionsMap.entrySet()) {
@@ -301,10 +306,37 @@ public class SuggestionComponent extends CustomComponent {
 
 			Notification.show("Thank you for your suggestion.  Our elves are hard at work integrating it.");
 			
+			//update uiService now that validation_suggestions are complete
+    		_MainUI.getApi().getUIService().recordVal(_MainUI.getApi().getIdProfile(), person_name, origSuggestion, suggestionType);
+    		
+    		//update Validation with completion time
+			updateValidation();
+			
+			//close modal window
 			sub.close();
 		}
 	}
 	
+	private void updateValidation() {
+		try {
+			String sql = 
+					"UPDATE Validation SET date_completed = CURRENT_TIMESTAMP "
+					+ "WHERE idValidation = ? ";
+			
+	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
+
+	        stmt.setString(1, idValidation);
+	        
+        	stmt.executeUpdate();
+	        
+	        stmt.getConnection().close();
+	        stmt.close();
+		} catch (SQLException e) {
+			System.out.println("ERROR updateValidation(): " + e);
+		}
+	}
+
+
 	private void updateSuggestionConf() {
 		try {
 		      Context initialContext = new InitialContext();
@@ -474,6 +506,23 @@ public class SuggestionComponent extends CustomComponent {
 		return isNew;
 	}
 	
+	public String getEntryType() {
+		String idEntryType = "4";
+		
+		if(suggestionMode.equals("experiment")) {
+			String idExperiment = _MainUI.getApi().getProfile().getIdExperiment();
+			if(idExperiment.equals("1")) {
+				idEntryType = "8";
+			} else if(idExperiment.equals("2")) {
+				idEntryType = "9";
+			} else { //3
+				idEntryType = "10";
+			}
+		}
+		
+		return idEntryType;
+	}
+	
 	private void newSuggestion() {
 		try {
 	      Context initialContext = new InitialContext();
@@ -491,11 +540,11 @@ public class SuggestionComponent extends CustomComponent {
 	        String sugTypeId = getIdSuggestionType(suggestionType);
 	        
 	        stmt.setString(1, person_id);
-	        stmt.setString(2, profile_id); 
+	        stmt.setString(2, _MainUI.getApi().getIdProfile()); 
 	        stmt.setString(3, "4"); //idEntryType, always the same from web browser
 	        stmt.setString(4, sugTypeId);
 	        stmt.setString(5, newSuggestion);
-	        stmt.setString(6, _MainUI.getApi().getIdSuggestion(person_id, origSuggestion, suggestionType)); 
+	        stmt.setString(6, idSuggestion); 
 		    stmt.setString(7, newMaxConf); //confidence from max confidence, new_sugg_conf	
 	        
 	        try {
@@ -512,7 +561,7 @@ public class SuggestionComponent extends CustomComponent {
 		       	        //waiting for Marianne to update UIService 
 		       	     	//_MainUI.getApi().getUIService().addSuggInt(person_id, person_name, newSuggestion, suggestionType, profile_id);
 		       	      	//_uis.recordSugg(profile_id, person_name, origSuggestion, newSuggestion, suggestionType); 
-		        		_MainUI.getApi().getUIService().recordSugg(profile_id, person_name, origSuggestion, newSuggestion, suggestionType);
+		        		_MainUI.getApi().getUIService().recordSugg(_MainUI.getApi().getIdProfile(), person_name, origSuggestion, newSuggestion, suggestionType);
 		       	      
 		            } else {
 		                throw new SQLException("Creating failed, no ID obtained.");
@@ -536,48 +585,41 @@ public class SuggestionComponent extends CustomComponent {
 	      Context initialContext = new InitialContext();
 	      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
 
+	      //System.out.println("newValidation() START");
 	      
 	      if (datasource != null) {
 	        Connection conn = datasource.getConnection();
-	        String sql = "INSERT INTO Validation (idValidation, idProfile) VALUES (NULL, ?)";
+	        String sql = "INSERT INTO Validation (idValidation, idSuggestion, idProfile, idExperiment, "
+	        		+ "interaction_count, interaction_score, interaction_count_total, interaction_score_total, date, date_completed) "
+	        		+ "VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, NULL);";
 	        
 	        PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-	        stmt.setString(1, profile_id);
+	        stmt.setString(1, idSuggestion);
+	        stmt.setString(2, _MainUI.getApi().getIdProfile());
+	        stmt.setString(3, _MainUI.getApi().getProfile().getIdExperiment());
+	        stmt.setInt(4, _MainUI.getApi().getInteractionCount());
+	        stmt.setInt(5, _MainUI.getApi().getInteractionScore());
+	        stmt.setInt(6, _MainUI.getApi().getInteractionCountTot());
+	        stmt.setInt(7, _MainUI.getApi().getInteractionScoreTot());
 	        
-	        try {
-		        int affectedRows = stmt.executeUpdate();
-		        
-		        if (affectedRows == 0) {
-		            throw new SQLException("Creating failed, no rows affected.");
-		        }
-		        try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-		            if (generatedKeys.next()) {
-		        		idValidation = generatedKeys.getString(1);
-		        		System.out.println("newValidation() idNewValidation = " + idValidation);
-		        		
-		        		//update uiService
-		      	        //waiting for Marianne to update UIService 
-		      		    //_MainUI.getApi().getUIService().addValInt(person_id, person_name, origSuggestion, suggestionType, profile_id);
-		      	        //_uis.recordVal(profile_id, person_name, origSuggestion, suggestionType);
-		        		_MainUI.getApi().getUIService().recordVal(profile_id, person_name, origSuggestion, suggestionType);
-		        		
-		        		if(suggestionMode.equals("experiment")) {
-		    	        	ExperimentService.insertExperimentValidation(idValidation);	
-		    	        }
-		            }
-		            else {
-		                throw new SQLException("ERROR newValidation() Creating failed, no ID obtained.");
-		            }
-		        }
-	        } catch (SQLException e) {
-				System.out.println(e.getMessage());
-			}
+	        int affectedRows = stmt.executeUpdate();
+	        
+	        if (affectedRows == 0) {
+	            throw new SQLException("Creating failed, no rows affected.");
+	        }
+	        try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+	            if (generatedKeys.next()) {
+	        		idValidation = generatedKeys.getString(1);
+	        		System.out.println("newValidation() idNewValidation = " + idValidation);
+	            } else {
+	                throw new SQLException("ERROR newValidation() Creating failed, no ID obtained.");
+	            }
+	        }
+	        
 	        stmt.close();
 	        conn.close();
 	      }
-	    }
-        catch (Exception ex)
-        {
+	    } catch (Exception ex) {
         	System.out.println("Exception newValidation(): " + ex);
         }
 	}
@@ -597,7 +639,7 @@ public class SuggestionComponent extends CustomComponent {
 	        stmt.setString(2, suggestion_id);
 	        stmt.setString(3, isNewSug);
 	        stmt.setString(4, isChosenSug);
-	        //System.out.println("newValidationSuggestion: idValidation =  " + idValidation + ", suggestion_id = " + suggestion_id);
+	        System.out.println("newValidationSuggestion: idValidation =  " + idValidation + ", suggestion_id = " + suggestion_id);
 	        try {
 		        stmt.executeUpdate();
 	        } catch (SQLException e) {
@@ -607,8 +649,7 @@ public class SuggestionComponent extends CustomComponent {
 	        conn.close();
 	      }
 	    }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
         	System.out.println("Exception ValidationSuggestions " + ex);
         }
 	}
@@ -646,7 +687,7 @@ public class SuggestionComponent extends CustomComponent {
 					suggestionsMap.put(rs.getString("idSuggestion"), rs.getString("suggestion"));
 				}
 	        } catch (SQLException e) {
-				System.out.println(e.getMessage());
+				System.out.println("ERROR getSuggestions(): " + e.getMessage());
 			}
 	        stmt.close();
 	        conn.close();
@@ -658,7 +699,7 @@ public class SuggestionComponent extends CustomComponent {
         }
 		
 		//add original suggestion first, to make sure it shows up for the end user
-		suggestionsMap.put(_MainUI.getApi().getIdSuggestion(person_id, origSuggestion, suggestionType), origSuggestion);
+		suggestionsMap.put(idSuggestion, origSuggestion);
 				
 		//Cleans list of duplicate university names
 		if(uni_clean) {
