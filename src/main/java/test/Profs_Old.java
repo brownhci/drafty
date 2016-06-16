@@ -47,7 +47,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
-import drafty.views._MainUI;
+import drafty._MainUI;
 
 public class Profs_Old extends VerticalLayout implements View, Property.ValueChangeListener {
 	

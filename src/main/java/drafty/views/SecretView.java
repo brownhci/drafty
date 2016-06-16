@@ -13,6 +13,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 
+import drafty._MainUI;
 import drafty.data.CSVReceiver;
 import drafty.data.DataExporter;
 import drafty.data.GeneralCleaner;

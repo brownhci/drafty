@@ -71,6 +71,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+import drafty._MainUI;
 import drafty.models.InteractionType;
 import drafty.models.InteractionWeights;
 import drafty.services.ExperimentService;

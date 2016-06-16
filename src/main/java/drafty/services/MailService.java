@@ -10,6 +10,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import drafty._MainUI;
+
 import javax.annotation.Resource;
 /*
 import javax.mail.Address;
@@ -20,8 +22,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.ws.rs.core.Response;
 */
-
-import drafty.views._MainUI;
 
 public class MailService {
 	

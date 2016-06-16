@@ -13,7 +13,7 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import au.com.bytecode.opencsv.CSVReader;
-import drafty.views._MainUI;
+import drafty._MainUI;
 
 
 public class DataCleaner {

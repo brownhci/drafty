@@ -11,13 +11,8 @@ import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
-/**
-import drafty.util.commons.text.names.HumanNameParser;
-import drafty.util.commons.text.names.Name;
-import drafty.util.commons.text.similarity.JaroWrinklerDistance;
-import drafty.util.commons.text.similarity.LevenshteinDistance;
-**/
-import drafty.views._MainUI;
+
+import drafty._MainUI;
 
 public class DuplicateNameChecker {
 	

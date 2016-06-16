@@ -30,11 +30,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import drafty._MainUI;
 import drafty.models.DraftyNotification;
 import drafty.models.Professors;
 import drafty.models.Profile;
 import drafty.services.UserInterestService;
-import drafty.views._MainUI;
 
 /**
  * A dummy implementation for the backend API.

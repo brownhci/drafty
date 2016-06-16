@@ -17,7 +17,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import au.com.bytecode.opencsv.CSVReader;
-import drafty.views._MainUI;
+import drafty._MainUI;
 
 public class ImportCSV_PersonFix {
 	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();

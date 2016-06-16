@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 
-import drafty.views._MainUI;
+import drafty._MainUI;
 
 public class ExperimentService {
 	

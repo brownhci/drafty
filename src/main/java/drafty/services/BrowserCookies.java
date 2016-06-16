@@ -17,7 +17,7 @@ import org.vaadin.viritin.util.BrowserCookie;
 import com.vaadin.server.Page;
 import com.vaadin.server.WebBrowser;
 
-import drafty.views._MainUI;
+import drafty._MainUI;
 
 public class BrowserCookies {
 

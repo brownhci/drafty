@@ -1,4 +1,4 @@
-package drafty.views;
+package drafty;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -22,21 +22,20 @@ import com.vaadin.server.SessionInitEvent;
 import com.vaadin.server.SessionInitListener;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
 import drafty.api.ApiProvider;
 import drafty.api.ApiProviderImpl;
-import drafty.data.fixes.ImportCSV_SuggestionFix;
 import drafty.event.DraftyEvent.CloseOpenWindowsEvent;
 import drafty.event.DraftyEventBus;
+import drafty.views.Profs;
+import drafty.views.SecretView;
 
 @Viewport("width=device-width, initial-scale=1.0")
 @SuppressWarnings("serial")
 @Title("Drafty")
 @Theme("ICERMvalo")
-@SpringUI
 public class _MainUI extends UI {
 
 	/*

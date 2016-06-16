@@ -19,7 +19,7 @@ import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 
-import drafty.views._MainUI;
+import drafty._MainUI;
 
 //CSV Writing code in this class comes largely from Haijian Wang : https://github.com/haiwan/Exporter/blob/master/src/org/vaadin/haijian/filegenerator/CSVFileBuilder.java
 public class DataExporter {

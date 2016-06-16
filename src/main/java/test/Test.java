@@ -34,7 +34,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
-import drafty.views._MainUI;
+import drafty._MainUI;
 
 public class Test extends VerticalLayout implements View {
 	

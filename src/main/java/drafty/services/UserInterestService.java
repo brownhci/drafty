@@ -7,10 +7,10 @@ import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TreeMap;
 
+import drafty._MainUI;
 import drafty.models.InteractionWeights;
 import drafty.models.Professors;
 import drafty.models.UserInterest;
-import drafty.views._MainUI;
 
 public class UserInterestService {
 	
