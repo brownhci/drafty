@@ -77,12 +77,16 @@ import drafty.models.InteractionWeights;
 import drafty.services.ExperimentService;
 import drafty.services.InteractionService;
 import drafty.services.MailService;
+import drafty.widgets.DataFixComponent;
+import drafty.widgets.NameEditComponent;
 import drafty.widgets.SuggestionComponent;
 
 public class Profs extends VerticalLayout implements View {
 	
 	private static final long serialVersionUID = -6955613369737022454L;
 	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
+
+	InteractionService is = new InteractionService();
 	
 	//set Drafty cookie value
 	private String cookieCheck = "brown_university_drafty_cookie";
@@ -134,6 +138,11 @@ public class Profs extends VerticalLayout implements View {
 	private String cell_value;
 	private String cell_value_id;
 	private String cell_column;
+	private String rowValues;
+	private String separator = "|"; //SW makes it easier to parse in CSV format
+	
+	private String filterText;
+	private String filterColumn;
 	
 	//modal for email / contact
 	private Window subMail = new Window();
@@ -142,6 +151,7 @@ public class Profs extends VerticalLayout implements View {
 	private TextField email = new TextField("Email", "");
 	private TextArea message = new TextArea("Message", "");
 	private Button submitEmail = new Button("Send");
+	private boolean adminEditMode = false;
 	
 	public Profs() {
 		
@@ -178,67 +188,82 @@ public class Profs extends VerticalLayout implements View {
 	}
 
 	public void recordInteraction(InteractionType interactionType) {
-		int intCount = 0;
-		int intScore = 0;
-		int score = 0;
-		boolean doNotAsk = false;
-		
-		if(interactionType.equals(InteractionType.CLICK)) {
-			score = InteractionWeights.click;
-		} else if(interactionType.equals(InteractionType.DblCLICK)) {
-			doNotAsk = true;
-			score = InteractionWeights.clickDouble;
-		} else if(interactionType.equals(InteractionType.CLICKPROF)) {
-			score = InteractionWeights.click;
-		} else if(interactionType.equals(InteractionType.DblCLICKPROF)) {
-			doNotAsk = true;
-			score = InteractionWeights.clickDouble;
-		} else if(interactionType.equals(InteractionType.FILTER)) {
-			score = InteractionWeights.filter;
-		} else if(interactionType.equals(InteractionType.FILTERBLUR)) {
-			score = InteractionWeights.filterBlur;
-		} else if(interactionType.equals(InteractionType.SORT)) {
-			score = InteractionWeights.sorting;
-		}
-		
-		intCount = 1 + _MainUI.getApi().getInteractionCount();
-		_MainUI.getApi().setInteractionCount(intCount);
-		
-		intScore = score + _MainUI.getApi().getInteractionScore();
-		_MainUI.getApi().setInteractionScore(intScore);
-		
-		_MainUI.getApi().incrementInteractionCountTot();
-		_MainUI.getApi().incrementInteractionScoreTot(score);
-		
-		//experiment 1 code
-		ArrayList<String> suggInfo = new ArrayList<String>();
-		String experiment_id = _MainUI.getApi().getProfile().getIdExperiment();
-		
-		if(intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0) { //activates every 7-12 interactions
-			if(experiment_id.equals("1")) { //Ask No-Interest)
-				String reco[] = _MainUI.getApi().getUIService().getNoInterest();
+		if(!adminEditMode) {
+			int intCount = 0;
+			int intScore = 0;
+			int score = 0;
+			boolean doNotAsk = false;
+			
+			if(interactionType.equals(InteractionType.CLICK)) {
+				score = InteractionWeights.click;
+	        	is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "0", idProfile, rowValues);
 				
-				String person_id = reco[0];
-				String prof_name = reco[1];
-				String suggestion_type_id = reco[2];
-				suggInfo = ExperimentService.getSuggestionWithMaxConf(person_id, suggestion_type_id);
-				String suggestion_with_max_conf = suggInfo.get(0);
-				String suggestion_id = suggInfo.get(1);
+			} else if(interactionType.equals(InteractionType.DblCLICK)) {
+				doNotAsk = true;
+				score = InteractionWeights.clickDouble;
+				is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "1", idProfile, rowValues); //1 to record it as double click
 				
-				new SuggestionComponent(person_id, prof_name, suggestion_with_max_conf, suggestion_id, suggestion_type_id, "experiment");
+			} else if(interactionType.equals(InteractionType.CLICKPROF)) {
+				score = InteractionWeights.click;
+				is.recordClickPerson(cell_id, "0", idProfile, rowValues);
 				
-			} else if (experiment_id.equals("2")) { //Ask Fix User Interest
+			} else if(interactionType.equals(InteractionType.DblCLICKPROF)) {
+				doNotAsk = true;
+				score = InteractionWeights.clickDouble;
+				is.recordClickPerson(cell_id, "1", idProfile, rowValues);
 				
-				String reco[] = _MainUI.getApi().getUIService().getInterestedField();
+			} else if(interactionType.equals(InteractionType.FILTER)) {
+				score = InteractionWeights.filter;
+		    	insertFilter("0");
 				
-				String person_id = reco[0];
-				String prof_name = reco[1];
-				String suggestion_type_id = reco[2];
-				suggInfo = ExperimentService.getSuggestionWithMaxConf(person_id, suggestion_type_id);
-				String suggestion_with_max_conf = suggInfo.get(0);
-				String suggestion_id = suggInfo.get(1);
+			} else if(interactionType.equals(InteractionType.FILTERBLUR)) {
+				score = InteractionWeights.filterBlur;
+				insertFilter("1");
 				
-				new SuggestionComponent(person_id, prof_name, suggestion_with_max_conf, suggestion_id, suggestion_type_id, "experiment");
+			} else if(interactionType.equals(InteractionType.SORT)) {
+				score = InteractionWeights.sorting;
+				
+			}
+			
+			intCount = 1 + _MainUI.getApi().getInteractionCount();
+			_MainUI.getApi().setInteractionCount(intCount);
+			
+			intScore = score + _MainUI.getApi().getInteractionScore();
+			_MainUI.getApi().setInteractionScore(intScore);
+			
+			_MainUI.getApi().incrementInteractionCountTot();
+			_MainUI.getApi().incrementInteractionScoreTot(score);
+			
+			//experiment 1 code
+			ArrayList<String> suggInfo = new ArrayList<String>();
+			String experiment_id = _MainUI.getApi().getProfile().getIdExperiment();
+			
+			if(intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0) { //activates every 7-12 interactions
+				if(doNotAsk) {
+					//reset score and interaction counters
+					_MainUI.getApi().setInteractionCount(0);
+					//_MainUI.getApi().setInteractionScore(0); 
+					_MainUI.getApi().resetIntAsk();
+				} else {
+					String reco[] = null;
+					if(experiment_id.equals("1")) { //Ask No-Interest)
+						String recoTemp[] = _MainUI.getApi().getUIService().getNoInterest();
+						reco = recoTemp;
+					} else if (experiment_id.equals("2")) { //Ask Fix User Interest
+						String recoTemp[] = _MainUI.getApi().getUIService().getInterestedField();
+						reco = recoTemp;
+					}
+					
+					String person_id = reco[0];
+					String prof_name = reco[1];
+					String suggestion_type_id = reco[2];
+					suggInfo = ExperimentService.getSuggestionWithMaxConf(person_id, suggestion_type_id);
+					String suggestion_with_max_conf = suggInfo.get(0);
+					String suggestion_id = suggInfo.get(1);
+					
+					_MainUI.getApi().getCellSelection().setCellSelection(person_id, prof_name, suggestion_with_max_conf, suggestion_id, suggestion_type_id, null);
+					new SuggestionComponent("experiment");
+				}
 			}
 		}
 		
@@ -320,6 +345,10 @@ public class Profs extends VerticalLayout implements View {
 		if(fName.getValue().toString().equals("drafty1212")) {
 			System.out.println("FirstName = " + fName.getValue().toString());
 			UI.getCurrent().getNavigator().navigateTo("secretview");
+		}
+		
+		if(fName.getValue().toString().equals("jeffies2233")) {
+			adminEditMode  = true;
 		}
 		
 		if(lName.getValue().toString().equals("dev2323")) {
@@ -445,8 +474,8 @@ public class Profs extends VerticalLayout implements View {
             @Override
             public void itemClick(ItemClickEvent e) {
             	//System.out.println("Click Name: " + (String) e.getItem().getItemProperty("FullName").getValue());
-            	String separator = "|"; //SW makes it easier to parse in CSV format
-            	String rowValues = 
+            	
+            	rowValues = 
             			e.getItem().getItemProperty("FullName").getValue().toString()+separator+
                     	e.getItem().getItemProperty("University").getValue().toString()+separator+
                     	e.getItem().getItemProperty("JoinYear").getValue().toString()+separator+
@@ -476,21 +505,23 @@ public class Profs extends VerticalLayout implements View {
 					tooltipMod(true);
 				}
 				
-            	InteractionService is = new InteractionService();
-				
                 if (e.isDoubleClick()) { //double click
                 	_MainUI.getApi().getUIService().recordClick(cell_id, cell_full_name, cell_value, cell_column, true, rowValues);
                 	
-                	if(cell_column.equals("FullName")) {
+            		_MainUI.getApi().getCellSelection().setCellSelection(cell_id, cell_full_name, cell_value, cell_value_id, cell_column, rowValues);
+            		
+            		if(adminEditMode) {
+            			new DataFixComponent();
+            			suggestionMode.setText(icono2);
+            		} else if(cell_column.equals("FullName")) {
                 		resetSuggestionMenuItem();
                 		recordInteraction(InteractionType.DblCLICKPROF);
-                		Notification.show("Full Name is not available to make Suggestions");
-                		is.recordClickPerson(cell_id, "1", idProfile, rowValues);
+                		//Notification.show("Full Name is not available to make Suggestions");
+                		new NameEditComponent();
+                		
                 	} else {
                 		recordInteraction(InteractionType.DblCLICK);
-                		is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "1", idProfile, rowValues); //1 to record it as double click
-                		new SuggestionComponent(cell_id, cell_full_name, cell_value, cell_value_id, cell_column, "normal");
-                		
+                		new SuggestionComponent("normal");
                     	suggestionMode.setText(icono2);
                 	}
                 } else { //single click
@@ -499,12 +530,10 @@ public class Profs extends VerticalLayout implements View {
                 	if(cell_column.equals("FullName")) {
                 		resetSuggestionMenuItem();
                 		recordInteraction(InteractionType.CLICKPROF);
-                		is.recordClickPerson(cell_id, "0", idProfile, rowValues);
+                		
                 	} else {
                     	suggestionMode.setText(icono2);
-                		
                 		recordInteraction(InteractionType.CLICK);
-                    	is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "0", idProfile, rowValues);
                 	}
                 }
             }
@@ -774,11 +803,13 @@ public class Profs extends VerticalLayout implements View {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
 				if (flag_sugg == 1) {
-					if (cell_column.equals("FullName")) {
-	            		//do nothing
-	            		Notification.show("Full Name is not available to make Suggestions");
+					
+					if(adminEditMode) {
+						new DataFixComponent();
+					} else if (cell_column.equals("FullName")) {
+	            		new NameEditComponent();
 	            	} else {
-	            		new SuggestionComponent(cell_id, cell_full_name, cell_value, cell_value_id, cell_column, "normal");
+	            		new SuggestionComponent("normal");
 	            	}	
 				} else {
 					Notification.show("Please select or double click a cell to make a suggestion.");
@@ -823,12 +854,12 @@ public class Profs extends VerticalLayout implements View {
 		return items;
 	}
 	
-	public void insertFilter(String filter, String column, String blur) {  
-		if (!filter.equals("") && !filter.equals(" ")) {
+	public void insertFilter(String blur) {  
+		if (!filterText.equals("") && !filterText.equals(" ")) {
 			String matchedValues = "";
-			List<String> filterList = this.getFilteredList(column);
+			List<String> filterList = this.getFilteredList(filterColumn);
 			if (filterList.size() < 10 && filterList.size() > 0) {
-				_MainUI.getApi().getUIService().recordFilter(blur, filter, column, filterList);
+				_MainUI.getApi().getUIService().recordFilter(blur, filterText, filterColumn, filterList);
 				//_uis.recordFilter(blur, filter, column, filterList);
 				for (String s: filterList) {
 					if (filterList.indexOf(s) != filterList.size()-1) {
@@ -848,8 +879,8 @@ public class Profs extends VerticalLayout implements View {
 							+ "VALUES (?, (SELECT idSuggestionType FROM SuggestionType WHERE type = ?), ?, ?, ?); ";
 					PreparedStatement stmt = conn.prepareStatement(sql);
 					stmt.setString(1, idProfile);
-					stmt.setString(2, column);
-					stmt.setString(3, filter);
+					stmt.setString(2, filterColumn);
+					stmt.setString(3, filterText);
 					stmt.setString(4, blur);
 					stmt.setString(5, matchedValues);
 					try {
@@ -904,8 +935,7 @@ public class Profs extends VerticalLayout implements View {
 		    
 		    filterField.addTextChangeListener(new TextChangeListener() {
 
-			    private static final long serialVersionUID = -448372085933722984L;		
-			    String filterText;
+			    private static final long serialVersionUID = -448372085933722984L;
 		    
 				@SuppressWarnings("serial")
 				@Override
@@ -916,16 +946,13 @@ public class Profs extends VerticalLayout implements View {
 			    	
 			    	//store input
 			    	filterText = change.getText();
+			    	filterColumn = pid.toString();
 			    	
-			    	//Notification.show("Filter Activate: " + pid + " - " + change.getText());
-			    	insertFilter(filterText, pid.toString(), "0");
             		recordInteraction(InteractionType.FILTER);
 			    	
 			    	filterField.addBlurListener(new BlurListener() {
 						@Override
 						public void blur(BlurEvent event) {
-							//Notification.show("Filter Activate Blur: " + pid + " - " + filterText);
-							insertFilter(filterText, pid.toString(), "1");
 							recordInteraction(InteractionType.FILTERBLUR);
 						}	
 			    	});

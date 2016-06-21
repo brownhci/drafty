@@ -1,6 +1,6 @@
 package drafty.event;
 
-import test.DraftyViewType;
+import drafty.test.DraftyViewType;
 
 
 /*

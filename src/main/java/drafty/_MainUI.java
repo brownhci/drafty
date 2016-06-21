@@ -50,7 +50,7 @@ public class _MainUI extends UI {
 	public Navigator navigator = new Navigator(this, this);;
 	
 	@WebServlet(value = {"/*", "/Drafty/*", "/professors/*", "/VAADIN/*"}, asyncSupported = true)
-	@VaadinServletConfiguration(productionMode = true, ui = _MainUI.class, closeIdleSessions = true)
+	@VaadinServletConfiguration(productionMode = true, ui = _MainUI.class, closeIdleSessions = true, widgetset="drafty.MyAppWidgetset")
 	public static class Servlet extends VaadinServlet implements SessionInitListener, SessionDestroyListener {
 		@Override
 	    protected void servletInitialized() throws ServletException {

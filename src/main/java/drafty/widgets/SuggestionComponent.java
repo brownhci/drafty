@@ -52,11 +52,11 @@ public class SuggestionComponent extends CustomComponent {
 	Panel resultsPanel = new Panel();
 	VerticalLayout resultsPanelLayout = new VerticalLayout();
 
-	private String person_id;
-	private String origSuggestion;
-	private String idSuggestion;
-	private String person_name;
-	private String suggestionType;
+	private String person_id = _MainUI.getApi().getCellSelection().getPerson_id();
+	private String origSuggestion = _MainUI.getApi().getCellSelection().getOrigSuggestion();
+	private String idSuggestion = _MainUI.getApi().getCellSelection().getOrigSuggestionId();
+	private String person_name = _MainUI.getApi().getCellSelection().getPerson_name();
+	private String suggestionType  = _MainUI.getApi().getCellSelection().getOrigSuggestionTypeId();
 	
 	/*
 	 * Mode types:
@@ -89,21 +89,11 @@ public class SuggestionComponent extends CustomComponent {
 	private String new_sugg_text_url_or_year = "";
 
 	
-	public SuggestionComponent(String person_id, String name, String value, String suggestion_id, String column, String mode) {
-		this.person_id = person_id;
-		this.person_name = name;
-		this.origSuggestion = value;
-		this.idSuggestion = suggestion_id;
-		this.suggestionType = column;
-		this.suggestionMode = mode;
+	public SuggestionComponent(String suggestionMode) {
+		this.suggestionMode = suggestionMode;
 		
 		//create new validation entry
 		newValidation();
-		
-		//reset score and interaction counters
-		_MainUI.getApi().setInteractionCount(0);
-		_MainUI.getApi().setInteractionScore(0);
-		_MainUI.getApi().resetIntAsk();
 		
 		//UI creation
 		addValidators();
@@ -571,10 +561,8 @@ public class SuggestionComponent extends CustomComponent {
 	        stmt.close();
 	        conn.close();
 	      }
-	    }
-        catch (Exception ex)
-        {
-        	System.out.println("Exception: " + ex);
+	    } catch (Exception ex) {
+        	System.out.println("Exception newSuggestion(): " + ex);
         }
 	}
 	

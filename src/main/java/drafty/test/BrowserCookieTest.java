@@ -1,4 +1,4 @@
-package test;
+package drafty.test;
 
 
 import org.vaadin.viritin.util.BrowserCookie;

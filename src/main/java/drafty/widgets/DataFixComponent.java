@@ -12,6 +12,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
@@ -30,34 +31,29 @@ public class DataFixComponent extends CustomComponent {
 	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
 	// Create a sub-window and add it to the main window
-	final Window sub = new Window("Suggestion");
+	final Window sub = new Window("ADMIN Data Fix");
 	VerticalLayout suggestionModal = new VerticalLayout();
 	CssLayout panelWrap = new CssLayout();
 	Panel resultsPanel = new Panel();
 	VerticalLayout resultsPanelLayout = new VerticalLayout();
 	
-	private String person_id;
-	private String origSuggestion;
-	private String idSuggestion;
-	private String person_name;
-	private String suggestionType;
+	private String person_id = _MainUI.getApi().getCellSelection().getPerson_id();
+	private String origSuggestion = _MainUI.getApi().getCellSelection().getOrigSuggestion();
+	private String idSuggestion = _MainUI.getApi().getCellSelection().getOrigSuggestionId();
+	private String person_name = _MainUI.getApi().getCellSelection().getPerson_name();
+	private String suggestionType  = _MainUI.getApi().getCellSelection().getOrigSuggestionTypeId();
 	
 	Label label_suggestions = new Label();
 	Label label_hr = new Label("<hr />", ContentMode.HTML);
 	TextField suggestion_textbox = new TextField();
-	Button submitSuggestion_button = new Button("Submit Suggestion");
+	Button submitSuggestion_button = new Button("Submit Fix");
 	private ComboBox universities = new ComboBox();
 	private ComboBox subfields = new ComboBox();
 	private ComboBox rank = new ComboBox();
 	
 	private String newSuggestion;
 	
-	public DataFixComponent(String person_id, String name, String value, String suggestion_id, String column) {
-		this.person_id = person_id;
-		this.person_name = name;
-		this.origSuggestion = value;
-		this.idSuggestion = suggestion_id;
-		this.suggestionType = column;
+	public DataFixComponent() {
 		
 		//Create UI
 		createUI();
@@ -115,6 +111,8 @@ public class DataFixComponent extends CustomComponent {
 	}
 
 	private void submitSuggestion() {
+		boolean success = false;
+		
 		if (suggestionType.equals("Subfield")) {
 	    	newSuggestion = subfields.getValue().toString();
 	    } else if (suggestionType.equals("Rank")) {
@@ -139,9 +137,18 @@ public class DataFixComponent extends CustomComponent {
 			
 			stmt.getConnection().close();
 			stmt.close();
+			success = true;
 			
 		} catch (SQLException e) {
 			System.out.println("ERROR DataFixComponent submitSuggestion(): " + e);
+		}
+		
+		if(success) {
+			Notification.show("Success!  You have helped save the world. :)");
+			//close modal window
+			sub.close();
+		} else {
+			Notification.show("Oops!  There appears to be an error. :(  We, possibly you, will be at work fixing it! ");
 		}
 	}
 }

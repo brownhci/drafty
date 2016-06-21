@@ -31,6 +31,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import drafty._MainUI;
+import drafty.models.CellSelection;
 import drafty.models.DraftyNotification;
 import drafty.models.Professors;
 import drafty.models.Profile;
@@ -48,7 +49,7 @@ public class ApiProviderImpl implements ApiProvider {
 
     private Profile profile = new Profile();
     private Professors professors = new Professors();
-    
+    private CellSelection cellSelection = new CellSelection();
     private UserInterestService uiService; //create when 
     
     /**
@@ -415,5 +416,10 @@ public class ApiProviderImpl implements ApiProvider {
 	@Override
 	public void resetIntAsk() {
 		interactions = _MainUI.getApi().getRandom(7, 12);
+	}
+
+	@Override
+	public CellSelection getCellSelection() {
+		return cellSelection;
 	}
 }

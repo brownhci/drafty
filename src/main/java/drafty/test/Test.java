@@ -1,4 +1,4 @@
-package test;
+package drafty.test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

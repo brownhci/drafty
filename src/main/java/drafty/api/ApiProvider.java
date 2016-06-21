@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import drafty.models.CellSelection;
 import drafty.models.DraftyNotification;
 import drafty.models.Professors;
 import drafty.models.Profile;
@@ -77,6 +78,11 @@ public interface ApiProvider {
 	 * @return Profile 
 	 */
 	Profile getProfile();
+	
+	/**
+	 * @return CellSelection 
+	 */
+	CellSelection getCellSelection();
 	
 	/**
 	 * @return connection and statement

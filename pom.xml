@@ -11,13 +11,6 @@
 	<name>professors</name>
 	<description>professors</description>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.2.5.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
-
 	<properties>
 		<vaadin.version>7.6.6</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
@@ -109,15 +102,7 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.0</version>
 		</dependency>
-				
 	
-		<!-- Crypto -->
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-crypto</artifactId>
-			<version>4.1.0.RELEASE</version>
-		</dependency>
-
 		<!-- Google GSON / JSON -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -147,6 +132,7 @@
 		</dependency>
 		
 		<!-- Vaadin Add-Ons -->
+		<!-- 
 		<dependency>
 		   <groupId>org.vaadin.addons</groupId>
 		   <artifactId>tokenfield</artifactId>
@@ -157,23 +143,25 @@
 			<artifactId>vaadin-combobox-multiselect</artifactId>
 			<version>1.1.7</version>
 		</dependency>
-		
+		 -->
 		<!-- for cookies -->
 		<dependency>
 		   <groupId>org.vaadin</groupId>
 		   <artifactId>viritin</artifactId>
-		   <version>1.35</version>
+		   <version>1.52</version>
 		</dependency>
 		<dependency>
 		   <groupId>org.vaadin</groupId>
 		   <artifactId>addon-test-helpers</artifactId>
 		   <version>1.4</version>
 		</dependency>
+		<!-- 
 		<dependency>
     		<groupId>com.vaadin.addon</groupId>
     		<artifactId>vaadin-charts</artifactId>
     		<version>3.0.0-beta1</version>
 		</dependency>
+		-->
 	</dependencies>
 
 	<build>

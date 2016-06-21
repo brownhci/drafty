@@ -1,9 +1,5 @@
 package drafty;
 
-//import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
-
-import test.DraftyViewType;
-
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -14,6 +10,7 @@ import com.vaadin.ui.UI;
 
 import drafty.event.DraftyEvent.BrowserResizeEvent;
 import drafty.event.DraftyEvent.CloseOpenWindowsEvent;
+import drafty.test.DraftyViewType;
 import drafty.event.DraftyEventBus;
 
 @SuppressWarnings("serial")

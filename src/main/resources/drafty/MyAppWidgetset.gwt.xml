@@ -4,11 +4,11 @@
 <module>
     <inherits name="com.vaadin.DefaultWidgetSet"/>
 
-    <inherits name="org.vaadin.tokenfield.TokenfieldWidgetset" />
+    
 
-    <inherits name="org.vaadin.hene.popupbutton.widgetset.PopupbuttonWidgetset" />
+    
 
-    <inherits name="org.vaadin.addons.comboboxmultiselect.WidgetSet" />
+    
 
-    <inherits name="com.vaadin.addon.charts.Widgetset" />
+    
 </module>
