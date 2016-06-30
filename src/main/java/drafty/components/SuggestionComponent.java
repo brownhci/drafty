@@ -1,4 +1,4 @@
-package drafty.widgets;
+package drafty.components;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,6 +22,7 @@ import com.vaadin.event.FieldEvents.BlurListener;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -56,7 +57,9 @@ public class SuggestionComponent extends CustomComponent {
 	private String origSuggestion = _MainUI.getApi().getCellSelection().getOrigSuggestion();
 	private String idSuggestion = _MainUI.getApi().getCellSelection().getOrigSuggestionId();
 	private String person_name = _MainUI.getApi().getCellSelection().getPerson_name();
+	private String person_university = _MainUI.getApi().getCellSelection().getPerson_university();
 	private String suggestionType  = _MainUI.getApi().getCellSelection().getOrigSuggestionTypeId();
+	private String prof_university = _MainUI.getApi().getCellSelection().getPerson_university();
 	
 	/*
 	 * Mode types:
@@ -102,7 +105,11 @@ public class SuggestionComponent extends CustomComponent {
 		
 		if (sub.getWidth() < 390) {
 			sub.setWidth("420px");
+		} else if (suggestionMode.equals("experiment")) {
+			sub.setWidth("500px");
+			sub.setCaption("Help Fix Data");
 		}
+		
 		UI.getCurrent().addWindow(sub);
 	}
 
@@ -154,9 +161,9 @@ public class SuggestionComponent extends CustomComponent {
 	    
 	    if(suggestionMode.equals("experiment")) {
 	    	label_suggestions = new Label("<h3 style=\"margin-top: 0px; line-height: 25px;\">"
-	    			+ "Thank you for using Drafty. <br>"
-	    			+ "Could you please help and make a suggestion for <br>"
-	    			+ person_name + "'s " + suggestionType + ".</h3>", ContentMode.HTML);
+	    			+ "Thank you for using Drafty. <br><br>"
+	    			+ "Could you please help us fix data by making a suggestion for "
+	    			+ person_name + ", from " + person_university + ", " + suggestionType + ".</h3>", ContentMode.HTML);
 	    } else {
 	    	label_suggestions = new Label("<h3 style=\"margin-top: 0px; line-height: 25px;\">Make a suggestion for <br>"  + person_name + "'s " + suggestionType + ".</h3>", ContentMode.HTML);	
 	    }
@@ -174,6 +181,7 @@ public class SuggestionComponent extends CustomComponent {
 	    	List<String> fieldlist = _MainUI.getApi().getSubfields();
 	    	subfields.addItems(fieldlist);
 	    	suggestionModal.addComponent(subfields);
+	    	subfields.setFilteringMode(FilteringMode.CONTAINS);
 	    	subfields.setWidth("100%");
 	    	subfields.setPageLength(fieldlist.size());
 	    	subfields.setStyleName("option-group-padding-left");
@@ -181,12 +189,15 @@ public class SuggestionComponent extends CustomComponent {
 	    
 	    if (suggestionType.equals("University") || suggestionType.equals("Bachelors") || suggestionType.equals("Masters") || suggestionType.equals("Doctorate") || suggestionType.equals("PostDoc")) {
 	    	List<String> unis;
+	    	universities.setFilteringMode(FilteringMode.CONTAINS);
 	    	if (suggestionType.equals("University")) {
 	    		unis = _MainUI.getApi().getUniversitiesUSACan();
 		    	universities.addItems(unis);
+			    universities.setInputPrompt("Select a new university");
 	    	} else {
 	    		unis = _MainUI.getApi().getUniversities();
 		    	universities.addItems(unis);	
+			    universities.setInputPrompt("Select or enter a new university");
 	    	}
 	    	suggestionModal.addComponent(universities);
 	    	universities.setWidth("100%");
@@ -207,6 +218,13 @@ public class SuggestionComponent extends CustomComponent {
 	    
 	    suggestionModal.addComponents(label_hr, submitSuggestion_button);
 	    suggestionModal.setComponentAlignment(submitSuggestion_button, Alignment.MIDDLE_RIGHT);
+	    
+	    //Final UI Adjustments for University and Subfield
+	    subfields.addStyleName("margin-top-negative");
+	    subfields.setInputPrompt("Select new subfield");
+	    subfields.setFilteringMode(FilteringMode.CONTAINS);
+	    universities.addStyleName("margin-top-negative");
+	    universities.setFilteringMode(FilteringMode.CONTAINS);
 	    
 		sub.setContent(suggestionModal);
 		sub.setModal(true);

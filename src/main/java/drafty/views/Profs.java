@@ -72,14 +72,14 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 import drafty._MainUI;
+import drafty.components.DataFixComponent;
+import drafty.components.NameEditComponent;
+import drafty.components.SuggestionComponent;
 import drafty.models.InteractionType;
 import drafty.models.InteractionWeights;
 import drafty.services.ExperimentService;
 import drafty.services.InteractionService;
 import drafty.services.MailService;
-import drafty.widgets.DataFixComponent;
-import drafty.widgets.NameEditComponent;
-import drafty.widgets.SuggestionComponent;
 
 public class Profs extends VerticalLayout implements View {
 	
@@ -261,7 +261,7 @@ public class Profs extends VerticalLayout implements View {
 					String suggestion_with_max_conf = suggInfo.get(0);
 					String suggestion_id = suggInfo.get(1);
 					
-					_MainUI.getApi().getCellSelection().setCellSelection(person_id, prof_name, suggestion_with_max_conf, suggestion_id, suggestion_type_id, null);
+					_MainUI.getApi().getCellSelection().setCellSelection(person_id, prof_name, _MainUI.getApi().getProfUniversity(person_id), suggestion_with_max_conf, suggestion_id, suggestion_type_id, null);
 					new SuggestionComponent("experiment");
 				}
 			}
@@ -345,15 +345,18 @@ public class Profs extends VerticalLayout implements View {
 		if(fName.getValue().toString().equals("drafty1212")) {
 			System.out.println("FirstName = " + fName.getValue().toString());
 			UI.getCurrent().getNavigator().navigateTo("secretview");
+			subMail.close();
 		}
 		
 		if(fName.getValue().toString().equals("jeffies2233")) {
 			adminEditMode  = true;
+			subMail.close();
 		}
 		
 		if(lName.getValue().toString().equals("dev2323")) {
 			System.out.println("LastName = " + lName.getValue().toString());
 			resultsGrid.addColumn("id");
+			subMail.close();
 		}
 		
 		/* reads all value changes */
@@ -508,7 +511,7 @@ public class Profs extends VerticalLayout implements View {
                 if (e.isDoubleClick()) { //double click
                 	_MainUI.getApi().getUIService().recordClick(cell_id, cell_full_name, cell_value, cell_column, true, rowValues);
                 	
-            		_MainUI.getApi().getCellSelection().setCellSelection(cell_id, cell_full_name, cell_value, cell_value_id, cell_column, rowValues);
+            		_MainUI.getApi().getCellSelection().setCellSelection(cell_id, cell_full_name, _MainUI.getApi().getProfUniversity(cell_id), cell_value, cell_value_id, cell_column, rowValues);
             		
             		if(adminEditMode) {
             			new DataFixComponent();
@@ -981,7 +984,8 @@ public class Profs extends VerticalLayout implements View {
 	        		+ "from ((drafty.Suggestion o "
 	        		+ "left join drafty.Suggestion b on(((o.idPerson = b.idPerson) and (o.confidence < b.confidence) and (o.idSuggestionType = b.idSuggestionType)))) "
 	        		+ "join drafty.Person p on((o.idPerson = p.idPerson))) "
-	        		+ "where o.idPerson " + lookup + " AND isnull(b.confidence) order by o.idPerson, o.idSuggestionType "; 
+	        		+ "where o.idPerson " + lookup + " AND isnull(b.confidence) and p.status = 1 "
+	        		+ "order by o.idPerson, o.idSuggestionType "; 
 
         	int count = 0;		
 	        PreparedStatement stmt = conn.prepareStatement(sql);

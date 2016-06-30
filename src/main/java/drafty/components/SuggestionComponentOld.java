@@ -1,4 +1,4 @@
-package drafty.widgets;
+package drafty.components;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

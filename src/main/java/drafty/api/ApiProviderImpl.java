@@ -283,15 +283,18 @@ public class ApiProviderImpl implements ApiProvider {
 		        		+ "FROM Suggestion s "
 		        		+ "INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType "
 		        		+ "WHERE s.idPerson = ? "
-		        		+ "AND s.suggestion = ? "
+		        		+ "AND INSTR(s.suggestion , ?) > 0 "
 		        		+ "AND st.type = ? "
-		        		+ "GROUP BY confidence "
 		        		+ "ORDER BY confidence desc "
 		        		+ "LIMIT 1";
 		        PreparedStatement stmt = conn.prepareStatement(sql);
 		        stmt.setString(1, person_id);
 		        stmt.setString(2, value);
 		        stmt.setString(3, column);
+		        
+		        //System.out.println("getIdSuggestion():" + sql);
+		        //System.out.println(person_id + " - " + value + " - " +  column);
+		        
 		        try {
 		        	ResultSet rs = stmt.executeQuery();
 					while (rs.next()) {
@@ -338,6 +341,93 @@ public class ApiProviderImpl implements ApiProvider {
     	uiService = new UserInterestService();
     	//uiService.genUserInterest(idProfile);
     	//uiService.genUserInterest();
+	}
+    
+    @Override
+    public String getProfUniversity(String person_id) {
+    	String profUniversity = "";
+    	
+    	try {
+    		String sql = 
+    				"SELECT suggestion " 
+    				+ "FROM Person p "
+    				+ "INNER JOIN Suggestion s ON s.idPerson = p.idPerson "
+    				+ "WHERE s.idSuggestionType = 2 "
+    				+ "AND p.idPerson = ? "
+    				+ "ORDER BY s.confidence LIMIT 1 ";
+    		
+    		PreparedStatement stmt =  getConnStmt(sql);
+   			
+   			stmt.setString(1, person_id);
+   			
+   			ResultSet rs = stmt.executeQuery();
+   			
+   			while(rs.next()) {
+   				profUniversity = rs.getString("suggestion");
+   			}
+   			
+   			stmt.getConnection().close();
+   			stmt.close();
+   			
+   		} catch (SQLException e) {
+   			System.out.println("ERROR getProfUniversity(): " + e);
+   		}
+       	
+       	return profUniversity;
+    }
+    
+    @Override
+   	public String getIdProfessor(String name) {
+       	String idProfessor = "";
+       	
+       	try {
+   			String sql =
+   					"SELECT * FROM Person WHERE name = ?";
+   			
+   			PreparedStatement stmt =  getConnStmt(sql);
+   			
+   			stmt.setString(1, name);
+   			
+   			ResultSet rs = stmt.executeQuery();
+   			
+   			while(rs.next()) {
+   				idProfessor = rs.getString("idPerson");
+   			}
+   			
+   			stmt.getConnection().close();
+   			stmt.close();
+   			
+   		} catch (SQLException e) {
+   			System.out.println("ERROR getIdProfessor(): " + e);
+   		}
+       	
+       	return idProfessor;
+   	}
+    
+    @Override
+	public List<String> getAllActiveProfessors() {
+    	List<String> professors = new ArrayList<String>();
+    	
+    	try {
+			String sql =
+					"SELECT * FROM Person WHERE status = 1";
+			
+			PreparedStatement stmt =  getConnStmt(sql);
+			
+			ResultSet rs = stmt.executeQuery();
+			
+			while(rs.next()) {
+				professors.add(rs.getString("name"));
+			}
+			
+			stmt.getConnection().close();
+			stmt.close();
+			
+		} catch (SQLException e) {
+			System.out.println("ERROR submitDeactivate(): " + e);
+		}
+    	
+    	return professors;
 	}
     
 	@Override

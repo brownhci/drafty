@@ -199,11 +199,14 @@ $v-error-indicator-color: hsl(349, 66%, 56%);
 	.v-radiobutton {
 		padding-bottom: 10px;
 	}
-	.v-filterselect {
-		margin-top: -55px
-	}
+	//.v-filterselect {
+	//	margin-top: -55px
+	//}
 	.margin-top-negative {
 		margin-top: -55px
+	}
+	.margin-top-normal {
+		margin-top: 0px
 	}
  
  	// form components

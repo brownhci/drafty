@@ -13125,12 +13125,12 @@ div.v-layout.v-horizontal.v-widget {
 	padding-bottom: 10px;
 }
 
-.ICERMvalo .v-filterselect {
+.ICERMvalo .margin-top-negative {
 	margin-top: -55px;
 }
 
-.ICERMvalo .margin-top-negative {
-	margin-top: -55px;
+.ICERMvalo .margin-top-normal {
+	margin-top: 0px;
 }
 
 .ICERMvalo .v-button {

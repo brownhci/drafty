@@ -70,6 +70,21 @@ public interface ApiProvider {
 	void setUIService();
 	
 	/**
+	 * @return University of Employment for Professor matched by idPerson 
+	 */
+	String getProfUniversity(String person_id);
+	
+	/**
+	 * @return ID of Professor matched by name  
+	 */
+	String getIdProfessor(String name);
+	
+	/**
+	 * @return List of Active Professors  
+	 */
+	List<String> getAllActiveProfessors();
+	
+	/**
 	 * @return List of Professors  
 	 */
 	Professors getProfessors();
