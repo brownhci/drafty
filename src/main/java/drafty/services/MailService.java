@@ -10,6 +10,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import drafty._MainUI;
+
 import javax.annotation.Resource;
 /*
 import javax.mail.Address;
@@ -21,15 +23,13 @@ import javax.mail.internet.MimeMessage;
 import javax.ws.rs.core.Response;
 */
 
-import drafty.views._MainUI;
-
 public class MailService {
 	
 	
 	//@Resource(mappedName="java:jboss/mail/gmail")
    // private Session mailSession;
 	
-	String DATASOURCE_CONTEXT = _MainUI.getDataProvider().getJNDI();
+	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
 	public MailService() {
 		 

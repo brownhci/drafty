@@ -4,7 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.SubscriberExceptionContext;
 import com.google.common.eventbus.SubscriberExceptionHandler;
 
-import drafty.views._MainUI;
+import drafty._MainUI;
 
 /**
  * A simple wrapper for Guava event bus. Defines static convenience methods for

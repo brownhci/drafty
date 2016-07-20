@@ -1,9 +1,5 @@
 package drafty;
 
-import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
-
-import test.DraftyViewType;
-
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -14,13 +10,14 @@ import com.vaadin.ui.UI;
 
 import drafty.event.DraftyEvent.BrowserResizeEvent;
 import drafty.event.DraftyEvent.CloseOpenWindowsEvent;
+import drafty.test.DraftyViewType;
 import drafty.event.DraftyEventBus;
 
 @SuppressWarnings("serial")
 public class DraftyNavigator extends Navigator {
 	// Provide a Google Analytics tracker id here
     private static final String TRACKER_ID = null;// "UA-658457-6";
-    private GoogleAnalyticsTracker tracker;
+    //private GoogleAnalyticsTracker tracker;
 
     private static final DraftyViewType ERROR_VIEW = DraftyViewType.DRAFTY;
     private ViewProvider errorViewProvider;
@@ -30,13 +27,13 @@ public class DraftyNavigator extends Navigator {
 
         String host = getUI().getPage().getLocation().getHost();
         if (TRACKER_ID != null && host.endsWith("demo.vaadin.com")) {
-            initGATracker(TRACKER_ID);
+            //initGATracker(TRACKER_ID);
         }
         initViewChangeListener();
         initViewProviders();
-
     }
 
+    /*
     private void initGATracker(final String trackerId) {
         tracker = new GoogleAnalyticsTracker(trackerId, "demo.vaadin.com");
 
@@ -44,6 +41,7 @@ public class DraftyNavigator extends Navigator {
         // initialized by calling .extend(UI)
         tracker.extend(UI.getCurrent());
     }
+	*/
 
     private void initViewChangeListener() {
         addViewChangeListener(new ViewChangeListener() {
@@ -57,17 +55,18 @@ public class DraftyNavigator extends Navigator {
 
             @Override
             public void afterViewChange(final ViewChangeEvent event) {
-                DraftyViewType view = DraftyViewType.getByViewName(event
-                        .getViewName());
-                // Appropriate events get fired after the view is changed.
+                DraftyViewType view = DraftyViewType.getByViewName(event.getViewName());
+                //Appropriate events get fired after the view is changed.
                 //DraftyEventBus.post(new PostViewChangeEvent(view));
                 DraftyEventBus.post(new BrowserResizeEvent());
                 DraftyEventBus.post(new CloseOpenWindowsEvent());
-
+                
+                /*
                 if (tracker != null) {
                     // The view change is submitted as a pageview for GA tracker
                     tracker.trackPageview("/dashboard/" + event.getViewName());
                 }
+                */
             }
         });
     }
@@ -89,8 +88,7 @@ public class DraftyNavigator extends Navigator {
                         if (viewType.isStateful()) {
                             // Stateful views get lazily instantiated
                             if (cachedInstance == null) {
-                                cachedInstance = super.getView(viewType
-                                        .getViewName());
+                                cachedInstance = super.getView(viewType.getViewName());
                             }
                             result = cachedInstance;
                         } else {

@@ -999,7 +999,7 @@
  */
 
 .v-vaadin-version:after {
-	content: "7.6.2";
+	content: "7.6.7";
 }
 
 .v-widget {
@@ -4443,6 +4443,8 @@ div.v-layout.v-horizontal.v-widget {
 
 .ICERMvalo .v-grid-sidebar.v-contextmenu .v-grid-sidebar-content {
 	padding: 4px 0;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .ICERMvalo .v-grid-sidebar.v-contextmenu .v-grid-sidebar-content .gwt-MenuBar .gwt-MenuItem .column-hiding-toggle {
@@ -5000,6 +5002,8 @@ div.v-layout.v-horizontal.v-widget {
 .ICERMvalo .v-grid-sidebar.v-contextmenu.open .v-grid-sidebar-content {
 	margin: 0 0 2px;
 	padding: 4px 4px 2px;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .ICERMvalo .v-grid-sidebar.v-contextmenu.closed {
@@ -13121,12 +13125,12 @@ div.v-layout.v-horizontal.v-widget {
 	padding-bottom: 10px;
 }
 
-.ICERMvalo .v-filterselect {
+.ICERMvalo .margin-top-negative {
 	margin-top: -55px;
 }
 
-.ICERMvalo .margin-top-negative {
-	margin-top: -55px;
+.ICERMvalo .margin-top-normal {
+	margin-top: 0px;
 }
 
 .ICERMvalo .v-button {

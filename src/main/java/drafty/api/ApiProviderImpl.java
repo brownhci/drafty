@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -29,7 +30,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import drafty._MainUI;
+import drafty.models.CellSelection;
 import drafty.models.DraftyNotification;
+import drafty.models.Professors;
 import drafty.models.Profile;
 import drafty.services.UserInterestService;
 
@@ -44,7 +48,8 @@ public class ApiProviderImpl implements ApiProvider {
     private final Collection<DraftyNotification> notifications = null;	
 
     private Profile profile = new Profile();
-    
+    private Professors professors = new Professors();
+    private CellSelection cellSelection = new CellSelection();
     private UserInterestService uiService; //create when 
     
     /**
@@ -250,7 +255,7 @@ public class ApiProviderImpl implements ApiProvider {
 					list.add(rs.getString("name"));
 				}
 	        } catch (SQLException e) {
-				System.out.println(e.getMessage());
+				System.out.println("ERROR api getSubfields(): " + e.getMessage());
 			}
 	        stmt.close();
 	        conn.close();
@@ -264,7 +269,7 @@ public class ApiProviderImpl implements ApiProvider {
 		return list;
 	}
     
-    public String getIdSuggestion(String person_id, String value, String column) throws SQLException {
+    public String getIdSuggestion(String person_id, String value, String column) {
 		String idSuggestion = null;
 		
 		try {
@@ -278,15 +283,18 @@ public class ApiProviderImpl implements ApiProvider {
 		        		+ "FROM Suggestion s "
 		        		+ "INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType "
 		        		+ "WHERE s.idPerson = ? "
-		        		+ "AND s.suggestion = ? "
+		        		+ "AND INSTR(s.suggestion , ?) > 0 "
 		        		+ "AND st.type = ? "
-		        		+ "GROUP BY confidence "
 		        		+ "ORDER BY confidence desc "
 		        		+ "LIMIT 1";
 		        PreparedStatement stmt = conn.prepareStatement(sql);
 		        stmt.setString(1, person_id);
 		        stmt.setString(2, value);
 		        stmt.setString(3, column);
+		        
+		        //System.out.println("getIdSuggestion():" + sql);
+		        //System.out.println(person_id + " - " + value + " - " +  column);
+		        
 		        try {
 		        	ResultSet rs = stmt.executeQuery();
 					while (rs.next()) {
@@ -296,7 +304,7 @@ public class ApiProviderImpl implements ApiProvider {
 						}
 					}
 		        } catch (SQLException e) {
-					System.out.println(e.getMessage());
+					System.out.println("ERROR api getIdSuggestion(): " + e.getMessage());
 				}
 		        conn.close();
 		      }
@@ -319,14 +327,112 @@ public class ApiProviderImpl implements ApiProvider {
 	}
     
     @Override
+	public int getRandom(int min, int max) {
+    	return (new Random().nextInt((max - min) + 1) + min);
+    }
+    
+    @Override
 	public UserInterestService getUIService() {
 		return uiService;
 	}
     
     @Override
-	public void setUIService(String idProfile) {
-    	uiService = new UserInterestService(idProfile);
-    	uiService.genUserInterest(idProfile);
+	public void setUIService() {
+    	uiService = new UserInterestService();
+    	//uiService.genUserInterest(idProfile);
+    	//uiService.genUserInterest();
+	}
+    
+    @Override
+    public String getProfUniversity(String person_id) {
+    	String profUniversity = "";
+    	
+    	try {
+    		String sql = 
+    				"SELECT suggestion " 
+    				+ "FROM Person p "
+    				+ "INNER JOIN Suggestion s ON s.idPerson = p.idPerson "
+    				+ "WHERE s.idSuggestionType = 2 "
+    				+ "AND p.idPerson = ? "
+    				+ "ORDER BY s.confidence LIMIT 1 ";
+    		
+    		PreparedStatement stmt =  getConnStmt(sql);
+   			
+   			stmt.setString(1, person_id);
+   			
+   			ResultSet rs = stmt.executeQuery();
+   			
+   			while(rs.next()) {
+   				profUniversity = rs.getString("suggestion");
+   			}
+   			
+   			stmt.getConnection().close();
+   			stmt.close();
+   			
+   		} catch (SQLException e) {
+   			System.out.println("ERROR getProfUniversity(): " + e);
+   		}
+       	
+       	return profUniversity;
+    }
+    
+    @Override
+   	public String getIdProfessor(String name) {
+       	String idProfessor = "";
+       	
+       	try {
+   			String sql =
+   					"SELECT * FROM Person WHERE name = ?";
+   			
+   			PreparedStatement stmt =  getConnStmt(sql);
+   			
+   			stmt.setString(1, name);
+   			
+   			ResultSet rs = stmt.executeQuery();
+   			
+   			while(rs.next()) {
+   				idProfessor = rs.getString("idPerson");
+   			}
+   			
+   			stmt.getConnection().close();
+   			stmt.close();
+   			
+   		} catch (SQLException e) {
+   			System.out.println("ERROR getIdProfessor(): " + e);
+   		}
+       	
+       	return idProfessor;
+   	}
+    
+    @Override
+	public List<String> getAllActiveProfessors() {
+    	List<String> professors = new ArrayList<String>();
+    	
+    	try {
+			String sql =
+					"SELECT * FROM Person WHERE status = 1";
+			
+			PreparedStatement stmt =  getConnStmt(sql);
+			
+			ResultSet rs = stmt.executeQuery();
+			
+			while(rs.next()) {
+				professors.add(rs.getString("name"));
+			}
+			
+			stmt.getConnection().close();
+			stmt.close();
+			
+		} catch (SQLException e) {
+			System.out.println("ERROR submitDeactivate(): " + e);
+		}
+    	
+    	return professors;
+	}
+    
+	@Override
+	public Professors getProfessors() {
+		return professors;
 	}
     
     @Override
@@ -344,14 +450,66 @@ public class ApiProviderImpl implements ApiProvider {
     	return profile.getIdProfile();
     }
     
-    private Integer ineractionCount = 0;
+    private int interactionCount = 0;
+    private int interactionScore = 0;
+    private int interactionCountTot = 0;
+    private int interactionScoreTot = 0;
 
     @Override
-	public Integer getInteractionCount() {
-		return ineractionCount;
+	public int getInteractionCount() {
+		return interactionCount;
 	}
     @Override
-	public void setInteractionCount(Integer ineractionCount) {
-		this.ineractionCount = ineractionCount;
+	public void setInteractionCount(int interactionCount) {
+		this.interactionCount = interactionCount;
+	}
+    @Override
+	public int getInteractionScore() {
+		return interactionScore;
+	}
+    @Override
+	public void setInteractionScore(int interactionScore) {
+		this.interactionScore = interactionScore;
+	}
+    @Override
+	public int getInteractionCountTot() {
+		return interactionCountTot;
+	}
+    @Override
+	public void setInteractionCountTot(int interactionCountTot) {
+		this.interactionCountTot = interactionCountTot;
+	}
+    @Override
+	public void incrementInteractionCountTot() {
+		this.interactionCountTot++;
+	}
+    @Override
+	public int getInteractionScoreTot() {
+		return interactionScoreTot;
+	}
+    @Override
+	public void setInteractionScoreTot(int interactionScoreTot) {
+		this.interactionScoreTot = interactionScoreTot;
+	}
+    @Override
+	public void incrementInteractionScoreTot(int score) {
+		this.interactionScoreTot += score;
+	}
+
+    private int interactions = 10;
+	
+    @Override
+	public int getIntAsk() {
+		return interactions;
+	}
+
+	@Override
+	public void resetIntAsk() {
+		interactions = _MainUI.getApi().getRandom(7, 12);
+	}
+
+	@Override
+	public CellSelection getCellSelection() {
+		return cellSelection;
 	}
 }

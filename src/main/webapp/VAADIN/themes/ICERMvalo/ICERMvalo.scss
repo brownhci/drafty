@@ -24,7 +24,7 @@ $v-error-indicator-color: hsl(349, 66%, 56%);
   @include valo;
   
   background: $v-app-background-color;
-  background-image: background-image: linear-gradient(to top, #fefefe 2%, #f9f9f9 98%);
+  //background-image: background-image: linear-gradient(to top, #fefefe 2%, #f9f9f9 98%);
   color: $v-selection-color;
   text-shadow: none;
   border-color: first-color(valo-border($color: $v-app-background-color, $strength: 0.5));
@@ -199,11 +199,14 @@ $v-error-indicator-color: hsl(349, 66%, 56%);
 	.v-radiobutton {
 		padding-bottom: 10px;
 	}
-	.v-filterselect {
-		margin-top: -55px
-	}
+	//.v-filterselect {
+	//	margin-top: -55px
+	//}
 	.margin-top-negative {
 		margin-top: -55px
+	}
+	.margin-top-normal {
+		margin-top: 0px
 	}
  
  	// form components

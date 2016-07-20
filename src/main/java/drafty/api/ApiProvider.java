@@ -6,7 +6,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import drafty.models.CellSelection;
 import drafty.models.DraftyNotification;
+import drafty.models.Professors;
 import drafty.models.Profile;
 import drafty.services.UserInterestService;
 
@@ -54,7 +56,7 @@ public interface ApiProvider {
      * @return idSuggestion, limit 1, returns w/ highest conf level; protects against duplicates from old data import
 	 * @throws SQLException 
      */
-	String getIdSuggestion(String person_id, String value, String column) throws SQLException;
+	String getIdSuggestion(String person_id, String value, String column);
 	
 	/**
      * @return clean university name of - USA, - Canada, (USA), (Canada)
@@ -65,12 +67,37 @@ public interface ApiProvider {
 	 * @return User Interest Service / Additive Model 
 	 */
 	UserInterestService getUIService();
-	void setUIService(String idProfile);
+	void setUIService();
+	
+	/**
+	 * @return University of Employment for Professor matched by idPerson 
+	 */
+	String getProfUniversity(String person_id);
+	
+	/**
+	 * @return ID of Professor matched by name  
+	 */
+	String getIdProfessor(String name);
+	
+	/**
+	 * @return List of Active Professors  
+	 */
+	List<String> getAllActiveProfessors();
+	
+	/**
+	 * @return List of Professors  
+	 */
+	Professors getProfessors();
 	
 	/**
 	 * @return Profile 
 	 */
 	Profile getProfile();
+	
+	/**
+	 * @return CellSelection 
+	 */
+	CellSelection getCellSelection();
 	
 	/**
 	 * @return connection and statement
@@ -80,10 +107,29 @@ public interface ApiProvider {
 	/**
 	 * @return counts the number of interactions
 	 */
-	Integer getInteractionCount();
-	void setInteractionCount(Integer ineractionCount);
-
+	int getInteractionCount();
+	void setInteractionCount(int interactionCount);
+	int getInteractionScore();
+	void setInteractionScore(int interactionScore);
+	int getInteractionCountTot();
+	void setInteractionCountTot(int interactionCountTot);
+	void incrementInteractionCountTot();
+	int getInteractionScoreTot();
+	void setInteractionScoreTot(int interactionScoreTot);
+	void incrementInteractionScoreTot(int score);	
+	
+	/**
+	 * @return profileId
+	 */
 	void setIdProfile(String idProfile);
 	String getIdProfile();
+
+	/**
+	 * @return random number in given range
+	 */
+	int getRandom(int min, int max);
+
+	int getIntAsk();
+	void resetIntAsk();	
 }
 

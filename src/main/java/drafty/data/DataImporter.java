@@ -6,30 +6,36 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import au.com.bytecode.opencsv.CSVReader;
-import drafty.views._MainUI;
+import drafty._MainUI;
 
 import java.io.File;
 import java.io.FileReader;
 
 public class DataImporter {
-	
-	//TO-DO:
-	//- Generic CSV importer
-		//- should maybe have it output a CSV version of old data to your file system for back-up
-	//- Use to import new suggestion table from CSV file + TEST
-	//- Send to Shaun and Marianne?
-	//- Do the update of the suggestion table from the duplicates + TEST
-	//- Put data into OpenRefine, see if there are more duplicates
-	//- Read gender and cs hires paper to see if there is anything we can do differently
 
-	String DATASOURCE_CONTEXT = _MainUI.getDataProvider().getJNDI();
+	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
 	public DataImporter(){
-		
 	}
 	
-	//TO-DO: methods for updating other tables
-	public int readCSVSuggestion(File CSV_FILE) throws Exception
+	public void readCSV(String table, File CSV_FILE){
+		switch(table){
+			case "suggestion": try {
+				readCSVSuggestion(CSV_FILE);
+			} catch (Exception e1) {
+				System.out.println("Error Exception - readCSV(String table, File CSV_FILE) - importer.readCSVSuggestion(temp):" + e1);
+			}
+				break;
+			case "person":  try {
+				readCSVPerson(CSV_FILE);
+			} catch (Exception e) {
+				System.out.println("Error Exception - readCSV(String table, File CSV_FILE) - importer.readCSVSuggestion(temp):" + e);
+			}
+				break;
+		}
+	}
+	
+	public void readCSVSuggestion(File CSV_FILE) throws Exception
 	{	
 		Context initialContext = new InitialContext();
 	    DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
@@ -48,7 +54,7 @@ public class DataImporter {
 		String[] nextLine;		
 		while ((nextLine = reader.readNext()) != null) {
 			if (nextLine.length > 2){
-				System.out.println(nextLine[0] + " "+ nextLine[1]+" "+nextLine[2]+" "+nextLine[3]+" "+nextLine[4]+ " "+ nextLine[5]+" "+ nextLine[6]+" "+ nextLine[7]+" "+ nextLine[8]+" "+nextLine[9]);	
+				//System.out.println(nextLine[0] + " "+ nextLine[1]+" "+nextLine[2]+" "+nextLine[3]+" "+nextLine[4]+ " "+ nextLine[5]+" "+ nextLine[6]+" "+ nextLine[7]+" "+ nextLine[8]+" "+nextLine[9]);	
 				prep.setString(1, nextLine[1]); //idPerson
 				//prep.setString(2, nextLine[2]); //ignore idProfile
 				prep.setString(2, nextLine[3]); //idEntryType
@@ -68,7 +74,37 @@ public class DataImporter {
 		conn.close();
 		prep.close();
 		reader.close();
-	    return 0;
 	}
 	
+	public void readCSVPerson(File CSV_FILE) throws Exception
+	{	
+		Context initialContext = new InitialContext();
+	    DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
+	    Connection conn = datasource.getConnection();
+	    conn.setAutoCommit(false);
+	    
+	    System.out.println("inserting from " + CSV_FILE + " into person");
+		
+		String query = "UPDATE person "
+				+ "SET name = ? "
+				+ "WHERE idPerson = ? ";
+		PreparedStatement prep = conn.prepareStatement(query);
+		
+		CSVReader reader = new CSVReader(new FileReader(CSV_FILE));
+		String[] nextLine;		
+		while ((nextLine = reader.readNext()) != null) {
+			if (nextLine.length > 1){
+				System.out.println(nextLine[0] + " "+ nextLine[1]);
+				prep.setString(1, nextLine[1]); //name
+				prep.setString(2, nextLine[0]); //idPerson
+				prep.addBatch();
+			}
+		}
+		prep.executeBatch();
+		conn.commit();
+		conn.setAutoCommit(true);
+		conn.close();
+		prep.close();
+		reader.close();
+	}
 }

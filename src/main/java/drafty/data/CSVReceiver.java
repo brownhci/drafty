@@ -17,16 +17,20 @@ public class CSVReceiver implements Receiver, SucceededListener {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -190765906348141352L;
+	private static final long serialVersionUID = -190765906348141352L; 
 	
 	protected File temp;
+	private String _table;
+	
+	public CSVReceiver(String table){
+		_table = table;
+	}
 	
 	@Override
 	public OutputStream receiveUpload(String filename, String mimType){
 		try {
 			System.out.println("Recieve Upload - filename = " + filename);
 			System.out.println("Recieve Upload - mimType = " + mimType);
-			//temp = File.createTempFile("temp", ".csv");
 			temp = new File("temp");
 			return new FileOutputStream(temp);
 		}
@@ -39,10 +43,15 @@ public class CSVReceiver implements Receiver, SucceededListener {
 	public void uploadSucceeded(SucceededEvent event) {
 		//TO-DO
 		try {
+			System.out.println("Upload to temp Succeeded");
 			FileReader reader = new FileReader(temp);
 			DataImporter importer = new DataImporter();
+			DataCleaner cleaner = new DataCleaner();
 			try {
-				importer.readCSVSuggestion(temp);
+				if (_table == "person_cleaner"){
+					cleaner.CleanDuplicates(temp);
+				}
+				importer.readCSV(_table,temp);
 			} catch (Exception e) {
 				System.out.println("Error Exception - uploadSucceeded(SucceededEvent event) - importer.readCSVSuggestion(temp): " + e);
 			}
