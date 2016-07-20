@@ -12,7 +12,7 @@ public class Profile {
 	private String idProfile;
 	private String idIpAddress;
 	private String idExperiment;
-	
+	private Integer suggestionCount;
 	
 	public String getCookieCheck() {
 		return cookieCheck;
@@ -100,5 +100,14 @@ public class Profile {
 	}
 	public void setBrowser(String browser) {
 		this.browser = browser;
+	}
+	public Integer getSuggestionCount() {
+		return suggestionCount;
+	}
+	public void setSuggestionCount(Integer suggestionCount) {
+		this.suggestionCount = suggestionCount;
+	}
+	public void addToSuggestionCount(Integer suggestionCount) {
+		this.suggestionCount += suggestionCount;
 	}
 }

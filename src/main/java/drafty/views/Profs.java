@@ -1,5 +1,6 @@
 package drafty.views;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Connection;
@@ -21,6 +22,7 @@ import javax.sql.DataSource;
 
 import org.vaadin.viritin.util.BrowserCookie;
 
+import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -41,6 +43,8 @@ import com.vaadin.event.SortEvent;
 import com.vaadin.event.SortEvent.SortListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.FileDownloader;
+import com.vaadin.server.FileResource;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
@@ -75,6 +79,7 @@ import drafty._MainUI;
 import drafty.components.DataFixComponent;
 import drafty.components.NameEditComponent;
 import drafty.components.SuggestionComponent;
+import drafty.data.DataExporter;
 import drafty.models.InteractionType;
 import drafty.models.InteractionWeights;
 import drafty.services.ExperimentService;
@@ -368,8 +373,6 @@ public class Profs extends VerticalLayout implements View {
 	}
 	
 	private void updateBadges() {
-		Integer count = 0;
-		
 		for(MenuItem mi : draftyMenu.getItems()) {
 			if(mi.getText().equals("Badges")) {		
 				try {
@@ -386,7 +389,7 @@ public class Profs extends VerticalLayout implements View {
 			        try {
 			        	ResultSet rs = stmt.executeQuery();
 						while (rs.next()) {
-							count = rs.getInt("count");
+							_MainUI.getApi().getProfile().setSuggestionCount(rs.getInt("count"));
 						}
 			        } catch (SQLException e) {
 						System.out.println("ERROR updateBadges() SQL 1: " + e.getMessage());
@@ -394,12 +397,12 @@ public class Profs extends VerticalLayout implements View {
 			        sql = 
 			        		"SELECT COUNT(v.idValidation) as count "
 			        		+ "FROM Validation v "
-			        		+ "WHERE v.idProfile = " + idProfile;
+			        		+ "WHERE date_completed IS NOT NULL AND v.idProfile = " + idProfile;
 			        stmt = conn.prepareStatement(sql);
 			        try {
 			        	ResultSet rs = stmt.executeQuery();
 						while (rs.next()) {
-							count = count + rs.getInt("count");
+							_MainUI.getApi().getProfile().addToSuggestionCount(rs.getInt("count"));
 						}
 			        } catch (SQLException e) {
 						System.out.println("ERROR updateBadges() SQL 2: " + e.getMessage());
@@ -414,17 +417,18 @@ public class Profs extends VerticalLayout implements View {
 		        }	
 				
 				String badge_info = "<p class=\"projectinfo\">You have earned the ";
+				int count = _MainUI.getApi().getProfile().getSuggestionCount();
 				if (count == 0) {
 					label_badges.setValue(badge_info + "Anchor badge. " + FontAwesome.ANCHOR.getHtml() +  "  Make a suggestion and turn that frown upside down. :) ");
 				} else if (count < 5) {
 					label_badges.setValue(badge_info + "Happy badge. " + FontAwesome.SMILE_O.getHtml() +  "  Thank you for making a suggestion! Keep going to upgrade your badge. ");
-				} else if (count < 8) {
+				} else if (count < 10) {
 					label_badges.setValue(badge_info + "Thumbs Up badge. " + FontAwesome.THUMBS_UP.getHtml() +  "  Great job you are a true friend!  ");
-				} else if (count < 12) {
+				} else if (count < 15) {
 					label_badges.setValue(badge_info + "Gamer badge. " + FontAwesome.GAMEPAD.getHtml() +  "  Excellent, you must have amazing skills.  Keep going!  ");
-				} else if (count < 17) {
+				} else if (count < 20) {
 					label_badges.setValue(badge_info + "Rebel Alliance badge. " + FontAwesome.REBEL.getHtml() +  "  The force is strong with you!  ");
-				} else if (count >= 17) {
+				} else if (count >= 25) {
 					label_badges.setValue(badge_info + "Galactic Empire badge. " + FontAwesome.GE.getHtml() +  "  You are the most dominant force in the galaxy!  ");
 				}
 			}
@@ -772,20 +776,36 @@ public class Profs extends VerticalLayout implements View {
 			}
 		});
 		
-		/* SW - left out for now until server bug can be fixed
+		/* SW - left out for now until server bug can be fixed */
 		exportButton = draftyMenu.addItem("Export", FontAwesome.DOWNLOAD, new MenuBar.Command(){
 			@Override
 			public void menuSelected(MenuItem selectedItem){
 				
 				Window exportWindow = new Window();
 				exportWindow.setWidth("30%");
+				//exportWindow.setHeight("30%");
 				VerticalLayout exportLay = new VerticalLayout();
 				exportLay.setMargin(true);
 				exportLay.setSpacing(true);
 				Button exportButton = new Button("Export Filtered Data");
 				exportButton.setWidth("100%");
-				exportLay.addComponent(exportButton);
-
+				exportButton.setIcon(FontAwesome.DOWNLOAD);
+				
+				Label suggestionsCountLabel = new Label();
+				Integer count = _MainUI.getApi().getProfile().getSuggestionCount();
+				if(count >= 10) {
+					exportWindow.setCaption("Export Data");
+					exportButton.setEnabled(true);
+					suggestionsCountLabel.setValue("Thank you for fixing " + count.toString() + " pieces of data.  Fix more data to earn more badges!  The data that is exported is what is currently shown in the grid.  For example, an active filter in the grid will decrease the amount of data exported from the grid.");
+				} else {
+					exportWindow.setCaption("Export Data - Not Enabled");
+					exportButton.setEnabled(false);
+					Integer newCount = 10 - count;
+					suggestionsCountLabel.setValue("Sorry export is not available at this time.  Please fix " + newCount.toString() + " more pieces of data and to enable export.  Fixes are tracked per browser.");	
+				}
+				
+				exportLay.addComponents(suggestionsCountLabel, exportButton);
+				
 				Container resultsData = resultsGrid.getContainerDataSource();
 				DataExporter exporter = new DataExporter();
 				File file = exporter.getContainerCSVFile(resultsData);
@@ -799,7 +819,6 @@ public class Profs extends VerticalLayout implements View {
 				
 			}
 		});
-		*/
 		
 		//New suggestion button on top right
 		suggestionMode = draftyMenu.addItem(icono, new MenuBar.Command() {	
