@@ -66,6 +66,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextArea;
@@ -83,6 +84,7 @@ import drafty.data.DataExporter;
 import drafty.experiments.PopUp;
 import drafty.models.InteractionType;
 import drafty.models.InteractionWeights;
+import drafty.models.Mode;
 import drafty.services.ExperimentService;
 import drafty.services.InteractionService;
 import drafty.services.MailService;
@@ -160,6 +162,9 @@ public class Profs extends VerticalLayout implements View {
 	private boolean adminEditMode = false;
 	
 	public Profs() {
+		//on system start program is in normal mode
+		//suggestion mode starts when user dbl clicks; experiment mode when 
+		_MainUI.getApi().getActiveMode().setActiveMode(Mode.NORMAL); 
 		
 		detectBrowser();
 		detectCookie(); //first set check and set cookie value
@@ -196,10 +201,10 @@ public class Profs extends VerticalLayout implements View {
 	}
 
 	public void recordInteraction(InteractionType interactionType) {
-		System.out.println(System.currentTimeMillis());
+		//System.out.println(System.currentTimeMillis());
 		_MainUI.getApi().getActiveMode().setLastInteraction(System.currentTimeMillis());
 		
-		//new PopUp().start();
+		new PopUp().start();
 		
 		if(!adminEditMode) {
 			int intCount = 0;
@@ -642,6 +647,12 @@ public class Profs extends VerticalLayout implements View {
 				menuModal.setMargin(true);
 				menuModal.setSpacing(true);
 				
+				_MainUI.getApi().getActiveMode().setActiveMode(Mode.MENU);
+				subMail.addCloseListener(e -> modalCloseListener(e));
+				
+				_MainUI.getApi().getActiveMode().setActiveMode(Mode.MENU);
+				sub.addCloseListener(e -> modalCloseListener(e));
+				
 			    Label label_drafty_title = new Label("<h2 style=\"margin-top: 0px; width:98%; color:#0095da; margin-bottom: 0px;\"> About Drafty </h1>", ContentMode.HTML);
 			    Label label_about_title = new Label("<h3 style=\"margin-top: 0px; width:98%; margin-bottom: 0px;\">Computer Science Professors from Top US and Canadian Schools</h3>", ContentMode.HTML);
 			    Label label_hci_title = new Label("<h3 style=\"margin-top: 0px; width:98%;\">Brown University HCI Project</h3>", ContentMode.HTML);
@@ -703,6 +714,9 @@ public class Profs extends VerticalLayout implements View {
 				VerticalLayout contactModal = new VerticalLayout();
 				contactModal.setMargin(true);
 				contactModal.setSpacing(true);
+				
+				_MainUI.getApi().getActiveMode().setActiveMode(Mode.MENU);
+				subMail.addCloseListener(e -> modalCloseListener(e));
 				
 			    Label label_about_title = new Label("<h3 style=\"margin-top: 0px;\">Have a question?</h3>", ContentMode.HTML);
 			    label_about_title.addStyleName("padding-top-none");
@@ -779,6 +793,9 @@ public class Profs extends VerticalLayout implements View {
 				badgesMenunModal.setMargin(true);
 				//badgesMenunModal.setSpacing(true);
 				
+				_MainUI.getApi().getActiveMode().setActiveMode(Mode.MENU);
+				subMail.addCloseListener(e -> modalCloseListener(e));
+				
 				label_badges.setContentMode(ContentMode.HTML);
 				
 			    badgesMenunModal.addComponents(label_badges, label_badges_info);
@@ -802,6 +819,9 @@ public class Profs extends VerticalLayout implements View {
 				Button exportButton = new Button("Export Filtered Data");
 				exportButton.setWidth("100%");
 				exportButton.setIcon(FontAwesome.DOWNLOAD);
+				
+				_MainUI.getApi().getActiveMode().setActiveMode(Mode.MENU);
+				subMail.addCloseListener(e -> modalCloseListener(e));
 				
 				Label suggestionsCountLabel = new Label();
 				
@@ -1005,6 +1025,10 @@ public class Profs extends VerticalLayout implements View {
 			});
 		    cell.setComponent(filterField);
 		} 
+	}
+	
+	private void modalCloseListener(CloseEvent e) {
+		_MainUI.getApi().getActiveMode().setActiveMode(Mode.NORMAL);
 	}
 	
 	@SuppressWarnings({ "unchecked", "unused" })

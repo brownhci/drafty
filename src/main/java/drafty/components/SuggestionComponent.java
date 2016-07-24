@@ -131,7 +131,6 @@ public class SuggestionComponent extends Window {
 		_MainUI.getApi().getActiveMode().setActiveMode(Mode.NORMAL);
 	}
 
-
 	private void createUI() {
 		suggestionModal.setMargin(true);
 		suggestionModal.setSpacing(true);

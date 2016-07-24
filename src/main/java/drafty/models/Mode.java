@@ -5,5 +5,6 @@ public enum Mode {
 	NORMAL,
 	EXPERIMENT,
 	SUGGESTION,
-	MENU,
+	MENU, 
+	NAMEEDIT,
 }

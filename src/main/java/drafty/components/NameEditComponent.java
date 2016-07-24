@@ -44,6 +44,7 @@ String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	private String newSuggestion;
 	
 	public NameEditComponent() {
+		_MainUI.getApi().getActiveMode().setActiveMode(Mode.NAMEEDIT);
 		
 		//Create UI
 		createUI();
