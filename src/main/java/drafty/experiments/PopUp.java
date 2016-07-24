@@ -56,9 +56,11 @@ public class PopUp extends Thread {
 		
 		boolean goodToGo = false;
 		int count = 0;
+		//System.out.println("Mode: " + _MainUI.getApi().getActiveMode().getActiveMode());
+		//System.out.println("Time: " + (System.currentTimeMillis() - _MainUI.getApi().getActiveMode().getLastInteraction()));
 		while(goodToGo == false) {
 			if(_MainUI.getApi().getActiveMode().getActiveMode() == Mode.NORMAL 
-					&& ((System.currentTimeMillis() - _MainUI.getApi().getActiveMode().getLastInteraction()) > 1000 || count > 10)) {
+					&& ((System.currentTimeMillis() - _MainUI.getApi().getActiveMode().getLastInteraction()) > 1500 || count > 10)) {
 				goodToGo = true;
 			} else {
 				try {

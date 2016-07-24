@@ -66,7 +66,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextArea;
@@ -74,6 +73,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.ValoTheme;
 
 import drafty._MainUI;
@@ -204,7 +204,7 @@ public class Profs extends VerticalLayout implements View {
 		//System.out.println(System.currentTimeMillis());
 		_MainUI.getApi().getActiveMode().setLastInteraction(System.currentTimeMillis());
 		
-		new PopUp().start();
+		//new PopUp().start();
 		
 		if(!adminEditMode) {
 			int intCount = 0;
@@ -284,7 +284,13 @@ public class Profs extends VerticalLayout implements View {
 					new SuggestionComponent("experiment");
 					*/
 					//Starts experiment PopUp at least 3 seconds after interaction that triggers it
-					_MainUI.getApi().getExpPopUp().start();
+					try {
+						System.out.println("Before start() - ExperimentID: " + _MainUI.getApi().getProfile().getIdExperiment());
+						//_MainUI.getApi().getExpPopUp().start();
+						new PopUp().start();
+					} catch(IllegalThreadStateException e) {
+						System.out.println("ERROR IllegalThreadStateException: " + e.getStackTrace());
+					}
 				}
 			}
 		}
