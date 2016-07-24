@@ -31,6 +31,12 @@ public abstract class DraftyEvent {
     public static class CloseOpenWindowsEvent {
     
     }
+    
+    public static final class expPopUpEvent {
+    	public expPopUpEvent() {
+    		
+    	}
+    }
 
     //to find page loaded
     public static class ProfsPageLoadEvent {

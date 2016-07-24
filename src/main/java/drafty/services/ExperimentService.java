@@ -104,6 +104,10 @@ public class ExperimentService {
 	public static ArrayList<String> getSuggestionWithMaxConf(String idPerson, String SuggestionType) {
 		ArrayList<String> suggInfo = new ArrayList<String>();
 		
+		if(SuggestionType.equals("Join Year")) {
+			SuggestionType = "JoinYear";
+		}
+		
 		try {
 			String sql = "SELECT * "
 					+	"FROM Suggestion "

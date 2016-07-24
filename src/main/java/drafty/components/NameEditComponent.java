@@ -15,8 +15,10 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
 
 import drafty._MainUI;
+import drafty.models.Mode;
 
 public class NameEditComponent {
 String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
@@ -46,12 +48,18 @@ String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 		//Create UI
 		createUI();
 		
+		sub.addCloseListener(e -> closeListener(e));
+		
 		if (sub.getWidth() < 390) {
 			sub.setWidth("420px");
 		}
 		UI.getCurrent().addWindow(sub);
 	}
 
+	private void closeListener(CloseEvent e) {
+		_MainUI.getApi().getActiveMode().setActiveMode(Mode.NORMAL);
+	}
+	
 	private void createUI() {
 		suggestionModal.setMargin(true);
 		suggestionModal.setSpacing(true);

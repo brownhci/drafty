@@ -80,6 +80,7 @@ import drafty.components.DataFixComponent;
 import drafty.components.NameEditComponent;
 import drafty.components.SuggestionComponent;
 import drafty.data.DataExporter;
+import drafty.experiments.PopUp;
 import drafty.models.InteractionType;
 import drafty.models.InteractionWeights;
 import drafty.services.ExperimentService;
@@ -174,7 +175,9 @@ public class Profs extends VerticalLayout implements View {
 		panelWrap.addComponents(draftyDivider);
 		draftyDivider.setWidth("100%");
 		Responsive.makeResponsive(draftyDivider);
-		draftyDivider.setCaption("<span style='margin-left: 20px; margin-top: 4px, margin-bottom: 4px; margin-right: 0px; color: #d9d9d9;'>&copy; Brown University - Computer Science - Human Computer Interaction Research Group</span>");
+		draftyDivider.setCaption(""
+				+ "<span style='margin-left: 20px; margin-top: 4px, margin-bottom: 4px; margin-right: 0px; color: #d9d9d9;'>&copy; Brown University - Computer Science - Human Computer Interaction Research Group</span> "
+				+ "<span style='float: right; margin-right: 20px; margin-top: 4px, margin-bottom: 4px; margin-left: 0px; color: #d9d9d9;'><span class='v-icon FontAwesome'></span> Drafty is a research project. All interactions are captured and used anonymously for studies.");
 		draftyDivider.setCaptionAsHtml(true);
 
 		//finish off building grid
@@ -193,6 +196,11 @@ public class Profs extends VerticalLayout implements View {
 	}
 
 	public void recordInteraction(InteractionType interactionType) {
+		System.out.println(System.currentTimeMillis());
+		_MainUI.getApi().getActiveMode().setLastInteraction(System.currentTimeMillis());
+		
+		//new PopUp().start();
+		
 		if(!adminEditMode) {
 			int intCount = 0;
 			int intScore = 0;
@@ -227,7 +235,6 @@ public class Profs extends VerticalLayout implements View {
 				
 			} else if(interactionType.equals(InteractionType.SORT)) {
 				score = InteractionWeights.sorting;
-				
 			}
 			
 			intCount = 1 + _MainUI.getApi().getInteractionCount();
@@ -240,16 +247,17 @@ public class Profs extends VerticalLayout implements View {
 			_MainUI.getApi().incrementInteractionScoreTot(score);
 			
 			//experiment 1 code
-			ArrayList<String> suggInfo = new ArrayList<String>();
+			//ArrayList<String> suggInfo = new ArrayList<String>();
 			String experiment_id = _MainUI.getApi().getProfile().getIdExperiment();
 			
-			if(intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0) { //activates every 7-12 interactions
+			if(intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0 && (experiment_id.equals("1") || experiment_id.equals("2"))) { //activates every 7-12 interactions
 				if(doNotAsk) {
 					//reset score and interaction counters
 					_MainUI.getApi().setInteractionCount(0);
 					//_MainUI.getApi().setInteractionScore(0); 
 					_MainUI.getApi().resetIntAsk();
 				} else {
+					/*
 					String reco[] = null;
 					if(experiment_id.equals("1")) { //Ask No-Interest)
 						String recoTemp[] = _MainUI.getApi().getUIService().getNoInterest();
@@ -267,11 +275,15 @@ public class Profs extends VerticalLayout implements View {
 					String suggestion_id = suggInfo.get(1);
 					
 					_MainUI.getApi().getCellSelection().setCellSelection(person_id, prof_name, _MainUI.getApi().getProfUniversity(person_id), suggestion_with_max_conf, suggestion_id, suggestion_type_id, null);
+					
 					new SuggestionComponent("experiment");
+					*/
+					//Starts experiment PopUp at least 3 seconds after interaction that triggers it
+					_MainUI.getApi().getExpPopUp().start();
 				}
 			}
 		}
-		
+	    
 		//50 / 50 ask by prof or by column
 		//get column type - uni, bach, mast, phd, subfield, joinyear, rank 
 	}
@@ -495,8 +507,8 @@ public class Profs extends VerticalLayout implements View {
                     	e.getItem().getItemProperty("Gender").getValue().toString()+separator+
                     	e.getItem().getItemProperty("id").getValue().toString(); //fixes null pointer on reload
             	
-            	cell_id = (String) e.getItem().getItemProperty("id").getValue(); //person_id
-				cell_full_name = (String) e.getItem().getItemProperty("FullName").getValue();
+            	cell_id = e.getItem().getItemProperty("id").getValue().toString(); //person_id
+				cell_full_name = e.getItem().getItemProperty("FullName").getValue().toString();
 				cell_value = container.getContainerProperty(e.getItemId(), e.getPropertyId()).getValue().toString();
 				cell_column = e.getPropertyId().toString();
 				cell_value_id = _MainUI.getApi().getIdSuggestion(cell_id, cell_value, cell_column);
@@ -792,8 +804,15 @@ public class Profs extends VerticalLayout implements View {
 				exportButton.setIcon(FontAwesome.DOWNLOAD);
 				
 				Label suggestionsCountLabel = new Label();
+				
+				updateBadges();
 				Integer count = _MainUI.getApi().getProfile().getSuggestionCount();
-				if(count >= 10) {
+				System.out.println("COMPLETED SUGGESTIONS COUNT: " + count);
+				if(adminEditMode) {
+					exportWindow.setCaption("Export Data - Admin Mode");
+					exportButton.setEnabled(true);
+					suggestionsCountLabel.setValue("Admin Edit Mode");
+				} else if(count >= 10) {
 					exportWindow.setCaption("Export Data");
 					exportButton.setEnabled(true);
 					suggestionsCountLabel.setValue("Thank you for fixing " + count.toString() + " pieces of data.  Fix more data to earn more badges!  The data that is exported is what is currently shown in the grid.  For example, an active filter in the grid will decrease the amount of data exported from the grid.");
@@ -852,7 +871,7 @@ public class Profs extends VerticalLayout implements View {
 			    // Now get the actual item from the table.
 			    Item item = resultsGrid.getContainerDataSource().getItem(id);
 			    
-			    String curr = (String) item.getItemProperty(column).getValue();
+			    String curr = item.getItemProperty(column).getValue().toString();
 			    //System.out.println("item is " + curr);
 			    
 		    	boolean exists = false;

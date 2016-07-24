@@ -31,6 +31,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import drafty._MainUI;
+import drafty.experiments.PopUp;
+import drafty.models.ActiveMode;
 import drafty.models.CellSelection;
 import drafty.models.DraftyNotification;
 import drafty.models.Professors;
@@ -49,8 +51,10 @@ public class ApiProviderImpl implements ApiProvider {
 
     private Profile profile = new Profile();
     private Professors professors = new Professors();
+    private ActiveMode activeMode = new ActiveMode();
     private CellSelection cellSelection = new CellSelection();
     private UserInterestService uiService; //create when 
+    private PopUp expPopUp = new PopUp();
     
     /**
      * Initialize the data for this application.
@@ -511,5 +515,15 @@ public class ApiProviderImpl implements ApiProvider {
 	@Override
 	public CellSelection getCellSelection() {
 		return cellSelection;
+	}
+
+	@Override
+	public drafty.models.ActiveMode getActiveMode() {
+		return activeMode;
+	}
+
+	@Override
+	public PopUp getExpPopUp() {
+		return expPopUp;
 	}
 }

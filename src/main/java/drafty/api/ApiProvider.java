@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import drafty.experiments.PopUp;
+import drafty.models.ActiveMode;
 import drafty.models.CellSelection;
 import drafty.models.DraftyNotification;
 import drafty.models.Professors;
@@ -95,9 +97,19 @@ public interface ApiProvider {
 	Profile getProfile();
 	
 	/**
+	 * @return ActiveMode 
+	 */
+	ActiveMode getActiveMode();
+	
+	/**
 	 * @return CellSelection 
 	 */
 	CellSelection getCellSelection();
+	
+	/**
+	 * @return CellSelection 
+	 */
+	PopUp getExpPopUp();
 	
 	/**
 	 * @return connection and statement

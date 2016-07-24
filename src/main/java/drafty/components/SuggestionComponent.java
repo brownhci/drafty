@@ -28,7 +28,6 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.OptionGroup;
@@ -39,8 +38,9 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import drafty._MainUI;
+import drafty.models.Mode;
 
-public class SuggestionComponent extends CustomComponent {
+public class SuggestionComponent extends Window {
 
 	private static final long serialVersionUID = -4092675275245757132L;
 
@@ -94,6 +94,21 @@ public class SuggestionComponent extends CustomComponent {
 	
 	public SuggestionComponent(String suggestionMode) {
 		this.suggestionMode = suggestionMode;
+		sub.setImmediate(true);
+		sub.addCloseListener(e -> closeListener(e));
+
+		if (sub.getWidth() < 390) {
+			sub.setWidth("500px");
+			sub.setIcon(FontAwesome.PENCIL_SQUARE_O);
+			_MainUI.getApi().getActiveMode().setActiveMode(Mode.SUGGESTION);
+		} 
+		
+		if (suggestionMode.equals("experiment")) {
+			sub.setWidth("600px");
+			sub.setCaption(" Please Help Fix Data");
+			sub.setIcon(FontAwesome.AMBULANCE);
+			_MainUI.getApi().getActiveMode().setActiveMode(Mode.EXPERIMENT);
+		}
 		
 		//create new validation entry
 		newValidation();
@@ -103,14 +118,17 @@ public class SuggestionComponent extends CustomComponent {
 		addListeners();
 		createUI();
 		
-		if (sub.getWidth() < 390) {
-			sub.setWidth("420px");
-		} else if (suggestionMode.equals("experiment")) {
-			sub.setWidth("500px");
-			sub.setCaption("Help Fix Data");
-		}
-		
 		UI.getCurrent().addWindow(sub);
+		UI.getCurrent().setFocusedComponent(sub);
+	}
+
+
+	private void closeListener(CloseEvent e) {
+		System.out.println("CLOSE EVENT");
+		if(suggestionType.equals("experiment")) {
+			_MainUI.getApi().getExpPopUp().interrupt();
+		}
+		_MainUI.getApi().getActiveMode().setActiveMode(Mode.NORMAL);
 	}
 
 
@@ -159,13 +177,23 @@ public class SuggestionComponent extends CustomComponent {
 			}
 	    }
 	    
+	    //ask correct question based on suggestionType
 	    if(suggestionMode.equals("experiment")) {
-	    	label_suggestions = new Label("<h3 style=\"margin-top: 0px; line-height: 25px;\">"
-	    			+ "Thank you for using Drafty. <br><br>"
-	    			+ "Could you please help us fix data by making a suggestion for "
-	    			+ person_name + ", from " + person_university + ", " + suggestionType + ".</h3>", ContentMode.HTML);
+	    	String for_label_sugg = "<h3 style=\"margin-top: 0px; line-height: 25px;\">"
+					    			+ "<b>Thank you</b> for using Drafty! :) <br>"
+					    			+ "Could you please help us improve the quality of the data?<br><br>";
+	    	if (suggestionType.equals("University")) {
+	    		for_label_sugg += "What <b>university</b> does <b>" + person_name + "</b> teach at?</h3> ";
+	    	} else if (suggestionType.equals("Bachelors") || suggestionType.equals("Masters") || suggestionType.equals("Doctorate") || suggestionType.equals("PostDoc")) {
+	    		for_label_sugg += "What university did <b>" + person_name + "</b> receive his/her <b>" + suggestionType + "</b>?</h3> ";
+	    	} else {
+	    		for_label_sugg += "What is <b>" + person_name + "'s " + suggestionType + "</b>?</h3> ";
+	    	}
+	    	for_label_sugg += "Drafty's current data says they teach at:<br> <i>" + person_university + "</i><hr>";
+	    	
+	    	label_suggestions = new Label(for_label_sugg, ContentMode.HTML);
 	    } else {
-	    	label_suggestions = new Label("<h3 style=\"margin-top: 0px; line-height: 25px;\">Make a suggestion for <br>"  + person_name + "'s " + suggestionType + ".</h3>", ContentMode.HTML);	
+	    	label_suggestions = new Label("<h3 style=\"margin-top: 0px; line-height: 25px;\">Make a suggestion for <br><b>"  + person_name + "'s " + suggestionType + "</b>.</h3>", ContentMode.HTML);	
 	    }
 	    
 	    label_suggestions.addStyleName("padding-top-none");
