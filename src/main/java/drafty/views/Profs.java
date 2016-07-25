@@ -538,6 +538,7 @@ public class Profs extends VerticalLayout implements View {
                 if (e.isDoubleClick()) { //double click
                 	_MainUI.getApi().getUIService().recordClick(cell_id, cell_full_name, cell_value, cell_column, true, rowValues);
                 	
+                	//System.out.println("DblClick SuggID: cell_value_id: " + cell_value_id);
             		_MainUI.getApi().getCellSelection().setCellSelection(cell_id, cell_full_name, _MainUI.getApi().getProfUniversity(cell_id), cell_value, cell_value_id, cell_column, rowValues);
             		
             		if(adminEditMode) {

@@ -273,12 +273,69 @@ public class ApiProviderImpl implements ApiProvider {
 		return list;
 	}
     
+    public void checkSuggestionBlankValue(String person_id, String value, String column) {
+    	try {
+			String exist = null;
+			
+			String sql = 
+	        		"SELECT count(s.idSuggestion) as exist, s.idSuggestion "
+	        		+ "FROM Suggestion s "
+	        		+ "INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType "
+	        		+ "WHERE s.idPerson = ? "
+	        		+ "AND s.suggestion = '' "
+	        		+ "AND st.type = ? ";
+			
+	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
+	        stmt.setString(1, person_id);
+	        stmt.setString(2, column);
+	        
+        	ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				exist = rs.getString("exist");
+			}
+	        
+	        stmt.getConnection().close();
+	        stmt.close();
+	        
+	        if(exist.equals("0")) {
+	        	newSuggestionBlankValue(person_id, value, column); 
+	        }
+		} catch (SQLException e) {
+			System.out.println("ERROR checkSuggestionBlankValue(): " + e);
+		}
+    }
+    
+    public void newSuggestionBlankValue(String person_id, String value, String column) {
+    	try {
+    		String sql = "INSERT INTO Suggestion " +
+  	        		"(idSuggestion, idPerson, idProfile, idEntryType, idSuggestionType, suggestion, suggestion_original, comment, confidence) " + 
+  	        		"VALUES(NULL, ?, NULL, 1, (SELECT idSuggestionType FROM SuggestionType WHERE type = ?), '', NULL, NULL, 5)";
+	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
+	        stmt.setString(1, person_id);
+	        stmt.setString(2, column);
+	        
+	        stmt.executeUpdate();
+	        
+	        stmt.getConnection().close();
+	        stmt.close();
+		} catch (SQLException e) {
+			System.out.println("ERROR newSuggestionBlankValue(): " + e);
+		}
+    }
+    
     public String getIdSuggestion(String person_id, String value, String column) {
 		String idSuggestion = null;
 		
 		try {
 		      Context initialContext = new InitialContext();
 		      DataSource datasource = (DataSource)initialContext.lookup(getJNDI());
+		      
+		      /* old code; ran blankCellFix instead
+		      if(value.isEmpty()) {
+		    	  System.out.println("value empty: person id = " + person_id + ", type = " + column);
+		    	  checkSuggestionBlankValue(person_id, value, column); 
+		      }
+		      */
 		      
 		      if (datasource != null) {
 		        Connection conn = datasource.getConnection();

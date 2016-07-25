@@ -29,6 +29,7 @@ import com.vaadin.ui.Window;
 
 import drafty.api.ApiProvider;
 import drafty.api.ApiProviderImpl;
+import drafty.data.fixes.blankCellFix;
 import drafty.event.DraftyEvent.CloseOpenWindowsEvent;
 import drafty.event.DraftyEvent.expPopUpEvent;
 import drafty.event.DraftyEventBus;
@@ -127,6 +128,8 @@ public class _MainUI extends UI {
 	
 	@Override
 	protected void init(VaadinRequest request) {
+		//blankCellFix.createSuggTypeMap();
+		//blankCellFix.createnNewEntries();
 		
 		setLocale(Locale.US);
 		DraftyEventBus.register(this);

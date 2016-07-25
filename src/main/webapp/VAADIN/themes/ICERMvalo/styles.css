@@ -13324,6 +13324,14 @@ div.v-layout.v-horizontal.v-widget {
 	padding-right: 25px !important;
 }
 
+.ICERMvalo .option-group-margin-left {
+	margin-left: 25px !important;
+}
+
+.ICERMvalo .option-group-margin-right {
+	margin-right: 25px !important;
+}
+
 .ICERMvalo .alert {
 	padding: 15px;
 	border: 1px solid transparent;

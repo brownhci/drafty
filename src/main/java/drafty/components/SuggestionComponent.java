@@ -47,7 +47,7 @@ public class SuggestionComponent extends Window {
 	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
 	// Create a sub-window and add it to the main window
-	final Window sub = new Window("Suggestion");
+	final Window sub = new Window(" Suggestion");
 	VerticalLayout suggestionModal = new VerticalLayout();
 	CssLayout panelWrap = new CssLayout();
 	Panel resultsPanel = new Panel();
@@ -210,8 +210,10 @@ public class SuggestionComponent extends Window {
 	    	suggestionModal.addComponent(subfields);
 	    	subfields.setFilteringMode(FilteringMode.CONTAINS);
 	    	subfields.setWidth("100%");
+	    	String width = Float.toString(sub.getWidth() - 50.0f);
+	    	subfields.setWidth(width);
 	    	subfields.setPageLength(fieldlist.size());
-	    	subfields.setStyleName("option-group-padding-left");
+	    	subfields.setStyleName("option-group-margin-left");
 	    }
 	    
 	    if (suggestionType.equals("University") || suggestionType.equals("Bachelors") || suggestionType.equals("Masters") || suggestionType.equals("Doctorate") || suggestionType.equals("PostDoc")) {
@@ -228,8 +230,10 @@ public class SuggestionComponent extends Window {
 	    	}
 	    	suggestionModal.addComponent(universities);
 	    	universities.setWidth("100%");
+	    	String width = Float.toString(sub.getWidth() - 50.0f);
+	    	universities.setWidth(width);
 	    	universities.setPageLength(unis.size());
-	    	universities.setStyleName("option-group-padding-left");
+	    	universities.setStyleName("option-group-margin-left");
 	    }
 	  
 	    
@@ -237,7 +241,9 @@ public class SuggestionComponent extends Window {
 	    	suggestionModal.addComponent(suggestion_textbox);
 	    	suggestion_textbox.setStyleName("text-field-margin-left");
 	    	suggestion_textbox.addStyleName("margin-top-negative");
-	    	suggestion_textbox.setWidth("350px"); //need to come up with a better implementation
+	    	suggestion_textbox.setWidth("100%"); 
+	    	String width = Float.toString(sub.getWidth() - 50.0f);
+	    	suggestion_textbox.setWidth(width);
 	    	if(suggestionType.equals("JoinYear")) {
 	    		suggestion_textbox.setWidth("180px"); 
 	    	}
@@ -589,11 +595,7 @@ public class SuggestionComponent extends Window {
 		        try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
 		            if (generatedKeys.next()) {
 		        		idNewSuggestion = generatedKeys.getString(1);
-		        		System.out.println("newSuggestion() idNewSuggestion = " + idNewSuggestion);
-		        		//update uiService
-		       	        //waiting for Marianne to update UIService 
-		       	     	//_MainUI.getApi().getUIService().addSuggInt(person_id, person_name, newSuggestion, suggestionType, profile_id);
-		       	      	//_uis.recordSugg(profile_id, person_name, origSuggestion, newSuggestion, suggestionType); 
+		        		//System.out.println("newSuggestion() idNewSuggestion = " + idNewSuggestion);
 		        		_MainUI.getApi().getUIService().recordSugg(_MainUI.getApi().getIdProfile(), person_name, origSuggestion, newSuggestion, suggestionType);
 		       	      
 		            } else {
