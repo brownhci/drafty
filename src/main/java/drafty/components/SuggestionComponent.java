@@ -27,11 +27,9 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.OptionGroup;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -49,9 +47,6 @@ public class SuggestionComponent extends Window {
 	// Create a sub-window and add it to the main window
 	final Window sub = new Window(" Suggestion");
 	VerticalLayout suggestionModal = new VerticalLayout();
-	CssLayout panelWrap = new CssLayout();
-	Panel resultsPanel = new Panel();
-	VerticalLayout resultsPanelLayout = new VerticalLayout();
 
 	private String person_id = _MainUI.getApi().getCellSelection().getPerson_id();
 	private String origSuggestion = _MainUI.getApi().getCellSelection().getOrigSuggestion();
@@ -344,8 +339,11 @@ public class SuggestionComponent extends Window {
 			    	newValidationSuggestion(idNewSuggestion, "1", "1");	
 			    }
 			}
-
-			Notification.show("Thank you for your suggestion.  Our elves are hard at work integrating it.");
+			
+			Notification notification = new Notification("Thank you for your suggestion.", "Please refresh page to see changes.", Notification.Type.WARNING_MESSAGE);
+			notification.setHtmlContentAllowed(true);
+			notification.setIcon(FontAwesome.THUMBS_O_UP);
+			notification.show(UI.getCurrent().getPage());
 			
 			//update uiService now that validation_suggestions are complete
     		_MainUI.getApi().getUIService().recordVal(_MainUI.getApi().getIdProfile(), person_name, origSuggestion, suggestionType);

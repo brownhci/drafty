@@ -79,6 +79,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import drafty._MainUI;
 import drafty.components.DataFixComponent;
 import drafty.components.NameEditComponent;
+import drafty.components.NewUserWelcome;
 import drafty.components.SuggestionComponent;
 import drafty.data.DataExporter;
 import drafty.experiments.PopUp;
@@ -162,6 +163,8 @@ public class Profs extends VerticalLayout implements View {
 	private boolean adminEditMode = false;
 	
 	public Profs() {
+		//new NewUserWelcome();
+		
 		//on system start program is in normal mode
 		//suggestion mode starts when user dbl clicks; experiment mode when 
 		_MainUI.getApi().getActiveMode().setActiveMode(Mode.NORMAL); 
@@ -662,7 +665,7 @@ public class Profs extends VerticalLayout implements View {
 				
 			    Label label_drafty_title = new Label("<h2 style=\"margin-top: 0px; width:98%; color:#0095da; margin-bottom: 0px;\"> About Drafty </h1>", ContentMode.HTML);
 			    Label label_about_title = new Label("<h3 style=\"margin-top: 0px; width:98%; margin-bottom: 0px;\">Computer Science Professors from Top US and Canadian Schools</h3>", ContentMode.HTML);
-			    Label label_hci_title = new Label("<h3 style=\"margin-top: 0px; width:98%;\">Brown University HCI Project</h3>", ContentMode.HTML);
+			    Label label_hci_title = new Label("<h3 style=\"margin-top: 0px; width:98%;\">Brown University HCI Research System</h3>", ContentMode.HTML);
 			    
 			    Label label_sugg = new Label("<p style=\"margin-top: 0px; padding: 10px; width:98%; color: #666666; border-radius: 5px; text-align: center; background-color: #f1f1f1;\"<span class=\"v-icon FontAwesome\"></span> "
 			    								+ "<b>Wondering how to make a Suggestion?</b> <br>Double click any cell.</p>", ContentMode.HTML);
@@ -672,18 +675,18 @@ public class Profs extends VerticalLayout implements View {
 			    Label label_about = new Label(
 
 			    	    "<p class=\"projectinfo\" style=\"margin-top: 0px; margin-bottom: 0px;\">"
-			    	    + "Drafty turns its web visitors into editors. A visitor to a potentially flawed "
-			    	    + "computer science professor dataset may be asked to correct or suggest an entry in the data. "
-			    	    + "The key is to capture user interactions such as text highlighting, cursor hovering, clicks, and network "
-			    	    + "hostname to infer what topics the visitor has expertise in."
+			    	    + "Drafty helps visitors be editors of a large ever changing dataset of computer science professors.  "
+			    	    + "A visitor may be asked to correct or suggest an entry in the data. "
+			    	    + "The key is to capture user interactions to infer what information the visitor has expertise and/or interest in.  "
 			    	    + "<p style=\"margin-bottom: 0px;\">For example, a visitor from brown.edu who copies entries of graphics professors may be asked "
-			    	    + "to correct an entry about graphics professors at Brown. This project is currently being used to "
-			    	    + "revise and update data from "
+			    	    + "to correct an entry about graphics professors at Brown. "
+			    	    + "This system utilizes data originally from "
 			    	    + "<a style=\"color: blue;\" href=\"http://jeffhuang.com/computer_science_professors.html\">this dataset</a>.</p>"
 			    	    + "<p><br><b>Related Paper (HCOMP 2015): </b>"
 			    	    + "<a style=\"color: blue;\" href=\"[in press]\"><br>Crowdsourcing from Scratch: A Pragmatic Experiment in Data Collection by "
 			    	    + "Novice Requesters</a></p>", ContentMode.HTML);
 			    
+			    label_about.setCaptionAsHtml(true);
 			    menuModal.addComponents(label_drafty_title,label_about_title, label_hci_title, label_sugg, label_about);
 			    menuModal.setComponentAlignment(label_drafty_title, Alignment.MIDDLE_CENTER);
 			    menuModal.setComponentAlignment(label_about_title, Alignment.MIDDLE_CENTER);
@@ -763,19 +766,11 @@ public class Profs extends VerticalLayout implements View {
 						
 						MailService mail = new MailService();
 						
-						//update Profile Info
 						try {
-							mail.updateProfile(fName.getValue() + " " + lName.getValue(), email.getValue(), idProfile);
-						} catch (Exception e) {
-							System.out.println("Exception update Profile " + e);
-						} finally {
-							//only insert comment of Profile is updated
-							try {
-								mail.insertComment(idProfile, message.getValue());
-							} 
-							catch (Exception e) {
-								System.out.println("Exception Insert Comment " + e);
-							}
+							mail.insertComment(fName.getValue(), lName.getValue(), email.getValue(), message.getValue());
+						} 
+						catch (Exception e) { 
+							System.out.println("Exception Insert Comment " + e);
 						}
 						
 						//close subWindow
@@ -1222,6 +1217,7 @@ public class Profs extends VerticalLayout implements View {
 	            	//System.out.println("cookieCheck " + cookieCheck + " detect cookie:  " + cookieValue + " = " + value);
 	            	if (cookieValue == null) {
 	            		//no cookies 
+	            		new NewUserWelcome();
 	            		newCookieProfile();
 	        		} else {
 	        			System.out.println("else, cookie value == " + cookieValue);
