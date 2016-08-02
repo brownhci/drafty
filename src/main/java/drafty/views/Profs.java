@@ -683,10 +683,9 @@ public class Profs extends VerticalLayout implements View {
 			    	    + "The key is to capture user interactions to infer what information the visitor has expertise and/or interest in.  "
 			    	    + "<p style=\"margin-bottom: 0px;\">For example, a visitor from brown.edu who copies entries of graphics professors may be asked "
 			    	    + "to correct an entry about graphics professors at Brown. "
-			    	    + "This system utilizes data originally from "
-			    	    + "<a style=\"color: blue;\" href=\"http://jeffhuang.com/computer_science_professors.html\">this dataset</a>.</p>"
+			    	    + "This system utilizes data originally crowdsourced by students from two Brown HCI research seminar classes. "
 			    	    + "<p><br><b>Related Paper (HCOMP 2015): </b>"
-			    	    + "<a style=\"color: blue;\" href=\"[in press]\"><br>Crowdsourcing from Scratch: A Pragmatic Experiment in Data Collection by "
+			    	    + "<a style=\"color: blue;\" href=\"http://jeffhuang.com/Final_CrowdsourcingNovices_HCOMP15.pdf\"><br>Crowdsourcing from Scratch: A Pragmatic Experiment in Data Collection by "
 			    	    + "Novice Requesters</a></p>", ContentMode.HTML);
 			    
 			    label_about.setCaptionAsHtml(true);
