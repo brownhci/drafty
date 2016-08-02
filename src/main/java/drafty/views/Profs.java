@@ -207,8 +207,6 @@ public class Profs extends VerticalLayout implements View {
 		//System.out.println(System.currentTimeMillis());
 		_MainUI.getApi().getActiveMode().setLastInteraction(System.currentTimeMillis());
 		
-		//new PopUp().start();
-		
 		if(!adminEditMode) {
 			int intCount = 0;
 			int intScore = 0;
@@ -298,6 +296,8 @@ public class Profs extends VerticalLayout implements View {
 			}
 		}
 	    
+		//new PopUp().start();
+		
 		//50 / 50 ask by prof or by column
 		//get column type - uni, bach, mast, phd, subfield, joinyear, rank 
 	}
@@ -407,6 +407,7 @@ public class Profs extends VerticalLayout implements View {
 			      
 			      if (datasource != null) {
 			        Connection conn = datasource.getConnection();
+			        /*
 			        String sql = 
 			        		"SELECT COUNT(s.Suggestion) as count "
 			        		+ "FROM Suggestion s "
@@ -420,15 +421,17 @@ public class Profs extends VerticalLayout implements View {
 			        } catch (SQLException e) {
 						System.out.println("ERROR updateBadges() SQL 1: " + e.getMessage());
 					}
-			        sql = 
+					*/
+			        String sql = 
 			        		"SELECT COUNT(v.idValidation) as count "
 			        		+ "FROM Validation v "
 			        		+ "WHERE date_completed IS NOT NULL AND v.idProfile = " + idProfile;
-			        stmt = conn.prepareStatement(sql);
+			        PreparedStatement stmt = conn.prepareStatement(sql);
 			        try {
 			        	ResultSet rs = stmt.executeQuery();
 						while (rs.next()) {
-							_MainUI.getApi().getProfile().addToSuggestionCount(rs.getInt("count"));
+							//_MainUI.getApi().getProfile().addToSuggestionCount(rs.getInt("count"));
+							_MainUI.getApi().getProfile().setSuggestionCount(rs.getInt("count"));
 						}
 			        } catch (SQLException e) {
 						System.out.println("ERROR updateBadges() SQL 2: " + e.getMessage());

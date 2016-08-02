@@ -340,9 +340,10 @@ public class SuggestionComponent extends Window {
 			    }
 			}
 			
-			Notification notification = new Notification("Thank you for your suggestion.", "Please refresh page to see changes.", Notification.Type.WARNING_MESSAGE);
+			Notification notification = new Notification("Thank you for your suggestion.", "Our elves are hard at work on it.");
 			notification.setHtmlContentAllowed(true);
 			notification.setIcon(FontAwesome.THUMBS_O_UP);
+			notification.setDelayMsec(1500);
 			notification.show(UI.getCurrent().getPage());
 			
 			//update uiService now that validation_suggestions are complete

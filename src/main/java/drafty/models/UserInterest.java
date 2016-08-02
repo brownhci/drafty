@@ -31,7 +31,7 @@ public class UserInterest {
 			case "6":
 				return "PostDoc";
 			case "7":
-				 return "Join Year";
+				 return "JoinYear";
 			case "8":
 				return "Rank";
 			case "9":
