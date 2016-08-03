@@ -53,7 +53,7 @@ public class _MainUI extends UI {
     private final ApiProvider dataProvider = new ApiProviderImpl();
 	private final DraftyEventBus draftyEventbus = new DraftyEventBus();
 	
-	public Navigator navigator = new Navigator(this, this);;
+	//public Navigator navigator = new Navigator(this, this);;
 	
 	@Subscribe
     public void expPopUp(final expPopUpEvent event) {
@@ -138,10 +138,11 @@ public class _MainUI extends UI {
 		if(Page.getCurrent().getWebBrowser().isTooOldToFunctionProperly()) {
 			//too old won't work with Vaadin
 		} else {
-			navigator.addView("professors", new Profs());
-			navigator.addView("secretview", new SecretView());
-			navigator.navigateTo("professors");
+			//navigator.addView("professors", new Profs());
+			//navigator.addView("secretview", new SecretView());
+			//navigator.navigateTo("professors");
 			//navigator.navigateTo("secretview");
+			setContent(new Profs());
 		}
 		
 		//new FeederThread().start();
