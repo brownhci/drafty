@@ -77,6 +77,7 @@ public class SuggestionComponent extends Window {
 	OptionGroup suggestions_optiongroup = new OptionGroup();
 	TextField suggestion_textbox = new TextField();
 	Button submitSuggestion_button = new Button("Submit Suggestion");
+	Button closeExperiment_button = new Button("I do not know / Do not want to answer");
 	private ComboBox universities = new ComboBox();
 	private ComboBox subfields = new ComboBox();
 	
@@ -124,6 +125,8 @@ public class SuggestionComponent extends Window {
 			_MainUI.getApi().getExpPopUp().interrupt();
 		}
 		_MainUI.getApi().getActiveMode().setActiveMode(Mode.NORMAL);
+		_MainUI.getApi().setInteractionCount(0);
+		_MainUI.getApi().setInteractionScore(0);
 	}
 
 	private void createUI() {
@@ -246,6 +249,17 @@ public class SuggestionComponent extends Window {
 	    
 	    suggestionModal.addComponents(label_hr, submitSuggestion_button);
 	    suggestionModal.setComponentAlignment(submitSuggestion_button, Alignment.MIDDLE_RIGHT);
+	    
+	    if(suggestionMode.equals("experiment")) {
+	    	suggestionModal.addComponent(closeExperiment_button);
+	    	suggestionModal.setComponentAlignment(closeExperiment_button, Alignment.MIDDLE_RIGHT);
+	    	closeExperiment_button.setWidth("100%");
+	    	closeExperiment_button.setIcon(FontAwesome.CLOSE);
+	    	closeExperiment_button.addStyleName("button-gray");
+	    	closeExperiment_button.addClickListener(e -> sub.close());
+	    	sub.removeAllCloseShortcuts();
+	    	sub.setClosable(false);
+	    }
 	    
 	    //Final UI Adjustments for University and Subfield
 	    subfields.addStyleName("margin-top-negative");

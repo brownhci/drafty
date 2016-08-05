@@ -147,10 +147,13 @@ public class Profs extends VerticalLayout implements View {
 	private String cell_value;
 	private String cell_value_id;
 	private String cell_column;
+	private String cell_column_sort;
 	private String rowValues;
 	private String separator = "|"; //SW makes it easier to parse in CSV format
 	
 	private String filterText;
+	private String filterText_old;
+	private String blur_old;
 	private String filterColumn;
 	
 	//modal for email / contact
@@ -229,7 +232,8 @@ public class Profs extends VerticalLayout implements View {
 			} else if(interactionType.equals(InteractionType.DblCLICKPROF)) {
 				doNotAsk = true;
 				score = InteractionWeights.clickDouble;
-				is.recordClickPerson(cell_id, "1", idProfile, rowValues);
+				//is.recordClickPerson(cell_id, "1", idProfile, rowValues);
+				is.updateDblClickPerson(cell_id, idProfile);
 				
 			} else if(interactionType.equals(InteractionType.FILTER)) {
 				score = InteractionWeights.filter;
@@ -241,6 +245,7 @@ public class Profs extends VerticalLayout implements View {
 				
 			} else if(interactionType.equals(InteractionType.SORT)) {
 				score = InteractionWeights.sorting;
+				is.recordSort(cell_column_sort, idProfile);
 			}
 			
 			intCount = 1 + _MainUI.getApi().getInteractionCount();
@@ -259,35 +264,14 @@ public class Profs extends VerticalLayout implements View {
 			if(intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0 && (experiment_id.equals("1") || experiment_id.equals("2"))) { //activates every 7-12 interactions
 				if(doNotAsk) {
 					//reset score and interaction counters
-					_MainUI.getApi().setInteractionCount(0);
+					//_MainUI.getApi().setInteractionCount(0);
 					//_MainUI.getApi().setInteractionScore(0); 
 					_MainUI.getApi().resetIntAsk();
 				} else {
-					/*
-					String reco[] = null;
-					if(experiment_id.equals("1")) { //Ask No-Interest)
-						String recoTemp[] = _MainUI.getApi().getUIService().getNoInterest();
-						reco = recoTemp;
-					} else if (experiment_id.equals("2")) { //Ask Fix User Interest
-						String recoTemp[] = _MainUI.getApi().getUIService().getInterestedField();
-						reco = recoTemp;
-					}
 					
-					String person_id = reco[0];
-					String prof_name = reco[1];
-					String suggestion_type_id = reco[2];
-					suggInfo = ExperimentService.getSuggestionWithMaxConf(person_id, suggestion_type_id);
-					String suggestion_with_max_conf = suggInfo.get(0);
-					String suggestion_id = suggInfo.get(1);
-					
-					_MainUI.getApi().getCellSelection().setCellSelection(person_id, prof_name, _MainUI.getApi().getProfUniversity(person_id), suggestion_with_max_conf, suggestion_id, suggestion_type_id, null);
-					
-					new SuggestionComponent("experiment");
-					*/
 					//Starts experiment PopUp at least 3 seconds after interaction that triggers it
 					try {
-						System.out.println("Before start() - ExperimentID: " + _MainUI.getApi().getProfile().getIdExperiment());
-						//_MainUI.getApi().getExpPopUp().start();
+						//System.out.println("Before start() - ExperimentID: " + _MainUI.getApi().getProfile().getIdExperiment());
 						new PopUp().start();
 					} catch(IllegalThreadStateException e) {
 						System.out.println("ERROR IllegalThreadStateException: " + e.getStackTrace());
@@ -557,6 +541,7 @@ public class Profs extends VerticalLayout implements View {
                 		new NameEditComponent();
                 		
                 	} else {
+                		System.out.println("Double Click 1");
                 		recordInteraction(InteractionType.DblCLICK);
                 		new SuggestionComponent("normal");
                     	suggestionMode.setText(icono2);
@@ -920,45 +905,52 @@ public class Profs extends VerticalLayout implements View {
 	}
 	
 	public void insertFilter(String blur) {  
-		if (!filterText.equals("") && !filterText.equals(" ")) {
-			String matchedValues = "";
-			List<String> filterList = this.getFilteredList(filterColumn);
-			if (filterList.size() < 10 && filterList.size() > 0) {
-				_MainUI.getApi().getUIService().recordFilter(blur, filterText, filterColumn, filterList);
-				//_uis.recordFilter(blur, filter, column, filterList);
-				for (String s: filterList) {
-					if (filterList.indexOf(s) != filterList.size()-1) {
-						matchedValues = s + "|"; 
-					} else {
-						matchedValues += s;
+		if(filterText.equals(filterText_old) && blur.equals(blur_old)) {
+			//do nothing
+		} else {
+			filterText_old = filterText;
+			blur_old = blur;
+			
+			if (!filterText.equals("") && !filterText.equals(" ")) {
+				String matchedValues = "";
+				List<String> filterList = getFilteredList(filterColumn);
+				if (filterList.size() < 10 && filterList.size() > 0) {
+					_MainUI.getApi().getUIService().recordFilter(blur, filterText, filterColumn, filterList);
+					
+					for (String s: filterList) {
+						if (filterList.indexOf(s) != filterList.size()-1) {
+							matchedValues = s + "|"; 
+						} else {
+							matchedValues += s;
+						}
 					}
 				}
+				
+				try {
+			      Context initialContext = new InitialContext();
+			      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
+			      if (datasource != null) {
+						Connection conn = datasource.getConnection();
+						String sql = "INSERT INTO Filter (idProfile, idSuggestionType, filter, blur, matchedValues) "
+								+ "VALUES (?, (SELECT idSuggestionType FROM SuggestionType WHERE type = ?), ?, ?, ?); ";
+						PreparedStatement stmt = conn.prepareStatement(sql);
+						stmt.setString(1, idProfile);
+						stmt.setString(2, filterColumn);
+						stmt.setString(3, filterText);
+						stmt.setString(4, blur);
+						stmt.setString(5, matchedValues);
+						try {
+						    stmt.executeUpdate();
+						} catch (SQLException e) {
+							System.out.println("ERROR MySQL insertFilter(): " + e.getMessage());
+						}
+						stmt.close();
+						conn.close();
+			      }
+			    } catch (Exception ex) {
+			    	System.out.println("Exception insertFilter(): " + ex);
+		        }
 			}
-			
-			try {
-		      Context initialContext = new InitialContext();
-		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-		      if (datasource != null) {
-					Connection conn = datasource.getConnection();
-					String sql = "INSERT INTO Filter (idProfile, idSuggestionType, filter, blur, matchedValues) "
-							+ "VALUES (?, (SELECT idSuggestionType FROM SuggestionType WHERE type = ?), ?, ?, ?); ";
-					PreparedStatement stmt = conn.prepareStatement(sql);
-					stmt.setString(1, idProfile);
-					stmt.setString(2, filterColumn);
-					stmt.setString(3, filterText);
-					stmt.setString(4, blur);
-					stmt.setString(5, matchedValues);
-					try {
-					    stmt.executeUpdate();
-					} catch (SQLException e) {
-						System.out.println("ERROR MySQL insertFilter(): " + e.getMessage());
-					}
-					stmt.close();
-					conn.close();
-		      }
-		    } catch (Exception ex) {
-		    	System.out.println("Exception insertFilter(): " + ex);
-	        }
 		}
 	}
 	
@@ -1252,7 +1244,14 @@ public class Profs extends VerticalLayout implements View {
 	        			@Override
 	        			public void sort(SortEvent event) {
 	        				resetSuggestionMenuItem();
-	        				recordInteraction(InteractionType.SORT);
+	        				
+	        				for(Object s : resultsGrid.getSortOrder().toArray()) {
+	        					cell_column_sort = s.toString();
+	        					cell_column_sort = cell_column_sort.replace("ASCENDING", "");
+	        					cell_column_sort = cell_column_sort.replace("DESCENDING", "");
+	        					cell_column_sort = cell_column_sort.replace(" ", "");
+	        					recordInteraction(InteractionType.SORT);
+	        				}
 	        			}
 	        		});
 	        		

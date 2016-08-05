@@ -25,7 +25,11 @@ public class InteractionService {
 		idSuggestion = _MainUI.getApi().getIdSuggestion(person_id, value, column);
 		
 		if (idSuggestion != null) {
-			insertClick(column, idSuggestion, doubleclick, idProfile, rowValues);
+			if(doubleclick.equals("1")) {
+				updateDblClick(idSuggestion, idProfile);
+			} else {
+				insertClick(column, idSuggestion, doubleclick, idProfile, rowValues);
+			}
 		}
 	}
 	
@@ -37,7 +41,7 @@ public class InteractionService {
 	      Context initialContext = new InitialContext();
 	      
 	      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-	      if (datasource != null && (!click_time_flag.equals(click_current_time) && doubleclick.equals("0"))) {
+	      if (datasource != null && !click_time_flag.equals(click_current_time)) {
 	        Connection conn = datasource.getConnection();
 	        String sql = "INSERT INTO Click (idProfile, idSuggestionType, idSuggestion, doubleclick, rowvalues) VALUES (?, (SELECT idSuggestionType FROM SuggestionType WHERE type = ?), ?, ?, ?); ";
 	        PreparedStatement stmt = conn.prepareStatement(sql);
@@ -61,6 +65,27 @@ public class InteractionService {
 		click_time_flag = new Timestamp(date.getTime());
     }
 	
+	public void updateDblClick(String idSuggestion, String idProfile) {
+		
+		try {
+			String sql = 
+					"UPDATE Click "
+					+ "SET doubleclick = 1 "
+					+ "WHERE idProfile = ? AND idSuggestion = ? AND doubleclick = 0 "
+					+ "ORDER BY idClick DESC "
+					+ "LIMIT 1";
+			PreparedStatement stmt = _MainUI.getApi().getConnStmt(sql);
+			
+			stmt.setString(1, idProfile);
+			stmt.setString(2, idSuggestion);
+			
+			stmt.executeUpdate();
+			
+		} catch(Exception e) {
+			System.out.println("ERROR updateDblClick(String idSuggestion, String idProfile): " + e);
+		}
+	}
+	
 	public void recordClickPerson(String person_id, String doubleclick, String idProfile, String rowValues) { 
 		java.util.Date date = new java.util.Date();
 		Date click_current_time = new Timestamp(date.getTime());
@@ -70,7 +95,7 @@ public class InteractionService {
 		  initialContext = new InitialContext();
 	      
 	      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-	      if (datasource != null || (!click_time_flag.equals(click_current_time) && doubleclick.equals("0"))) {
+	      if (datasource != null && !click_time_flag.equals(click_current_time)) {
 	        Connection conn = datasource.getConnection();
 	        String sql = "INSERT INTO ClickPerson (idProfile, idPerson, doubleclick, rowvalues) VALUES (?, ?, ?, ?); ";
 	        PreparedStatement stmt = conn.prepareStatement(sql);
@@ -92,4 +117,43 @@ public class InteractionService {
 	
 		click_time_flag = new Timestamp(date.getTime());
     }
+	
+	public void updateDblClickPerson(String person_id, String idProfile) {
+		
+		try {
+			String sql = 
+					"UPDATE ClickPerson "
+					+ "SET doubleclick = 1 "
+					+ "WHERE idProfile = ? AND idPerson = ? AND doubleclick = 0 "
+					+ "ORDER BY idClickPerson DESC "
+					+ "LIMIT 1";
+			PreparedStatement stmt = _MainUI.getApi().getConnStmt(sql);
+			
+			stmt.setString(1, idProfile);
+			stmt.setString(2, person_id);
+			
+			stmt.executeUpdate();
+			
+		} catch(Exception e) {
+			System.out.println("ERROR updateDblClickPerson(String person_id, String idProfile): " + e);
+		}
+	}
+	
+	public void recordSort(String suggestionType, String idProfile) {
+		
+		try {
+			String sql = 
+					"INSERT INTO Sort (idSort, idProfile, idSuggestionType, date) "
+					+ "VALUES (NULL, ?, (SELECT idSuggestionType FROM SuggestionType WHERE type = ?), CURRENT_TIMESTAMP)";
+			PreparedStatement stmt = _MainUI.getApi().getConnStmt(sql);
+			
+			stmt.setString(1, idProfile);
+			stmt.setString(2, suggestionType);
+			
+			stmt.executeUpdate();
+			
+		} catch(Exception e) {
+			System.out.println("ERROR recordSort(String suggestionType, String idProfile): " + e);
+		}
+	}
 }
