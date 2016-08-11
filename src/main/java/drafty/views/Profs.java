@@ -905,7 +905,7 @@ public class Profs extends VerticalLayout implements View {
 	}
 	
 	public void insertFilter(String blur) {  
-		if(filterText.equals(filterText_old) && blur.equals(blur_old)) {
+		if(!filterCheck(blur) || (filterText.equals(filterText_old) && blur.equals(blur_old))) {
 			//do nothing
 		} else {
 			filterText_old = filterText;
@@ -952,6 +952,44 @@ public class Profs extends VerticalLayout implements View {
 		        }
 			}
 		}
+	}
+	
+	public boolean filterCheck(String blur) {
+		
+		boolean writeToDb = false;
+		
+		if(filterText.equals(filterText_old) && blur.equals(blur_old)) {
+			return writeToDb;
+		} else {
+			try {
+		      Context initialContext = new InitialContext();
+		      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
+		      if (datasource != null) {
+					Connection conn = datasource.getConnection();
+					String sql = "SELECT count(*) as matches "
+								+ "FROM Filter WHERE blur = ?  AND filter = ? AND date = CURRENT_TIMESTAMP";
+					
+					PreparedStatement stmt = conn.prepareStatement(sql);
+					stmt.setString(1, blur);
+					stmt.setString(2, filterText);
+					
+					ResultSet rs = stmt.executeQuery();
+					
+					while(rs.next()) {
+						if(rs.getString("matches").equals("0")) {
+							writeToDb = true;	
+						}
+					}
+					
+					stmt.close();
+					conn.close();
+		      }
+		    } catch (Exception ex) {
+		    	System.out.println("Exception insertFilter(): " + ex);
+	        }
+		}
+		
+		return writeToDb;
 	}
 	
 	public void addFilters() {

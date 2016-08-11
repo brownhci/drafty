@@ -44,6 +44,7 @@ public class PopUp extends Thread {
 			String recoTemp[] = _MainUI.getApi().getUIService().getInterestedField();
 			reco = recoTemp;
 		}
+		
 		String recoTemp[] = _MainUI.getApi().getUIService().getNoInterest();
 		reco = recoTemp;
 		String person_id = reco[0];

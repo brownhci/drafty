@@ -51,7 +51,10 @@ public class ExperimentService {
 					"UPDATE Experiment_Profile SET last_visit = CURRENT_TIMESTAMP, visits = ? "
 					+ "WHERE idExperiment = ? AND idProfile = ? ";
 	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
+	        
+	        //new visit add one
 	        visits++;
+	        
 	        stmt.setInt(1, visits);
 	        stmt.setString(2, _MainUI.getApi().getProfile().getIdExperiment());
 	        stmt.setString(3, _MainUI.getApi().getProfile().getIdProfile());
@@ -68,19 +71,6 @@ public class ExperimentService {
 	private static void newExperimentProfile() {
 		try {
 			String new_experiment_id = String.valueOf(_MainUI.getApi().getRandom(1, 3));
-					
-			/* SW - generate random number from 1 to 3
-			String sql = "SELECT * FROM Experiment_Profile ORDER BY date_created LIMIT 1";
-	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
-	  
-        	ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				new_experiment_id = rs.getString("idExperiment");
-			}
-				
-	        stmt.getConnection().close();
-	        stmt.close();
-	        */
 	        
 	        String sql = "INSERT INTO Experiment_Profile VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1)";
 	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
