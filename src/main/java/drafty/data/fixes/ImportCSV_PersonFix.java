@@ -74,7 +74,7 @@ public class ImportCSV_PersonFix {
 					}
 				}
 				
-				System.out.println("COUNT = " + count);
+				//System.out.println("COUNT = " + count);
 				
 				stmtP.executeBatch();
 				stmtS.executeBatch();

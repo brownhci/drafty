@@ -13,6 +13,7 @@ public class Profile {
 	private String idIpAddress;
 	private String idExperiment;
 	private Integer suggestionCount;
+	private String visits;
 	
 	public String getCookieCheck() {
 		return cookieCheck;
@@ -109,5 +110,11 @@ public class Profile {
 	}
 	public void addToSuggestionCount(Integer suggestionCount) {
 		this.suggestionCount += suggestionCount;
+	}
+	public String getVisits() {
+		return visits;
+	}
+	public void setVisits(String visits) {
+		this.visits = visits;
 	}
 }

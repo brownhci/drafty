@@ -15,7 +15,7 @@ public class ExperimentService {
 		try {
 			String experiment_id = null;
 			String count = null;
-			int visits = 0;
+			Integer visits = 1;
 			
 			String sql = "SELECT COUNT(*) as count, idExperiment, visits FROM Experiment_Profile WHERE idProfile = ?";
 	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
@@ -35,9 +35,15 @@ public class ExperimentService {
 	        
 	        if(count.equals("0")) {
 	        	newExperimentProfile(); 
+	        	_MainUI.getApi().getProfile().setVisits(visits.toString());
 	        } else {
-	        	System.out.println("SET EXISTING idExperiment = " + experiment_id);
+	        	System.out.println("SET EXISTING idExperiment = " + experiment_id + ", for idProfile =  " + _MainUI.getApi().getProfile().getIdProfile());
 	        	_MainUI.getApi().getProfile().setIdExperiment(experiment_id);
+	        	
+	        	//new visit add one
+		        visits++;
+		        
+	        	_MainUI.getApi().getProfile().setVisits(visits.toString());
 	        	updateExperimentProfile(visits);
 	        }
 		} catch (SQLException e) {
@@ -51,9 +57,6 @@ public class ExperimentService {
 					"UPDATE Experiment_Profile SET last_visit = CURRENT_TIMESTAMP, visits = ? "
 					+ "WHERE idExperiment = ? AND idProfile = ? ";
 	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
-	        
-	        //new visit add one
-	        visits++;
 	        
 	        stmt.setInt(1, visits);
 	        stmt.setString(2, _MainUI.getApi().getProfile().getIdExperiment());
@@ -78,9 +81,9 @@ public class ExperimentService {
 	        stmt.setString(2,  _MainUI.getApi().getProfile().getIdProfile());
 	       
 	        try {
-	        	Integer new_id = stmt.executeUpdate();
-	        	System.out.println("SET NEW idExperiment = " + new_id);
-	        	_MainUI.getApi().getProfile().setIdExperiment(Integer.toString(new_id));
+	        	stmt.executeUpdate();
+	        	System.out.println("SET NEW idExperiment = " + new_experiment_id);
+	        	_MainUI.getApi().getProfile().setIdExperiment(new_experiment_id);
 	        } catch (SQLException e) {
 				System.out.println("ERROR newExperimentProfile(): " + e.getMessage());
 			}

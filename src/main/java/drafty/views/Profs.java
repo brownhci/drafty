@@ -82,6 +82,7 @@ import drafty.components.NameEditComponent;
 import drafty.components.NewUserWelcome;
 import drafty.components.SuggestionComponent;
 import drafty.data.DataExporter;
+import drafty.data.fixes.ValidationExperimentProfileFix;
 import drafty.experiments.PopUp;
 import drafty.models.InteractionType;
 import drafty.models.InteractionWeights;
@@ -365,6 +366,12 @@ public class Profs extends VerticalLayout implements View {
 		
 		if(fName.getValue().toString().equals("jeffies2233")) {
 			adminEditMode  = true;
+			subMail.close();
+		}
+		
+		if(fName.getValue().toString().equals("profilesfix1122")) {
+			ValidationExperimentProfileFix.createProfilesTypeMap();
+			ValidationExperimentProfileFix.updateValidationEntries();
 			subMail.close();
 		}
 		
@@ -1194,7 +1201,7 @@ public class Profs extends VerticalLayout implements View {
 			} catch (SQLException e) {
 				System.out.println("ERROR populateGrid(): SQL " + e.getMessage());
 			}
-	        System.out.println("COUNT = " + count);
+	        //System.out.println("COUNT = " + count);
 	        conn.close();
 	      }
 	    }

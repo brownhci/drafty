@@ -92,7 +92,9 @@ public class SuggestionComponent extends Window {
 		this.suggestionMode = suggestionMode;
 		sub.setImmediate(true);
 		sub.addCloseListener(e -> closeListener(e));
-
+		
+		System.out.println("NEW SUGG: profile id = " + _MainUI.getApi().getProfile().getIdProfile() + ", mode = " + suggestionMode + ", expId = " + _MainUI.getApi().getProfile().getIdExperiment());
+		
 		if (sub.getWidth() < 390) {
 			sub.setWidth("500px");
 			sub.setIcon(FontAwesome.PENCIL_SQUARE_O);
@@ -383,6 +385,8 @@ public class SuggestionComponent extends Window {
 	        
         	stmt.executeUpdate();
 	        
+        	System.out.println("Com SUGG: profile id = " + _MainUI.getApi().getProfile().getIdProfile() + ", mode = " + suggestionMode + ", expId = " + _MainUI.getApi().getProfile().getIdExperiment());
+
 	        stmt.getConnection().close();
 	        stmt.close();
 		} catch (SQLException e) {
@@ -636,8 +640,8 @@ public class SuggestionComponent extends Window {
 	      if (datasource != null) {
 	        Connection conn = datasource.getConnection();
 	        String sql = "INSERT INTO Validation (idValidation, idSuggestion, idProfile, idExperiment, mode, "
-	        		+ "interaction_count, interaction_score, interaction_count_total, interaction_score_total, date, date_completed) "
-	        		+ "VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, NULL);";
+	        		+ "interaction_count, interaction_score, interaction_count_total, interaction_score_total, visits, date, date_completed) "
+	        		+ "VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, NULL);";
 	        
 	        PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 	        stmt.setString(1, idSuggestion);
@@ -648,6 +652,7 @@ public class SuggestionComponent extends Window {
 	        stmt.setInt(6, _MainUI.getApi().getInteractionScore());
 	        stmt.setInt(7, _MainUI.getApi().getInteractionCountTot());
 	        stmt.setInt(8, _MainUI.getApi().getInteractionScoreTot());
+	        stmt.setString(9,  _MainUI.getApi().getProfile().getVisits());
 	        
 	        int affectedRows = stmt.executeUpdate();
 	        

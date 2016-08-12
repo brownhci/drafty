@@ -128,8 +128,6 @@ public class _MainUI extends UI {
 	
 	@Override
 	protected void init(VaadinRequest request) {
-		//blankCellFix.createSuggTypeMap();
-		//blankCellFix.createnNewEntries();
 		
 		setLocale(Locale.US);
 		DraftyEventBus.register(this);
