@@ -166,6 +166,9 @@ public class Profs extends VerticalLayout implements View {
 	private Button submitEmail = new Button("Send");
 	private boolean adminEditMode = false;
 	
+	//experiment intervention
+	//PopUp popUp = new PopUp();
+	
 	public Profs() {
 		//new NewUserWelcome();
 		
@@ -222,6 +225,12 @@ public class Profs extends VerticalLayout implements View {
 	        	is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "0", idProfile, rowValues);
 				
 			} else if(interactionType.equals(InteractionType.DblCLICK)) {
+				/*
+				if(popUp.isAlive()) {
+					popUp.interrupt();
+				}
+				*/
+				
 				doNotAsk = true;
 				score = InteractionWeights.clickDouble;
 				is.recordClick(cell_id, cell_full_name, cell_value, cell_column, "1", idProfile, rowValues); //1 to record it as double click
@@ -231,6 +240,12 @@ public class Profs extends VerticalLayout implements View {
 				is.recordClickPerson(cell_id, "0", idProfile, rowValues);
 				
 			} else if(interactionType.equals(InteractionType.DblCLICKPROF)) {
+				/*
+				if(popUp.isAlive()) {
+					popUp.interrupt();
+				}
+				*/
+				
 				doNotAsk = true;
 				score = InteractionWeights.clickDouble;
 				//is.recordClickPerson(cell_id, "1", idProfile, rowValues);
@@ -262,26 +277,32 @@ public class Profs extends VerticalLayout implements View {
 			//ArrayList<String> suggInfo = new ArrayList<String>();
 			String experiment_id = _MainUI.getApi().getProfile().getIdExperiment();
 			
-			if(!doNotAsk && intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0 && (experiment_id.equals("1") || experiment_id.equals("2"))) { //activates every 7-12 interactions
+			if(!doNotAsk && intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0 && (experiment_id.equals("1") || experiment_id.equals("2"))) { //activates every 8-15 interactions
+				_MainUI.getApi().resetIntAsk(8, 14); //8-15 random interactions
 				if(doNotAsk) {
-					//reset score and interaction counters
-					//_MainUI.getApi().setInteractionCount(0);
-					//_MainUI.getApi().setInteractionScore(0); 
-					//_MainUI.getApi().resetIntAsk();
+					
 				} else {
 					
 					//Starts experiment PopUp at least 3 seconds after interaction that triggers it
 					try {
 						//System.out.println("Before start() - ExperimentID: " + _MainUI.getApi().getProfile().getIdExperiment());
-						new PopUp().start();
+						//if(_MainUI.getApi().getActiveMode().equals(Mode.NORMAL)) {
+							new PopUp().start();
+						//}
 					} catch(IllegalThreadStateException e) {
-						System.out.println("ERROR IllegalThreadStateException: " + e.getStackTrace());
+						System.out.println("ERROR PopUp IllegalThreadStateException: " + e.getStackTrace());
 					}
 				}
 			}
 		}
 	    
-		//new PopUp().start();
+		/*
+		if(_MainUI.getApi().getExpPopUp().isAlive()) {
+			System.out.println("Is Alive! " + PopUp.activeCount());
+		} else {
+			//popUp.start();
+		}
+		*/
 		
 		//50 / 50 ask by prof or by column
 		//get column type - uni, bach, mast, phd, subfield, joinyear, rank 
@@ -548,7 +569,6 @@ public class Profs extends VerticalLayout implements View {
                 		new NameEditComponent();
                 		
                 	} else {
-                		System.out.println("Double Click 1");
                 		recordInteraction(InteractionType.DblCLICK);
                 		new SuggestionComponent("normal");
                     	suggestionMode.setText(icono2);

@@ -36,6 +36,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import drafty._MainUI;
+import drafty.experiments.PopUp;
 import drafty.models.Mode;
 
 public class SuggestionComponent extends Window {
@@ -77,7 +78,7 @@ public class SuggestionComponent extends Window {
 	OptionGroup suggestions_optiongroup = new OptionGroup();
 	TextField suggestion_textbox = new TextField();
 	Button submitSuggestion_button = new Button("Submit Suggestion");
-	Button closeExperiment_button = new Button("I do not know / Do not want to answer");
+	Button closeExperiment_button = new Button("I do not want to answer");
 	private ComboBox universities = new ComboBox();
 	private ComboBox subfields = new ComboBox();
 	
@@ -103,7 +104,7 @@ public class SuggestionComponent extends Window {
 		
 		if (suggestionMode.equals("experiment")) {
 			sub.setWidth("600px");
-			sub.setCaption(" Please Help Fix Data");
+			sub.setCaption(" Please Help");
 			sub.setIcon(FontAwesome.AMBULANCE);
 			_MainUI.getApi().getActiveMode().setActiveMode(Mode.EXPERIMENT);
 		}
@@ -122,10 +123,7 @@ public class SuggestionComponent extends Window {
 
 
 	private void closeListener(CloseEvent e) {
-		System.out.println("CLOSE EVENT");
-		if(suggestionType.equals("experiment")) {
-			_MainUI.getApi().getExpPopUp().interrupt();
-		}
+		//System.out.println("CLOSE EVENT");
 		_MainUI.getApi().getActiveMode().setActiveMode(Mode.NORMAL);
 		_MainUI.getApi().setInteractionCount(0);
 		_MainUI.getApi().setInteractionScore(0);
@@ -178,17 +176,16 @@ public class SuggestionComponent extends Window {
 	    
 	    //ask correct question based on suggestionType
 	    if(suggestionMode.equals("experiment")) {
-	    	String for_label_sugg = "<h3 style=\"margin-top: 0px; line-height: 25px;\">"
-					    			+ "<b>Thank you</b> for using Drafty! :) <br>"
-					    			+ "Could you please help us improve the quality of the data?<br><br>";
+	    	String for_label_sugg = "<p style=\"margin-top: 0px; line-height: 25px;\">"
+					    			+ "<b>Thank you</b> for using Drafty, could you please help us find missing data?</p>";
 	    	if (suggestionType.equals("University")) {
-	    		for_label_sugg += "What <b>university</b> does <b>" + person_name + "</b> teach at?</h3> ";
+	    		for_label_sugg += "<h3>What <b>university</b> is <b>" + person_name + "</b> a professor at?</h3> ";
 	    	} else if (suggestionType.equals("Bachelors") || suggestionType.equals("Masters") || suggestionType.equals("Doctorate") || suggestionType.equals("PostDoc")) {
-	    		for_label_sugg += "What university did <b>" + person_name + "</b> receive his/her <b>" + suggestionType + "</b>?</h3> ";
+	    		for_label_sugg += "<h3>What university did <b>" + person_name + "</b> receive their <b>" + suggestionType + "</b>?</h3> ";
 	    	} else {
-	    		for_label_sugg += "What is <b>" + person_name + "'s " + suggestionType + "</b>?</h3> ";
+	    		for_label_sugg += "<h3>What is <b>" + person_name + "'s " + suggestionType + "</b>?</h3> ";
 	    	}
-	    	for_label_sugg += "Drafty's current data says they teach at:<br> <i>" + person_university + "</i><hr>";
+	    	for_label_sugg += "Drafty's data suggests they are a professor at: <br><i>" + person_university + "</i><hr>";
 	    	
 	    	label_suggestions = new Label(for_label_sugg, ContentMode.HTML);
 	    } else {

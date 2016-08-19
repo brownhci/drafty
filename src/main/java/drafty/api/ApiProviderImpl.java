@@ -565,8 +565,8 @@ public class ApiProviderImpl implements ApiProvider {
 	}
 
 	@Override
-	public void resetIntAsk() {
-		interactions = _MainUI.getApi().getRandom(7, 12);
+	public void resetIntAsk(int min, int max) {
+		interactions = _MainUI.getApi().getRandom(min, max);
 	}
 
 	@Override
@@ -582,5 +582,10 @@ public class ApiProviderImpl implements ApiProvider {
 	@Override
 	public PopUp getExpPopUp() {
 		return expPopUp;
+	}
+	
+	@Override
+	public void resetExpPopUp() {
+		expPopUp = new PopUp();
 	}
 }

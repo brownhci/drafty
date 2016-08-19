@@ -107,7 +107,7 @@ public interface ApiProvider {
 	CellSelection getCellSelection();
 	
 	/**
-	 * @return CellSelection 
+	 * @return PopUp Thread
 	 */
 	PopUp getExpPopUp();
 	
@@ -142,6 +142,9 @@ public interface ApiProvider {
 	int getRandom(int min, int max);
 
 	int getIntAsk();
-	void resetIntAsk();	
+	
+	void resetIntAsk(int min, int max);
+	
+	void resetExpPopUp();	
 }
 
