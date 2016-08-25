@@ -75,6 +75,7 @@ public class SuggestionComponent extends Window {
 	//ui ctrls for person select - validations
 	Label label_suggestions = new Label();
 	Label label_hr = new Label("<hr />", ContentMode.HTML);
+	Label label_footer = new Label("", ContentMode.HTML);
 	OptionGroup suggestions_optiongroup = new OptionGroup();
 	TextField suggestion_textbox = new TextField();
 	Button submitSuggestion_button = new Button("Submit Suggestion");
@@ -270,6 +271,12 @@ public class SuggestionComponent extends Window {
 	    	sub.removeAllCloseShortcuts();
 	    	sub.setClosable(false);
 	    }
+	    
+	    
+	    String footer_text = "<hr><span style=\"color: rgb(153, 153, 153); display: block; text-align: center;\">*This information is usually found on their homepage, bio, or department directory.</span>";
+	    label_footer = new Label(footer_text, ContentMode.HTML);
+	    suggestionModal.addComponent(label_footer);
+	    label_footer.setWidth("100%");
 	    
 	    //Final UI Adjustments for University and Subfield
 	    subfields.addStyleName("margin-top-negative");

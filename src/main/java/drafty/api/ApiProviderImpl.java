@@ -557,7 +557,7 @@ public class ApiProviderImpl implements ApiProvider {
 		this.interactionScoreTot += score;
 	}
 
-    private int interactions = 10;
+    private int interactions = 8;
 	
     @Override
 	public int getIntAsk() {
