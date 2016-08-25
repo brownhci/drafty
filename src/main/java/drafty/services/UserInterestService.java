@@ -534,7 +534,7 @@ public class UserInterestService {
 		//String sugg_type = Integer.toString(randCol);
 		String sugg_type = _model.getSuggType(suggTypeID);
 		
-		System.out.println("interested professor [blank] with id number " + randProf + " and named " + profs.getProfName(randProf) + " about sugg type " + sugg_type);
+		System.out.println("interested professor (with blank cell) with id number " + randProf + " and named " + profs.getProfName(randProf) + " about sugg type " + sugg_type);
 		
 		reco[0] = String.valueOf(randProf); //prof id
 		reco[1] = profs.getProfName(randProf); //prof name
@@ -594,7 +594,7 @@ public class UserInterestService {
 				//String sugg_type = Integer.toString(randCol);
 				String sugg_type = _model.getSuggType(suggTypeID);
 				
-				System.out.println("uninterested professor [blank] with id number " + randProf + " and named " + profs.getProfName(randProf) + " about sugg type " + sugg_type);
+				System.out.println("uninterested professor (with blank cell) with id number " + randProf + " and named " + profs.getProfName(randProf) + " about sugg type " + sugg_type);
 				
 				reco[0] = String.valueOf(randProf); //prof id
 				reco[1] = profs.getProfName(randProf); //prof name
@@ -616,16 +616,17 @@ public class UserInterestService {
 						+ "GROUP BY idSuggestionType "
 						+ "GROUP BY idSuggestion ORDER BY RAND() ";
 			
-			sql = "select o.idPerson AS idPerson,o.idSuggestionType AS idSuggestionType, idSuggestion, count(*) as cnt "
+			sql = "select o.idPerson AS idPerson,o.idSuggestionType AS idSuggestionType, o.idSuggestion, count(*) as cnt "
 				+ "from (Suggestion o left join drafty.Suggestion b on "
 				+ "(((o.idPerson = b.idPerson) and (o.confidence < b.confidence) and (o.idSuggestionType = b.idSuggestionType)))) "
-				+ "WHERE suggestion = '' GROUP BY o.idSuggestion";
+				+ "WHERE o.suggestion = '' AND o.idSuggestionType < 11 "
+				+ "GROUP BY o.idSuggestion ORDER BY RAND()";
 			
 	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
 
         	ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
-				if(rs.getInt("cnt") < 0) { //makes sure it is truly a blank cell
+				if(rs.getInt("cnt") > 0) { //makes sure it is truly a blank cell
 					blankSuggestions.put(rs.getString("idSuggestionType") + "||" + rs.getString("idSuggestion"), rs.getString("idPerson"));
 					blankSuggs++;
 				}
@@ -642,15 +643,30 @@ public class UserInterestService {
 	
 	public String checkBlankSuggestions(Integer randProf) {
 		String idSuggestionType = "no match";
+		Integer postDocCheck = 3;
+		Integer postDocCount = 0;
 		
 		for (Map.Entry<String, String> entry : blankSuggestions.entrySet()) {
 			if(entry.getValue().equals(randProf.toString())) {
 				String[] split = entry.getKey().split("||");
-				if(split[0].equals("1")) {
-					idSuggestionType = "10"; //Gender
-				} else {
-					idSuggestionType = split[0];
-				}
+				
+				//System.out.println(postDocCount + " > " + postDocCheck + ", idSuggType = " + split[0]);
+				
+				if(!split[0].equals("6")) {
+					if(split[0].equals("1")) {
+						idSuggestionType = "10"; //Gender
+					} else {
+						idSuggestionType = split[0];
+					}
+				} else if(postDocCount > postDocCheck) { //will trigger on 4th PostDoc match
+					if(split[0].equals("1")) {
+						idSuggestionType = "10"; //Gender
+					} else {
+						idSuggestionType = split[0];
+					}
+				} 
+				
+				postDocCount++; 
 				
 				//System.out.println("EXPLODE: " + split[0] +  ", length = " + entry.getKey().length() + ", " + entry.getKey());
 			}

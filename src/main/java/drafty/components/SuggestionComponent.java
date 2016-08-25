@@ -34,9 +34,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Window.CloseEvent;
 
 import drafty._MainUI;
-import drafty.experiments.PopUp;
 import drafty.models.Mode;
 
 public class SuggestionComponent extends Window {
@@ -78,7 +78,7 @@ public class SuggestionComponent extends Window {
 	OptionGroup suggestions_optiongroup = new OptionGroup();
 	TextField suggestion_textbox = new TextField();
 	Button submitSuggestion_button = new Button("Submit Suggestion");
-	Button closeExperiment_button = new Button("I do not want to answer");
+	Button closeExperiment_button = new Button("I do not want to help");
 	private ComboBox universities = new ComboBox();
 	private ComboBox subfields = new ComboBox();
 	
@@ -103,8 +103,8 @@ public class SuggestionComponent extends Window {
 		} 
 		
 		if (suggestionMode.equals("experiment")) {
-			sub.setWidth("600px");
-			sub.setCaption(" Please Help");
+			sub.setWidth("640px");
+			sub.setCaption("");
 			sub.setIcon(FontAwesome.AMBULANCE);
 			_MainUI.getApi().getActiveMode().setActiveMode(Mode.EXPERIMENT);
 		}
@@ -127,6 +127,8 @@ public class SuggestionComponent extends Window {
 		_MainUI.getApi().getActiveMode().setActiveMode(Mode.NORMAL);
 		_MainUI.getApi().setInteractionCount(0);
 		_MainUI.getApi().setInteractionScore(0);
+		
+		_MainUI.getApi().resetIntAsk(7, 13); //7-13 random interactions
 	}
 
 	private void createUI() {
@@ -142,10 +144,10 @@ public class SuggestionComponent extends Window {
 	    try {
 	    	suggestions_list = getSuggestions();
 	    	
-	    	//if there are no suggestions add [blank]
+	    	//if there are no suggestions add Not Applicable (blank cell)
 	    	for (int i = 0; i < suggestions_list.size(); i++) {
 				if (suggestions_list.get(i).isEmpty()) {
-					suggestions_list.set(i, "[blank]");
+					suggestions_list.set(i, "Not Applicable (blank cell)");
 				}
 			}
 		} catch (SQLException e) {
@@ -176,27 +178,36 @@ public class SuggestionComponent extends Window {
 	    
 	    //ask correct question based on suggestionType
 	    if(suggestionMode.equals("experiment")) {
-	    	String for_label_sugg = "<p style=\"margin-top: 0px; line-height: 25px;\">"
-					    			+ "<b>Thank you</b> for using Drafty, could you please help us find missing data?</p>";
+	    	//String for_label_sugg = "<p style=\"margin-top: 0px; line-height: 25px;\">" + "<b>Thank you</b>, please help contribute data to improve this public information.</p>";
+	    	
+	    	String for_label_sugg = "<h2 style=\"display: block; text-align: center; margin-top: 0px;\">Thank you for using Drafty</h2> "
+	    							+ "<span style=\"display: block; text-align: center;\">Can you please help us find missing data to improve this public information?</span>";
+	    	
+	    	for_label_sugg += "<hr><i><span style=\"color: rgb(153, 153, 153); display: block; text-align: center;\">"
+	    			+ "For reference, Drafty's data suggests " + person_name + " is currently a professor at: <br><i>" + person_university + "</i></span><hr>";
+	    	
 	    	if (suggestionType.equals("University")) {
-	    		for_label_sugg += "<h3>What <b>university</b> is <b>" + person_name + "</b> a professor at?</h3> ";
+	    		for_label_sugg += "<h3><b>At what <b>university</b> is <b>" + person_name + "</b> a professor at?</h3> ";
 	    	} else if (suggestionType.equals("Bachelors") || suggestionType.equals("Masters") || suggestionType.equals("Doctorate") || suggestionType.equals("PostDoc")) {
-	    		for_label_sugg += "<h3>What university did <b>" + person_name + "</b> receive their <b>" + suggestionType + "</b>?</h3> ";
+	    		for_label_sugg += "<h3><b>At what university did <b>" + person_name + "</b> receive their <b>" + suggestionType + "</b>?</h3> ";
+	    	} else if(suggestionType.equals("JoinYear")) {
+	    		for_label_sugg += "<h3><b>What <b>year</b> did <b>" + person_name + "</b> join their current university?</h3> ";
 	    	} else {
-	    		for_label_sugg += "<h3>What is <b>" + person_name + "'s " + suggestionType + "</b>?</h3> ";
+	    		for_label_sugg += "<h3><b>What is <b>" + person_name + "'s " + suggestionType + "</b>?</h3> ";
 	    	}
-	    	for_label_sugg += "Drafty's data suggests they are a professor at: <br><i>" + person_university + "</i><hr>";
+	    	//for_label_sugg += "Drafty's data suggests they are currently a professor at: <br><i>" + person_university + "</i><hr>";
 	    	
 	    	label_suggestions = new Label(for_label_sugg, ContentMode.HTML);
 	    } else {
-	    	label_suggestions = new Label("<h3 style=\"margin-top: 0px; line-height: 25px;\">Make a suggestion for <br><b>"  + person_name + "'s " + suggestionType + "</b>.</h3>", ContentMode.HTML);	
+	    	label_suggestions = new Label("<h3 style=\"margin-top: 0px; line-height: 25px;\">Make a suggestion for <b>"  + person_name + "'s <i>" + suggestionType + "</i></b>:</h3>", ContentMode.HTML);	
 	    }
 	    
 	    label_suggestions.addStyleName("padding-top-none");
 	    submitSuggestion_button.setIcon(FontAwesome.FLOPPY_O);
 	    submitSuggestion_button.setWidth("100%");
 	    submitSuggestion_button.setEnabled(false);
-		
+    	submitSuggestion_button.setCaption("Submit Suggestion for " + suggestionType);
+    	
 		submitSuggestion_button.addClickListener(e -> submitSuggestion());
 	    
 	    suggestionModal.addComponents(label_suggestions, suggestions_optiongroup);
@@ -306,7 +317,7 @@ public class SuggestionComponent extends Window {
 			    if(createNewSuggCheck) {
 			    	newSuggestion();	
 			    }
-			} else if(selected.equals("[blank]")) {
+			} else if(selected.equals("Not Applicable (blank cell)")) {
 				newSuggestion = "";
                 createNewSuggCheck = checkNewSuggestion();
                 if(createNewSuggCheck) {

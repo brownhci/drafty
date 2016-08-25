@@ -40,20 +40,19 @@ public class PopUp extends Thread {
 			_MainUI.getApi().getCellSelection().setCellSelection(person_id, prof_name, _MainUI.getApi().getProfUniversity(person_id), suggestion_with_max_conf, suggestion_id, suggestion_type_id, null);
 			
 			boolean goodToGo = false;
-			int count = 0;
+
 			//System.out.println("Mode: " + _MainUI.getApi().getActiveMode().getActiveMode());
 			//System.out.println("Time: " + (System.currentTimeMillis() - _MainUI.getApi().getActiveMode().getLastInteraction()));
 			while(goodToGo == false) {
 				if(_MainUI.getApi().getActiveMode().getActiveMode() == Mode.NORMAL 
-						&& ((System.currentTimeMillis() - _MainUI.getApi().getActiveMode().getLastInteraction()) > 1500 || count > 12)) {
+						&& (System.currentTimeMillis() - _MainUI.getApi().getActiveMode().getLastInteraction()) > 1500) {
 					goodToGo = true;
 				} else {
 					Thread.sleep(3000);
 				}
-				count++;
 			}
 			
-			if(_MainUI.getApi().getInteractionCount() > 7) { //keeps pop up from happening after double click
+			if(_MainUI.getApi().getInteractionCount() > 6) { //keeps pop up from happening after double click
 				new SuggestionComponent("experiment");
 			    UI.getCurrent().push();
 			}

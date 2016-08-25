@@ -277,10 +277,12 @@ public class Profs extends VerticalLayout implements View {
 			//ArrayList<String> suggInfo = new ArrayList<String>();
 			String experiment_id = _MainUI.getApi().getProfile().getIdExperiment();
 			
-			if(!doNotAsk && intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0 && (experiment_id.equals("1") || experiment_id.equals("2"))) { //activates every 8-15 interactions
-				_MainUI.getApi().resetIntAsk(8, 14); //8-15 random interactions
+			//System.out.println("Interaction Count = " + intCount + " = " + _MainUI.getApi().getIntAsk());
+			
+			if(!doNotAsk && intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0 && (experiment_id.equals("1") || experiment_id.equals("2"))) { 
+				
 				if(doNotAsk) {
-					
+					//do nothing
 				} else {
 					
 					//Starts experiment PopUp at least 3 seconds after interaction that triggers it
