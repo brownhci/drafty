@@ -57,6 +57,8 @@ public class SuggestionComponent extends Window {
 	private String suggestionType  = _MainUI.getApi().getCellSelection().getOrigSuggestionTypeId();
 	private String prof_university = _MainUI.getApi().getCellSelection().getPerson_university();
 	
+	private static String blank_cell_text = "Not Applicable (blank cell)";
+	
 	/*
 	 * Mode types:
 	 * normal - a user double clicked
@@ -148,7 +150,7 @@ public class SuggestionComponent extends Window {
 	    	//if there are no suggestions add Not Applicable (blank cell)
 	    	for (int i = 0; i < suggestions_list.size(); i++) {
 				if (suggestions_list.get(i).isEmpty()) {
-					suggestions_list.set(i, "Not Applicable (blank cell)");
+					suggestions_list.set(i, blank_cell_text);
 				}
 			}
 		} catch (SQLException e) {
@@ -324,7 +326,7 @@ public class SuggestionComponent extends Window {
 			    if(createNewSuggCheck) {
 			    	newSuggestion();	
 			    }
-			} else if(selected.equals("Not Applicable (blank cell)")) {
+			} else if(selected.equals(blank_cell_text)) {
 				newSuggestion = "";
                 createNewSuggCheck = checkNewSuggestion();
                 if(createNewSuggCheck) {
@@ -349,12 +351,17 @@ public class SuggestionComponent extends Window {
 			flag = 0;
 			//loop through proposed suggestions to write to Validation_Suggestion table w/ new Validation ID
 			for (Map.Entry<String, String> map : suggestionsMap.entrySet()) {
+				
 				if (map.getValue().equals(selected)) {
+					chosenSug = "1";
+					flag = 1;
+				} else if (map.getValue().trim().isEmpty() && selected.equals(blank_cell_text)) {
 					chosenSug = "1";
 					flag = 1;
 				} else {
 					chosenSug = "0";
 				}
+				
 				//System.out.println("newValidationSuggestion idSuggestion -> " + map.getKey());
 				newValidationSuggestion(map.getKey(), "0", chosenSug); //map.getKey() = idSuggestion
 			} 

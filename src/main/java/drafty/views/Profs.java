@@ -460,7 +460,12 @@ public class Profs extends VerticalLayout implements View {
 		        }	
 				
 				String badge_info = "<p class=\"projectinfo\">You have earned the ";
-				int count = _MainUI.getApi().getProfile().getSuggestionCount();
+				Integer count = _MainUI.getApi().getProfile().getSuggestionCount();
+				
+				if(count == null) {
+					count = 0;
+				}
+				
 				if (count == 0) {
 					label_badges.setValue(badge_info + "Anchor badge. " + FontAwesome.ANCHOR.getHtml() +  "  Make a suggestion and turn that frown upside down. :) ");
 				} else if (count < 5) {
