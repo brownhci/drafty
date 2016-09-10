@@ -90,20 +90,18 @@ public class SuggestionComponent extends Window {
 	
 	private String new_sugg_text = "Select or enter new value below:";
 	private String new_sugg_text_url_or_year = "";
-
 	
 	public SuggestionComponent(String suggestionMode) {
 		this.suggestionMode = suggestionMode;
 		sub.setImmediate(true);
 		sub.addCloseListener(e -> closeListener(e));
 		
-		System.out.println("NEW SUGG: profile id = " + _MainUI.getApi().getProfile().getIdProfile() + ", mode = " + suggestionMode + ", expId = " + _MainUI.getApi().getProfile().getIdExperiment());
+		sub.setWidth("640px");
+		sub.setResizable(false);
+		sub.setIcon(FontAwesome.PENCIL_SQUARE_O);
+		_MainUI.getApi().getActiveMode().setActiveMode(Mode.SUGGESTION);
 		
-		if (sub.getWidth() < 390) {
-			sub.setWidth("500px");
-			sub.setIcon(FontAwesome.PENCIL_SQUARE_O);
-			_MainUI.getApi().getActiveMode().setActiveMode(Mode.SUGGESTION);
-		} 
+		System.out.println("NEW SUGG: profile id = " + _MainUI.getApi().getProfile().getIdProfile() + ", mode = " + suggestionMode + ", expId = " + _MainUI.getApi().getProfile().getIdExperiment());
 		
 		if (suggestionMode.equals("experiment")) {
 			sub.setWidth("640px");

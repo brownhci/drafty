@@ -310,7 +310,7 @@ public class Profs extends VerticalLayout implements View {
 		//get column type - uni, bach, mast, phd, subfield, joinyear, rank 
 	}
 	
-	private void checkHostName(){ 
+	private void checkHostName() { 
 		InetAddress addr = null;
 		try {
 			addr = InetAddress.getByName(ipAddress);
