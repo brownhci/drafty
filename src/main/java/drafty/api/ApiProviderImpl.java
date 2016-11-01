@@ -29,6 +29,15 @@ import com.google.common.collect.Collections2;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.NativeSelect;
+import com.vaadin.ui.OptionGroup;
+import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.PopupDateField;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 
 import drafty._MainUI;
 import drafty.experiments.PopUp;
@@ -587,5 +596,87 @@ public class ApiProviderImpl implements ApiProvider {
 	@Override
 	public void resetExpPopUp() {
 		expPopUp = new PopUp();
+	}
+	
+	@Override
+	public void liveValidateAll(FieldGroup field) {
+		for (com.vaadin.ui.Field<?> tf : field.getFields()) {
+			
+			String fieldType = tf.getClass().getSimpleName();
+
+			switch (fieldType) {
+            case "TextField":
+				TextField newTextField = (TextField) field.getField(field.getPropertyId(tf));
+				newTextField.setValidationVisible(false);
+				newTextField.addBlurListener((event) -> {
+					newTextField.setValidationVisible(true);
+					newTextField.setRequired(false);
+            	});
+            	break;
+            case "PasswordField":
+				PasswordField newPasswordField = (PasswordField) field.getField(field.getPropertyId(tf));
+				newPasswordField.setValidationVisible(false);
+				newPasswordField.addBlurListener((event) -> {
+					newPasswordField.setValidationVisible(true);
+					newPasswordField.setRequired(false);
+            	});
+            	break;
+            case "PopupDateField":
+            	PopupDateField newPopupDateField = (PopupDateField) field.getField(field.getPropertyId(tf));
+            	newPopupDateField.setValidationVisible(false);
+            	newPopupDateField.addValueChangeListener((event) -> {
+            		newPopupDateField.setValidationVisible(true);
+            		newPopupDateField.setRequired(false);
+            	});
+            	break;
+            case "ComboBox":
+            	ComboBox newComboBox = (ComboBox) field.getField(field.getPropertyId(tf));
+				newComboBox.setValidationVisible(false);
+				newComboBox.addBlurListener((event) -> {
+					newComboBox.setValidationVisible(true);
+					newComboBox.setRequired(false);
+            	});
+            	break;
+            case "ListSelect":
+            	ListSelect newList = (ListSelect) field.getField(field.getPropertyId(tf));
+            	newList.setValidationVisible(false);
+            	//cannot add blurListener on ListSelect
+            	break;
+            case "OptionGroup":
+            	OptionGroup newOptionGroup = (OptionGroup) field.getField(field.getPropertyId(tf));
+            	newOptionGroup.setValidationVisible(false);
+            	newOptionGroup.addBlurListener((event) -> {
+            		newOptionGroup.setValidationVisible(true);
+            		newOptionGroup.setRequired(false);
+            	});
+            	break;
+            case "UploadField":
+            	//System.out.println("found an upload field");
+            	//System.out.println(fieldType);
+            	//Upload newUpload = (Upload) field.getField(field.getPropertyId(tf));
+            	//newUpload.setValidationVisible(false);
+            	//newUpload.addBlurListener(event -> newUpload.setValidationVisible(true));
+            	break;
+            case "TextArea":
+            	TextArea newTextArea = (TextArea) field.getField(field.getPropertyId(tf));
+            	newTextArea.setValidationVisible(false);
+            	newTextArea.addBlurListener((event) -> {
+            		newTextArea.setValidationVisible(true);
+            		newTextArea.setRequired(false);
+            	});
+            	break;
+            case "NativeSelect":
+            	NativeSelect newNativeSelect = (NativeSelect) field.getField(field.getPropertyId(tf));
+            	newNativeSelect.setValidationVisible(false);
+            	newNativeSelect.addBlurListener((event) -> {
+            		newNativeSelect.setValidationVisible(true);
+            		newNativeSelect.setRequired(false);
+            	});
+            	break;
+            default:
+            	// special case for easyUploadField
+            	System.out.println("Validation default, nothing");
+			}
+		}
 	}
 }

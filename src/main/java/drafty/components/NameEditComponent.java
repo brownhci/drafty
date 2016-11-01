@@ -7,10 +7,8 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -26,8 +24,6 @@ String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	// Create a sub-window and add it to the main window
 	final Window sub = new Window("Edit Name");
 	VerticalLayout suggestionModal = new VerticalLayout();
-	CssLayout panelWrap = new CssLayout();
-	Panel resultsPanel = new Panel();
 	VerticalLayout resultsPanelLayout = new VerticalLayout();
 	
 	private String person_id = _MainUI.getApi().getCellSelection().getPerson_id();

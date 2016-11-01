@@ -77,6 +77,7 @@ import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.themes.ValoTheme;
 
 import drafty._MainUI;
+import drafty.components.AddNewProfessor;
 import drafty.components.DataFixComponent;
 import drafty.components.NameEditComponent;
 import drafty.components.NewUserWelcome;
@@ -729,6 +730,13 @@ public class Profs extends VerticalLayout implements View {
 				sub.setContent(menuModal);
 				sub.setModal(true);
 				UI.getCurrent().addWindow(sub);
+			}
+		});
+		
+		draftyMenu.addItem("Add New Professor", FontAwesome.USER_PLUS, new MenuBar.Command() {
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				new AddNewProfessor();
 			}
 		});
 		

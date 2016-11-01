@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import com.vaadin.data.fieldgroup.FieldGroup;
+
 import drafty.experiments.PopUp;
 import drafty.models.ActiveMode;
 import drafty.models.CellSelection;
@@ -33,6 +35,12 @@ public interface ApiProvider {
      * @return JNDI for JDBC
      */
 	String getJNDI();
+	
+	/**
+	 * 
+	 * @param field - enables live validation on all fields
+	 */
+	void liveValidateAll(FieldGroup field);
 	
 	/**
      * @return only Universities from USA + Can
