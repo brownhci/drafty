@@ -692,7 +692,7 @@ public class SuggestionComponent extends Window {
 	        conn.close();
 	      }
 	    } catch (Exception ex) {
-        	System.out.println("Exception newValidation(): " + ex);
+	    	_MainUI.getApi().logError(ex);
         }
 	}
 	

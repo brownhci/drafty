@@ -13007,6 +13007,53 @@ div.v-layout.v-horizontal.v-widget {
 	border: 0px !important;
 }
 
+.ICERMvalo .v-Notification-caption {
+	color: #FFFFFF;
+}
+
+.ICERMvalo .v-Notification.failure {
+	background: #FFFFFF;
+	border: 1px solid #ff0000;
+	border-radius: 5px;
+	color: #333;
+}
+
+.ICERMvalo .v-Notification.failure p {
+	color: black;
+}
+
+.ICERMvalo .v-Notification.success {
+	background: #B5FFBA;
+	border: 1px solid #008000;
+	border-radius: 5px;
+	color: #606060;
+}
+
+.ICERMvalo .v-Notification.loading {
+	background: #fff;
+	border: 6px solid #0095da;
+	border-radius: 5px;
+	font-size: 36px;
+	padding: 160px 100px;
+	font-size: 48px;
+}
+
+.ICERMvalo .v-Notification.blank {
+	display: none;
+}
+
+.ICERMvalo .v-select-optiongroup-horizontal .v-select-option {
+	display: inline-block;
+}
+
+.ICERMvalo .v-select-optiongroup-horizontal {
+	white-space: nowrap;
+}
+
+.ICERMvalo .v-select-optiongroup-horizontal .v-select-option.v-radiobutton {
+	padding-right: 10px;
+}
+
 .ICERMvalo .v-grid-cell-focused {
 	box-shadow: inset 2px 2px 4px 0 #dadada;
 	cursor: text !important;

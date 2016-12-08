@@ -50,6 +50,7 @@ import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.WebBrowser;
+import com.vaadin.shared.Position;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
@@ -88,6 +89,7 @@ import drafty.experiments.PopUp;
 import drafty.models.InteractionType;
 import drafty.models.InteractionWeights;
 import drafty.models.Mode;
+import drafty.models.ProfNameUni;
 import drafty.services.ExperimentService;
 import drafty.services.InteractionService;
 import drafty.services.MailService;
@@ -125,7 +127,7 @@ public class Profs extends VerticalLayout implements View {
 	Label label_headingR = new Label("<h5>Brown University HCI Research Group</h5>", ContentMode.HTML);
 	Label label_badges = new Label();
 	Label label_badges_info = new Label("Suggest new data or validate existing data to earn more badges!");
-	Label label_footer = new Label("<p>Brown University - Computer Science - Human Computer Interaction Research Group</p>", ContentMode.HTML);
+	//Label label_footer = new Label("<p>Brown University - Computer Science - Human Computer Interaction Research Group</p>", ContentMode.HTML);
 	
 	HorizontalLayout horLay1 = new HorizontalLayout();
 	HorizontalLayout horLay2 = new HorizontalLayout();
@@ -139,6 +141,7 @@ public class Profs extends VerticalLayout implements View {
 	IndexedContainer container = new IndexedContainer();
 	Grid resultsGrid = new Grid();
 	
+	DataExporter exporter = new DataExporter();
 	MenuItem exportButton = null;
 	MenuItem draftyLogo = null;
 	MenuItem badgesMenu = null;
@@ -195,11 +198,6 @@ public class Profs extends VerticalLayout implements View {
 				+ "<span style='margin-left: 20px; margin-top: 4px, margin-bottom: 4px; margin-right: 0px; color: #d9d9d9;'>&copy; Brown University - Computer Science - Human Computer Interaction Research Group</span> "
 				+ "<span style='float: right; margin-right: 20px; margin-top: 4px, margin-bottom: 4px; margin-left: 0px; color: #d9d9d9;'><span class='v-icon FontAwesome'></span> Drafty is a research project. All interactions are captured and used anonymously for studies.");
 		draftyDivider.setCaptionAsHtml(true);
-
-		//finish off building grid
-		populateGrid("<= 50"); //Initial rows
-		resultsGrid.sort("University");
-		resultsGrid.removeColumn("id");
 		
 		//For Grid and Footer Size
 		Page.getCurrent().addBrowserWindowResizeListener(e -> BrowserResize(e));
@@ -847,7 +845,7 @@ public class Profs extends VerticalLayout implements View {
 				VerticalLayout exportLay = new VerticalLayout();
 				exportLay.setMargin(true);
 				exportLay.setSpacing(true);
-				Button exportButton = new Button("Export Filtered Data");
+				Button exportButton = new Button("Export Filtered Data", e -> exportDataFinal());
 				exportButton.setWidth("100%");
 				exportButton.setIcon(FontAwesome.DOWNLOAD);
 				
@@ -877,8 +875,9 @@ public class Profs extends VerticalLayout implements View {
 				exportLay.addComponents(suggestionsCountLabel, exportButton);
 				
 				Container resultsData = resultsGrid.getContainerDataSource();
-				DataExporter exporter = new DataExporter();
-				File file = exporter.getContainerCSVFile(resultsData);
+				exporter = new DataExporter();
+				//File file = exporter.getContainerCSVFile(resultsData);
+				File file = exporter.getFullCSVFile();
 				FileResource file_resource = new FileResource(file);
 				FileDownloader download = new FileDownloader(file_resource);
 				download.extend(exportButton);
@@ -887,6 +886,10 @@ public class Profs extends VerticalLayout implements View {
 				exportWindow.setModal(true);
 				UI.getCurrent().addWindow(exportWindow);
 				
+			}
+
+			private void exportDataFinal() {
+				exporter.closeWriter();
 			}
 		});
 		
@@ -1100,7 +1103,7 @@ public class Profs extends VerticalLayout implements View {
 				}
 			});
 		    cell.setComponent(filterField);
-		} 
+		}
 	}
 	
 	private void modalCloseListener(CloseEvent e) {
@@ -1180,6 +1183,11 @@ public class Profs extends VerticalLayout implements View {
 						}
 					} else {
 						if(!Full_Name.equals("")) {
+							if(personId.equals("15676") || personId.equals("15683") || personId.equals("15684")) {
+								System.out.println(personIdSt + " - " + rs.getString("name") + " - " + rs.getString("suggestion"));	
+								System.out.println(personIdSt + " - " + Full_Name + " - " + University);	
+							}
+							
 							Item newRow = resultsGrid.getContainerDataSource().getItem(resultsGrid.getContainerDataSource().addItem());
 							
 							newRow.getItemProperty("id").setValue(personIdSt);
@@ -1197,6 +1205,7 @@ public class Profs extends VerticalLayout implements View {
 						    newRow.getItemProperty("Sources").setValue(Sources);	
 						    count++;
 						    
+					
 						    ArrayList<String> entryList = new ArrayList<String>();
 						    entryList.add(personIdSt);
 						    entryList.add(Full_Name);
@@ -1239,9 +1248,7 @@ public class Profs extends VerticalLayout implements View {
 	        //System.out.println("COUNT = " + count);
 	        conn.close();
 	      }
-	    }
-        catch (NullPointerException ne)
-        {
+	    } catch (NullPointerException ne) {
         	System.out.println("NullPointerException populateGrid(): " + ne);
         } catch (Exception ex) {
         	System.out.println("Exception populateGrid(): " + ex);
@@ -1278,6 +1285,14 @@ public class Profs extends VerticalLayout implements View {
 		//look at viritin
 		//https://github.com/viritin/viritin/blob/830c09c74f722fece45d95adde89354959e5dafa/src/test/java/org/vaadin/viritin/it/BrowserCookieTest.java
 		
+		Notification notification = new Notification("<span style='font-size: 44px'>Welcome to Drafty, <i>the professor data is loading.....</i></span>", Notification.Type.ERROR_MESSAGE);
+		notification.setStyleName("loading");
+		notification.setHtmlContentAllowed(true);
+		notification.setDelayMsec(3000);
+		notification.setIcon(FontAwesome.DATABASE);
+		notification.setPosition(Position.MIDDLE_CENTER);
+		notification.show(UI.getCurrent().getPage());
+		
 		//Check for Cookie
 		BrowserCookie.detectCookieValue(cookieCheck, new BrowserCookie.Callback() {
 
@@ -1286,6 +1301,8 @@ public class Profs extends VerticalLayout implements View {
             public void onValueDetected(String value) {
             	cookieValue = value;
             	System.out.println("cookie value == " + cookieValue);
+            	
+            	
             	
 	            try {
 	            	//System.out.println("cookieCheck " + cookieCheck + " detect cookie:  " + cookieValue + " = " + value);
@@ -1316,10 +1333,16 @@ public class Profs extends VerticalLayout implements View {
 	            	//update Badges now that we have idProfile
 	        		updateBadges();
 	        		
-	            	//popgrid -> rest of info; not a great implementation but it works for now
-	        		populateGrid("> 50");	
+	        		//finish off building grid
+	        		populateGrid("> 0"); //Initial rows
 	        		resultsGrid.sort("University");
-
+	        		resultsGrid.removeColumn("id");
+	        		
+	            	//popgrid -> rest of info; not a great implementation but it works for now
+	        		//populateGrid("> 50");	
+	        		//resultsGrid.sort("University");
+	        		
+	        		
 	        		resultsGrid.addSortListener(new SortListener() {
 	        			@Override
 	        			public void sort(SortEvent event) {

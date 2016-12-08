@@ -36,15 +36,15 @@ public class DataExporter {
 	}
 	
 	public void buildRowsFromContainer(Container dataSource){
-		for (Iterator it = dataSource.getItemIds().iterator(); it.hasNext();){
+		for (Iterator<?> it = dataSource.getItemIds().iterator(); it.hasNext();){
 			onNewRow();
 			Item item = dataSource.getItem((Integer)it.next());
-			Collection properties = item.getItemPropertyIds();
+			Collection<?> properties = item.getItemPropertyIds();
 			//Because this is a publicly download, skip the id column - TODO - not working!
 			boolean firstCol = true;
-			for (Iterator it2 = properties.iterator(); it2.hasNext();){
+			for (Iterator<?> it2 = properties.iterator(); it2.hasNext();){
 				if (!firstCol){
-					Property prop = item.getItemProperty(it2.next());	
+					Property<?> prop = item.getItemProperty(it2.next());	
 					buildCell(prop.getValue());
 				} else {
 					firstCol = false;
@@ -278,11 +278,16 @@ public class DataExporter {
     protected void writeToFile() {
         try {
             writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+        	_MainUI.getApi().logError(e);
         }
     }
     
-	
+    public void closeWriter() {
+        try {
+            writer.close();
+        } catch (Exception e) {
+        	_MainUI.getApi().logError(e);
+        }
+    }
 }

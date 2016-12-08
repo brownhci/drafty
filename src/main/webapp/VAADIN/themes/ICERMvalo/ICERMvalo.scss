@@ -83,6 +83,59 @@ $v-error-indicator-color: hsl(349, 66%, 56%);
     border: 0px !important;
   }
   
+  
+  
+  .v-Notification-caption {
+    color: #FFFFFF;
+  }
+  
+  // Error Notification pop-up
+  .v-Notification.failure {
+    background: #FFFFFF;
+    border: 1px solid #ff0000;
+    border-radius: 5px;
+    color: #333;
+    p {color: black;}
+  }
+  
+  // Success Notification pop-up
+  .v-Notification.success {
+    background: #B5FFBA;
+    border: 1px solid #008000;
+    border-radius: 5px;
+    color: #606060;
+  }
+  
+    // Loading Notification pop-up
+  .v-Notification.loading {
+    background: #fff;
+    border: 6px solid #0095da;
+    border-radius: 5px;
+    font-size: 36px;
+    padding: 160px 100px;
+    font-size: 48px;
+  }
+  
+  .v-Notification.blank {
+     display: none;
+  }
+  
+  /* Lay the options horizontally */
+	.v-select-optiongroup-horizontal .v-select-option {
+	    display: inline-block;
+	}
+	
+	/* Avoid wrapping if the layout is too tight */
+	.v-select-optiongroup-horizontal {
+	    white-space: nowrap;
+	}
+	
+	/* Some extra spacing is needed */
+	.v-select-optiongroup-horizontal
+	  .v-select-option.v-radiobutton {
+	    padding-right: 10px;
+	}
+  
   	//grid edits
 	.v-grid-cell-focused {
 	    box-shadow: inset 2px 2px 4px 0 #dadada;

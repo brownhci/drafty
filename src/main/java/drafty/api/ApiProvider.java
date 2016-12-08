@@ -154,5 +154,7 @@ public interface ApiProvider {
 	void resetIntAsk(int min, int max);
 	
 	void resetExpPopUp();	
+	
+	void logError(Exception e);
 }
 

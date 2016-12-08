@@ -30,6 +30,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.server.Page;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.NativeSelect;
@@ -678,5 +679,25 @@ public class ApiProviderImpl implements ApiProvider {
             	System.out.println("Validation default, nothing");
 			}
 		}
+	}
+	
+	public void logError(Exception e) {
+		System.out.println("********** LOGGED ERROR START");
+		
+		System.out.println("User: null |");
+		System.out.println("IP Address: " + Page.getCurrent().getWebBrowser().getAddress() + " |");
+		//System.out.println("Browser: " + _MainUI.getApi().getBrowserName() + " |");
+		
+		try {
+			System.out.println("Class Name: " + e.getStackTrace()[1].getClassName() + " |");
+			System.out.println("Method Name: " + e.getStackTrace()[1].getMethodName() + " |");
+		} catch (Exception ex) {
+			System.out.println("Error in the logError method - how ironic!");
+		}
+		
+		System.out.println("Error Message: " + e.getMessage() + " |");
+		System.out.println("Stack Trace: ");
+		e.printStackTrace();
+		System.out.println("********** LOGGED ERROR END");
 	}
 }

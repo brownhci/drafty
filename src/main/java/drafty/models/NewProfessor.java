@@ -5,6 +5,9 @@ import javax.validation.constraints.Size;
 
 public class NewProfessor {
 	
+	
+	private String person_id;
+	
 	@NotNull(message = "First Name is required")
 	private String first_name = "";
 	
@@ -21,6 +24,8 @@ public class NewProfessor {
 	@NotNull(message = "First Name is required")
 	private String rank = "";
 	
+	private String subfield = "";
+	
 	private String bachelors = "";
 	
 	private String masters = "";
@@ -35,7 +40,15 @@ public class NewProfessor {
 	
 	private String source = "";
 	
-	
+	public String getFullName() {
+		return first_name + " " + last_name; 
+	}
+	public String getPerson_id() {
+		return person_id;
+	}
+	public void setPerson_id(String person_id) {
+		this.person_id = person_id;
+	}
 	public String getFirst_name() {
 		return first_name;
 	}
@@ -65,6 +78,12 @@ public class NewProfessor {
 	}
 	public void setRank(String rank) {
 		this.rank = rank;
+	}
+	public String getSubfield() {
+		return subfield;
+	}
+	public void setSubfield(String subfield) {
+		this.subfield = subfield;
 	}
 	public String getBachelors() {
 		return bachelors;
