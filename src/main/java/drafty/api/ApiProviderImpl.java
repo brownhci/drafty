@@ -93,6 +93,26 @@ public class ApiProviderImpl implements ApiProvider {
 		return stmt;
 	}
     
+    @Override
+    public PreparedStatement getStmt(String sql) {
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		
+		try {
+			Context initialContext = new InitialContext();
+	      
+			DataSource datasource = (DataSource)initialContext.lookup(getJNDI());
+			if (datasource != null) {
+				conn = datasource.getConnection();
+				stmt = conn.prepareStatement(sql);
+	        }
+	    } catch (Exception ex) {
+	    	_MainUI.getApi().logError(ex);
+        }
+		
+		return stmt;
+	}
+    
     /* JSON utility method */
     private static String readAll(Reader rd) throws IOException {
         StringBuilder sb = new StringBuilder();

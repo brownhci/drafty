@@ -37,6 +37,11 @@ public interface ApiProvider {
 	String getJNDI();
 	
 	/**
+	 * @return connection and statement
+	 */
+	PreparedStatement getStmt(String sql);
+	
+	/**
 	 * 
 	 * @param field - enables live validation on all fields
 	 */

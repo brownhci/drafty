@@ -89,7 +89,6 @@ import drafty.experiments.PopUp;
 import drafty.models.InteractionType;
 import drafty.models.InteractionWeights;
 import drafty.models.Mode;
-import drafty.models.ProfNameUni;
 import drafty.services.ExperimentService;
 import drafty.services.InteractionService;
 import drafty.services.MailService;
@@ -497,7 +496,6 @@ public class Profs extends VerticalLayout implements View {
 	
 	@SuppressWarnings("serial")
 	private void buildGrid() {
-		container.addContainerProperty("id", String.class, null);
 		container.addContainerProperty("FullName", String.class, null);
 		container.addContainerProperty("University", String.class, null);
 		container.addContainerProperty("JoinYear", String.class, null);
@@ -510,6 +508,7 @@ public class Profs extends VerticalLayout implements View {
 		container.addContainerProperty("Gender", String.class, null);
 		container.addContainerProperty("PhotoUrl", String.class, null);
 		container.addContainerProperty("Sources", String.class, null);
+		container.addContainerProperty("id", String.class, null);
 		
 		GeneratedPropertyContainer gpcontainer = new GeneratedPropertyContainer(container);
 		
@@ -1183,10 +1182,12 @@ public class Profs extends VerticalLayout implements View {
 						}
 					} else {
 						if(!Full_Name.equals("")) {
+							/* //check for new profs
 							if(personId.equals("15676") || personId.equals("15683") || personId.equals("15684")) {
 								System.out.println(personIdSt + " - " + rs.getString("name") + " - " + rs.getString("suggestion"));	
 								System.out.println(personIdSt + " - " + Full_Name + " - " + University);	
 							}
+							*/
 							
 							Item newRow = resultsGrid.getContainerDataSource().getItem(resultsGrid.getContainerDataSource().addItem());
 							
@@ -1255,6 +1256,135 @@ public class Profs extends VerticalLayout implements View {
 		}
 	}
 	
+	private HashMap<String, String> professorNames = new HashMap<String, String>();
+
+	@SuppressWarnings("unchecked")
+	private void populateGrid2() {
+		String sqlProf = "SELECT * FROM Person WHERE status = 1";
+		
+		String sqlSugg = "SELECT idSuggestion, s.idPerson, idSuggestionType, Suggestion, confidence "
+					+ "FROM Suggestion s "
+					+ "ORDER BY idPerson, idSuggestionType, confidence DESC";
+		
+		try (PreparedStatement stmt = _MainUI.getApi().getStmt(sqlProf)) {
+			
+			ResultSet rsProfs = stmt.executeQuery();
+			while (rsProfs.next()) {
+				professorNames.put(rsProfs.getString("idPerson"), rsProfs.getString("name"));
+			}
+			
+			ResultSet rs = stmt.executeQuery(sqlSugg);
+			
+			String personId = "";
+        	String typeId = "";
+        	String personIdSt = "1"; //for first record
+        	String typeIdSt = "1"; //always have a university
+        	
+        	String Full_Name = "";
+        	String University = "";
+        	String Bachelors = "";
+        	String Masters = "";
+        	String Doctorate = "";
+        	String PostDoc = "";
+        	String Gender = "";
+        	String Rank = "";
+        	String JoinYear = "";
+        	String Subfield = "";
+        	String PhotoUrl = "";
+        	String Sources = "";
+        	
+        	int count = 0;
+			while (rs.next()) {
+				personId = rs.getString("idPerson");
+				typeId = rs.getString("idSuggestionType");
+				
+				if(personId.equals(personIdSt)) {
+					if(!typeId.equals(typeIdSt)) { //New Column to be Written
+						if(typeId.equals("2")) { //
+							University = _MainUI.getApi().cleanUniversityName(rs.getString("suggestion"));
+						} else if(typeId.equals("3")) { //
+							Bachelors = rs.getString("suggestion");
+						} else if(typeId.equals("4")) { //
+							Masters = rs.getString("suggestion");
+						} else if(typeId.equals("5")) { //
+							Doctorate = rs.getString("suggestion");
+						} else if(typeId.equals("6")) { //
+							PostDoc = rs.getString("suggestion");
+						} else if(typeId.equals("7")) { //
+							JoinYear = rs.getString("suggestion");
+						} else if(typeId.equals("8")) { //
+							Rank = rs.getString("suggestion");
+						} else if(typeId.equals("9")) { //
+							Subfield = rs.getString("suggestion");
+						} else if(typeId.equals("10")) { //
+							Gender = rs.getString("suggestion");
+						} else if(typeId.equals("11")) { //
+							PhotoUrl = rs.getString("suggestion");
+						} else if(typeId.equals("12")) { //
+							Sources = rs.getString("suggestion");
+						}
+					}
+				} else { 
+					String name = professorNames.get(personIdSt);
+					if(name == null || name.isEmpty()) {
+						System.out.println("NULL Prof");
+					} else {
+						Item newRow = resultsGrid.getContainerDataSource().getItem(resultsGrid.getContainerDataSource().addItem());
+						
+						newRow.getItemProperty("id").setValue(personIdSt);
+						newRow.getItemProperty("FullName").setValue(name);
+					    newRow.getItemProperty("University").setValue(University);
+					    newRow.getItemProperty("Bachelors").setValue(Bachelors);
+					    newRow.getItemProperty("Masters").setValue(Masters);
+					    newRow.getItemProperty("Doctorate").setValue(Doctorate);
+					    newRow.getItemProperty("PostDoc").setValue(PostDoc);
+					    newRow.getItemProperty("Gender").setValue(Gender);
+					    newRow.getItemProperty("Rank").setValue(Rank);
+					    newRow.getItemProperty("JoinYear").setValue(JoinYear);
+					    newRow.getItemProperty("Subfield").setValue(Subfield);
+					    newRow.getItemProperty("PhotoUrl").setValue(PhotoUrl);
+					    newRow.getItemProperty("Sources").setValue(Sources);	
+					    count++;
+					    
+					    ArrayList<String> entryList = new ArrayList<String>();
+					    entryList.add(personIdSt);
+					    entryList.add(Full_Name);
+					    entryList.add(University);
+					    entryList.add(Bachelors);
+					    entryList.add(Masters);
+					    entryList.add(Doctorate);
+					    entryList.add(PostDoc);
+					    entryList.add(JoinYear);
+					    entryList.add(Rank);
+					    entryList.add(Subfield);
+					    entryList.add(Gender);
+					    entryList.add(PhotoUrl);
+					    entryList.add(Sources);
+					    
+					    _MainUI.getApi().getProfessors().newProf(personIdSt, entryList);
+					}
+				    
+				    University = _MainUI.getApi().cleanUniversityName(rs.getString("suggestion")); //skipped due to logic
+		        	Bachelors = "";
+		        	Masters = "";
+		        	Doctorate = "";
+		        	PostDoc = "";
+		        	Gender = "";
+		        	Rank = "";
+		        	JoinYear = "";
+		        	Subfield = "";
+		        	PhotoUrl = "";
+		        	Sources = "";
+				}
+				
+				personIdSt = personId;
+				typeIdSt = typeId;
+			}		
+		} catch (Exception e) {
+			_MainUI.getApi().logError(e);
+		}
+	}
+	
 	private void detectBrowser() {
 		if (webBrowser.isChrome()) {
 			browser = "Chrome ";
@@ -1288,7 +1418,7 @@ public class Profs extends VerticalLayout implements View {
 		Notification notification = new Notification("<span style='font-size: 44px'>Welcome to Drafty, <i>the professor data is loading.....</i></span>", Notification.Type.ERROR_MESSAGE);
 		notification.setStyleName("loading");
 		notification.setHtmlContentAllowed(true);
-		notification.setDelayMsec(3000);
+		notification.setDelayMsec(2500);
 		notification.setIcon(FontAwesome.DATABASE);
 		notification.setPosition(Position.MIDDLE_CENTER);
 		notification.show(UI.getCurrent().getPage());
@@ -1318,25 +1448,26 @@ public class Profs extends VerticalLayout implements View {
 	        					try {
 	                				checkIpAddress();
 	                			} catch (SQLException e1) {
-	                				System.out.println("Profs() checkIpAddress() error: " + e1);
+	                				_MainUI.getApi().logError(e1);
 	                			}
 	        				} else {
 	        					newCookieProfile();
 	        				}
 	        			} catch (SQLException e1) {
-	        				System.out.println("Profs() checkProfile() error: " + e1);
+	        				_MainUI.getApi().logError(e1);
 	        			}
 	        		}
 	            } catch (Exception e) {
-	            	System.out.println("ERROR detectCookie() valueDetect: " + e);
+	            	_MainUI.getApi().logError(e);
 	            } finally {  	
 	            	//update Badges now that we have idProfile
 	        		updateBadges();
-	        		
 	        		//finish off building grid
-	        		populateGrid("> 0"); //Initial rows
+	        		//populateGrid("> 0"); //Initial rows
+	        		populateGrid2();
 	        		resultsGrid.sort("University");
 	        		resultsGrid.removeColumn("id");
+	        		
 	        		
 	            	//popgrid -> rest of info; not a great implementation but it works for now
 	        		//populateGrid("> 50");	
@@ -1382,12 +1513,12 @@ public class Profs extends VerticalLayout implements View {
 		try {
 			newProfile();
 		} catch (SQLException e1) {
-			System.out.println("Profs() newProfile() error: " + e1);
+			_MainUI.getApi().logError(e1);
 		} finally {
 			try {
 				newIp();
 			} catch (SQLException e1) {
-				System.out.println("Profs() newIp() error: " + e1);
+				_MainUI.getApi().logError(e1);
 			}
 			
 			//sets cookie
@@ -1428,14 +1559,12 @@ public class Profs extends VerticalLayout implements View {
 						exists = rs.getString("exist");
 					}
 		        } catch (SQLException e) {
-					System.out.println("ERROR checkProfile(): " + e.getMessage());
+		        	_MainUI.getApi().logError(e);
 				}
 		        conn.close();
 		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception" + ex);
+		    } catch (Exception ex) {
+	        	_MainUI.getApi().logError(ex);
 	        }
 			return exists;
 	}
@@ -1466,14 +1595,12 @@ public class Profs extends VerticalLayout implements View {
 					exists = rs.getString("exist");
 				}
 	        } catch (SQLException e) {
-				System.out.println("ERROR checkIpAddress(): " + e.getMessage());
+	        	_MainUI.getApi().logError(e);
 			}
 	        conn.close();
 	      }
-	    }
-        catch (Exception ex)
-        {
-        	System.out.println("Exception checkIpAddress() " + ex);
+	    } catch (Exception ex) {
+        	_MainUI.getApi().logError(ex);
         }
 		return exists;
 	}
@@ -1492,14 +1619,12 @@ public class Profs extends VerticalLayout implements View {
 		        try {
 			        stmt.executeUpdate();
 		        } catch (SQLException e) {
-					System.out.println("ERROR updateProfile(): " + e.getMessage());
+		        	_MainUI.getApi().logError(e);
 				}
 		        conn.close();
 		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception Profs.java updateProfile() " + ex);
+		    } catch (Exception ex) {
+		    	_MainUI.getApi().logError(ex);
 	        }
 	    }
 	
@@ -1521,14 +1646,12 @@ public class Profs extends VerticalLayout implements View {
 		        try {
 			        stmt.executeUpdate();
 		        } catch (SQLException e) {
-					System.out.println("ERROR updateIpAddress(): " + e.getMessage());
+		        	_MainUI.getApi().logError(e);
 				}
 		        conn.close();
 		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception updateIpAddress() " + ex);
+		    } catch (Exception ex) {
+		    	_MainUI.getApi().logError(ex);
 	        }
 	    }
 	
