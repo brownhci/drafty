@@ -27,8 +27,8 @@ public class CellSelection {
 		this.origSuggestionTypeId = origSuggestionType;
 		this.rowValues = rowValues;
 		
-		System.out.println("CS: idSuggestion = " + origSuggestionId + " - " + origSuggestion);
-		System.out.println("CS: idPerson = " + person_id + " - " + person_name);
+		//System.out.println("CS: idSuggestion = " + origSuggestionId + " - " + origSuggestion);
+		//System.out.println("CS: idPerson = " + person_id + " - " + person_name);
 	}
 
 

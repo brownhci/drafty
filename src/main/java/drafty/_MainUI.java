@@ -13,7 +13,6 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Viewport;
-import com.vaadin.navigator.Navigator;
 import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.ServiceException;
@@ -29,13 +28,11 @@ import com.vaadin.ui.Window;
 
 import drafty.api.ApiProvider;
 import drafty.api.ApiProviderImpl;
-import drafty.data.fixes.blankCellFix;
 import drafty.event.DraftyEvent.CloseOpenWindowsEvent;
 import drafty.event.DraftyEvent.expPopUpEvent;
 import drafty.event.DraftyEventBus;
 import drafty.experiments.MySub;
 import drafty.views.Profs;
-import drafty.views.SecretView;
 
 @Viewport("width=device-width, initial-scale=1.0")
 @SuppressWarnings("serial")

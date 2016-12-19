@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import drafty._MainUI;
 import drafty.models.InteractionWeights;
@@ -545,64 +546,78 @@ public class UserInterestService {
 	}
 	
 	//GET SOMETHING THEY HAVE NO INTEREST IN
-			public String[] getNoInterestBlank() {
-				Professors profs = _MainUI.getApi().getProfessors();
-				String reco[] = new String[3];
-				
-				int noInt = 0;
-				
-				//update profile interest
-				this.createIntHM(profs, noInt);
-				
-				//if they have some interest in everything, for now, abort
-				while (_noInterestList.isEmpty()) {
-					if (noInt == 0) {
-						noInt = 1;
-					} else {
-						noInt = noInt*2;
-					}
-					this.createIntHM(profs, noInt);
-				}
-				
-				//randomise which entry to ask about
-				//int rand = (int) (Math.random()*_noInterestList.size());
-				Integer randProf = new Random().nextInt(_noInterestList.size());
-				
-				String suggTypeID = null;
-				
-				int flag = 0;
-				Integer blankSuggs = generateBlankSuggestions();
-				while(flag <= blankSuggs) {
-					suggTypeID = checkBlankSuggestions(randProf);
-					if(suggTypeID.equals("no match")) {
-						randProf = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();
-					} else {
-						break;
-					}
-					flag++;
-				}
-				
-				if(flag > blankSuggs) {
-					reco[0] = "noScore";
-					System.out.println("ERROR: user has no matching blank interests");
-					return reco;
-				}
-				
-				//calculate which column to ask on
-				Integer randCol = _MainUI.getApi().getRandom(2, 10); //get random 2-10
-				
-				//String sugg_type = Integer.toString(randCol);
-				String sugg_type = _model.getSuggType(suggTypeID);
-				
-				System.out.println("uninterested professor (with blank cell) with id number " + randProf + " and named " + profs.getProfName(randProf) + " about sugg type " + sugg_type);
-				
-				reco[0] = String.valueOf(randProf); //prof id
-				reco[1] = profs.getProfName(randProf); //prof name
-				reco[2] =  sugg_type; //column type name
-				//reco[2] =  _model.getSuggType(Integer.toString(randCol)); //column type name
-				
-				return reco;
+	public String[] getNoInterestBlank() {
+		Professors profs = _MainUI.getApi().getProfessors();
+		String reco[] = new String[3];
+		
+		Integer randProf = getRandProfNoInterest();
+		
+		String suggTypeID = null;
+		
+		int flag = 0;
+		Integer blankSuggs = generateBlankSuggestions();
+		while(flag <= blankSuggs) {
+			suggTypeID = checkBlankSuggestions(randProf);
+			if(suggTypeID.equals("no match")) {
+				randProf = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();
+			} else {
+				break;
 			}
+			flag++;
+		}
+		
+		if(flag > blankSuggs) {
+			reco[0] = "noScore";
+			System.out.println("ERROR: user has no matching blank interests");
+			return reco;
+		}
+		
+		//calculate which column to ask on
+		Integer randCol = _MainUI.getApi().getRandom(2, 10); //get random 2-10
+		
+		//String sugg_type = Integer.toString(randCol);
+		String sugg_type = _model.getSuggType(suggTypeID);
+		
+		System.out.println("uninterested professor (with blank cell) with id number " + randProf + " and named " + profs.getProfName(randProf) + " about sugg type " + sugg_type);
+		
+		reco[0] = String.valueOf(randProf); //prof id
+		reco[1] = profs.getProfName(randProf); //prof name
+		reco[2] =  sugg_type; //column type name
+		//reco[2] =  _model.getSuggType(Integer.toString(randCol)); //column type name
+		
+		return reco;
+	}
+	
+	private Integer getRandProfInterest() {
+		
+		this.createIntHM(_MainUI.getApi().getProfessors(), 0);
+		
+		if (_totalScore == 0) {
+			return -1;
+		}
+		
+		return _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();
+	}
+	
+	private Integer getRandProfNoInterest() {
+		int noInt = 0;
+		
+		//update profile interest
+		this.createIntHM(_MainUI.getApi().getProfessors(), noInt);
+		
+		//if they have some interest in everything, for now, abort
+		while (_noInterestList.isEmpty()) {
+			if (noInt == 0) {
+				noInt = 1;
+			} else {
+				noInt = noInt*2;
+			}
+			this.createIntHM(_MainUI.getApi().getProfessors(), noInt);
+		}
+		
+		//randomise which entry to ask about
+		return new Random().nextInt(_noInterestList.size());
+	}
 	
 	private Map<String, String> blankSuggestions = new HashMap<String, String>();
 	
@@ -673,6 +688,74 @@ public class UserInterestService {
 		}
 		
 		return idSuggestionType;
+	}
+	
+	public String[] getConflictedSuggestions(boolean getInterest) {
+		String idSuggestionType = "no match";
+		HashMap<String, String> conflicted = new HashMap<String, String>();
+		String reco[] = new String[3];
+		
+		String sql = "SELECT * FROM " 
+					+ "( "
+						+ "SELECT count(*) ct, idSuggestionType, idPerson "
+						+ "FROM Suggestion s "
+						+ "WHERE idSuggestionType <= 10 "
+						+ "GROUP BY idPerson, idSuggestionType "
+					+ ") as rs "
+					+ "WHERE ct > 1 "
+					+ "ORDER BY rand()";
+		
+		try (PreparedStatement stmt = _MainUI.getApi().getStmt(sql)) {
+			ResultSet rs = stmt.executeQuery();
+			
+			while (rs.next()) {
+				conflicted.put(rs.getString("idPerson") + "_" + rs.getString("idSuggestionType"), rs.getString("idSuggestionType"));
+			}
+		} catch (Exception e) {
+			_MainUI.getApi().logError(e);
+		}
+		
+		Integer randProf;
+		int size;
+		if(getInterest) {
+			randProf = getRandProfInterest();
+			size = _probabilityNM.size();
+		} else {
+			randProf = getRandProfNoInterest();
+			size = _noInterestList.size();
+		}
+		
+		int count = 0;
+		while(count < size) { //loop through all entries
+			for (Map.Entry<String, String> entry : conflicted.entrySet()) {
+				String vals[] = entry.getKey().split("_");
+				
+				if(randProf.toString().equals(vals[0])) {
+					System.out.println("Key : " + entry.getKey() + " : " + randProf.toString() + " = " + vals[0]);
+					idSuggestionType = entry.getValue();
+					break;
+				}
+			}
+			
+			if(!idSuggestionType.equals("no match")) {
+				break;
+			} else {
+				if(getInterest) {
+					randProf = getRandProfInterest();
+				} else {
+					randProf = getRandProfNoInterest();
+				}
+			}
+			count++;
+		}
+		
+		reco[0] = randProf.toString(); //prof id
+		reco[1] = _MainUI.getApi().getProfessors().getProfName(randProf); //prof name
+		reco[2] = _model.getSuggType(idSuggestionType); //column type name
+		
+		System.out.println("CONFLICTED FIELD! " + idSuggestionType);
+		
+		return reco;
 	}
 	
 	public String getBlankSuggestion(String randProf) {

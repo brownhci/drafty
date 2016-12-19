@@ -50,7 +50,6 @@ import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.WebBrowser;
-import com.vaadin.shared.Position;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
@@ -99,6 +98,9 @@ public class Profs extends VerticalLayout implements View {
 	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 
 	InteractionService is = new InteractionService();
+	
+	Window loading = new Window();
+	Button proceed = new Button("Data is almost ready!");
 	
 	//set Drafty cookie value
 	private String cookieCheck = "brown_university_drafty_cookie";
@@ -174,6 +176,7 @@ public class Profs extends VerticalLayout implements View {
 	
 	public Profs() {
 		//new NewUserWelcome();
+		buildLoading();
 		
 		//on system start program is in normal mode
 		//suggestion mode starts when user dbl clicks; experiment mode when 
@@ -638,8 +641,8 @@ public class Profs extends VerticalLayout implements View {
 		resultsGrid.getColumn("Doctorate").setHeaderCaption("Doctorate").setWidth(280);
 		resultsGrid.getColumn("PostDoc").setHeaderCaption("PostDoc").setWidth(280);
 		resultsGrid.getColumn("Gender").setHeaderCaption("Gender").setWidth(100);
-		resultsGrid.getColumn("PhotoUrl").setHeaderCaption("PhotoUrl");
-		resultsGrid.getColumn("Sources").setHeaderCaption("Sources");
+		resultsGrid.getColumn("PhotoUrl").setHeaderCaption("PhotoUrl").setWidth(100);
+		resultsGrid.getColumn("Sources").setHeaderCaption("Sources").setWidth(100);
 		resultsGrid.setFrozenColumnCount(1);
 	}
 	
@@ -1056,6 +1059,8 @@ public class Profs extends VerticalLayout implements View {
 		    	
 		    } else if (pid.equals("University")) {
 			    filterField.setColumns(18);
+		    } else if(pid.equals("PhotoUrl") || pid.equals("Sources")) {
+		    	filterField.setColumns(5);
 		    } else {
 			    filterField.setColumns(21);
 		    }
@@ -1327,7 +1332,7 @@ public class Profs extends VerticalLayout implements View {
 				} else { 
 					String name = professorNames.get(personIdSt);
 					if(name == null || name.isEmpty()) {
-						System.out.println("NULL Prof");
+						//System.out.println("NULL Prof");
 					} else {
 						Item newRow = resultsGrid.getContainerDataSource().getItem(resultsGrid.getContainerDataSource().addItem());
 						
@@ -1411,17 +1416,49 @@ public class Profs extends VerticalLayout implements View {
 		}
 	}
 	
+	private void buildLoading() {
+		loading.setWidth("680px");
+		loading.setCaption(" Drafty - Computer Science Professors");
+		loading.center();
+		loading.setDraggable(false);
+		loading.setResizable(false);
+		loading.setClosable(true);
+		
+		VerticalLayout loadingModal = new VerticalLayout();
+		loadingModal.setMargin(true);
+		loadingModal.setSpacing(true);
+		
+		String caption = 
+				"<h3 style='display: block; text-align: center;'><span class=\"v-icon FontAwesome\"></span><b> Welcome to Drafty, <i>the data is loading.....</b></h3>"
+				+ "<hr>"
+				+ "<h4 style='display: block; text-align: center; color: #0095da'><span class=\"v-icon FontAwesome\"></span> To fix a piece of data double-click on a cell.</h4>";
+		
+		Label body = new Label(caption, ContentMode.HTML);
+		body.setCaptionAsHtml(true);
+		body.setWidth("100%");
+		
+		String footer = 
+				"<hr><i><span style='color: rgb(153, 153, 153); display: block; text-align: center;'>"
+				+ "&copy; Brown University - Computer Science - Human Computer Interaction Research Group"
+				+ "</span></i><hr>";
+		Label label_footer = new Label(footer, ContentMode.HTML);
+		
+		proceed.setWidth("100%");
+		proceed.setIcon(FontAwesome.SPINNER);
+		proceed.addClickListener(e -> loading.close());
+		
+		loadingModal.addComponents(body, label_footer, proceed);
+		
+		loading.setContent(loadingModal);
+		
+		_MainUI.getApi().getActiveMode().setActiveMode(Mode.MENU);
+		UI.getCurrent().addWindow(loading);
+		UI.getCurrent().setFocusedComponent(loading);
+	}
+	
 	private void detectCookie() {
 		//look at viritin
 		//https://github.com/viritin/viritin/blob/830c09c74f722fece45d95adde89354959e5dafa/src/test/java/org/vaadin/viritin/it/BrowserCookieTest.java
-		
-		Notification notification = new Notification("<span style='font-size: 44px'>Welcome to Drafty, <i>the professor data is loading.....</i></span>", Notification.Type.ERROR_MESSAGE);
-		notification.setStyleName("loading");
-		notification.setHtmlContentAllowed(true);
-		notification.setDelayMsec(2500);
-		notification.setIcon(FontAwesome.DATABASE);
-		notification.setPosition(Position.MIDDLE_CENTER);
-		notification.show(UI.getCurrent().getPage());
 		
 		//Check for Cookie
 		BrowserCookie.detectCookieValue(cookieCheck, new BrowserCookie.Callback() {
@@ -1432,11 +1469,10 @@ public class Profs extends VerticalLayout implements View {
             	cookieValue = value;
             	System.out.println("cookie value == " + cookieValue);
             	
-            	
-            	
 	            try {
 	            	//System.out.println("cookieCheck " + cookieCheck + " detect cookie:  " + cookieValue + " = " + value);
 	            	if (cookieValue == null) {
+	            		loading.close();
 	            		//no cookies 
 	            		new NewUserWelcome();
 	            		newCookieProfile();
@@ -1473,6 +1509,9 @@ public class Profs extends VerticalLayout implements View {
 	        		//populateGrid("> 50");	
 	        		//resultsGrid.sort("University");
 	        		
+	        		//loading.close();
+	        		proceed.setIcon(FontAwesome.UNIVERSITY);
+	        		proceed.setCaption("Drafty is Ready - Proceed");
 	        		
 	        		resultsGrid.addSortListener(new SortListener() {
 	        			@Override
