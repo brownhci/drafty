@@ -197,9 +197,10 @@ public class Profs extends VerticalLayout implements View {
 		draftyDivider.setWidth("100%");
 		Responsive.makeResponsive(draftyDivider);
 		draftyDivider.setCaption(""
-				+ "<span style='margin-left: 20px; margin-top: 4px, margin-bottom: 4px; margin-right: 0px; color: #d9d9d9;'>&copy; Brown University - Computer Science - Human Computer Interaction Research Group</span> "
+				+ "<span style='margin-left: 20px; margin-top: 4px, margin-bottom: 4px; margin-right: 0px; color: #d9d9d9;'>Brown University - Computer Science - Human Computer Interaction Research Group</span> "
 				+ "<span style='float: right; margin-right: 20px; margin-top: 4px, margin-bottom: 4px; margin-left: 0px; color: #d9d9d9;'><span class='v-icon FontAwesome'></span> Drafty is a research project. All interactions are captured and used anonymously for studies.");
 		draftyDivider.setCaptionAsHtml(true);
+		//&copy;
 		
 		//For Grid and Footer Size
 		Page.getCurrent().addBrowserWindowResizeListener(e -> BrowserResize(e));
@@ -868,10 +869,10 @@ public class Profs extends VerticalLayout implements View {
 					exportButton.setEnabled(true);
 					suggestionsCountLabel.setValue("Thank you for fixing " + count.toString() + " pieces of data.  Fix more data to earn more badges!  The data that is exported is what is currently shown in the grid.  For example, an active filter in the grid will decrease the amount of data exported from the grid.");
 				} else {
-					exportWindow.setCaption("Export Data - Not Enabled");
+					exportWindow.setCaption("Export Data");
 					exportButton.setEnabled(false);
 					Integer newCount = 10 - count;
-					suggestionsCountLabel.setValue("Sorry export is not available at this time.  Please fix " + newCount.toString() + " more pieces of data and to enable export.  Fixes are tracked per browser.");	
+					suggestionsCountLabel.setValue("You can export the raw data for your own analysis. Since this is a crowdsourced effort, we ask that you fix " + newCount.toString() + " more entries (tracked per browser), before this feature because available.");	
 				}
 				
 				exportLay.addComponents(suggestionsCountLabel, exportButton);
@@ -1417,12 +1418,12 @@ public class Profs extends VerticalLayout implements View {
 	}
 	
 	private void buildLoading() {
-		loading.setWidth("680px");
-		loading.setCaption(" Drafty - Computer Science Professors");
+		loading.setWidth("480px");
+		//loading.setCaption(" Drafty - Computer Science Professors");
 		loading.center();
 		loading.setDraggable(false);
 		loading.setResizable(false);
-		loading.setClosable(true);
+		loading.setClosable(false);
 		
 		VerticalLayout loadingModal = new VerticalLayout();
 		loadingModal.setMargin(true);
@@ -1433,21 +1434,32 @@ public class Profs extends VerticalLayout implements View {
 				+ "<hr>"
 				+ "<h4 style='display: block; text-align: center; color: #0095da'><span class=\"v-icon FontAwesome\"></span> To fix a piece of data double-click on a cell.</h4>";
 		
+		String caption2 = 
+				"<h3 style='display: block; text-align: center;'><span class=\"v-icon FontAwesome\" style=\"color: #0095da\"></span> Welcome to Drafty, <i>the data is loading.....</h3>";
+				
+		
 		Label body = new Label(caption, ContentMode.HTML);
 		body.setCaptionAsHtml(true);
 		body.setWidth("100%");
 		
+		Label body2 = new Label(caption2, ContentMode.HTML);
+		body2.setCaptionAsHtml(true);
+		body2.setWidth("100%");
+		
 		String footer = 
 				"<hr><i><span style='color: rgb(153, 153, 153); display: block; text-align: center;'>"
-				+ "&copy; Brown University - Computer Science - Human Computer Interaction Research Group"
+				+ "Brown University - Computer Science - Human Computer Interaction Research Group"
 				+ "</span></i><hr>";
 		Label label_footer = new Label(footer, ContentMode.HTML);
+		//&copy;
 		
 		proceed.setWidth("100%");
 		proceed.setIcon(FontAwesome.SPINNER);
+		proceed.setEnabled(false);
 		proceed.addClickListener(e -> loading.close());
 		
-		loadingModal.addComponents(body, label_footer, proceed);
+		//loadingModal.addComponents(body, label_footer, proceed);
+		loadingModal.addComponents(body2);
 		
 		loading.setContent(loadingModal);
 		
@@ -1504,14 +1516,10 @@ public class Profs extends VerticalLayout implements View {
 	        		resultsGrid.sort("University");
 	        		resultsGrid.removeColumn("id");
 	        		
-	        		
-	            	//popgrid -> rest of info; not a great implementation but it works for now
-	        		//populateGrid("> 50");	
-	        		//resultsGrid.sort("University");
-	        		
-	        		//loading.close();
-	        		proceed.setIcon(FontAwesome.UNIVERSITY);
-	        		proceed.setCaption("Drafty is Ready - Proceed");
+	        		loading.close();
+	        		//proceed.setEnabled(true);
+	        		//proceed.setIcon(FontAwesome.UNIVERSITY);
+	        		//proceed.setCaption("Drafty is Ready - Proceed");
 	        		
 	        		resultsGrid.addSortListener(new SortListener() {
 	        			@Override

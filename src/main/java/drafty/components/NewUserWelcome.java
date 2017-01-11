@@ -58,7 +58,7 @@ public class NewUserWelcome extends Window {
 		
 		String footer = 
 				"<hr><i><span style='color: rgb(153, 153, 153); display: block; text-align: center;'>"
-				+ "&copy; Brown University - Computer Science - Human Computer Interaction Research Group"
+				+ "Brown University - Computer Science - Human Computer Interaction Research Group"
 				+ "</span></i><hr>";
 		Label label_footer = new Label(footer, ContentMode.HTML);
 		
