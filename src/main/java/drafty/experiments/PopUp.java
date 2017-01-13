@@ -42,13 +42,18 @@ public class PopUp extends Thread {
 						reco = _MainUI.getApi().getUIService().getInterestedFieldBlank();
 					}
 				}
+			} else {
+				//no experiment return
+				return;
 			}
+			
 			
 			String person_id = reco[0];
 			String prof_name = reco[1];
 			String suggestion_type_id = reco[2];
 			
-			System.out.println("idPerson = " + person_id + ", suggTypeId = " + suggestion_type_id);
+			System.out.println("idPerson = " + person_id + ", prof name = " + prof_name  + ", suggTypeId = " + suggestion_type_id);
+			
 			//suggestion_type_id = "JoinYear";
 			suggInfo = ExperimentService.getSuggestionWithMaxConf(person_id, suggestion_type_id);
 			String suggestion_with_max_conf = suggInfo.get(0);

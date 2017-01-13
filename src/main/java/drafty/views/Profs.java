@@ -175,7 +175,6 @@ public class Profs extends VerticalLayout implements View {
 	//PopUp popUp = new PopUp();
 	
 	public Profs() {
-		//new NewUserWelcome();
 		buildLoading();
 		
 		//on system start program is in normal mode
@@ -301,10 +300,11 @@ public class Profs extends VerticalLayout implements View {
 		}
 	    
 		/*
+		//for quickly testing experimental pop-up
 		if(_MainUI.getApi().getExpPopUp().isAlive()) {
 			System.out.println("Is Alive! " + PopUp.activeCount());
 		} else {
-			//popUp.start();
+			new PopUp().start();
 		}
 		*/
 		
@@ -1354,7 +1354,7 @@ public class Profs extends VerticalLayout implements View {
 					    
 					    ArrayList<String> entryList = new ArrayList<String>();
 					    entryList.add(personIdSt);
-					    entryList.add(Full_Name);
+					    entryList.add(name);
 					    entryList.add(University);
 					    entryList.add(Bachelors);
 					    entryList.add(Masters);
