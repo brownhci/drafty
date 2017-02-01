@@ -999,7 +999,7 @@
  */
 
 .v-vaadin-version:after {
-	content: "7.6.8";
+	content: "7.7.6";
 }
 
 .v-widget {
@@ -3116,21 +3116,20 @@ div.v-layout.v-horizontal.v-widget {
 	-ms-backface-visibility: hidden;
 	backface-visibility: hidden;
 	padding: 4px 4px;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-	position: relative;
-	z-index: 1;
-}
-
-.ICERMvalo .v-filterselect-suggestpopup [class$="suggestmenu"][style*="height"] {
 	-webkit-box-sizing: content-box;
 	-moz-box-sizing: content-box;
 	box-sizing: content-box;
+	position: relative;
+	z-index: 1;
+	display: block;
 }
 
 .ICERMvalo .v-filterselect-suggestpopup table, .ICERMvalo .v-filterselect-suggestpopup tbody, .ICERMvalo .v-filterselect-suggestpopup tr, .ICERMvalo .v-filterselect-suggestpopup td {
 	display: block;
+	width: 100%;
+	overflow-y: hidden;
+	float: left;
+	clear: both;
 }
 
 .ICERMvalo .v-filterselect-suggestpopup .gwt-MenuItem {
@@ -3141,6 +3140,10 @@ div.v-layout.v-horizontal.v-widget {
 	font-weight: 400;
 	white-space: nowrap;
 	position: relative;
+	height: 27px;
+	box-sizing: border-box;
+	text-overflow: ellipsis;
+	overflow-x: hidden;
 }
 
 .ICERMvalo .v-filterselect-suggestpopup .gwt-MenuItem:active:before {
@@ -4266,6 +4269,8 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .ICERMvalo .v-grid-body {
+	-ms-touch-action: none;
+	touch-action: none;
 	z-index: 0;
 	top: 0;
 }
@@ -4544,6 +4549,21 @@ div.v-layout.v-horizontal.v-widget {
 	bottom: 0px;
 	cursor: col-resize;
 	z-index: 10;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.ICERMvalo .v-grid-column-resize-simple-indicator {
+	position: absolute;
+	width: 3px;
+	top: 0px;
+	left: 18px;
+	z-index: 9001;
+	background: #fff;
+	box-shadow: 0px 0px 5px #000;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
 	-moz-user-select: none;
@@ -9242,6 +9262,11 @@ div.v-layout.v-horizontal.v-widget {
 	display: inline;
 }
 
+.ICERMvalo .v-on.v-disabled, .ICERMvalo .v-off.v-disabled {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+}
+
 .ICERMvalo .v-off:before {
 	visibility: hidden;
 }
@@ -10959,6 +10984,12 @@ div.v-layout.v-horizontal.v-widget {
 	content: "\f054";
 }
 
+.ICERMvalo .v-select-twincol-error .v-select-twincol-options, .ICERMvalo .v-select-twincol-error .v-select-twincol-selections {
+	border-color: #d94560 !important;
+	background: #fefbfc;
+	color: #652934;
+}
+
 .ICERMvalo .v-select select {
 	border: 1px solid #d0d0d0;
 	background-color: #fefefe;
@@ -10985,6 +11016,12 @@ div.v-layout.v-horizontal.v-widget {
 .ICERMvalo .v-select-select  + .v-textfield  + .v-nativebutton {
 	margin-top: 9px;
 	margin-left: 9px;
+}
+
+.ICERMvalo .v-select-error .v-select-select {
+	border-color: #d94560 !important;
+	background: #fefbfc;
+	color: #652934;
 }
 
 .ICERMvalo .v-calendar-header-day {
@@ -11427,6 +11464,11 @@ div.v-layout.v-horizontal.v-widget {
 	user-select: text;
 }
 
+.ICERMvalo .v-label.v-disabled {
+	opacity: 0.5;
+	filter: alpha(opacity=50) ;
+}
+
 .ICERMvalo .v-label-undef-w {
 	white-space: nowrap;
 }
@@ -11707,6 +11749,12 @@ div.v-layout.v-horizontal.v-widget {
 .ICERMvalo .v-select-select  + .v-textfield  + .v-nativebutton {
 	margin-top: 9px;
 	margin-left: 9px;
+}
+
+.ICERMvalo .v-select-error .v-select-select {
+	border-color: #d94560 !important;
+	background: #fefbfc;
+	color: #652934;
 }
 
 .ICERMvalo .v-popupview {
@@ -12937,7 +12985,7 @@ div.v-layout.v-horizontal.v-widget {
 	transition: all 300ms;
 }
 
-.ICERMvalo .valo-menu-responsive[width-range~="0-800px"] .valo-menu-visible .valo-menuitems {
+.ICERMvalo .valo-menu-responsive[width-range~="0-800px"] .valo-menu-visible .valo-menuitems, .ICERMvalo .valo-menu-responsive[width-range~="0-800px"] .valo-menu-hover:hover .valo-menuitems {
 	-webkit-transform: translatex(0%);
 	-moz-transform: translatex(0%);
 	-ms-transform: translatex(0%);
