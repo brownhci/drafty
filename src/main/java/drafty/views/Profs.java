@@ -82,6 +82,7 @@ import drafty.components.DataFixComponent;
 import drafty.components.NameEditComponent;
 import drafty.components.NewUserWelcome;
 import drafty.components.SuggestionComponent;
+import drafty.components.SurveyComponent;
 import drafty.data.DataExporter;
 import drafty.data.fixes.ValidationExperimentProfileFix;
 import drafty.experiments.PopUp;
@@ -739,168 +740,178 @@ public class Profs extends VerticalLayout implements View {
 				UI.getCurrent().addWindow(sub);
 			}
 		});
-		
-		draftyMenu.addItem("Add New Professor", FontAwesome.USER_PLUS, new MenuBar.Command() {
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				new AddNewProfessor();
-			}
-		});
-		
-		//draftyContact Menu
-		draftyMenu.addItem("Contact", FontAwesome.ENVELOPE, new MenuBar.Command() {
-			
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				resetSuggestionMenuItem();
-				
-				// Create a sub-window and add it to the main window
-				subMail = new Window();
-				subMail.setWidth("30%");
-				VerticalLayout contactModal = new VerticalLayout();
-				contactModal.setMargin(true);
-				contactModal.setSpacing(true);
-				
-				_MainUI.getApi().getActiveMode().setActiveMode(Mode.MENU);
-				subMail.addCloseListener(e -> modalCloseListener(e));
-				
-			    Label label_about_title = new Label("<h3 style=\"margin-top: 0px;\">Have a question?</h3>", ContentMode.HTML);
-			    label_about_title.addStyleName("padding-top-none");
-			    
-			    fName.setValue("");
-			    lName.setValue("");
-			    email.setValue("");
-			    message.setValue("");
-			    submitEmail.setIcon(FontAwesome.ENVELOPE);
-			    
-			    fName.setWidth("100%");
-			    fName.setRequired(true);
-			    lName.setWidth("100%");
-			    lName.setRequired(true);
-			    email.setWidth("100%");
-			    email.setRequired(true);
-			    message.setWidth("100%");
-			    message.setRequired(true);
-			    submitEmail.setWidth("100%");
-			    contactFieldValueChange(); //checks to see if button needs to be enabled
-			    
-			    contactModal.addComponents(label_about_title, fName, lName, email, message, submitEmail);
-			    
-				subMail.setContent(contactModal);
-				subMail.setModal(true);
-				UI.getCurrent().addWindow(subMail);
-				
-				//
-				submitEmail.addClickListener(new ClickListener() {
-					
-					private static final long serialVersionUID = -1648581675650203903L;
-
-					@Override
-					public void buttonClick(ClickEvent event) {
-						
-						//first check inputs
-						
-						MailService mail = new MailService();
-						
-						try {
-							mail.insertComment(fName.getValue(), lName.getValue(), email.getValue(), message.getValue());
-						} 
-						catch (Exception e) { 
-							System.out.println("Exception Insert Comment " + e);
-						}
-						
-						//close subWindow
-						subMail.close();
-						Notification.show("Thank you for your comment!  Expect a response in the next few days, or possibly sooner. ;)");
-					}
-				});
-			}
-		});
-		
-		//badgesMenu
-		badgesMenu = draftyMenu.addItem("Badges", FontAwesome.CERTIFICATE, new MenuBar.Command() {
-
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				updateBadges();
-				resetSuggestionMenuItem();
-				
-				// Create a sub-window and add it to the main window
-				Window sub = new Window("Badges");
-				VerticalLayout badgesMenunModal = new VerticalLayout();
-				badgesMenunModal.setMargin(true);
-				//badgesMenunModal.setSpacing(true);
-				
-				_MainUI.getApi().getActiveMode().setActiveMode(Mode.MENU);
-				subMail.addCloseListener(e -> modalCloseListener(e));
-				
-				label_badges.setContentMode(ContentMode.HTML);
-				
-			    badgesMenunModal.addComponents(label_badges, label_badges_info);
-				sub.setContent(badgesMenunModal);
-				sub.setModal(true);
-				UI.getCurrent().addWindow(sub);
-			}
-		});
-		
-		/* SW - left out for now until server bug can be fixed */
-		exportButton = draftyMenu.addItem("Export", FontAwesome.DOWNLOAD, new MenuBar.Command(){
-			@Override
-			public void menuSelected(MenuItem selectedItem){
-				
-				Window exportWindow = new Window();
-				exportWindow.setWidth("30%");
-				//exportWindow.setHeight("30%");
-				VerticalLayout exportLay = new VerticalLayout();
-				exportLay.setMargin(true);
-				exportLay.setSpacing(true);
-				Button exportButton = new Button("Export Filtered Data", e -> exportDataFinal());
-				exportButton.setWidth("100%");
-				exportButton.setIcon(FontAwesome.DOWNLOAD);
-				
-				_MainUI.getApi().getActiveMode().setActiveMode(Mode.MENU);
-				subMail.addCloseListener(e -> modalCloseListener(e));
-				
-				Label suggestionsCountLabel = new Label();
-				
-				updateBadges();
-				Integer count = _MainUI.getApi().getProfile().getSuggestionCount();
-				System.out.println("COMPLETED SUGGESTIONS COUNT: " + count);
-				if(adminEditMode) {
-					exportWindow.setCaption("Export Data - Admin Mode");
-					exportButton.setEnabled(true);
-					suggestionsCountLabel.setValue("Admin Edit Mode");
-				} else if(count >= 10) {
-					exportWindow.setCaption("Export Data");
-					exportButton.setEnabled(true);
-					suggestionsCountLabel.setValue("Thank you for fixing " + count.toString() + " pieces of data.  Fix more data to earn more badges!  The data that is exported is what is currently shown in the grid.  For example, an active filter in the grid will decrease the amount of data exported from the grid.");
-				} else {
-					exportWindow.setCaption("Export Data");
-					exportButton.setEnabled(false);
-					Integer newCount = 10 - count;
-					suggestionsCountLabel.setValue("You can export the raw data for your own analysis. Since this is a crowdsourced effort, we ask that you fix " + newCount.toString() + " more entries (tracked per browser), before this feature because available.");	
+	
+		if(!_MainUI.getApi().getUriFragment().isSurveyActive()) {
+			draftyMenu.addItem("Add New Professor", FontAwesome.USER_PLUS, new MenuBar.Command() {
+				@Override
+				public void menuSelected(MenuItem selectedItem) {
+					new AddNewProfessor();
 				}
+			});
+			
+			//draftyContact Menu
+			draftyMenu.addItem("Contact", FontAwesome.ENVELOPE, new MenuBar.Command() {
 				
-				exportLay.addComponents(suggestionsCountLabel, exportButton);
-				
-				Container resultsData = resultsGrid.getContainerDataSource();
-				exporter = new DataExporter();
-				//File file = exporter.getContainerCSVFile(resultsData);
-				File file = exporter.getFullCSVFile();
-				FileResource file_resource = new FileResource(file);
-				FileDownloader download = new FileDownloader(file_resource);
-				download.extend(exportButton);
-				
-				exportWindow.setContent(exportLay);
-				exportWindow.setModal(true);
-				UI.getCurrent().addWindow(exportWindow);
-				
-			}
+				@Override
+				public void menuSelected(MenuItem selectedItem) {
+					resetSuggestionMenuItem();
+					
+					// Create a sub-window and add it to the main window
+					subMail = new Window();
+					subMail.setWidth("30%");
+					VerticalLayout contactModal = new VerticalLayout();
+					contactModal.setMargin(true);
+					contactModal.setSpacing(true);
+					
+					_MainUI.getApi().getActiveMode().setActiveMode(Mode.MENU);
+					subMail.addCloseListener(e -> modalCloseListener(e));
+					
+				    Label label_about_title = new Label("<h3 style=\"margin-top: 0px;\">Have a question?</h3>", ContentMode.HTML);
+				    label_about_title.addStyleName("padding-top-none");
+				    
+				    fName.setValue("");
+				    lName.setValue("");
+				    email.setValue("");
+				    message.setValue("");
+				    submitEmail.setIcon(FontAwesome.ENVELOPE);
+				    
+				    fName.setWidth("100%");
+				    fName.setRequired(true);
+				    lName.setWidth("100%");
+				    lName.setRequired(true);
+				    email.setWidth("100%");
+				    email.setRequired(true);
+				    message.setWidth("100%");
+				    message.setRequired(true);
+				    submitEmail.setWidth("100%");
+				    contactFieldValueChange(); //checks to see if button needs to be enabled
+				    
+				    contactModal.addComponents(label_about_title, fName, lName, email, message, submitEmail);
+				    
+					subMail.setContent(contactModal);
+					subMail.setModal(true);
+					UI.getCurrent().addWindow(subMail);
+					
+					//
+					submitEmail.addClickListener(new ClickListener() {
+						
+						private static final long serialVersionUID = -1648581675650203903L;
 
-			private void exportDataFinal() {
-				exporter.closeWriter();
-			}
-		});
+						@Override
+						public void buttonClick(ClickEvent event) {
+							
+							//first check inputs
+							
+							MailService mail = new MailService();
+							
+							try {
+								mail.insertComment(fName.getValue(), lName.getValue(), email.getValue(), message.getValue());
+							} 
+							catch (Exception e) { 
+								System.out.println("Exception Insert Comment " + e);
+							}
+							
+							//close subWindow
+							subMail.close();
+							Notification.show("Thank you for your comment!  Expect a response in the next few days, or possibly sooner. ;)");
+						}
+					});
+				}
+			});
+			
+			//badgesMenu
+			badgesMenu = draftyMenu.addItem("Badges", FontAwesome.CERTIFICATE, new MenuBar.Command() {
+
+				@Override
+				public void menuSelected(MenuItem selectedItem) {
+					updateBadges();
+					resetSuggestionMenuItem();
+					
+					// Create a sub-window and add it to the main window
+					Window sub = new Window("Badges");
+					VerticalLayout badgesMenunModal = new VerticalLayout();
+					badgesMenunModal.setMargin(true);
+					//badgesMenunModal.setSpacing(true);
+					
+					_MainUI.getApi().getActiveMode().setActiveMode(Mode.MENU);
+					subMail.addCloseListener(e -> modalCloseListener(e));
+					
+					label_badges.setContentMode(ContentMode.HTML);
+					
+				    badgesMenunModal.addComponents(label_badges, label_badges_info);
+					sub.setContent(badgesMenunModal);
+					sub.setModal(true);
+					UI.getCurrent().addWindow(sub);
+				}
+			});
+			
+			/* SW - left out for now until server bug can be fixed */
+			exportButton = draftyMenu.addItem("Export", FontAwesome.DOWNLOAD, new MenuBar.Command(){
+				@Override
+				public void menuSelected(MenuItem selectedItem){
+					
+					Window exportWindow = new Window();
+					exportWindow.setWidth("30%");
+					//exportWindow.setHeight("30%");
+					VerticalLayout exportLay = new VerticalLayout();
+					exportLay.setMargin(true);
+					exportLay.setSpacing(true);
+					Button exportButton = new Button("Export Filtered Data", e -> exportDataFinal());
+					exportButton.setWidth("100%");
+					exportButton.setIcon(FontAwesome.DOWNLOAD);
+					
+					_MainUI.getApi().getActiveMode().setActiveMode(Mode.MENU);
+					subMail.addCloseListener(e -> modalCloseListener(e));
+					
+					Label suggestionsCountLabel = new Label();
+					
+					updateBadges();
+					Integer count = _MainUI.getApi().getProfile().getSuggestionCount();
+					System.out.println("COMPLETED SUGGESTIONS COUNT: " + count);
+					if(adminEditMode) {
+						exportWindow.setCaption("Export Data - Admin Mode");
+						exportButton.setEnabled(true);
+						suggestionsCountLabel.setValue("Admin Edit Mode");
+					} else if(count >= 10) {
+						exportWindow.setCaption("Export Data");
+						exportButton.setEnabled(true);
+						suggestionsCountLabel.setValue("Thank you for fixing " + count.toString() + " pieces of data.  Fix more data to earn more badges!  The data that is exported is what is currently shown in the grid.  For example, an active filter in the grid will decrease the amount of data exported from the grid.");
+					} else {
+						exportWindow.setCaption("Export Data");
+						exportButton.setEnabled(false);
+						Integer newCount = 10 - count;
+						suggestionsCountLabel.setValue("You can export the raw data for your own analysis. Since this is a crowdsourced effort, we ask that you fix " + newCount.toString() + " more entries (tracked per browser), before this feature because available.");	
+					}
+					
+					exportLay.addComponents(suggestionsCountLabel, exportButton);
+					
+					Container resultsData = resultsGrid.getContainerDataSource();
+					exporter = new DataExporter();
+					//File file = exporter.getContainerCSVFile(resultsData);
+					File file = exporter.getFullCSVFile();
+					FileResource file_resource = new FileResource(file);
+					FileDownloader download = new FileDownloader(file_resource);
+					download.extend(exportButton);
+					
+					exportWindow.setContent(exportLay);
+					exportWindow.setModal(true);
+					UI.getCurrent().addWindow(exportWindow);
+					
+				}
+
+				private void exportDataFinal() {
+					exporter.closeWriter();
+				}
+			});
+			
+		} else {
+			draftyMenu.addItem("Finish Survey", FontAwesome.THUMBS_O_UP, new MenuBar.Command() {
+				@Override
+				public void menuSelected(MenuItem selectedItem) {
+					new SurveyComponent();
+				}
+			});
+		}
 		
 		//New suggestion button on top right
 		suggestionMode = draftyMenu.addItem(icono, new MenuBar.Command() {	
@@ -1489,10 +1500,13 @@ public class Profs extends VerticalLayout implements View {
             	
 	            try {
 	            	//System.out.println("cookieCheck " + cookieCheck + " detect cookie:  " + cookieValue + " = " + value);
-	            	if (cookieValue == null) {
+	            	if (cookieValue == null || _MainUI.getApi().getUriFragment().isSurveyActive()) {
 	            		loading.close();
 	            		//no cookies 
-	            		new NewUserWelcome();
+	            		if(!_MainUI.getApi().getUriFragment().isSurveyActive()) {
+		            		new NewUserWelcome();
+	            			
+	            		}
 	            		newCookieProfile();
 	        		} else {
 	        			System.out.println("else, cookie value == " + cookieValue);
