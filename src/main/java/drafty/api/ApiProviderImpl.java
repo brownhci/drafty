@@ -47,6 +47,7 @@ import drafty.models.CellSelection;
 import drafty.models.DraftyNotification;
 import drafty.models.Professors;
 import drafty.models.Profile;
+import drafty.models.UriFragment;
 import drafty.services.UserInterestService;
 
 /**
@@ -65,6 +66,7 @@ public class ApiProviderImpl implements ApiProvider {
     private CellSelection cellSelection = new CellSelection();
     private UserInterestService uiService; //create when 
     private PopUp expPopUp = new PopUp();
+    private UriFragment uriFrag = new UriFragment();
     
     /**
      * Initialize the data for this application.
@@ -617,6 +619,11 @@ public class ApiProviderImpl implements ApiProvider {
 	@Override
 	public void resetExpPopUp() {
 		expPopUp = new PopUp();
+	}
+	
+	@Override
+	public UriFragment getUriFragment() {
+		return uriFrag;
 	}
 	
 	@Override

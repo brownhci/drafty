@@ -14,6 +14,7 @@ import drafty.models.CellSelection;
 import drafty.models.DraftyNotification;
 import drafty.models.Professors;
 import drafty.models.Profile;
+import drafty.models.UriFragment;
 import drafty.services.UserInterestService;
 
 /**
@@ -161,5 +162,10 @@ public interface ApiProvider {
 	void resetExpPopUp();	
 	
 	void logError(Exception e);
+	
+	/**
+	 * @return assign URI Fragments
+	 */
+	UriFragment getUriFragment();
 }
 

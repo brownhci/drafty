@@ -125,7 +125,7 @@ public class _MainUI extends UI {
 	
 	@Override
 	protected void init(VaadinRequest request) {
-		
+		populateInitUri(); //for activating parts of the system
 		setLocale(Locale.US);
 		DraftyEventBus.register(this);
 		Responsive.makeResponsive(this);
@@ -142,7 +142,31 @@ public class _MainUI extends UI {
 		
 		//new FeederThread().start();
 	}
-
+	
+	private void populateInitUri() {
+    	String uri = UI.getCurrent().getPage().getUriFragment();
+    	
+    	System.out.println("populateInitUri(): " + uri);
+    	
+    	String exp = "?";
+        if(uri != null && uri.contains(exp)) {
+        	
+        	String[] split = uri.split("\\" + exp, 2);
+        	
+        	getApi().getUriFragment().setActive(true);
+            getApi().getUriFragment().setInit_uri(uri);
+            getApi().getUriFragment().setInit_var(split[1]);
+            
+            if(_MainUI.getApi().getUriFragment().getInit_var().equals("survey")) {
+				getApi().getUriFragment().setSurveyActive(true);
+			}
+        } else {
+        	getApi().getUriFragment().setActive(false);
+        	getApi().getUriFragment().setInit_uri("none");
+            getApi().getUriFragment().setInit_var("none");
+        }
+	}
+	
 	@Subscribe
     public void closeOpenWindows(final CloseOpenWindowsEvent event) {
         for (Window window : getWindows()) {

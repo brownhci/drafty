@@ -280,6 +280,12 @@ public class Profs extends VerticalLayout implements View {
 			
 			//System.out.println("Interaction Count = " + intCount + " = " + _MainUI.getApi().getIntAsk());
 			
+			
+			//check if survey mode is active
+			if(_MainUI.getApi().getUriFragment().isSurveyActive()) {
+				doNotAsk = true;
+			}
+			
 			if(!doNotAsk && intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0 && (experiment_id.equals("1") || experiment_id.equals("2"))) { 
 				
 				if(doNotAsk) {

@@ -14,7 +14,7 @@ import drafty.models.Mode;
 
 public class NewUserWelcome extends Window {
 	
-		/**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 123787026070156372L;
