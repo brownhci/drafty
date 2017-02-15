@@ -148,6 +148,7 @@ public class Profs extends VerticalLayout implements View {
 	MenuItem draftyLogo = null;
 	MenuItem badgesMenu = null;
 	MenuItem suggestionMode = null;
+	MenuItem surveyButton = null;
 	
 	private String cell_id;
 	private String cell_full_name;
@@ -905,7 +906,7 @@ public class Profs extends VerticalLayout implements View {
 			});
 			
 		} else {
-			draftyMenu.addItem("Finish Survey", FontAwesome.THUMBS_O_UP, new MenuBar.Command() {
+			surveyButton = draftyMenu.addItem("Complete Survey", FontAwesome.THUMBS_O_UP, new MenuBar.Command() {
 				@Override
 				public void menuSelected(MenuItem selectedItem) {
 					new SurveyComponent();
@@ -1754,9 +1755,7 @@ public class Profs extends VerticalLayout implements View {
 			}
 	        conn.close();
 	      }
-	    }
-        catch (Exception ex)
-        {
+	    } catch (Exception ex)  {
         	System.out.println("Exception" + ex);
         }
 	}

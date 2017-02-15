@@ -35,7 +35,7 @@ public class SurveyComponent extends Window {
 		sub.setContent(surveyModal);
 		sub.setModal(true);
 		sub.setImmediate(true);
-		sub.setWidth("760px");
+		sub.setWidth("680px");
 		//sub.setHeight("600px");
 		sub.setIcon(FontAwesome.USER);
 		
