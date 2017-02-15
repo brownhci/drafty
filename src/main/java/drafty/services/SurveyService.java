@@ -16,7 +16,7 @@ import drafty._MainUI;
 
 public class SurveyService {
 	
-	
+	/*
 	public String insertNewSurvey() {
 		String idSurvey = null;
 		
@@ -77,4 +77,5 @@ public class SurveyService {
 			_MainUI.getApi().logError(e);
 		}
 	}
+	*/
 }

@@ -1,5 +1,8 @@
 package drafty.components;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
@@ -8,6 +11,8 @@ import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+
+import drafty.models.LikertOptions;
 
 public class SurveyComponent extends Window {
 	
@@ -31,6 +36,14 @@ public class SurveyComponent extends Window {
 	Integer question = 0;
 	Integer question_total = 10;
 	
+	
+	String quesToAsk = "How Interested are you in ";
+	String extra = "I do not know";
+	LikertOptions opt2 = new LikertOptions("Not at all interesting", "Slightly interesting", "Moderately interesting", "Very interesting", "Extremely interesting", extra, true);
+	LikertOptions opt3 = new LikertOptions("Not at all interested", "Slightly interested", "Somewhat interested", "Very interested", "Extremely interested", extra, true);
+	
+	List<String> testQ = new ArrayList<String>();
+	
 	public SurveyComponent() {
 		sub.setContent(surveyModal);
 		sub.setModal(true);
@@ -42,8 +55,8 @@ public class SurveyComponent extends Window {
 		surveyModal.setMargin(true);
 		surveyModal.setSpacing(true);
 		
-		label_sugg = new Label("Thank you for using Drafty.<br>  "
-				+ "Please answer a few questions to complete the final part of the study.  Press the blue button to proceed.", ContentMode.HTML);
+		answer.addItems(opt3.toList());
+		answer.addValueChangeListener(e -> answerValChange());
 		
 		proceedButton.addClickListener(e -> refreshUI());
 		proceedButton.setIcon(FontAwesome.ARROW_RIGHT);
@@ -53,20 +66,41 @@ public class SurveyComponent extends Window {
 		
 		surveyModal.addComponents(label_sugg, label_hr, answer, proceedButton, label_footer);
 		
+		
+		testQ.add("Human Computer Interaction");
+		testQ.add("Jeff Bigham from Carnegie Mellon University");
+		testQ.add("University of Michigan");
+		testQ.add("University of Texas - Austin");
+		testQ.add("Randy Billingsly from Virginia Tech");
+		testQ.add("University of Washington");
+		testQ.add("Toronto University");
+		testQ.add("Machine Learning");
+		testQ.add("Databases");
+		testQ.add("Brown University");
+		testQ.add("Programming Languages");
+		
+		
+		refreshUI();
+		
 		UI.getCurrent().addWindow(sub);
 		UI.getCurrent().setFocusedComponent(sub);
 	}
 	
+	private void answerValChange() {
+		proceedButton.setEnabled(true);
+	}
+
 	public void refreshUI() {
 		surveyModal.removeAllComponents();
 		question++;
-		
+
 		if(question <= question_total) {
-			label_sugg = new Label("What is your interest level in...", ContentMode.HTML);
+			label_sugg = new Label(quesToAsk + "<b>" + testQ.get(question-1) + "</b>?", ContentMode.HTML);
 			
-			answer.addItems("1 - Very Low", "2 - Low", "3 - Neutral", "4 - High", "5 - Very High");
+			answer.clear();
+			proceedButton.setEnabled(false);
 			
-			label_footer = new Label("<hr><span style=\"color: rgb(153, 153, 153); display: block; text-align: center;\"> " + question + " / " + question_total + " question completed</span>", ContentMode.HTML);
+			label_footer = new Label("<hr><span style=\"color: rgb(153, 153, 153); display: block; text-align: center;\"> " + question + " / " + question_total + " questions completed</span>", ContentMode.HTML);
 			
 			surveyModal.addComponents(label_sugg, label_hr, answer, proceedButton, label_footer);
 		} else {
