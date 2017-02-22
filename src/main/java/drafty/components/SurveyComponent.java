@@ -8,6 +8,7 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
+import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -39,8 +40,10 @@ public class SurveyComponent extends Window {
 	
 	String quesToAsk = "How Interested are you in ";
 	String extra = "I do not know";
-	LikertOptions opt2 = new LikertOptions("Not at all interesting", "Slightly interesting", "Moderately interesting", "Very interesting", "Extremely interesting", extra, true);
-	LikertOptions opt3 = new LikertOptions("Not at all interested", "Slightly interested", "Somewhat interested", "Very interested", "Extremely interested", extra, true);
+	LikertOptions opt2 = new LikertOptions("Not at all interesting", "Slightly interesting", "Moderately interesting", "Very interesting", "Extremely interesting", extra, true, 5);
+	LikertOptions opt3 = new LikertOptions("Not at all interested", "Slightly interested", "Somewhat interested", "Very interested", "Extremely interested", extra, true, 5);
+	LikertOptions opt4 = new LikertOptions("Not at all interested", "Somewhat interested", "Interested", "Extremely interested", "", extra, false, 4);
+	LikertOptions opt5 = new LikertOptions("Not at all interested", "Somewhat interested", "Interested", "", "", extra, false, 3);
 	
 	List<String> testQ = new ArrayList<String>();
 	
@@ -55,7 +58,7 @@ public class SurveyComponent extends Window {
 		surveyModal.setMargin(true);
 		surveyModal.setSpacing(true);
 		
-		answer.addItems(opt3.toList());
+		answer.addItems(opt5.toList());
 		answer.addValueChangeListener(e -> answerValChange());
 		
 		proceedButton.addClickListener(e -> refreshUI());
@@ -93,7 +96,8 @@ public class SurveyComponent extends Window {
 	public void refreshUI() {
 		surveyModal.removeAllComponents();
 		question++;
-
+		
+		
 		if(question <= question_total) {
 			label_sugg = new Label(quesToAsk + "<b>" + testQ.get(question-1) + "</b>?", ContentMode.HTML);
 			
@@ -112,7 +116,7 @@ public class SurveyComponent extends Window {
 		surveyModal.removeAllComponents();
 		question++;
 		
-		label_sugg = new Label("Thank you for completing the survey.  You are done!", ContentMode.HTML);
+		label_sugg = new Label("Thank you for completing the survey.  You are done!<br><br> Your confirmation number is <b>39</b>.", ContentMode.HTML);
 		
 		label_footer = new Label("<hr><span style=\"color: rgb(153, 153, 153); display: block; text-align: center;\"> Seriously thank you :)</span>", ContentMode.HTML);
 		

@@ -12,7 +12,8 @@ public class LikertOptions {
 	private String opt4;
 	private String opt5;
 	private String extra;
-
+	private Integer tot;
+	
 	/**
 	 * @param opt1
 	 * @param opt2
@@ -21,7 +22,7 @@ public class LikertOptions {
 	 * @param opt5
 	 * @param extra
 	 */
-	public LikertOptions(String opt1, String opt2, String opt3, String opt4, String opt5, String extra, boolean addNumbers) {
+	public LikertOptions(String opt1, String opt2, String opt3, String opt4, String opt5, String extra, boolean addNumbers, Integer tot) {
 		super();
 		
 		if(addNumbers) {
@@ -39,15 +40,24 @@ public class LikertOptions {
 			this.opt5 = opt5;
 			this.extra = extra;
 		}
+		this.tot = tot;
 	}
-
+	
 	public List<String> toList() {
 		List<String> options = new ArrayList<>();
-		options.add(opt1); 
-		options.add(opt2);
-		options.add(opt3);
-		options.add(opt4);
-		options.add(opt5);
+		
+		if(tot >= 3) {
+			options.add(opt1); 
+			options.add(opt2);
+			options.add(opt3);
+		} 
+		if (tot >= 4) {
+			options.add(opt4);
+		} 
+		if(tot >= 5) {
+			options.add(opt5);
+		}
+		
 		options.add(extra);
 		
 		return options;
@@ -55,11 +65,17 @@ public class LikertOptions {
 	
 	public Set<String> toSet() {
 		Set<String> options = new HashSet<>();
-		options.add(opt1); 
-		options.add(opt2);
-		options.add(opt3);
-		options.add(opt4);
-		options.add(opt5);
+		
+		if(tot >= 3) {
+			options.add(opt1); 
+			options.add(opt2);
+			options.add(opt3);
+		} else if (tot == 4) {
+			options.add(opt4);
+		} else if(tot == 5) {
+			options.add(opt5);
+		}
+		
 		options.add(extra);
 		
 		return options;
