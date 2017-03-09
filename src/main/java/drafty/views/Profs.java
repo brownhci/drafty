@@ -284,7 +284,7 @@ public class Profs extends VerticalLayout implements View {
 			
 			
 			//check if survey mode is active
-			if(_MainUI.getApi().getUriFragment().isSurveyActive()) {
+			if(_MainUI.getApi().getUriFragment().isSurveyActive() || _MainUI.getApi().getUriFragment().isTestActive()) {
 				doNotAsk = true;
 			}
 			
@@ -335,7 +335,6 @@ public class Profs extends VerticalLayout implements View {
 			if (uniHash.containsKey(strippedName)){
 				System.out.println("The domain name matches a university: " + uniHash.get(strippedName));
 				_MainUI.getApi().getUIService().recordDomain(uniHash.get(strippedName));
-				//_uis.recordDomain(uniHash.get(strippedName));
 			}
 		}
 	}
@@ -572,6 +571,7 @@ public class Profs extends VerticalLayout implements View {
 				
                 if (e.isDoubleClick()) { //double click
                 	_MainUI.getApi().getUIService().recordClick(cell_id, cell_full_name, cell_value, cell_column, true, rowValues);
+                	_MainUI.getApi().getUserStudyService().recordClick(cell_id, cell_full_name, cell_value, cell_column, true, rowValues);
                 	
                 	//System.out.println("DblClick SuggID: cell_value_id: " + cell_value_id);
             		_MainUI.getApi().getCellSelection().setCellSelection(cell_id, cell_full_name, _MainUI.getApi().getProfUniversity(cell_id), cell_value, cell_value_id, cell_column, rowValues);
@@ -592,6 +592,7 @@ public class Profs extends VerticalLayout implements View {
                 	}
                 } else { //single click
                 	_MainUI.getApi().getUIService().recordClick(cell_id, cell_full_name, cell_value, cell_column, false, rowValues);
+                	_MainUI.getApi().getUserStudyService().recordClick(cell_id, cell_full_name, cell_value, cell_column, false, rowValues);
                 	
                 	if(cell_column.equals("FullName")) {
                 		resetSuggestionMenuItem();
@@ -982,6 +983,7 @@ public class Profs extends VerticalLayout implements View {
 				List<String> filterList = getFilteredList(filterColumn);
 				if (filterList.size() < 10 && filterList.size() > 0) {
 					_MainUI.getApi().getUIService().recordFilter(blur, filterText, filterColumn, filterList);
+					_MainUI.getApi().getUserStudyService().recordFilter(blur, filterText, filterColumn, filterList);
 					
 					for (String s: filterList) {
 						if (filterList.indexOf(s) != filterList.size()-1) {
@@ -1501,7 +1503,7 @@ public class Profs extends VerticalLayout implements View {
             	
 	            try {
 	            	//System.out.println("cookieCheck " + cookieCheck + " detect cookie:  " + cookieValue + " = " + value);
-	            	if (cookieValue == null || _MainUI.getApi().getUriFragment().isSurveyActive()) {
+	            	if (cookieValue == null || _MainUI.getApi().getUriFragment().isSurveyActive() || _MainUI.getApi().getUriFragment().isTestActive()) {
 	            		loading.close();
 	            		//no cookies 
 	            		if(!_MainUI.getApi().getUriFragment().isSurveyActive()) {

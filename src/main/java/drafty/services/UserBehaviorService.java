@@ -296,5 +296,4 @@ public class UserBehaviorService {
 	        }
 		return prof.get(0);
 	}
-	
 }

@@ -5,6 +5,7 @@ public class UriFragment {
 	private boolean isActive = false;
 	private boolean surveyActive = false;
 	private boolean experimentActive = false;
+	private boolean testActive = false;
 	
 	private String init_uri = "none";
 	private String init_var = "none";
@@ -39,5 +40,11 @@ public class UriFragment {
 	}
 	public void setExperimentActive(boolean experimentActive) {
 		this.experimentActive = experimentActive;
+	}
+	public boolean isTestActive() {
+		return testActive;
+	}
+	public void setTestActive(boolean testActive) {
+		this.testActive = testActive;
 	}
 }

@@ -160,6 +160,9 @@ public class _MainUI extends UI {
             if(_MainUI.getApi().getUriFragment().getInit_var().equals("survey")) {
 				getApi().getUriFragment().setSurveyActive(true);
 			}
+            if(_MainUI.getApi().getUriFragment().getInit_var().equals("test")) {
+				getApi().getUriFragment().setTestActive(true);
+			}
         } else {
         	getApi().getUriFragment().setActive(false);
         	getApi().getUriFragment().setInit_uri("none");

@@ -16,6 +16,7 @@ import drafty.models.Professors;
 import drafty.models.Profile;
 import drafty.models.UriFragment;
 import drafty.services.UserInterestService;
+import drafty.services.UserStudyService;
 
 /**
  * Drafty Global backend API.
@@ -84,6 +85,12 @@ public interface ApiProvider {
 	 */
 	UserInterestService getUIService();
 	void setUIService();
+	
+	/**
+	 * @return User Study Service / Additive Model 
+	 */
+	UserStudyService getUserStudyService();
+	void setUserStudyService();
 	
 	/**
 	 * @return University of Employment for Professor matched by idPerson 

@@ -384,6 +384,7 @@ public class SuggestionComponent extends Window {
 			
 			//update uiService now that validation_suggestions are complete
     		_MainUI.getApi().getUIService().recordVal(_MainUI.getApi().getIdProfile(), person_name, origSuggestion, suggestionType);
+    		_MainUI.getApi().getUserStudyService().recordVal(_MainUI.getApi().getIdProfile(), person_name, origSuggestion, suggestionType);
     		
     		//update Validation with completion time
 			updateValidation();
@@ -634,6 +635,7 @@ public class SuggestionComponent extends Window {
 		        		idNewSuggestion = generatedKeys.getString(1);
 		        		//System.out.println("newSuggestion() idNewSuggestion = " + idNewSuggestion);
 		        		_MainUI.getApi().getUIService().recordSugg(_MainUI.getApi().getIdProfile(), person_name, origSuggestion, newSuggestion, suggestionType);
+		        		_MainUI.getApi().getUserStudyService().recordSugg(_MainUI.getApi().getIdProfile(), person_name, origSuggestion, newSuggestion, suggestionType);
 		       	      
 		            } else {
 		                throw new SQLException("Creating failed, no ID obtained.");

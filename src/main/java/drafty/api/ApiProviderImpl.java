@@ -49,6 +49,7 @@ import drafty.models.Professors;
 import drafty.models.Profile;
 import drafty.models.UriFragment;
 import drafty.services.UserInterestService;
+import drafty.services.UserStudyService;
 
 /**
  * A dummy implementation for the backend API.
@@ -65,6 +66,7 @@ public class ApiProviderImpl implements ApiProvider {
     private ActiveMode activeMode = new ActiveMode();
     private CellSelection cellSelection = new CellSelection();
     private UserInterestService uiService; //create when 
+    private UserStudyService userStudyService;
     private PopUp expPopUp = new PopUp();
     private UriFragment uriFrag = new UriFragment();
     
@@ -435,6 +437,16 @@ public class ApiProviderImpl implements ApiProvider {
     	//uiService.genUserInterest(idProfile);
     	//uiService.genUserInterest();
 	}
+    
+    @Override
+   	public UserStudyService getUserStudyService() {
+   		return userStudyService;
+   	}
+       
+       @Override
+   	public void setUserStudyService() {
+    	   userStudyService = new UserStudyService();
+   	}
     
     @Override
     public String getProfUniversity(String person_id) {
