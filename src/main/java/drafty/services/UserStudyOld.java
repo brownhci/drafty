@@ -10,15 +10,13 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TreeMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 import drafty._MainUI;
 import drafty.models.InteractionWeights;
 import drafty.models.Professors;
 import drafty.models.UserInterest;
 
-public class UserInterestService {
-	
+public class UserStudyOld {
 	/**
 	 * The basic premise of this class is upon loading the page, it queries the
 	 * database  to  calculate your history of interactions. Each tracked interaction
@@ -47,8 +45,6 @@ public class UserInterestService {
 	private int _filter = InteractionWeights.filter;
 	private int _bfilter = InteractionWeights.filterBlur;
 	
-	private int _domain = InteractionWeights.domain;
-	
 	
 	//cumulative probability of professor matches in navigable map	
 	private NavigableMap<Integer, Integer> _probabilityNM;
@@ -59,15 +55,11 @@ public class UserInterestService {
 	//specific interests
 	private HashMap<String, Integer> _profInterest;
 	private HashMap<String, Integer> _uniInterest;
-	private HashMap<String, Integer> _yearInterest;
-	private HashMap<String, Integer> _rankInterest;
 	private HashMap<String, Integer> _fieldInterest;
 	private HashMap<String, Integer> _bachInterest;
 	private HashMap<String, Integer> _mastInterest;
 	private HashMap<String, Integer> _doctInterest;
 	private HashMap<String, Integer> _postDocInterest;
-	private HashMap<String, Integer> _genderInterest;
-	private HashMap<String, Integer> _domainInterest;
 	
 	//variables and external classes
 	private UserBehaviorService _ub = new UserBehaviorService();
@@ -76,8 +68,9 @@ public class UserInterestService {
 
 	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
-	public UserInterestService() {
-		System.out.println("CREATE UserInterestService()");
+	public UserStudyOld() {
+		System.out.println("CREATE UserStudy OLD");
+		
 		//reset score
 		_totalScore = 0;
 		
@@ -90,34 +83,27 @@ public class UserInterestService {
 		//initialise hashmaps
 		_profInterest = new HashMap<String, Integer>();
 		_uniInterest = new HashMap<String, Integer>();
-		_yearInterest = new HashMap<String, Integer>();
-		_rankInterest = new HashMap<String, Integer>();
 		_fieldInterest = new HashMap<String, Integer>();
 		_bachInterest = new HashMap<String, Integer>();
 		_mastInterest = new HashMap<String, Integer>();
 		_doctInterest = new HashMap<String, Integer>();
 		_postDocInterest = new HashMap<String, Integer>();
-		_genderInterest = new HashMap<String, Integer>();
-		_domainInterest = new HashMap<String, Integer>();
 
 		//generate individual interests updates hashmaps
 
 		this.genUserInt(_profInterest, "1");
 		this.genUserInt(_uniInterest, "2");
-		this.genUserInt(_yearInterest, "7");
-		this.genUserInt(_rankInterest, "8");
 		this.genUserInt(_fieldInterest, "9");
 		this.genUserInt(_bachInterest, "3");
 		this.genUserInt(_mastInterest, "4");
-		this.genUserInt(_doctInterest, "5");
+		this.genUserInt(_doctInterest, "5"); 
 		this.genUserInt(_postDocInterest, "6");
-		this.genUserInt(_genderInterest, "10");
 		
 		//add clicks to hm's for entire row of click, not just specific suggestion type
 		this.genUserIntClicks("0", _click);
 		this.genUserIntClicks("1", _dclick);
 		
-		//this.printInterest();
+		this.printInterest();
 	}
 	
 	public void genUserIntClicks(String clickType, Integer weight) {
@@ -129,14 +115,11 @@ public class UserInterestService {
 		
 		List<String> profs = new ArrayList<String>();
 		List<String> unis = new ArrayList<String>();
-		//List<String> joinYear = new ArrayList<String>(); //limited values, everyone will show interest
-		//List<String> rank = new ArrayList<String>(); //if we do rank everyone will show interest
 		List<String> fields = new ArrayList<String>();
 		List<String> bach = new ArrayList<String>();
 		List<String> mast = new ArrayList<String>();
 		List<String> doct = new ArrayList<String>();
 		List<String> postdoc = new ArrayList<String>();
-		//List<String> gender = new ArrayList<String>(); //if we do gender everyone will show interest
 		
 		List<String> currSuggestion = new ArrayList<String>();
 		for (String[] row : clickList){
@@ -239,18 +222,11 @@ public class UserInterestService {
 		return list;
 	}
 	
-	
-	public void recordDomain(String matched_domain){
-		List<String> matched = new ArrayList<String>();
-		matched.add(matched_domain);
-		this.addToHM(_domainInterest, matched, _domain);
-	}
-	
 	//called when a user clicks on something
 
 	public void recordClick(String cell_id, String cell_full_name, String cell_value, String cell_column, boolean doubleClick, String rowValues) {
 		
-		//System.out.println("recording click " + doubleClick + " for field " + cell_value);
+		System.out.println("recording click " + doubleClick + " for field " + cell_value);
 		
 		String[] vals;
 		vals = rowValues.split("\\|");
@@ -355,14 +331,8 @@ public class UserInterestService {
 				return _doctInterest;
 			case "PostDoc":
 				return _postDocInterest;
-			case "Join Year":
-				 return _yearInterest;
-			case "Rank":
-				return _rankInterest;
 			case "Subfield":
 				return _fieldInterest;
-			case "Gender":
-				return _genderInterest;
 			default:
 				return _profInterest;
 		}
@@ -380,14 +350,8 @@ public class UserInterestService {
 				return _doctInterest;
 			case "6":
 				return _postDocInterest;
-			case "7":
-				 return _yearInterest;
-			case "8":
-				return _rankInterest;
-			case "9":
-				return _fieldInterest;
 			default:
-				return _genderInterest;
+				return _fieldInterest;
 		}
 	}
 	
@@ -472,7 +436,6 @@ public class UserInterestService {
 			    //DOES NOT INCLUDE RANK OR GENDER
 			    score += this.compareToGrid(_profInterest, profs.getProfName(key));
 			    score += this.compareToGrid(_uniInterest, profs.getProfUni(key));
-			    score += this.compareToGrid(_yearInterest, profs.getProfJoinYear(key));
 			    score += this.compareToGrid(_fieldInterest, profs.getProfField(key));
 			    score += this.compareToGrid(_bachInterest, profs.getProfBach(key));
 			    score += this.compareToGrid(_mastInterest, profs.getProfMast(key));
@@ -809,18 +772,6 @@ public class UserInterestService {
 		} else {
 			System.out.println("no uni");
 		}
-		
-		if (!_yearInterest.isEmpty()) {
-			System.out.println("year interest hm is " + _yearInterest);
-		} else {
-			System.out.println("no year");
-		}
-		
-		if (!_rankInterest.isEmpty()) {
-			System.out.println("rank interest hm is " + _rankInterest);
-		} else {
-			System.out.println("no rank");
-		}
 
 		if (!_fieldInterest.isEmpty()) {
 			System.out.println("field interest hm is " + _fieldInterest);
@@ -850,12 +801,6 @@ public class UserInterestService {
 			System.out.println("postdoc interest hm is " + _postDocInterest);
 		} else {
 			System.out.println("no postdoc");
-		}
-		
-		if (!_genderInterest.isEmpty()) {
-			System.out.println("gender interest hm is " + _genderInterest);
-		} else {
-			System.out.println("no gender");
 		}
 	}	
 }

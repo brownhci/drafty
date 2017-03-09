@@ -1573,6 +1573,7 @@ public class Profs extends VerticalLayout implements View {
 	        		System.out.println("Profs UserProfileID = " + _MainUI.getApi().getIdProfile());
 	        		//build new UserInterest Model
 	            	_MainUI.getApi().setUIService();
+	            	_MainUI.getApi().setUserStudyService();
 	            }
             }
         });

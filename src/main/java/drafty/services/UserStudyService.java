@@ -46,8 +46,6 @@ public class UserStudyService {
 	private int _filter = InteractionWeights.filter;
 	private int _bfilter = InteractionWeights.filterBlur;
 	
-	private int _domain = InteractionWeights.domain;
-	
 	
 	//cumulative probability of professor matches in navigable map	
 	private NavigableMap<Integer, Integer> _probabilityNM;
@@ -72,6 +70,8 @@ public class UserStudyService {
 	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
 	public UserStudyService() {
+		System.out.println("CREATE UserStudyService");
+		
 		//reset score
 		_totalScore = 0;
 		
@@ -97,14 +97,14 @@ public class UserStudyService {
 		this.genUserInt(_fieldInterest, "9");
 		this.genUserInt(_bachInterest, "3");
 		this.genUserInt(_mastInterest, "4");
-		this.genUserInt(_doctInterest, "5");
+		this.genUserInt(_doctInterest, "5"); 
 		this.genUserInt(_postDocInterest, "6");
 		
 		//add clicks to hm's for entire row of click, not just specific suggestion type
 		this.genUserIntClicks("0", _click);
 		this.genUserIntClicks("1", _dclick);
 		
-		//this.printInterest();
+		this.printInterest();
 	}
 	
 	public void genUserIntClicks(String clickType, Integer weight) {
@@ -116,14 +116,11 @@ public class UserStudyService {
 		
 		List<String> profs = new ArrayList<String>();
 		List<String> unis = new ArrayList<String>();
-		//List<String> joinYear = new ArrayList<String>(); //limited values, everyone will show interest
-		//List<String> rank = new ArrayList<String>(); //if we do rank everyone will show interest
 		List<String> fields = new ArrayList<String>();
 		List<String> bach = new ArrayList<String>();
 		List<String> mast = new ArrayList<String>();
 		List<String> doct = new ArrayList<String>();
 		List<String> postdoc = new ArrayList<String>();
-		//List<String> gender = new ArrayList<String>(); //if we do gender everyone will show interest
 		
 		List<String> currSuggestion = new ArrayList<String>();
 		for (String[] row : clickList){
@@ -146,30 +143,9 @@ public class UserStudyService {
 				flag = true;
 			}
 		}
-		
-		/*
-		if(flag = true) { //avoids null pointer exception
-			//add rows interest; other 3 are not added because they would the user model to show interest in almost every prof
-			this.addToHM(_profInterest, profs, _clickRow);
-			this.addToHM(_uniInterest, unis, _clickRow);
-			this.addToHM(_fieldInterest, fields, _clickRow);
-			this.addToHM(_bachInterest, bach, _clickRow);
-			this.addToHM(_mastInterest, mast, _clickRow);
-			this.addToHM(_doctInterest, doct, _clickRow);
-			this.addToHM(_postDocInterest, postdoc, _clickRow);	
-		}
-		*/
 	}
 	
 	public void genUserInt(HashMap<String, Integer> hm, String suggType) {
-		
-		//adding to  hashmap based on single clicks
-		//List<String> clickList = db.getClickTypes("0", suggType);
-		//this.addToHM(hm, clickList, _click);
-		
-		//adding to hashmap based on double clicks
-		//List<String> dclickList = db.getClickTypes("1", suggType);
-		//this.addToHM(hm, dclickList, _dclick);
 		
 		//adding to hashmap based on filtering
 		List<String> filterList = _ub.getFilterTypes("0", suggType);
