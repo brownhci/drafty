@@ -263,7 +263,6 @@ public class UserStudyService {
 		this.addToHM(this.getHashMap(cell_column), spec, _sugg);
 		
 		this.printInterest();
-
 	}
 	
 	//called when a user validates an existing suggestion

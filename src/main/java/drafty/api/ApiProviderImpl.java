@@ -434,8 +434,6 @@ public class ApiProviderImpl implements ApiProvider {
     @Override
 	public void setUIService() {
     	uiService = new UserInterestService();
-    	//uiService.genUserInterest(idProfile);
-    	//uiService.genUserInterest();
 	}
     
     @Override
@@ -443,7 +441,7 @@ public class ApiProviderImpl implements ApiProvider {
    		return userStudyService;
    	}
        
-       @Override
+    @Override
    	public void setUserStudyService() {
     	   userStudyService = new UserStudyService();
    	}
