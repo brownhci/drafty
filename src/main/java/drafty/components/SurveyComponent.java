@@ -13,6 +13,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import drafty._MainUI;
 import drafty.models.LikertOptions;
 
 public class SurveyComponent extends Window {
@@ -40,9 +41,6 @@ public class SurveyComponent extends Window {
 	
 	String quesToAsk = "How Interested are you in ";
 	String extra = "I do not know";
-	LikertOptions opt2 = new LikertOptions("Not at all interesting", "Slightly interesting", "Moderately interesting", "Very interesting", "Extremely interesting", extra, true, 5);
-	LikertOptions opt3 = new LikertOptions("Not at all interested", "Slightly interested", "Somewhat interested", "Very interested", "Extremely interested", extra, true, 5);
-	LikertOptions opt4 = new LikertOptions("Not at all interested", "Somewhat interested", "Interested", "Extremely interested", "", extra, false, 4);
 	LikertOptions opt5 = new LikertOptions("Not at all interested", "Somewhat interested", "Interested", "", "", extra, false, 3);
 	
 	List<String> testQ = new ArrayList<String>();
@@ -97,6 +95,7 @@ public class SurveyComponent extends Window {
 		surveyModal.removeAllComponents();
 		question++;
 		
+		System.out.println(_MainUI.getApi().getUserStudyService().getInterestedField());
 		
 		if(question <= question_total) {
 			label_sugg = new Label(quesToAsk + "<b>" + testQ.get(question-1) + "</b>?", ContentMode.HTML);

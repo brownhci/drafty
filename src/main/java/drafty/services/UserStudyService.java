@@ -1,12 +1,8 @@
 package drafty.services;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TreeMap;
@@ -62,6 +58,8 @@ public class UserStudyService {
 	private HashMap<String, Integer> _doctInterest;
 	private HashMap<String, Integer> _postDocInterest;
 	
+	List<String> suggTypes = new ArrayList<String>();
+	
 	//variables and external classes
 	private UserBehaviorService _ub = new UserBehaviorService();
 	private UserInterest _model = new UserInterest();
@@ -90,6 +88,14 @@ public class UserStudyService {
 		_doctInterest = new HashMap<String, Integer>();
 		_postDocInterest = new HashMap<String, Integer>();
 
+		suggTypes.add("ProfName");
+		suggTypes.add("University");
+		suggTypes.add("Subfield");
+		suggTypes.add("Bachelors");
+		suggTypes.add("Masters");
+		suggTypes.add("Doctorate");
+		suggTypes.add("PostDoc");
+		
 		//generate individual interests updates hashmaps
 
 		this.genUserInt(_profInterest, "1");
@@ -349,16 +355,23 @@ public class UserStudyService {
 		
 		int randProf = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();
 		
+		System.out.println(_probabilityNM.get(randProf));
+		
 		//calculate which column to ask on
 		int randCol = _MainUI.getApi().getRandom(2, 10); //get random 2-10
+		System.out.println("suggType Size: " + suggTypes.size());
+		int randType = _MainUI.getApi().getRandom(0, suggTypes.size()); //get random
+		System.out.println(randType + " " + suggTypes.get(randType));
 		
 		String sugg_type = Integer.toString(randCol);
-		
+		System.out.println(sugg_type);
 		System.out.println("ask about professor with id number " + randProf + " and named " + profs.getProfName(randProf) + " about sugg type " + sugg_type + " which is " + _model.getSuggType(sugg_type));
 		
 		reco[0] = String.valueOf(randProf); //prof id
 		reco[1] = profs.getProfName(randProf); //prof name
 		reco[2] =  _model.getSuggType(Integer.toString(randCol)); //column type name
+		
+		System.out.println("Array[]: " + reco[0] + " " + reco[1] + " " + reco[2]);
 		
 		return reco;
 	}
@@ -436,101 +449,6 @@ public class UserStudyService {
 		}
 	}
 	
-	//BLANK
-	//TO BE CALLED FOR THE INTEREST
-	public String[] getInterestedFieldBlank() {
-		Professors profs = _MainUI.getApi().getProfessors();
-		this.createIntHM(profs, 0);
-		
-		String reco[] = new String[3];
-		
-		if (_totalScore == 0) {
-			reco[0] = "noScore";
-			System.out.println("ERROR: user has no interests; _totalScore = 0");
-			return reco;
-		}
-		
-		Integer randProf = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();
-		String suggTypeID = null;
-		
-		int flag = 0;
-		Integer blankSuggs = generateBlankSuggestions();
-		while(flag <= blankSuggs) {
-			suggTypeID = checkBlankSuggestions(randProf);
-			if(suggTypeID.equals("no match")) {
-				randProf = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();
-			} else {
-				System.out.println("RandProf = " + randProf);
-				break;
-			}
-			flag++;
-		}
-		
-		if(flag > blankSuggs) {
-			reco[0] = "noScore";
-			System.out.println("ERROR: user has no matching blank interests");
-			return reco;
-		}
-		
-		//calculate which column to ask on
-		Integer randCol = _MainUI.getApi().getRandom(2, 10); //get random 2-10
-		
-		//String sugg_type = Integer.toString(randCol);
-		String sugg_type = _model.getSuggType(suggTypeID);
-		
-		System.out.println("interested professor (with blank cell) with id number " + randProf + " and named " + profs.getProfName(randProf) + " about sugg type " + sugg_type);
-		
-		reco[0] = String.valueOf(randProf); //prof id
-		reco[1] = profs.getProfName(randProf); //prof name
-		reco[2] =  sugg_type; //column type name
-		//reco[2] =  _model.getSuggType(Integer.toString(randCol)); //column type name
-		
-		return reco;
-	}
-	
-	//GET SOMETHING THEY HAVE NO INTEREST IN
-	public String[] getNoInterestBlank() {
-		Professors profs = _MainUI.getApi().getProfessors();
-		String reco[] = new String[3];
-		
-		Integer randProf = getRandProfNoInterest();
-		
-		String suggTypeID = null;
-		
-		int flag = 0;
-		Integer blankSuggs = generateBlankSuggestions();
-		while(flag <= blankSuggs) {
-			suggTypeID = checkBlankSuggestions(randProf);
-			if(suggTypeID.equals("no match")) {
-				randProf = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();
-			} else {
-				break;
-			}
-			flag++;
-		}
-		
-		if(flag > blankSuggs) {
-			reco[0] = "noScore";
-			System.out.println("ERROR: user has no matching blank interests");
-			return reco;
-		}
-		
-		//calculate which column to ask on
-		Integer randCol = _MainUI.getApi().getRandom(2, 10); //get random 2-10
-		
-		//String sugg_type = Integer.toString(randCol);
-		String sugg_type = _model.getSuggType(suggTypeID);
-		
-		System.out.println("uninterested professor (with blank cell) with id number " + randProf + " and named " + profs.getProfName(randProf) + " about sugg type " + sugg_type);
-		
-		reco[0] = String.valueOf(randProf); //prof id
-		reco[1] = profs.getProfName(randProf); //prof name
-		reco[2] =  sugg_type; //column type name
-		//reco[2] =  _model.getSuggType(Integer.toString(randCol)); //column type name
-		
-		return reco;
-	}
-	
 	private Integer getRandProfInterest() {
 		
 		this.createIntHM(_MainUI.getApi().getProfessors(), 0);
@@ -560,171 +478,6 @@ public class UserStudyService {
 		
 		//randomise which entry to ask about
 		return new Random().nextInt(_noInterestList.size());
-	}
-	
-	private Map<String, String> blankSuggestions = new HashMap<String, String>();
-	
-	public Integer generateBlankSuggestions() {
-		Integer blankSuggs = 0;
-		
-		try {
-			String sql = "SELECT idSuggestionType, idPerson, idSuggestion, count(*) as cnt "
-						+ "FROM Suggestion "
-						+ "WHERE suggestion = '' AND idSuggestionType != 11  AND idSuggestionType != 12 "
-						+ "GROUP BY idSuggestionType "
-						+ "GROUP BY idSuggestion ORDER BY RAND() ";
-			
-			sql = "select o.idPerson AS idPerson,o.idSuggestionType AS idSuggestionType, o.idSuggestion, count(*) as cnt "
-				+ "from (Suggestion o left join drafty.Suggestion b on "
-				+ "(((o.idPerson = b.idPerson) and (o.confidence < b.confidence) and (o.idSuggestionType = b.idSuggestionType)))) "
-				+ "WHERE o.suggestion = '' AND o.idSuggestionType < 11 "
-				+ "GROUP BY o.idSuggestion ORDER BY RAND()";
-			
-	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
-
-        	ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				if(rs.getInt("cnt") > 0) { //makes sure it is truly a blank cell
-					blankSuggestions.put(rs.getString("idSuggestionType") + "||" + rs.getString("idSuggestion"), rs.getString("idPerson"));
-					blankSuggs++;
-				}
-			}
-	        
-	        stmt.getConnection().close();
-	        stmt.close();
-		} catch (SQLException e) {
-			System.out.println("ERROR generateBlankSuggestions(): " + e);
-		}
-		
-		return blankSuggs;
-	}
-	
-	public String checkBlankSuggestions(Integer randProf) {
-		String idSuggestionType = "no match";
-		Integer postDocCheck = 3;
-		Integer postDocCount = 0;
-		
-		for (Map.Entry<String, String> entry : blankSuggestions.entrySet()) {
-			if(entry.getValue().equals(randProf.toString())) {
-				String[] split = entry.getKey().split("||");
-				
-				//System.out.println(postDocCount + " > " + postDocCheck + ", idSuggType = " + split[0]);
-				
-				if(!split[0].equals("6")) {
-					if(split[0].equals("1")) {
-						idSuggestionType = "10"; //Gender
-					} else {
-						idSuggestionType = split[0];
-					}
-				} else if(postDocCount > postDocCheck) { //will trigger on 4th PostDoc match
-					if(split[0].equals("1")) {
-						idSuggestionType = "10"; //Gender
-					} else {
-						idSuggestionType = split[0];
-					}
-				} 
-				
-				postDocCount++; 
-				
-				//System.out.println("EXPLODE: " + split[0] +  ", length = " + entry.getKey().length() + ", " + entry.getKey());
-			}
-		}
-		
-		return idSuggestionType;
-	}
-	
-	public String[] getConflictedSuggestions(boolean getInterest) {
-		String idSuggestionType = "no match";
-		HashMap<String, String> conflicted = new HashMap<String, String>();
-		String reco[] = new String[3];
-		
-		String sql = "SELECT * FROM " 
-					+ "( "
-						+ "SELECT count(*) ct, idSuggestionType, idPerson "
-						+ "FROM Suggestion s "
-						+ "WHERE idSuggestionType <= 10 "
-						+ "GROUP BY idPerson, idSuggestionType "
-					+ ") as rs "
-					+ "WHERE ct > 1 "
-					+ "ORDER BY rand()";
-		
-		try (PreparedStatement stmt = _MainUI.getApi().getStmt(sql)) {
-			ResultSet rs = stmt.executeQuery();
-			
-			while (rs.next()) {
-				conflicted.put(rs.getString("idPerson") + "_" + rs.getString("idSuggestionType"), rs.getString("idSuggestionType"));
-			}
-		} catch (Exception e) {
-			_MainUI.getApi().logError(e);
-		}
-		
-		Integer randProf;
-		int size;
-		if(getInterest) {
-			randProf = getRandProfInterest();
-			size = _probabilityNM.size();
-		} else {
-			randProf = getRandProfNoInterest();
-			size = _noInterestList.size();
-		}
-		
-		int count = 0;
-		while(count < size) { //loop through all entries
-			for (Map.Entry<String, String> entry : conflicted.entrySet()) {
-				String vals[] = entry.getKey().split("_");
-				
-				if(randProf.toString().equals(vals[0])) {
-					System.out.println("Key : " + entry.getKey() + " : " + randProf.toString() + " = " + vals[0]);
-					idSuggestionType = entry.getValue();
-					break;
-				}
-			}
-			
-			if(!idSuggestionType.equals("no match")) {
-				break;
-			} else {
-				if(getInterest) {
-					randProf = getRandProfInterest();
-				} else {
-					randProf = getRandProfNoInterest();
-				}
-			}
-			count++;
-		}
-		
-		reco[0] = randProf.toString(); //prof id
-		reco[1] = _MainUI.getApi().getProfessors().getProfName(randProf); //prof name
-		reco[2] = _model.getSuggType(idSuggestionType); //column type name
-		
-		System.out.println("CONFLICTED FIELD! " + idSuggestionType);
-		
-		return reco;
-	}
-	
-	public String getBlankSuggestion(String randProf) {
-		String idSuggestionType = "no match";
-		
-		try {
-			String sql = "SELECT count(*) as cnt, idSuggestionType "
-						+ "WHERE idPerson = ? "
-						+ "AND suggestion = '' AND idSuggestionType != 11  AND idSuggestionType != 12 "
-						+ "ORDER BY RAND()";
-	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
-	        stmt.setString(1, randProf);
-
-        	ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				idSuggestionType = rs.getString("idSuggestionType");
-				break;
-			}
-	        
-	        stmt.getConnection().close();
-	        stmt.close();
-		} catch (SQLException e) {
-			System.out.println("ERROR getSuggestionWithMaxConf(): " + e);
-		}
-		
-		return idSuggestionType;
 	}
 	
 	//compares current entry that shows up in grid to see if it matches the user's profile
