@@ -173,9 +173,6 @@ public class Profs extends VerticalLayout implements View {
 	private Button submitEmail = new Button("Send");
 	private boolean adminEditMode = false;
 	
-	//experiment intervention
-	//PopUp popUp = new PopUp();
-	
 	public Profs() {
 		buildLoading();
 		
@@ -282,11 +279,13 @@ public class Profs extends VerticalLayout implements View {
 			
 			//System.out.println("Interaction Count = " + intCount + " = " + _MainUI.getApi().getIntAsk());
 			
-			
 			//check if survey mode is active
 			if(_MainUI.getApi().getUriFragment().isSurveyActive() || _MainUI.getApi().getUriFragment().isTestActive()) {
 				doNotAsk = true;
 			}
+			
+			//stops experiment from running
+			doNotAsk = true;
 			
 			if(!doNotAsk && intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0 && (experiment_id.equals("1") || experiment_id.equals("2"))) { 
 				
@@ -315,9 +314,6 @@ public class Profs extends VerticalLayout implements View {
 			new PopUp().start();
 		}
 		*/
-		
-		//50 / 50 ask by prof or by column
-		//get column type - uni, bach, mast, phd, subfield, joinyear, rank 
 	}
 	
 	private void checkHostName() { 

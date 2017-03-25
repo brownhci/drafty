@@ -1,20 +1,24 @@
 package drafty.components;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.OptionGroup;
-import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import drafty._MainUI;
 import drafty.models.LikertOptions;
+import drafty.models.Survey;
+import drafty.services.UserStudyService;
 
 public class SurveyComponent extends Window {
 	
@@ -36,14 +40,17 @@ public class SurveyComponent extends Window {
 	Button proceedButton = new Button(" Next Question");
 	
 	Integer question = 0;
-	Integer question_total = 10;
+	Integer question_total = 12;
 	
+	Map<String, Integer> progress = new HashMap<String, Integer>();
 	
 	String quesToAsk = "How Interested are you in ";
 	String extra = "I do not know";
 	LikertOptions opt5 = new LikertOptions("Not at all interested", "Somewhat interested", "Interested", "", "", extra, false, 3);
 	
 	List<String> testQ = new ArrayList<String>();
+	Map<Integer, Survey> survey = new HashMap<Integer, Survey>();
+	Random r = new Random();
 	
 	public SurveyComponent() {
 		sub.setContent(surveyModal);
@@ -80,6 +87,7 @@ public class SurveyComponent extends Window {
 		testQ.add("Brown University");
 		testQ.add("Programming Languages");
 		
+		buildQuestions();
 		
 		refreshUI();
 		
@@ -90,12 +98,40 @@ public class SurveyComponent extends Window {
 	private void answerValChange() {
 		proceedButton.setEnabled(true);
 	}
-
+	
+	private void buildQuestions() {
+		survey.put(1, new Survey("PROF", "LOW"));
+		survey.put(2, new Survey("PROF", "MID"));
+		survey.put(3, new Survey("PROF", "HIGH"));
+		survey.put(4, new Survey("PROF", "RAND"));
+		survey.put(5, new Survey("FIELD", "LOW"));
+		survey.put(6, new Survey("FIELD", "MID"));
+		survey.put(7, new Survey("FIELD", "HIGH"));
+		survey.put(8, new Survey("FIELD", "RAND"));
+		survey.put(9, new Survey("UNI", "LOW"));
+		survey.put(10, new Survey("UNI", "MID"));
+		survey.put(11, new Survey("UNI", "HIGH"));
+		survey.put(12, new Survey("UNI", "RAND"));
+	}
+	
+	public Survey getNewSurvey() {
+		boolean flag = true;
+		Survey s = null;
+		while(flag) {
+			int key = r.nextInt((survey.size() - 1) + 1) + 1;
+			if(!survey.get(key).isAsked()) {
+				survey.get(key).setAsked(true);
+				s = survey.get(key);
+				flag = false;
+			}
+		}
+		
+		return s;
+	}
+	
 	public void refreshUI() {
 		surveyModal.removeAllComponents();
 		question++;
-		
-		System.out.println(_MainUI.getApi().getUserStudyService().getInterestedField());
 		
 		if(question <= question_total) {
 			label_sugg = new Label(quesToAsk + "<b>" + testQ.get(question-1) + "</b>?", ContentMode.HTML);

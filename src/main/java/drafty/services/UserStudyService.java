@@ -1,8 +1,13 @@
 package drafty.services;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TreeMap;
@@ -66,6 +71,9 @@ public class UserStudyService {
 	private int _totalScore;
 
 	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
+	private String highProf;
+	private String highField;
+	private String highUni;
 	
 	public UserStudyService() {
 		System.out.println("CREATE UserStudyService");
@@ -212,7 +220,7 @@ public class UserStudyService {
 
 	public void recordClick(String cell_id, String cell_full_name, String cell_value, String cell_column, boolean doubleClick, String rowValues) {
 		
-		System.out.println("recording click " + doubleClick + " for field " + cell_value);
+		//System.out.println("recording click " + doubleClick + " for field " + cell_value);
 		
 		String[] vals;
 		vals = rowValues.split("\\|");
@@ -340,6 +348,288 @@ public class UserStudyService {
 		}
 	}
 	
+	public String[] getQuestionScore(String questionType, String scoreType) {
+		String[] result = new String[] {"", ""};
+		
+		if(questionType.equals("PROF")) {
+			result = getProf(scoreType);
+		} else if(questionType.equals("FIELD")) {
+			result = getField(scoreType);
+		} else if(questionType.equals("UNI")) {
+			result = getUni(scoreType);
+		} 
+		
+		return result;
+	}
+	
+	public String[] getProf(String type) {
+		String[] result = new String[] {"", ""};
+		
+		HashMap<String, Integer> uniInterest = buildProfInterest();
+		
+		if(type.equals("LOW")) {
+			
+		} else if(type.equals("HIGH")) {
+			Integer max = 0;
+			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
+				if(e.getValue() > max) {
+					result[0] = e.getKey();
+					highUni = e.getKey();
+					double score = e.getValue() / sumMap(uniInterest);
+					result[1] = Double.toString(score);
+					break;
+				}
+			}
+		} else if(type.equals("MID")) {
+			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
+				double score = e.getValue() / sumMap(uniInterest);
+				if(score > 0.5 && e.getKey() != highUni) {
+					result[0] = e.getKey();
+					result[1] = Double.toString(score);
+					break;
+				}
+			}
+		} else if(type.equals("RAND")) {
+			Integer count = 0;
+			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
+				if(e.getValue() != 0) {
+					count++;
+				}
+			}
+			Integer check = (count / uniInterest.size()) * uniInterest.size();
+			
+			boolean flag = true;
+			while(flag) {
+				for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
+					if(e.getValue() == 0 && genRandNum(uniInterest.size()) < check) {
+						double score = e.getValue() / sumMap(uniInterest);
+						result[0] = e.getKey();
+						result[1] = Double.toString(score);
+						flag = false;
+					} else if(genRandNum(uniInterest.size()) > check) {
+						double score = e.getValue() / sumMap(uniInterest);
+						result[0] = e.getKey();
+						result[1] = Double.toString(score);
+						flag = false;
+					}
+				}	
+			}
+		} 
+		
+		return result;
+	}
+	
+	public String[] getField(String type) {
+		
+		String[] result = new String[] {"", ""};
+		
+		HashMap<String, Integer> fieldInterest = buildFieldInterest();
+		
+		if(type.equals("LOW")) {
+			for (Map.Entry<String, Integer> e : fieldInterest.entrySet()) {
+				if(e.getValue() == 0) {
+					result[0] = e.getKey();
+					double score = e.getValue() / sumMap(fieldInterest);
+					result[1] = Double.toString(score);
+					break;
+				}
+			}
+		} else if(type.equals("HIGH")) {
+			Integer max = 0;
+			for (Map.Entry<String, Integer> e : fieldInterest.entrySet()) {
+				if(e.getValue() > max) {
+					result[0] = e.getKey();
+					highUni = e.getKey();
+					double score = e.getValue() / sumMap(fieldInterest);
+					result[1] = Double.toString(score);
+					break;
+				}
+			}
+		} else if(type.equals("MID")) {
+			List<Integer> vals = new ArrayList<Integer>();
+			for (Map.Entry<String, Integer> e : fieldInterest.entrySet()) {
+				if(e.getValue() > 0) {
+					vals.add(e.getValue());
+				}
+			}
+			Collections.sort(vals);
+			Integer valCheck = vals.get((int) (0.5*vals.size()));
+			for (Map.Entry<String, Integer> e : fieldInterest.entrySet()) {
+				if(e.getValue() == valCheck) {
+					double score = e.getValue() / sumMap(fieldInterest);
+					result[0] = e.getKey();
+					result[1] = Double.toString(score);
+					break;
+				}
+			}
+		} else if(type.equals("RAND")) {
+			
+			Integer count = 0;
+			for (Map.Entry<String, Integer> e : fieldInterest.entrySet()) {
+				if(e.getValue() != 0) {
+					count++;
+				}
+			}
+			Integer check = (count / fieldInterest.size()) * fieldInterest.size();
+			
+			boolean flag = true;
+			while(flag) {
+				for (Map.Entry<String, Integer> e : fieldInterest.entrySet()) {
+					if(e.getValue() == 0 && genRandNum(fieldInterest.size()) < check) {
+						double score = e.getValue() / sumMap(fieldInterest);
+						result[0] = e.getKey();
+						result[1] = Double.toString(score);
+						flag = false;
+					} else if(genRandNum(fieldInterest.size()) > check) {
+						double score = e.getValue() / sumMap(fieldInterest);
+						result[0] = e.getKey();
+						result[1] = Double.toString(score);
+						flag = false;
+					}
+				}	
+			}
+		} 
+		
+		return result; 
+	}
+	
+	public String genRandomFromMap(HashMap<String, Integer> map) {
+		Random generator = new Random();
+		Object[] values = map.values().toArray();
+		String randomValue = (String) values[generator.nextInt(values.length)];
+		
+		return randomValue;
+	}
+	
+	public Integer genRandNum(Integer max) {
+		Integer min = 1; 
+		return new Random().nextInt((max - min) + 1) + min;
+	}
+	
+	public String[] getUni(String type) {
+		
+		String[] result = new String[] {"", ""};
+		
+		HashMap<String, Integer> uniInterest = buildUniInterest();
+		
+		if(type.equals("LOW")) {
+			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
+				if(e.getValue() == 0) {
+					result[0] = e.getKey();
+					double score = e.getValue() / sumMap(uniInterest);
+					result[1] = Double.toString(score);
+					break;
+				}
+			}
+		} else if(type.equals("HIGH")) {
+			Integer max = 0;
+			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
+				if(e.getValue() > max) {
+					result[0] = e.getKey();
+					highUni = e.getKey();
+					double score = e.getValue() / sumMap(uniInterest);
+					result[1] = Double.toString(score);
+					break;
+				}
+			}
+		} else if(type.equals("MID")) {
+			List<Integer> vals = new ArrayList<Integer>();
+			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
+				if(e.getValue() > 0) {
+					vals.add(e.getValue());
+				}
+			}
+			Collections.sort(vals);
+			Integer valCheck = vals.get((int) (0.5*vals.size()));
+			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
+				if(e.getValue() == valCheck) {
+					double score = e.getValue() / sumMap(uniInterest);
+					result[0] = e.getKey();
+					result[1] = Double.toString(score);
+					break;
+				}
+			}
+		} else if(type.equals("RAND")) {
+			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
+				double score = e.getValue() / sumMap(uniInterest);
+				if(score > 0 && score < 0.5 && e.getKey() != highUni) {
+					result[0] = e.getKey();
+					result[1] = Double.toString(score);
+					break;
+				}
+			}
+		} 
+		
+		return result;
+	}
+	
+	public HashMap<String, Integer> buildFieldInterest() {
+		HashMap<String, Integer> fieldInterest = new HashMap<String, Integer>();
+		
+		try {
+			String sql = 
+					"SELECT * FROM SubfieldName ORDER BY RAND() ";
+	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
+	        
+        	ResultSet rs = stmt.executeQuery();
+	        
+        	while(rs.next()) {
+        		
+        		String field = rs.getString("name");
+        		fieldInterest.put(field, sumMapVal(_fieldInterest, field));
+        	}
+        	
+	        stmt.getConnection().close();
+	        stmt.close();
+		} catch (SQLException e) {
+			System.out.println("ERROR updateExperimentProfile(): " + e);
+		}
+		
+		return fieldInterest;
+	}
+	
+	public HashMap<String, Integer> buildUniInterest() {
+		HashMap<String, Integer> uniInterest = new HashMap<String, Integer>();
+		
+		try {
+			String sql = 
+					"SELECT DISTINCT suggestion FROM Suggestion "
+					+ "WHERE idSuggestionType >= 2 AND idSuggestionType <= 6 "
+					+ "AND suggestion IS NOT NULL AND CHAR_LENGTH(suggestion) > 5 ORDER BY RAND() ";
+	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
+	        
+        	ResultSet rs = stmt.executeQuery();
+	        
+        	while(rs.next()) {
+        		
+        		String uni = rs.getString("suggestion");
+        		Integer uniNum = sumMapVal(_uniInterest, uni) + sumMapVal(_bachInterest, uni) + sumMapVal(_mastInterest, uni) + sumMapVal(_doctInterest, uni) + sumMapVal(_postDocInterest, uni);
+        		uniInterest.put(uni, uniNum);
+        	}
+        	
+	        stmt.getConnection().close();
+	        stmt.close();
+		} catch (SQLException e) {
+			System.out.println("ERROR updateExperimentProfile(): " + e);
+		}
+		
+		return uniInterest;
+	}
+	
+	public HashMap<String, Integer> buildProfInterest() {
+		HashMap<String, Integer> profInterest = new HashMap<String, Integer>();
+		
+		Professors profs = _MainUI.getApi().getProfessors();
+		this.createIntHM(profs, 0);
+		
+		for (Map.Entry<String, Integer> e : _profInterest.entrySet()) {
+			System.out.println("PROF: " + e.getKey() + " - " + e.getValue());
+			profInterest.put(e.getKey(), e.getValue());
+		}
+		
+		return profInterest;
+	}
+	
 	//TO BE CALLED FOR THE INTEREST
 	public String[] getInterestedField() {
 		Professors profs = _MainUI.getApi().getProfessors();
@@ -355,13 +645,10 @@ public class UserStudyService {
 		
 		int randProf = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();
 		
-		System.out.println(_probabilityNM.get(randProf));
-		
 		//calculate which column to ask on
 		int randCol = _MainUI.getApi().getRandom(2, 10); //get random 2-10
 		System.out.println("suggType Size: " + suggTypes.size());
 		int randType = _MainUI.getApi().getRandom(0, suggTypes.size()); //get random
-		System.out.println(randType + " " + suggTypes.get(randType));
 		
 		String sugg_type = Integer.toString(randCol);
 		System.out.println(sugg_type);
@@ -374,6 +661,22 @@ public class UserStudyService {
 		System.out.println("Array[]: " + reco[0] + " " + reco[1] + " " + reco[2]);
 		
 		return reco;
+	}
+	
+	private Integer sumMap(HashMap<String, Integer> map) {
+		Integer tot = 0;
+		for (Integer i : map.values()) {
+		    tot += i;
+		}
+		return tot;
+	}
+	
+	private Integer sumMapVal(HashMap<String, Integer> map, String key) {
+		Integer val = 0;	
+		if(map.get(key) != null) {
+			val = map.get(key);
+		}
+		return val;
 	}
 	
 	//GET SOMETHING THEY HAVE NO INTEREST IN
@@ -447,37 +750,6 @@ public class UserStudyService {
 				}
 			}
 		}
-	}
-	
-	private Integer getRandProfInterest() {
-		
-		this.createIntHM(_MainUI.getApi().getProfessors(), 0);
-		
-		if (_totalScore == 0) {
-			return -1;
-		}
-		
-		return _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();
-	}
-	
-	private Integer getRandProfNoInterest() {
-		int noInt = 0;
-		
-		//update profile interest
-		this.createIntHM(_MainUI.getApi().getProfessors(), noInt);
-		
-		//if they have some interest in everything, for now, abort
-		while (_noInterestList.isEmpty()) {
-			if (noInt == 0) {
-				noInt = 1;
-			} else {
-				noInt = noInt*2;
-			}
-			this.createIntHM(_MainUI.getApi().getProfessors(), noInt);
-		}
-		
-		//randomise which entry to ask about
-		return new Random().nextInt(_noInterestList.size());
 	}
 	
 	//compares current entry that shows up in grid to see if it matches the user's profile
