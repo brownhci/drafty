@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TreeMap;
@@ -50,6 +51,7 @@ public class UserStudyService {
 	
 	//cumulative probability of professor matches in navigable map	
 	private NavigableMap<Integer, Integer> _probabilityNM;
+	private NavigableMap<Integer, Integer> _probabilityHIGH;
 	
 	//list of professor IDs that do not match user profile
 	private ArrayList<Integer> _noInterestList;
@@ -85,6 +87,7 @@ public class UserStudyService {
 		
 		//initialise prof probability navmap
 		_probabilityNM = new TreeMap<Integer, Integer>();
+		_probabilityHIGH = new TreeMap<Integer, Integer>();
 		_noInterestList = new ArrayList<Integer>();
 		
 		//initialise hashmaps
@@ -365,55 +368,16 @@ public class UserStudyService {
 	public String[] getProf(String type) {
 		String[] result = new String[] {"", ""};
 		
-		HashMap<String, Integer> uniInterest = buildProfInterest();
+		HashMap<String, Integer> profInterest = buildProfInterest();
 		
 		if(type.equals("LOW")) {
 			
 		} else if(type.equals("HIGH")) {
-			Integer max = 0;
-			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
-				if(e.getValue() > max) {
-					result[0] = e.getKey();
-					highUni = e.getKey();
-					double score = e.getValue() / sumMap(uniInterest);
-					result[1] = Double.toString(score);
-					break;
-				}
-			}
-		} else if(type.equals("MID")) {
-			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
-				double score = e.getValue() / sumMap(uniInterest);
-				if(score > 0.5 && e.getKey() != highUni) {
-					result[0] = e.getKey();
-					result[1] = Double.toString(score);
-					break;
-				}
-			}
-		} else if(type.equals("RAND")) {
-			Integer count = 0;
-			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
-				if(e.getValue() != 0) {
-					count++;
-				}
-			}
-			Integer check = (count / uniInterest.size()) * uniInterest.size();
 			
-			boolean flag = true;
-			while(flag) {
-				for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
-					if(e.getValue() == 0 && genRandNum(uniInterest.size()) < check) {
-						double score = e.getValue() / sumMap(uniInterest);
-						result[0] = e.getKey();
-						result[1] = Double.toString(score);
-						flag = false;
-					} else if(genRandNum(uniInterest.size()) > check) {
-						double score = e.getValue() / sumMap(uniInterest);
-						result[0] = e.getKey();
-						result[1] = Double.toString(score);
-						flag = false;
-					}
-				}	
-			}
+		} else if(type.equals("MID")) {
+			
+		} else if(type.equals("RAND")) {
+			
 		} 
 		
 		return result;
@@ -622,10 +586,46 @@ public class UserStudyService {
 		Professors profs = _MainUI.getApi().getProfessors();
 		this.createIntHM(profs, 0);
 		
-		for (Map.Entry<String, Integer> e : _profInterest.entrySet()) {
-			System.out.println("PROF: " + e.getKey() + " - " + e.getValue());
-			profInterest.put(e.getKey(), e.getValue());
+		for(Entry<Integer, Integer> e : _probabilityHIGH.entrySet()) {
+			//System.out.println("PROF: " + e.getKey() + " - " + e.getValue() + ", NAME: " + profs.getProfName(e.getKey()) + " from " + profs.getProfUni(e.getKey()));
 		}
+		
+		int max = 0;
+		int maxProf = 0;
+		for (Entry<Integer, Integer> e : _probabilityHIGH.entrySet()) {
+			if(!e.getKey().equals("Full") && !e.getKey().equals("Associate") && !e.getKey().equals("Assistant") && !e.getKey().equals("")) {
+				
+				//System.out.println("PROF _profInterest: " + e.getKey() + " - " + e.getValue());
+				if(e.getValue() > max) {
+					maxProf = e.getKey();
+					max = e.getValue();
+				}
+			}
+		}
+		System.out.println("MaxProf = " + profs.getProfName(maxProf) + " - score: " + max);
+		
+		int randProf1 = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();	
+		System.out.println(profs.getProfName(randProf1) + " from " + profs.getProfUni(randProf1) + " - tot score: " + _probabilityHIGH.get(randProf1));
+		
+		int randProf2 = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();		
+		System.out.println(profs.getProfName(randProf2) + " from " + profs.getProfUni(randProf2) + " - tot score: " + _probabilityHIGH.get(randProf2));
+		
+		
+		//update profile interest
+		System.out.println("No Interest Size: " + _noInterestList.size());
+		//if they have some interest in everything, for now, abort
+		int noInt = 0;
+		while (_noInterestList.isEmpty()) {
+			if (noInt == 0) {
+				noInt = 1;
+			} else {
+				noInt++;
+			}
+			this.createIntHM(profs, noInt);
+		}
+		int rand = _noInterestList.get(new Random().nextInt(_noInterestList.size()));
+		System.out.println("LEAST: " + rand);
+		System.out.println("LEAST: " + profs.getProfName(rand) + " from " + profs.getProfUni(rand) + " score " + _probabilityHIGH.get(rand));
 		
 		return profInterest;
 	}
@@ -724,7 +724,7 @@ public class UserStudyService {
 		for (int key = 1; key < profs.getMaxProf(); key++) {
 			
 			if (profs.profExists(key)) {
-			
+				//System.out.println("Prof Class: " + key + " " + profs.getProfName(key));
 			    double score = 0;
 			    
 			    //for each hashmap, check if it matches with the item property
@@ -743,7 +743,8 @@ public class UserStudyService {
 			    
 			    //if profile matches professor, add them to the interest navmap
 				if (score >= noInt) {
-				    _probabilityNM.put( _totalScore, key);
+				    _probabilityNM.put(_totalScore, key);
+					_probabilityHIGH.put(key, (int) score);
 				} else {
 					//otherwise, they have no interest and the professor can be added to the no interest list
 					_noInterestList.add(key);
