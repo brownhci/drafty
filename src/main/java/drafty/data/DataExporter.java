@@ -57,9 +57,9 @@ public class DataExporter {
 
 		Context initialContext = new InitialContext();
 	      
-	      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
-	      if (datasource != null) {
-	        Connection conn = datasource.getConnection();
+      DataSource datasource = (DataSource)initialContext.lookup(DATASOURCE_CONTEXT);
+      if (datasource != null) {
+        Connection conn = datasource.getConnection();
 		
 		String sql = 
         		"select o.idPerson AS idPerson,o.idSuggestionType AS idSuggestionType, o.suggestion AS suggestion, o.confidence AS confidence, p.name AS name "
@@ -131,17 +131,17 @@ public class DataExporter {
 					
 					if(!Full_Name.equals("")) {
 						onNewRow();
-						buildCell(personIdSt);
+						//buildCell(personIdSt);
 						buildCell(Full_Name);
 					    buildCell(University);
+					    buildCell(JoinYear);
+						buildCell(Rank);
+					    buildCell(Subfield);
 					    buildCell(Bachelors);
 					    buildCell(Masters);
 					    buildCell(Doctorate);
 					    buildCell(PostDoc);
 					    buildCell(Gender);
-					    buildCell(Rank);
-					    buildCell(JoinYear);
-					    buildCell(Subfield);
 					    buildCell(PhotoUrl);
 					    buildCell(Sources);
 					}	
@@ -198,9 +198,10 @@ public class DataExporter {
     protected void buildCell(Object value) {
     	onNewCell();
         try {
-        	if(value == null){
+        	if(value == null) {
         		writer.append("");
-        	}else {
+        	} else {
+        		value = "\"" + value + "\"";
         		writer.append(value.toString());
         	}
         } catch (IOException e) {
@@ -226,7 +227,8 @@ public class DataExporter {
     		initTempFile(false);
     		resetContent();
     		buildColumnHeaders();
-    		buildRowsFromContainer(container);
+    		//buildRowsFromContainer(container); //not lining up correctly
+    		buildRowsFull();
     		writeToFile();
     	}
     	catch (Exception e){
@@ -237,7 +239,7 @@ public class DataExporter {
     
     private void buildColumnHeaders(){
     	onNewRow();
-		buildCell("id");
+		//buildCell("id");
 		buildCell("FullName");
 		buildCell("University");
 		buildCell("JoinYear");

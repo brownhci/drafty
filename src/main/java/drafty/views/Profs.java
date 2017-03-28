@@ -854,7 +854,8 @@ public class Profs extends VerticalLayout implements View {
 					VerticalLayout exportLay = new VerticalLayout();
 					exportLay.setMargin(true);
 					exportLay.setSpacing(true);
-					Button exportButton = new Button("Export Filtered Data", e -> exportDataFinal());
+					//Button exportButton = new Button("Export Filtered Data", e -> exportDataFinal());
+					Button exportButton = new Button("Export Data", e -> exportDataFinal());
 					exportButton.setWidth("100%");
 					exportButton.setIcon(FontAwesome.DOWNLOAD);
 					
