@@ -5,17 +5,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeMap;
 
 import drafty._MainUI;
 import drafty.models.InteractionWeights;
 import drafty.models.Professors;
+import drafty.models.Survey;
 import drafty.models.UserInterest;
 
 public class UserStudyService {
@@ -78,7 +83,7 @@ public class UserStudyService {
 	private String highUni;
 	
 	public UserStudyService() {
-		System.out.println("CREATE UserStudyService");
+		//System.out.println("CREATE UserStudyService");
 		
 		//reset score
 		_totalScore = 0;
@@ -121,7 +126,7 @@ public class UserStudyService {
 		this.genUserIntClicks("0", _click);
 		this.genUserIntClicks("1", _dclick);
 		
-		this.printInterest();
+		//this.printInterest();
 	}
 	
 	public void genUserIntClicks(String clickType, Integer weight) {
@@ -351,51 +356,180 @@ public class UserStudyService {
 		}
 	}
 	
-	public String[] getQuestionScore(String questionType, String scoreType) {
-		String[] result = new String[] {"", ""};
+	public String[] getQuestionScore(String questionType, String scoreType, Map<Integer, Survey> survey) {
+		String[] result = new String[] {"", "", "", ""};
 		
-		if(questionType.equals("PROF")) {
-			result = getProf(scoreType);
-		} else if(questionType.equals("FIELD")) {
-			result = getField(scoreType);
-		} else if(questionType.equals("UNI")) {
-			result = getUni(scoreType);
-		} 
+		HashMap<String, Integer> fieldInterest = buildFieldInterest();
+		HashMap<String, Integer> uniInterest = buildUniInterest();
+		
+		Integer fieldTot = sumMap(fieldInterest);
+		Integer uniTot = sumMap(uniInterest);
+		
+		if(fieldTot != 0 && uniTot != 0) {
+			if(questionType.equals("PROF")) {
+				result = getProf(scoreType, survey);
+			} else if(questionType.equals("FIELD")) {
+				result = getField(scoreType, survey);
+			} else if(questionType.equals("UNI")) {
+				result = getUni(scoreType, survey);
+			} 
+		} else if(fieldTot == 0 && uniTot == 0) { //no interest in university or subfield
+			result = getProf(scoreType, survey);
+		} else if (fieldTot == 0) { //no interest in subfield
+			if(questionType.equals("PROF")) {
+				result = getProf(scoreType, survey);
+			} else if(questionType.equals("FIELD")) {
+				if (genRandNum(2) == 1) {
+					result = getProf(scoreType, survey);
+				} else {
+					result = getUni(scoreType, survey);
+				}
+			} else if(questionType.equals("UNI")) {
+				result = getUni(scoreType, survey);
+			} 
+		} else if (fieldTot == 0) { //no interest in university
+			if(questionType.equals("PROF")) {
+				result = getProf(scoreType, survey);
+			} else if(questionType.equals("FIELD")) {
+				result = getField(scoreType, survey);
+			} else if(questionType.equals("UNI")) {
+				if (genRandNum(2) == 1) {
+					result = getProf(scoreType, survey);
+				} else {
+					result = getField(scoreType, survey);
+				}
+			} 
+		}
 		
 		return result;
 	}
 	
-	public String[] getProf(String type) {
-		String[] result = new String[] {"", ""};
+	public String[] getProf(String type, Map<Integer, Survey> survey) {
+		String[] result = new String[] {"", "", "", ""};
 		
-		HashMap<String, Integer> profInterest = buildProfInterest();
-		
+		Professors profs = _MainUI.getApi().getProfessors();
+		this.createIntHM(profs, 0);
+	
 		if(type.equals("LOW")) {
-			
+			//update profile interest
+			System.out.println("No Interest Size: " + _noInterestList.size());
+			//if they have some interest in everything, for now, abort
+			int noInt = 0;
+			while (_noInterestList.isEmpty()) {
+				if (noInt == 0) {
+					noInt = 1;
+				} else {
+					noInt++;
+				}
+				this.createIntHM(profs, noInt);
+			}
+			int rand = _noInterestList.get(new Random().nextInt(_noInterestList.size()));
+			//System.out.println("LEAST: " + rand);
+			//System.out.println("LEAST: " + profs.getProfName(rand) + " from " + profs.getProfUni(rand) + " score " + _probabilityHIGH.get(rand));
+			result[0] = profs.getProfName(rand) + " from " + profs.getProfUni(rand);
+			double score = _probabilityHIGH.get(rand) / sumMapProf(_probabilityHIGH);
+			result[1] = Double.toString(score);
+			result[2] = _probabilityHIGH.get(rand).toString();
+			result[3] = sumMapProf(_probabilityHIGH).toString();
 		} else if(type.equals("HIGH")) {
-			
+			Integer max = 0;
+			Integer maxProf = 0;
+			for (Entry<Integer, Integer> e : _probabilityHIGH.entrySet()) {
+				if(!e.getKey().equals("Full") && !e.getKey().equals("Associate") && !e.getKey().equals("Assistant") && !e.getKey().equals("")) {
+					
+					//System.out.println("PROF _profInterest: " + e.getKey() + " - " + e.getValue());
+					if(e.getValue() > max) {
+						maxProf = e.getKey();
+						max = e.getValue();
+					}
+				}
+			}
+			result[0] = profs.getProfName(maxProf) + " from " + profs.getProfUni(maxProf);
+			double score = max / sumMapProf(_probabilityHIGH);
+			result[1] = Double.toString(score);
+			result[2] = max.toString();
+			result[3] = sumMapProf(_probabilityHIGH).toString();
+			//System.out.println("MaxProf = " + profs.getProfName(maxProf) + " - score: " + max);
 		} else if(type.equals("MID")) {
-			
+			boolean flag = true;
+			while(flag) {
+				int randProf1 = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();	
+				//System.out.println(profs.getProfName(randProf1) + " from " + profs.getProfUni(randProf1) + " - tot score: " + _probabilityHIGH.get(randProf1));
+				if( _probabilityHIGH.get(randProf1) > 0 && !result[0].equals(survey.get(2).getQuestion())) {
+					result[0] = profs.getProfName(randProf1) + " from " + profs.getProfUni(randProf1);
+					double score = _probabilityHIGH.get(randProf1) / sumMapProf(_probabilityHIGH);
+					result[1] = Double.toString(score);
+					result[2] = _probabilityHIGH.get(randProf1).toString();
+					result[3] = sumMapProf(_probabilityHIGH).toString();
+					flag = false;
+				}
+			}
 		} else if(type.equals("RAND")) {
 			
+			int randProf2 = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();		
+			//System.out.println(profs.getProfName(randProf2) + " from " + profs.getProfUni(randProf2) + " - tot score: " + _probabilityHIGH.get(randProf2));
+			
+			result[0] = profs.getProfName(randProf2) + " from " + profs.getProfUni(randProf2);
+			double score = _probabilityHIGH.get(randProf2) / sumMapProf(_probabilityHIGH);
+			result[1] = Double.toString(score);
+			result[2] = _probabilityHIGH.get(randProf2).toString();
+			result[3] = sumMapProf(_probabilityHIGH).toString();
+			
+			if(result[0].equals(survey.get(1).getQuestion()) || result[0].equals(survey.get(2).getQuestion()) || result[0].equals(survey.get(3).getQuestion())) {
+				randProf2 = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();		
+				//System.out.println(profs.getProfName(randProf2) + " from " + profs.getProfUni(randProf2) + " - tot score: " + _probabilityHIGH.get(randProf2));
+				
+				result[0] = profs.getProfName(randProf2) + " from " + profs.getProfUni(randProf2);
+				score = _probabilityHIGH.get(randProf2) / sumMapProf(_probabilityHIGH);
+				result[1] = Double.toString(score);
+				result[2] = _probabilityHIGH.get(randProf2).toString();
+				result[3] = sumMapProf(_probabilityHIGH).toString();
+			}
 		} 
 		
 		return result;
 	}
 	
-	public String[] getField(String type) {
+	public String[] getField(String type, Map<Integer, Survey> survey) {
 		
-		String[] result = new String[] {"", ""};
+		String[] result = new String[] {"", "", "", ""};
 		
 		HashMap<String, Integer> fieldInterest = buildFieldInterest();
 		
 		if(type.equals("LOW")) {
-			for (Map.Entry<String, Integer> e : fieldInterest.entrySet()) {
-				if(e.getValue() == 0) {
-					result[0] = e.getKey();
-					double score = e.getValue() / sumMap(fieldInterest);
+			boolean flag = true;
+			while(flag) {
+				String key = genRandomKeyFromMap(fieldInterest);
+				if(fieldInterest.get(key) == 0) {
+					result[0] = key;
+					double score = fieldInterest.get(key)/ sumMap(fieldInterest);
 					result[1] = Double.toString(score);
-					break;
+					result[2] = fieldInterest.get(key).toString();
+					result[3] = sumMap(fieldInterest).toString();
+					flag = false;
+				}
+			}
+			
+			if(result[0] == null || result[0].isEmpty()) {
+				Integer max = 0;
+				for (Map.Entry<String, Integer> e : fieldInterest.entrySet()) {
+					if(e.getValue() > max) {
+						highField = e.getKey();
+						max = e.getValue();
+					}
+				}
+				
+				boolean flag2 = true;
+				while(flag2) {
+					String val = genRandomKeyFromMap(fieldInterest);
+					double score = fieldInterest.get(val) / sumMap(fieldInterest);
+					result[0] = val;
+					result[1] = Double.toString(score);
+					result[2] = fieldInterest.get(val).toString();
+					result[3] = sumMap(fieldInterest).toString();
+					if(!val.equals(highField)) {
+						flag2 = false;	
+					}
 				}
 			}
 		} else if(type.equals("HIGH")) {
@@ -403,10 +537,12 @@ public class UserStudyService {
 			for (Map.Entry<String, Integer> e : fieldInterest.entrySet()) {
 				if(e.getValue() > max) {
 					result[0] = e.getKey();
-					highUni = e.getKey();
+					highField = e.getKey();
 					double score = e.getValue() / sumMap(fieldInterest);
 					result[1] = Double.toString(score);
-					break;
+					result[2] = e.getValue().toString();
+					result[3] = sumMap(fieldInterest).toString();
+					max = e.getValue();
 				}
 			}
 		} else if(type.equals("MID")) {
@@ -423,37 +559,45 @@ public class UserStudyService {
 					double score = e.getValue() / sumMap(fieldInterest);
 					result[0] = e.getKey();
 					result[1] = Double.toString(score);
+					result[2] = e.getValue().toString();
+					result[3] = sumMap(fieldInterest).toString();
 					break;
 				}
 			}
-		} else if(type.equals("RAND")) {
-			
-			Integer count = 0;
-			for (Map.Entry<String, Integer> e : fieldInterest.entrySet()) {
-				if(e.getValue() != 0) {
-					count++;
+			if(result[0].equals(survey.get(5).getQuestion()) || result[0].equals(survey.get(6).getQuestion())) {
+				boolean flag = true;
+				int zeroCheck = 0;
+				while(flag) {
+					String val = genRandomKeyFromMap(fieldInterest);
+					if(!val.equals(survey.get(5).getQuestion()) && !val.equals(survey.get(6).getQuestion())) {
+						double score = fieldInterest.get(val) / sumMap(fieldInterest);
+						result[0] = val;
+						result[1] = Double.toString(score);
+						result[2] = fieldInterest.get(val).toString();
+						result[3] = sumMap(fieldInterest).toString();
+						if(fieldInterest.get(val) == 0 && zeroCheck < 4) {
+							zeroCheck++;
+						} else {
+							flag = false;	
+						}
+					}
 				}
+				
 			}
-			Integer check = (count / fieldInterest.size()) * fieldInterest.size();
-			
+		} else if(type.equals("RAND")) {
 			boolean flag = true;
 			while(flag) {
-				for (Map.Entry<String, Integer> e : fieldInterest.entrySet()) {
-					if(e.getValue() == 0 && genRandNum(fieldInterest.size()) < check) {
-						double score = e.getValue() / sumMap(fieldInterest);
-						result[0] = e.getKey();
-						result[1] = Double.toString(score);
-						flag = false;
-					} else if(genRandNum(fieldInterest.size()) > check) {
-						double score = e.getValue() / sumMap(fieldInterest);
-						result[0] = e.getKey();
-						result[1] = Double.toString(score);
-						flag = false;
-					}
-				}	
+				String val = genRandomKeyFromMap(fieldInterest);
+				if(!val.equals(survey.get(5).getQuestion()) && !val.equals(survey.get(6).getQuestion()) && !val.equals(survey.get(7).getQuestion())) {
+					double score = fieldInterest.get(val) / sumMap(fieldInterest);
+					result[0] = val;
+					result[1] = Double.toString(score);
+					result[2] = fieldInterest.get(val).toString();
+					result[3] = sumMap(fieldInterest).toString();
+					flag = false;
+				}
 			}
-		} 
-		
+		}
 		return result; 
 	}
 	
@@ -465,24 +609,63 @@ public class UserStudyService {
 		return randomValue;
 	}
 	
+	public String genRandomKeyFromMap(HashMap<String, Integer> map) {
+		Random       random    = new Random();
+		List<String> keys      = new ArrayList<String>(map.keySet());
+		String       randomKey = keys.get( random.nextInt(keys.size()));
+		
+		return randomKey;
+	}
+	
 	public Integer genRandNum(Integer max) {
 		Integer min = 1; 
 		return new Random().nextInt((max - min) + 1) + min;
 	}
 	
-	public String[] getUni(String type) {
+	public String[] getUni(String type, Map<Integer, Survey> survey) {
 		
-		String[] result = new String[] {"", ""};
+		String[] result = new String[] {"", "", "", ""};
 		
 		HashMap<String, Integer> uniInterest = buildUniInterest();
 		
 		if(type.equals("LOW")) {
-			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
-				if(e.getValue() == 0) {
-					result[0] = e.getKey();
-					double score = e.getValue() / sumMap(uniInterest);
+			
+			boolean flag = true;
+			while(flag) {
+				String key = genRandomKeyFromMap(uniInterest);
+				if(uniInterest.get(key) == 0) {
+					result[0] = key;
+					double score = uniInterest.get(key)/ sumMap(uniInterest);
 					result[1] = Double.toString(score);
-					break;
+					result[2] = uniInterest.get(key).toString();
+					result[3] = sumMap(uniInterest).toString();
+					flag = false;
+				}
+			}
+			//just a check in case sumMap(uniInterest) is null
+			if(result[0] == null || result[0].isEmpty()) {
+				Integer check = 0;
+				boolean flag2 = true;
+				
+				while(flag2) {
+					String randomKey = genRandomKeyFromMap(uniInterest);
+					
+					if(uniInterest.get(randomKey) == 0 || check == 0) {
+						check = 1;
+						double score = uniInterest.get(randomKey) / sumMap(uniInterest);
+						result[0] = randomKey;
+						result[1] = Double.toString(score);
+						result[2] = uniInterest.get(randomKey).toString();
+						result[3] = sumMap(uniInterest).toString();
+					} else {
+						double score = uniInterest.get(randomKey) / sumMap(uniInterest);
+						result[0] = randomKey;
+						result[1] = Double.toString(score);
+						result[2] = uniInterest.get(randomKey).toString();
+						result[3] = sumMap(uniInterest).toString();
+						flag2 = false;
+						break;
+					}
 				}
 			}
 		} else if(type.equals("HIGH")) {
@@ -493,33 +676,91 @@ public class UserStudyService {
 					highUni = e.getKey();
 					double score = e.getValue() / sumMap(uniInterest);
 					result[1] = Double.toString(score);
-					break;
+					result[2] = e.getValue().toString();
+					result[3] = sumMap(uniInterest).toString();
+					max = e.getValue();
 				}
 			}
 		} else if(type.equals("MID")) {
-			List<Integer> vals = new ArrayList<Integer>();
-			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
+			List<String> vals = new ArrayList<String>();
+			
+			Map<String, Integer> sortedMap = sortByValue(uniInterest);
+			for (Map.Entry<String, Integer> e : sortedMap.entrySet()) {
 				if(e.getValue() > 0) {
-					vals.add(e.getValue());
+					vals.add(e.getKey());
 				}
 			}
-			Collections.sort(vals);
-			Integer valCheck = vals.get((int) (0.5*vals.size()));
-			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
-				if(e.getValue() == valCheck) {
-					double score = e.getValue() / sumMap(uniInterest);
-					result[0] = e.getKey();
-					result[1] = Double.toString(score);
-					break;
+			String median = vals.get((int) (0.5*vals.size()));
+			
+			double score = uniInterest.get(median) / sumMap(uniInterest);
+			result[0] = median;
+			result[1] = Double.toString(score);
+			result[2] = uniInterest.get(median).toString();
+			result[3] = sumMap(uniInterest).toString();
+			//System.out.println("Median Uni: " + median);
+			
+			if(result[0].equals(survey.get(9).getQuestion()) || result[0].equals(survey.get(10).getQuestion())) {
+				boolean flag2 = true;
+				int zeroCheck = 0;
+				while(flag2) {
+					String val = genRandomKeyFromMap(uniInterest);
+					if(!val.equals(survey.get(9).getQuestion()) && !val.equals(survey.get(10).getQuestion())) {
+						double score2 = uniInterest.get(val) / sumMap(uniInterest);
+						result[0] = val;
+						result[1] = Double.toString(score2);
+						result[2] = uniInterest.get(val).toString();
+						result[3] = sumMap(uniInterest).toString();
+						if(uniInterest.get(val) == 0 && zeroCheck < 3) {
+							zeroCheck++;
+						} else {
+							flag2 = false;	
+						}
+					}
 				}
 			}
 		} else if(type.equals("RAND")) {
-			for (Map.Entry<String, Integer> e : uniInterest.entrySet()) {
-				double score = e.getValue() / sumMap(uniInterest);
-				if(score > 0 && score < 0.5 && e.getKey() != highUni) {
-					result[0] = e.getKey();
+			
+			Integer check = 0;
+			boolean flag = true;
+			
+			while(flag) {
+				String randomKey = genRandomKeyFromMap(uniInterest);
+				
+				if(uniInterest.get(randomKey) == 0 || check == 0) {
+					check = 1;
+					double score = uniInterest.get(randomKey) / sumMap(uniInterest);
+					result[0] = randomKey;
 					result[1] = Double.toString(score);
+					result[2] = uniInterest.get(randomKey).toString();
+					result[3] = sumMap(uniInterest).toString();
+				} else {
+					double score = uniInterest.get(randomKey) / sumMap(uniInterest);
+					result[0] = randomKey;
+					result[1] = Double.toString(score);
+					result[2] = uniInterest.get(randomKey).toString();
+					result[3] = sumMap(uniInterest).toString();
+					flag = false;
 					break;
+				}
+			}
+			
+			if(result[0].equals(survey.get(9).getQuestion()) || result[0].equals(survey.get(10).getQuestion()) || result[0].equals(survey.get(11).getQuestion())) {
+				boolean flag2 = true;
+				int zeroCheck = 0;
+				while(flag2) {
+					String val = genRandomKeyFromMap(uniInterest);
+					if(!val.equals(survey.get(9).getQuestion()) && !val.equals(survey.get(10).getQuestion()) && !val.equals(survey.get(11).getQuestion())) {
+						double score = uniInterest.get(val) / sumMap(uniInterest);
+						result[0] = val;
+						result[1] = Double.toString(score);
+						result[2] = uniInterest.get(val).toString();
+						result[3] = sumMap(uniInterest).toString();
+						if(uniInterest.get(val) == 0 && zeroCheck < 3) {
+							zeroCheck++;
+						} else {
+							flag2 = false;	
+						}
+					}
 				}
 			}
 		} 
@@ -532,13 +773,12 @@ public class UserStudyService {
 		
 		try {
 			String sql = 
-					"SELECT * FROM SubfieldName ORDER BY RAND() ";
+					"SELECT * FROM SubfieldName WHERE name != '' ORDER BY RAND() ";
 	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
 	        
         	ResultSet rs = stmt.executeQuery();
 	        
         	while(rs.next()) {
-        		
         		String field = rs.getString("name");
         		fieldInterest.put(field, sumMapVal(_fieldInterest, field));
         	}
@@ -551,6 +791,80 @@ public class UserStudyService {
 		
 		return fieldInterest;
 	}
+	
+	public HashMap<String, Integer> buildFieldInterestProf() {
+		HashMap<String, Integer> fieldInterest = new HashMap<String, Integer>();
+		
+		Professors profs = _MainUI.getApi().getProfessors();
+		this.createIntHM(profs, 0);
+		
+		try {
+			String sql = 
+					"SELECT * FROM SubfieldName ORDER BY RAND() ";
+	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
+	        
+        	ResultSet rs = stmt.executeQuery();
+	        
+        	while(rs.next()) {
+        		
+        		String field = rs.getString("name");
+        		Integer total = 0;
+        		/*
+        		for (Entry<Integer, Integer> e : _probabilityHIGH.entrySet()) {
+        			Integer key = e.getKey();
+        			tot += profs.getProfField(key);
+        			
+        			break;
+        		}
+        		for (Integer key : _noInterestList) {
+        			System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue());
+        			
+        			break;
+        		}
+        		*/
+        		fieldInterest.put(field, sumMapVal(_fieldInterest, field));
+        	}
+        	
+	        stmt.getConnection().close();
+	        stmt.close();
+		} catch (SQLException e) {
+			System.out.println("ERROR updateExperimentProfile(): " + e);
+		}
+		
+		return fieldInterest;
+	}
+	
+	private static Map<String, Integer> sortByValue(Map<String, Integer> unsortMap) {
+
+        // 1. Convert Map to List of Map
+        List<Map.Entry<String, Integer>> list =
+                new LinkedList<Map.Entry<String, Integer>>(unsortMap.entrySet());
+
+        // 2. Sort list with Collections.sort(), provide a custom Comparator
+        //    Try switch the o1 o2 position for a different order
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+            public int compare(Map.Entry<String, Integer> o1,
+                               Map.Entry<String, Integer> o2) {
+                return (o1.getValue()).compareTo(o2.getValue());
+            }
+        });
+
+        // 3. Loop the sorted list and put it into a new insertion order Map LinkedHashMap
+        Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
+        for (Map.Entry<String, Integer> entry : list) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+
+        /*
+        //classic iterator example
+        for (Iterator<Map.Entry<String, Integer>> it = list.iterator(); it.hasNext(); ) {
+            Map.Entry<String, Integer> entry = it.next();
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }*/
+
+
+        return sortedMap;
+    }
 	
 	public HashMap<String, Integer> buildUniInterest() {
 		HashMap<String, Integer> uniInterest = new HashMap<String, Integer>();
@@ -565,7 +879,6 @@ public class UserStudyService {
         	ResultSet rs = stmt.executeQuery();
 	        
         	while(rs.next()) {
-        		
         		String uni = rs.getString("suggestion");
         		Integer uniNum = sumMapVal(_uniInterest, uni) + sumMapVal(_bachInterest, uni) + sumMapVal(_mastInterest, uni) + sumMapVal(_doctInterest, uni) + sumMapVal(_postDocInterest, uni);
         		uniInterest.put(uni, uniNum);
@@ -578,56 +891,6 @@ public class UserStudyService {
 		}
 		
 		return uniInterest;
-	}
-	
-	public HashMap<String, Integer> buildProfInterest() {
-		HashMap<String, Integer> profInterest = new HashMap<String, Integer>();
-		
-		Professors profs = _MainUI.getApi().getProfessors();
-		this.createIntHM(profs, 0);
-		
-		for(Entry<Integer, Integer> e : _probabilityHIGH.entrySet()) {
-			//System.out.println("PROF: " + e.getKey() + " - " + e.getValue() + ", NAME: " + profs.getProfName(e.getKey()) + " from " + profs.getProfUni(e.getKey()));
-		}
-		
-		int max = 0;
-		int maxProf = 0;
-		for (Entry<Integer, Integer> e : _probabilityHIGH.entrySet()) {
-			if(!e.getKey().equals("Full") && !e.getKey().equals("Associate") && !e.getKey().equals("Assistant") && !e.getKey().equals("")) {
-				
-				//System.out.println("PROF _profInterest: " + e.getKey() + " - " + e.getValue());
-				if(e.getValue() > max) {
-					maxProf = e.getKey();
-					max = e.getValue();
-				}
-			}
-		}
-		System.out.println("MaxProf = " + profs.getProfName(maxProf) + " - score: " + max);
-		
-		int randProf1 = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();	
-		System.out.println(profs.getProfName(randProf1) + " from " + profs.getProfUni(randProf1) + " - tot score: " + _probabilityHIGH.get(randProf1));
-		
-		int randProf2 = _probabilityNM.higherEntry((int) (Math.random()*_totalScore)).getValue();		
-		System.out.println(profs.getProfName(randProf2) + " from " + profs.getProfUni(randProf2) + " - tot score: " + _probabilityHIGH.get(randProf2));
-		
-		
-		//update profile interest
-		System.out.println("No Interest Size: " + _noInterestList.size());
-		//if they have some interest in everything, for now, abort
-		int noInt = 0;
-		while (_noInterestList.isEmpty()) {
-			if (noInt == 0) {
-				noInt = 1;
-			} else {
-				noInt++;
-			}
-			this.createIntHM(profs, noInt);
-		}
-		int rand = _noInterestList.get(new Random().nextInt(_noInterestList.size()));
-		System.out.println("LEAST: " + rand);
-		System.out.println("LEAST: " + profs.getProfName(rand) + " from " + profs.getProfUni(rand) + " score " + _probabilityHIGH.get(rand));
-		
-		return profInterest;
 	}
 	
 	//TO BE CALLED FOR THE INTEREST
@@ -666,6 +929,14 @@ public class UserStudyService {
 	private Integer sumMap(HashMap<String, Integer> map) {
 		Integer tot = 0;
 		for (Integer i : map.values()) {
+		    tot += i;
+		}
+		return tot;
+	}
+	
+	private Integer sumMapProf(NavigableMap<Integer, Integer> _probabilityHIGH) {
+		Integer tot = 0;
+		for (Integer i : _probabilityHIGH.values()) {
 		    tot += i;
 		}
 		return tot;

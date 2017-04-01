@@ -1,6 +1,7 @@
 package drafty.models;
 
-import drafty._MainUI;
+import java.util.Map;
+
 import drafty.services.UserStudyService;
 
 public class Survey {
@@ -9,6 +10,8 @@ public class Survey {
 	private String scoreType;
 	private String question;
 	private String score;
+	private String val;
+	private String tot;
 	private boolean asked;
 	
 	
@@ -26,13 +29,16 @@ public class Survey {
 		this.asked = asked;
 	}
 	
-	public Survey(String questionType, String scoreType) {
+	public Survey(String questionType, String scoreType, Map<Integer, Survey> survey) {
 		super();
 		this.questionType = questionType;
 		this.scoreType = scoreType;
-		String[] result = _MainUI.getApi().getUserStudyService().getQuestionScore(questionType, scoreType);
+		UserStudyService uss = new UserStudyService();
+		String[] result = uss.getQuestionScore(questionType, scoreType, survey);
 		this.question = result[0];
 		this.score = result[1];
+		this.val = result[2];
+		this.tot = result[3];
 		this.asked = false;
 	}
 	
@@ -65,5 +71,17 @@ public class Survey {
 	}
 	public void setAsked(boolean asked) {
 		this.asked = asked;
+	}
+	public String getNum() {
+		return val;
+	}
+	public void setNum(String val) {
+		this.val = val;
+	}
+	public String getDen() {
+		return tot;
+	}
+	public void setDen(String tot) {
+		this.tot = tot;
 	}
 }

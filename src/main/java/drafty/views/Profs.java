@@ -907,12 +907,6 @@ public class Profs extends VerticalLayout implements View {
 			surveyButton = draftyMenu.addItem("Complete Survey", FontAwesome.THUMBS_O_UP, new MenuBar.Command() {
 				@Override
 				public void menuSelected(MenuItem selectedItem) {
-					Container resultsData = resultsGrid.getContainerDataSource();
-					
-					for(Object temp : resultsData.getItemIds()) {
-						//System.out.println(temp);
-					}
-					
 					new SurveyComponent();
 				}
 			});
@@ -1276,6 +1270,7 @@ public class Profs extends VerticalLayout implements View {
 				System.out.println("ERROR populateGrid(): SQL " + e.getMessage());
 			}
 	        //System.out.println("COUNT = " + count);
+	        stmt.close();
 	        conn.close();
 	      }
 	    } catch (NullPointerException ne) {
@@ -1635,6 +1630,7 @@ public class Profs extends VerticalLayout implements View {
 		        } catch (SQLException e) {
 		        	_MainUI.getApi().logError(e);
 				}
+		        stmt.close();
 		        conn.close();
 		      }
 		    } catch (Exception ex) {
@@ -1671,6 +1667,7 @@ public class Profs extends VerticalLayout implements View {
 	        } catch (SQLException e) {
 	        	_MainUI.getApi().logError(e);
 			}
+	        stmt.close();
 	        conn.close();
 	      }
 	    } catch (Exception ex) {

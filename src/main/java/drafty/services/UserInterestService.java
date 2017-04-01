@@ -77,7 +77,7 @@ public class UserInterestService {
 	String DATASOURCE_CONTEXT = _MainUI.getApi().getJNDI();
 	
 	public UserInterestService() {
-		System.out.println("CREATE UserInterestService()");
+		//System.out.println("CREATE UserInterestService()");
 		//reset score
 		_totalScore = 0;
 		

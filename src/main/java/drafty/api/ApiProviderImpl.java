@@ -327,9 +327,9 @@ public class ApiProviderImpl implements ApiProvider {
 			while (rs.next()) {
 				exist = rs.getString("exist");
 			}
-	        
-	        stmt.getConnection().close();
+	        	        
 	        stmt.close();
+	        stmt.getConnection().close();
 	        
 	        if(exist.equals("0")) {
 	        	newSuggestionBlankValue(person_id, value, column); 
@@ -349,9 +349,9 @@ public class ApiProviderImpl implements ApiProvider {
 	        stmt.setString(2, column);
 	        
 	        stmt.executeUpdate();
-	        
-	        stmt.getConnection().close();
+
 	        stmt.close();
+	        stmt.getConnection().close();
 		} catch (SQLException e) {
 			System.out.println("ERROR newSuggestionBlankValue(): " + e);
 		}
@@ -401,6 +401,7 @@ public class ApiProviderImpl implements ApiProvider {
 		        } catch (SQLException e) {
 					System.out.println("ERROR api getIdSuggestion(): " + e.getMessage());
 				}
+		        stmt.close();
 		        conn.close();
 		      }
 		    }
@@ -469,8 +470,8 @@ public class ApiProviderImpl implements ApiProvider {
    				profUniversity = rs.getString("suggestion");
    			}
    			
-   			stmt.getConnection().close();
    			stmt.close();
+   			stmt.getConnection().close();
    			
    		} catch (SQLException e) {
    			System.out.println("ERROR getProfUniversity(): " + e);
@@ -497,8 +498,8 @@ public class ApiProviderImpl implements ApiProvider {
    				idProfessor = rs.getString("idPerson");
    			}
    			
-   			stmt.getConnection().close();
    			stmt.close();
+   			stmt.getConnection().close();
    			
    		} catch (SQLException e) {
    			System.out.println("ERROR getIdProfessor(): " + e);
@@ -523,8 +524,8 @@ public class ApiProviderImpl implements ApiProvider {
 				professors.add(rs.getString("name"));
 			}
 			
-			stmt.getConnection().close();
 			stmt.close();
+			stmt.getConnection().close();
 			
 		} catch (SQLException e) {
 			System.out.println("ERROR submitDeactivate(): " + e);
