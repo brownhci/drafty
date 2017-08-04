@@ -285,7 +285,7 @@ public class Profs extends VerticalLayout implements View {
 			}
 			
 			//stops experiment from running
-			doNotAsk = true;
+			//doNotAsk = true;
 			
 			if(!doNotAsk && intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0 && (experiment_id.equals("1") || experiment_id.equals("2"))) { 
 				

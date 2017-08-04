@@ -182,7 +182,7 @@ public class SuggestionComponent extends Window {
 	    	//String for_label_sugg = "<p style=\"margin-top: 0px; line-height: 25px;\">" + "<b>Thank you</b>, please help contribute data to improve this public information.</p>";
 	    	
 	    	String for_label_sugg = "<h2 style=\"display: block; text-align: center; margin-top: 0px;\">Thank you for using Drafty</h2> "
-	    							+ "<span style=\"display: block; text-align: center;\">Can you please help us find missing data to improve this public information?</span>";
+	    							+ "<span style=\"display: block; text-align: center;\">Can you please help us upkeep data to improve this public information?</span>";
 	    	
 	    	for_label_sugg += "<hr><i><span style=\"color: rgb(153, 153, 153); display: block; text-align: center;\">"
 	    			+ "For reference, Drafty's data suggests " + person_name + " is currently a professor at: <br><i>" + person_university + "</i></span><hr>";
