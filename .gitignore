@@ -1,8 +1,3 @@
-<<<<<<< Updated upstream
-/bin/
-/target/
-/bin/
-
 # common rules from https://gist.github.com/octocat/9257657
 # Compiled source #
 ###################
@@ -44,6 +39,3 @@ Thumbs.db
 
 # Other Drafty Specific files #
 ###############################
-=======
-/target/
->>>>>>> Stashed changes
