@@ -306,14 +306,13 @@ public class Profs extends VerticalLayout implements View {
 			}
 		}
 	    
-		/*
+		
 		//for quickly testing experimental pop-up
 		if(_MainUI.getApi().getExpPopUp().isAlive()) {
 			System.out.println("Is Alive! " + PopUp.activeCount());
 		} else {
 			new PopUp().start();
 		}
-		*/
 	}
 	
 	private void checkHostName() { 

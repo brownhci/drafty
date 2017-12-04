@@ -81,8 +81,8 @@ public class PopUp extends Thread {
 		    return;
 		    
         } catch (InterruptedException e) {
-        	System.out.println("Thread Interrupted: " + e);
-        	Thread.currentThread().interrupt();//preserve the message
+        		System.out.println("Thread Interrupted: " + e);
+        		Thread.currentThread().interrupt();//preserve the message
             return;//Stop doing whatever I am doing and terminate
         }
 	}

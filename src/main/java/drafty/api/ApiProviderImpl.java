@@ -175,7 +175,11 @@ public class ApiProviderImpl implements ApiProvider {
 
     @Override
 	public String getJNDI() {
-		return "java:jboss/datasources/MySqlDS_Drafty";
+	    	if (Page.getCurrent().getLocation().toString().contains("http://localhost:8080")) {
+	    		return "java:/MySqlDS_drafty"; //local
+	    	} else {
+	    		return "java:jboss/datasources/MySqlDS_Drafty"; //server
+	    	}													
 	}
     
     public List<String> getUniversitiesUSACan() {

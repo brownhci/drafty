@@ -28,7 +28,6 @@ import com.vaadin.ui.Window;
 
 import drafty.api.ApiProvider;
 import drafty.api.ApiProviderImpl;
-import drafty.csimport.CsImporter;
 import drafty.event.DraftyEvent.CloseOpenWindowsEvent;
 import drafty.event.DraftyEvent.expPopUpEvent;
 import drafty.event.DraftyEventBus;
@@ -126,7 +125,7 @@ public class _MainUI extends UI {
 	
 	@Override
 	protected void init(VaadinRequest request) {
-		CsImporter cs = new CsImporter();
+		//CsImporter cs = new CsImporter();
 		
 		populateInitUri(); //for activating parts of the system
 		setLocale(Locale.US);

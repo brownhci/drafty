@@ -74,10 +74,11 @@ public class ExperimentService {
 	private static void newExperimentProfile() {
 		try {
 			String new_experiment_id = String.valueOf(_MainUI.getApi().getRandom(1, 3));
+			
 			if(_MainUI.getApi().getUriFragment().isSurveyActive()) {
 				new_experiment_id = "4";
 			}
-	        
+
 	        String sql = "INSERT INTO Experiment_Profile VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1)";
 	        PreparedStatement stmt =  _MainUI.getApi().getConnStmt(sql);
 	        stmt.setString(1, new_experiment_id);

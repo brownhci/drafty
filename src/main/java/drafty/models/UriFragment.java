@@ -4,7 +4,7 @@ public class UriFragment {
 	
 	private boolean isActive = false;
 	private boolean surveyActive = false;
-	private boolean experimentActive = false;
+	private boolean experimentActive = true;
 	private boolean testActive = false;
 	
 	private String init_uri = "none";

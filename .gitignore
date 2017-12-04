@@ -39,3 +39,4 @@ Thumbs.db
 
 # Other Drafty Specific files #
 ###############################
+/target/

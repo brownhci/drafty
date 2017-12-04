@@ -186,10 +186,8 @@ public class BrowserCookies {
 				}
 		        conn.close();
 		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception Profs.java updateProfile() " + ex);
+		    } catch (Exception e) {
+	        		_MainUI.getApi().logError(e);
 	        }
 	    }
 	
