@@ -63,8 +63,8 @@ public class DataExporter {
 		
 		String sql = 
         		"select o.idPerson AS idPerson,o.idSuggestionType AS idSuggestionType, o.suggestion AS suggestion, o.confidence AS confidence, p.name AS name "
-        		+ "from ((drafty.Suggestion o "
-        		+ "left join drafty.Suggestion b on(((o.idPerson = b.idPerson) and (o.confidence < b.confidence) and (o.idSuggestionType = b.idSuggestionType)))) "
+        		+ "from ((Suggestion o "
+        		+ "left join Suggestion b on(((o.idPerson = b.idPerson) and (o.confidence < b.confidence) and (o.idSuggestionType = b.idSuggestionType)))) "
         		+ "join drafty.Person p on((o.idPerson = p.idPerson))) "
         		+ "where o.idPerson AND isnull(b.confidence) order by o.idPerson, o.idSuggestionType "; 
 		

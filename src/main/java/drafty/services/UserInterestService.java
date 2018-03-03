@@ -633,7 +633,7 @@ public class UserInterestService {
 						+ "GROUP BY idSuggestion ORDER BY RAND() ";
 			
 			sql = "select o.idPerson AS idPerson,o.idSuggestionType AS idSuggestionType, o.idSuggestion, count(*) as cnt "
-				+ "from (Suggestion o left join drafty.Suggestion b on "
+				+ "from (Suggestion o left join Suggestion b on "
 				+ "(((o.idPerson = b.idPerson) and (o.confidence < b.confidence) and (o.idSuggestionType = b.idSuggestionType)))) "
 				+ "WHERE o.suggestion = '' AND o.idSuggestionType < 11 "
 				+ "GROUP BY o.idSuggestion ORDER BY RAND()";

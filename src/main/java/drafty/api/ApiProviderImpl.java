@@ -91,7 +91,7 @@ public class ApiProviderImpl implements ApiProvider {
 				stmt = conn.prepareStatement(sql);
 	        }
 	    } catch (Exception ex) {
-        	System.out.println("Exception Connection: " + ex);
+        		System.out.println("Exception Connection: " + ex);
         }
 		
 		return stmt;
@@ -178,7 +178,8 @@ public class ApiProviderImpl implements ApiProvider {
 	    	if (Page.getCurrent().getLocation().toString().contains("http://localhost:8080")) {
 	    		return "java:/MySqlDS_drafty"; //local
 	    	} else {
-	    		return "java:jboss/datasources/MySqlDS_Drafty"; //server
+	    		return "java:/MySqlDS_drafty";
+	    		//return "java:jboss/datasources/MySqlDS_Drafty"; //server
 	    	}													
 	}
     

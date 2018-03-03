@@ -79,6 +79,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import drafty._MainUI;
 import drafty.components.AddNewProfessor;
 import drafty.components.DataFixComponent;
+import drafty.components.MaintenanceWindow;
 import drafty.components.NameEditComponent;
 import drafty.components.NewUserWelcome;
 import drafty.components.SuggestionComponent;
@@ -174,6 +175,9 @@ public class Profs extends VerticalLayout implements View {
 	private boolean adminEditMode = false;
 	
 	public Profs() {
+		
+		//new MaintenanceWindow();
+		
 		buildLoading();
 		
 		//on system start program is in normal mode
@@ -285,7 +289,7 @@ public class Profs extends VerticalLayout implements View {
 			}
 			
 			//stops experiment from running
-			//doNotAsk = true;
+			doNotAsk = true;
 			
 			if(!doNotAsk && intCount % _MainUI.getApi().getIntAsk() == 0 && intCount != 0 && (experiment_id.equals("1") || experiment_id.equals("2"))) { 
 				
@@ -1143,9 +1147,9 @@ public class Profs extends VerticalLayout implements View {
 	        
 	        String sql = 
 	        		"select o.idPerson AS idPerson,o.idSuggestionType AS idSuggestionType, o.suggestion AS suggestion, o.confidence AS confidence, p.name AS name "
-	        		+ "from ((drafty.Suggestion o "
-	        		+ "left join drafty.Suggestion b on(((o.idPerson = b.idPerson) and (o.confidence < b.confidence) and (o.idSuggestionType = b.idSuggestionType)))) "
-	        		+ "join drafty.Person p on((o.idPerson = p.idPerson))) "
+	        		+ "from ((Suggestion o "
+	        		+ "left join Suggestion b on(((o.idPerson = b.idPerson) and (o.confidence < b.confidence) and (o.idSuggestionType = b.idSuggestionType)))) "
+	        		+ "join Person p on((o.idPerson = p.idPerson))) "
 	        		+ "where o.idPerson " + lookup + " AND isnull(b.confidence) and p.status = 1 "
 	        		+ "order by o.idPerson, o.idSuggestionType "; 
 
@@ -1505,7 +1509,6 @@ public class Profs extends VerticalLayout implements View {
 	            		//no cookies 
 	            		if(!_MainUI.getApi().getUriFragment().isSurveyActive()) {
 		            		new NewUserWelcome();
-	            			
 	            		}
 	            		newCookieProfile();
 	        		} else {
