@@ -33,3 +33,4 @@ target/m2e-wtp/web-resources/META-INF/maven/com.vaadin.demo/ajobs/pom.xml
 *.class
 *.MF
 *.class
+*.component

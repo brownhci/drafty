@@ -55,8 +55,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-server</artifactId>
+		    <groupId>com.vaadin</groupId>
+		    <artifactId>vaadin-server</artifactId>
+		    <version>${vaadin.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
