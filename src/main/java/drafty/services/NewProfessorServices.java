@@ -76,11 +76,9 @@ public class NewProfessorServices {
 				String sql = "INSERT INTO Person (idPerson, name, status) VALUES (NULL, ?, '1');";
 				
 				conn = datasource.getConnection();
-
 				
 				stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		        stmt.setString(1, name);
-		        
 		        
 		        int affectedRows = stmt.executeUpdate();
 				
@@ -110,13 +108,13 @@ public class NewProfessorServices {
 		try {
 			String sql = "INSERT INTO Suggestion "
 					+ "(idSuggestion, idPerson, idProfile, idEntryType, idSuggestionType, suggestion, suggestion_original, comment, date, confidence) "
-					+ "VALUES (NULL, ?, ?, '11', ?, N?, NULL, NULL, CURRENT_TIMESTAMP, '7')";
+					+ "VALUES (NULL, ?, ?, '11', ?, ?, NULL, NULL, CURRENT_TIMESTAMP, '7')";
 			
 			PreparedStatement stmt = _MainUI.getApi().getConnStmt(sql);
 			stmt.getConnection().setAutoCommit(false);
 			
 			for (Map.Entry<String, String> entry : newSuggs.entrySet()) {
-				System.out.println("value: " + entry.getValue());
+				System.out.println("new prof value: " + entry.getKey() + " :: " + entry.getValue());
 				
 				stmt.setString(1, newProf.getPerson_id()); //idPerson
 		        stmt.setString(2, _MainUI.getApi().getIdProfile()); //profile id

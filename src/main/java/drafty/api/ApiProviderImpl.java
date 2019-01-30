@@ -392,27 +392,26 @@ public class ApiProviderImpl implements ApiProvider {
 		        stmt.setString(2, value);
 		        stmt.setString(3, column);
 		        
-		        //System.out.println("getIdSuggestion():" + sql);
-		        //System.out.println(person_id + " - " + value + " - " +  column);
+		        System.out.println("");
+		        System.out.println("API - getIdSuggestion():" + sql);
+		        System.out.println(person_id + " - " + value + " - " +  column);
 		        
 		        try {
 		        	ResultSet rs = stmt.executeQuery();
 					while (rs.next()) {
 						if(!rs.getString("exist").equals("0")) {
 							idSuggestion = rs.getString("idSuggestion");
-							//System.out.println("getIdSuggestionMaxConf(): person_id = " + person_id + ", value = " + value + ", column = " + column);
+							System.out.println("getIdSuggestionMaxConf(): person_id = " + person_id + ", value = " + value + ", column = " + column + ", idSuggestion = " + idSuggestion);
 						}
 					}
 		        } catch (SQLException e) {
-					System.out.println("ERROR api getIdSuggestion(): " + e.getMessage());
+					System.out.println("ERROR api 1 getIdSuggestion(): " + e.getMessage());
 				}
 		        stmt.close();
 		        conn.close();
 		      }
-		    }
-	        catch (Exception ex)
-	        {
-	        	System.out.println("Exception" + ex);
+		    } catch (Exception ex) {
+	        	System.out.println("ERROR api 2 getIdSuggestion():" + ex);
 	        }
 			return idSuggestion;
 	}

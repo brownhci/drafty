@@ -82,7 +82,12 @@ public class Profile {
 		this.ipAddress = ipAddress;
 	}
 	public String getIdProfile() {
-		return idProfile;
+		System.out.println("Profile - getIdProfile = " + idProfile);
+		if (idProfile != null && !idProfile.isEmpty()) {
+			return idProfile;
+		} else {
+			return "1"; // 1 = system idProfile <- back-up
+		}
 	}
 	public void setIdProfile(String idProfile) {
 		this.idProfile = idProfile;

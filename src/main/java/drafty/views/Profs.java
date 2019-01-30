@@ -79,7 +79,6 @@ import com.vaadin.ui.themes.ValoTheme;
 import drafty._MainUI;
 import drafty.components.AddNewProfessor;
 import drafty.components.DataFixComponent;
-import drafty.components.MaintenanceWindow;
 import drafty.components.NameEditComponent;
 import drafty.components.NewUserWelcome;
 import drafty.components.SuggestionComponent;
@@ -315,7 +314,7 @@ public class Profs extends VerticalLayout implements View {
 		if(_MainUI.getApi().getExpPopUp().isAlive()) {
 			System.out.println("Is Alive! " + PopUp.activeCount());
 		} else {
-			new PopUp().start();
+			//new PopUp().start();
 		}
 	}
 	
@@ -572,7 +571,7 @@ public class Profs extends VerticalLayout implements View {
                 	_MainUI.getApi().getUIService().recordClick(cell_id, cell_full_name, cell_value, cell_column, true, rowValues);
                 	_MainUI.getApi().getUserStudyService().recordClick(cell_id, cell_full_name, cell_value, cell_column, true, rowValues);
                 	
-                	//System.out.println("DblClick SuggID: cell_value_id: " + cell_value_id);
+                	System.out.println("DblClick SuggID: cell_value_id: " + cell_value_id);
             		_MainUI.getApi().getCellSelection().setCellSelection(cell_id, cell_full_name, _MainUI.getApi().getProfUniversity(cell_id), cell_value, cell_value_id, cell_column, rowValues);
             		
             		if(adminEditMode) {
@@ -1774,7 +1773,7 @@ public class Profs extends VerticalLayout implements View {
 	        Connection conn = datasource.getConnection();
 	        String sql = "INSERT INTO IpAddress (idProfile, ip, browser, locale, date_created, date_updated, logins) VALUES (?, ?, ?, ?, ?, ?, 1); ";
 	        PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-	        System.out.println("newIp() idProfile " + idProfile);
+	        System.out.println("Profs.java - newIp() idProfile " + idProfile);
 	        stmt.setString(1, idProfile);
 	        stmt.setString(2, ipAddress);
 	        stmt.setString(3, webBrowser.getLocale().toString());
@@ -1796,7 +1795,7 @@ public class Profs extends VerticalLayout implements View {
 		            }
 		        }
 	        } catch (SQLException e) {
-				System.out.println("newIp() error: " + e.getMessage());
+	        	System.out.println("Profs.java - newIp() idProfile = " + idProfile + ", error = " +  e.getMessage());
 			}
 	        conn.close();
 	      }

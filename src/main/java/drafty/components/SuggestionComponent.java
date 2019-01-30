@@ -622,6 +622,12 @@ public class SuggestionComponent extends Window {
 	        stmt.setString(4, sugTypeId);
 	        stmt.setString(5, newSuggestion);
 	        stmt.setString(6, idSuggestion); 
+	        
+	        if(newMaxConf != null && !newMaxConf.isEmpty()) {
+	        	//do nothing
+	        } else {
+	        	newMaxConf = "10";
+	        }
 		    stmt.setString(7, newMaxConf); //confidence from max confidence, new_sugg_conf	
 	        
 	        try {
@@ -676,6 +682,7 @@ public class SuggestionComponent extends Window {
 	        stmt.setInt(8, _MainUI.getApi().getInteractionScoreTot());
 	        stmt.setString(9,  _MainUI.getApi().getProfile().getVisits());
 	        
+	        System.out.println("_MainUI.getApi().getIdProfile() = " + _MainUI.getApi().getIdProfile());
 	        int affectedRows = stmt.executeUpdate();
 	        
 	        if (affectedRows == 0) {

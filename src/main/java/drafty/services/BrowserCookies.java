@@ -251,9 +251,7 @@ public class BrowserCookies {
 			}
 	        conn.close();
 	      }
-	    }
-        catch (Exception ex)
-        {
+	    } catch (Exception ex) {
         	System.out.println("Exception" + ex);
         }
 	}
@@ -289,7 +287,7 @@ public class BrowserCookies {
 		            }
 		        }
 	        } catch (SQLException e) {
-				System.out.println("newIp() error: " + e.getMessage());
+				System.out.println("newIp() idProfile = " + idProfile + ", error = " +  e.getMessage());
 			}
 	        conn.close();
 	      }
