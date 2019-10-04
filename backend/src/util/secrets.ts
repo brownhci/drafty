@@ -54,7 +54,6 @@ function defaultVariableNotFoundHandler(variableName: string) {
   const name: string = prod ? variableName : variableLocalName;
   const value: string = process.env[name];
   if (value) {
-    console.log(`${variableName} = ${value}`);
     return value;
   } else {
     variableNotFoundHandler(name);

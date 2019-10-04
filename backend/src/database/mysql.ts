@@ -1,3 +1,4 @@
+import logger from "../util/logger";
 import mariadb from "mariadb";
 import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } from "../util/secrets";
 
@@ -15,9 +16,17 @@ const pool = mariadb.createPool({
    user: DB_USER,
    password: DB_PASSWORD,
    host: DB_HOST,
-  database: DB_DATABASE,
+   database: DB_DATABASE,
   // connectionLimit: 5, // Maximum number of connection in pool.
 });
+pool.getConnection()
+    .then(conn => {
+      logger.debug("Congratulations! We have connected the database!");
+      conn.release(); //release to pool
+    })
+    .catch(() => {
+      logger.error(`Error connecting to database ${DB_DATABASE} from ${DB_HOST} as ${DB_USER} identified with ${DB_PASSWORD}`);
+    });
 
 
 // DATABASE OPERATIONS
@@ -56,11 +65,6 @@ async function testConnection() {
 
   await pool.query("DROP TABLE IF EXISTS books");
 }
-
-// testing everything works
-// TODO remove this when using for production
-testConnection();
-
 
 // exports
 export { testConnection as databaseTestFunctionality };

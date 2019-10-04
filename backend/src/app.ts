@@ -10,6 +10,7 @@ import mongoose from "mongoose";
 import passport from "passport";
 import bluebird from "bluebird";
 import { MONGODB_URI, SESSION_SECRET } from "./util/secrets";
+import { databaseTestFunctionality } from "./database/mysql";
 
 const MongoStore = mongo(session);
 
@@ -26,6 +27,10 @@ import * as passportConfig from "./config/passport";
 // Create Express server
 const app = express();
 
+// demonstrate we can also connect to mariaDB
+databaseTestFunctionality();
+
+
 // Connect to MongoDB
 const mongoUrl = MONGODB_URI;
 mongoose.Promise = bluebird;
@@ -34,7 +39,7 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true, useUni
     () => { /** ready to use. The `mongoose.connect()` promise resolves to undefined. */ },
 ).catch(err => {
     console.log("MongoDB connection error. Please make sure MongoDB is running. " + err);
-    // process.exit();
+    process.exit();
 });
 
 // Express configuration
