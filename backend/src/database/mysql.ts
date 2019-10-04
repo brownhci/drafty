@@ -1,5 +1,5 @@
 import mariadb from "mariadb";
-import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } from "./secrets";
+import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } from "../util/secrets";
 
 /**
  * This file provides interface to MySQL (MariaDB database), it will:
@@ -57,7 +57,7 @@ async function testConnection() {
   await pool.query("DROP TABLE IF EXISTS books");
 }
 
-// testsing everything works
+// testing everything works
 // TODO remove this when using for production
 testConnection();
 
