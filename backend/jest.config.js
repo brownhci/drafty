@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     globals: {
         "ts-jest": {
             tsConfig: "tsconfig.json"
