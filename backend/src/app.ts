@@ -3,16 +3,16 @@ import compression from "compression";  // compresses requests
 import session from "express-session";
 import bodyParser from "body-parser";
 import lusca from "lusca";
-import mongo from "connect-mongo";
 import flash from "express-flash";
 import path from "path";
 import mongoose from "mongoose";
 import passport from "passport";
 import bluebird from "bluebird";
-import { MONGODB_URI, SESSION_SECRET } from "./util/secrets";
+import { MONGODB_URI, SESSION_DB_HOST, SESSION_DB_USER, SESSION_DB_PASSWORD, SESSION_DB_DATABASE, SESSION_SECRET } from "./util/secrets";
 import { databaseTestFunctionality } from "./database/mysql";
 
-const MongoStore = mongo(session);
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const MySQLStore = require("express-mysql-session")(session);
 
 // Controllers (route handlers)
 import * as homeController from "./controllers/home";
@@ -51,12 +51,14 @@ app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     secret: SESSION_SECRET,
-    store: new MongoStore({
-        url: mongoUrl,
-        autoReconnect: true
+    store: new MySQLStore({
+      host: SESSION_DB_HOST,
+      user: SESSION_DB_USER,
+      password: SESSION_DB_PASSWORD,
+      database: SESSION_DB_DATABASE,
     })
 }));
 app.use(passport.initialize());
