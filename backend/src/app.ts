@@ -64,8 +64,18 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
+app.use(lusca.csrf());
+app.use(lusca.csp({
+  policy: {
+    // TODO remove localhost origin in production
+    "default-src": "self http://localhost:3000",
+    "img-src": "*"
+  }
+}));
 app.use(lusca.xframe("SAMEORIGIN"));
 app.use(lusca.xssProtection(true));
+app.use(lusca.nosniff());
+app.use(lusca.referrerPolicy("same-origin"));
 app.use((req, res, next) => {
     res.locals.user = req.user;
     next();
