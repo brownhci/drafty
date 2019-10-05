@@ -1,6 +1,6 @@
 # Drafty Backend
 
-2019
+## Getting on board
 
 ## How to Use
 
@@ -17,3 +17,6 @@ Steps:
 
 -  `[Node] (node:36476) UnhandledPromiseRejectionWarning: Error: Client does not support authentication protocol requested by server; consider upgrading MySQL client`<br/>
    [Reason & Fix](https://stackoverflow.com/questions/50093144/mysql-8-0-client-does-not-support-authentication-protocol-requested-by-server)
+
+## Contact
+[Zhengyi Peng](mailto:zhengyi_peng@brown.edu)
