@@ -27,8 +27,9 @@ import * as passportConfig from "./config/passport";
 // Create Express server
 const app = express();
 
+// Database
 // demonstrate we can also connect to mariaDB
-databaseTestFunctionality();
+// databaseTestFunctionality();
 
 
 // Connect to MongoDB
