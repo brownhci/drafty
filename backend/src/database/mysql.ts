@@ -20,13 +20,13 @@ const pool = mysql.createPool({
   // connectionLimit: 10, // Maximum number of connection in pool.
 });
 pool.getConnection()
-    .then(conn => {
-      logger.debug("Congratulations! We have connected the database!");
-      conn.release(); //release to pool
-    })
-    .catch(() => {
-      logger.error(`Error connecting to database ${DB_DATABASE} from ${DB_HOST} as ${DB_USER} identified with ${DB_PASSWORD}`);
-    });
+  .then(conn => {
+    logger.debug("Congratulations! We have connected the database!");
+    conn.release(); //release to pool
+  })
+  .catch(() => {
+    logger.error(`Error connecting to database ${DB_DATABASE} from ${DB_HOST} as ${DB_USER} identified with ${DB_PASSWORD}`);
+  });
 
 
 // DATABASE OPERATIONS
@@ -67,4 +67,7 @@ async function testConnection() {
 }
 
 // exports
-export { testConnection as databaseTestFunctionality };
+export { 
+  testConnection as databaseTestFunctionality,
+  pool as db
+};
