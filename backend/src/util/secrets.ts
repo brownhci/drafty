@@ -47,7 +47,7 @@ function defaultVariableNotFoundHandler(variableName: string) {
  * Returns:
  *    The value of the variable specified by variableName in dot environment.
  */
-   function resolveEnvironmentVariable(
+function resolveEnvironmentVariable(
      variableName: string,
      variableLocalName=`${variableName}_LOCAL`,
      variableNotFoundHandler=defaultVariableNotFoundHandler): string {
