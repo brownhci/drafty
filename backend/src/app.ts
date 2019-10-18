@@ -18,7 +18,7 @@ const MySQLStore = require("express-mysql-session")(session);
 import * as homeController from "./controllers/home";
 import * as userController from "./controllers/user";
 import * as contactController from "./controllers/contact";
-
+import * as interactionController from "./controllers/interaction";
 
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
@@ -118,5 +118,12 @@ app.post("/account/profile", passportConfig.isAuthenticated, userController.post
 app.post("/account/password", passportConfig.isAuthenticated, userController.postUpdatePassword);
 app.post("/account/delete", passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get("/account/unlink/:provider", passportConfig.isAuthenticated, userController.getOauthUnlink);
+app.post("/new-row", interactionController.postNewRow);
+app.post("/edit", interactionController.postEdit);
+app.post("/click", interactionController.postClick);
+app.post("/click-double", interactionController.postClickDouble);
+app.post("/sort", interactionController.postSort);
+app.post("/search-partial", interactionController.postSearchPartial);
+app.post("/search-full", interactionController.postSearchFull);
 
 export default app;
