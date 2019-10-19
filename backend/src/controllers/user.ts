@@ -27,6 +27,7 @@ export const getLogin = (req: Request, res: Response) => {
  * Sign in using email and password.
  */
 export const postLogin = (req: Request, res: Response, next: NextFunction) => {
+    //check for errors
     check("email", "Email is not valid").isEmail();
     check("password", "Password cannot be blank").isLength({min: 1});
     // eslint-disable-next-line @typescript-eslint/camelcase
@@ -34,11 +35,13 @@ export const postLogin = (req: Request, res: Response, next: NextFunction) => {
 
     const errors = validationResult(req);
 
+    //if there are error redirect
     if (!errors.isEmpty()) {
         req.flash("errors", errors.array());
         return res.redirect("/login");
     }
 
+    // zomg we're good, do something
     passport.authenticate("local", (err: Error, user: UserDocument, info: IVerifyOptions) => {
         if (err) { return next(err); }
         if (!user) {
@@ -80,6 +83,7 @@ export const getSignup = (req: Request, res: Response) => {
  * Create a new local account.
  */
 export const postSignup = (req: Request, res: Response, next: NextFunction) => {
+    //check errors
     check("email", "Email is not valid").isEmail();
     check("password", "Password must be at least 4 characters long").isLength({ min: 4 });
     check("confirmPassword", "Passwords do not match").equals(req.body.password);
