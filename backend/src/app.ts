@@ -5,10 +5,8 @@ import bodyParser from "body-parser";
 import lusca from "lusca";
 import flash from "express-flash";
 import path from "path";
-import mongoose from "mongoose";
 import passport from "passport";
-import bluebird from "bluebird";
-import { MONGODB_URI, SESSION_DB_HOST, SESSION_DB_USER, SESSION_DB_PASSWORD, SESSION_DB_DATABASE, SESSION_SECRET } from "./util/secrets";
+import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, SESSION_SECRET } from "./util/secrets";
 import { databaseTestFunctionality } from "./database/mysql";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -30,18 +28,6 @@ const app = express();
 // demonstrate we can also connect to mariaDB
 // databaseTestFunctionality();
 
-
-// Connect to MongoDB
-const mongoUrl = MONGODB_URI;
-mongoose.Promise = bluebird;
-
-mongoose.connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true } ).then(
-    () => { /** ready to use. The `mongoose.connect()` promise resolves to undefined. */ },
-).catch(err => {
-    console.log("MongoDB connection error. Please make sure MongoDB is running. " + err);
-    process.exit();
-});
-
 // Express configuration
 app.set("port", process.env.PORT || 3000);
 app.set("views", path.join(__dirname, "../views"));
@@ -54,10 +40,10 @@ app.use(session({
     saveUninitialized: false,
     secret: SESSION_SECRET,
     store: new MySQLStore({
-      host: SESSION_DB_HOST,
-      user: SESSION_DB_USER,
-      password: SESSION_DB_PASSWORD,
-      database: SESSION_DB_DATABASE,
+      host: DB_HOST,
+      user: DB_USER,
+      password: DB_PASSWORD,
+      database: DB_DATABASE,
     })
 }));
 app.use(passport.initialize());
@@ -101,7 +87,10 @@ app.use(
 /**
  * Primary app routes.
  */
+// home site rendering
 app.get("/", homeController.index);
+
+// user related functionalities
 app.get("/login", userController.getLogin);
 app.post("/login", userController.postLogin);
 app.get("/logout", userController.logout);
@@ -111,13 +100,19 @@ app.get("/reset/:token", userController.getReset);
 app.post("/reset/:token", userController.postReset);
 app.get("/signup", userController.getSignup);
 app.post("/signup", userController.postSignup);
+
+// contacting developers
 app.get("/contact", contactController.getContact);
 app.post("/contact", contactController.postContact);
+
+// passport accounts
 app.get("/account", passportConfig.isAuthenticated, userController.getAccount);
 app.post("/account/profile", passportConfig.isAuthenticated, userController.postUpdateProfile);
 app.post("/account/password", passportConfig.isAuthenticated, userController.postUpdatePassword);
 app.post("/account/delete", passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get("/account/unlink/:provider", passportConfig.isAuthenticated, userController.getOauthUnlink);
+
+// interactions
 app.post("/new-row", interactionController.postNewRow);
 app.post("/edit", interactionController.postEdit);
 app.post("/click", interactionController.postClick);
