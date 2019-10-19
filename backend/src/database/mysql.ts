@@ -1,5 +1,6 @@
 import logger from "../util/logger";
 import mysql from "mysql2/promise";
+import {RowDataPacket} from "mysql2";
 import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } from "../util/secrets";
 
 /**
@@ -19,6 +20,7 @@ const pool = mysql.createPool({
    database: DB_DATABASE,
   // connectionLimit: 10, // Maximum number of connection in pool.
 });
+
 pool.getConnection()
   .then(conn => {
     logger.debug("Congratulations! We have connected the database!");
@@ -28,6 +30,12 @@ pool.getConnection()
     logger.error(`Error connecting to database ${DB_DATABASE} from ${DB_HOST} as ${DB_USER} identified with ${DB_PASSWORD}`);
   });
 
+// DATABASE Table Names and Field Names
+const userTableName = "Profile";
+const userTableUserIdFieldName = "idProfile";
+interface UserRow {
+  [userTableUserIdFieldName: string]: number;
+}
 
 // DATABASE OPERATIONS
 
@@ -64,6 +72,32 @@ async function testConnection() {
   );
 
   await pool.query("DROP TABLE IF EXISTS books");
+}
+
+/**
+ * Try to find a user by a numeric ID.
+ *
+ * Args:
+ *    id: the id of the user to be looked up.
+ *    callback: a callback function that will receive [error, userRow] as arguments
+ *      - if the query succeeds, error is none and the userRow is the first row of results
+ *      - if the query fails, error is a custom Error about user with specified id cannot not found
+ *      - if the query throws an error, error is the original error object
+ * Returns:
+ *    None, callback will be called
+ */
+export async function findUserById(id: number, callback: Function) {
+  try {
+  const [rows] = await pool.query("SELECT * FROM ?? WHERE ?? = ?", [userTableName, userTableUserIdFieldName, id]);
+    if (Array.isArray(rows) && rows.length > 0) {
+      const userRow = rows[0] as UserRow;
+      callback(null, userRow);
+    } else {
+      callback(new Error(`Database Query Error: Cannot find user with id ${id}`));
+    }
+  } catch (error) {
+    callback(error);
+  }
 }
 
 // exports

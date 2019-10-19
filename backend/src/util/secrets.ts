@@ -47,7 +47,7 @@ function defaultVariableNotFoundHandler(variableName: string) {
  * Returns:
  *    The value of the variable specified by variableName in dot environment.
  */
-   function resolveEnvironmentVariable(
+function resolveEnvironmentVariable(
      variableName: string,
      variableLocalName=`${variableName}_LOCAL`,
      variableNotFoundHandler=defaultVariableNotFoundHandler): string {
@@ -62,14 +62,8 @@ function defaultVariableNotFoundHandler(variableName: string) {
 
 
 // Dot environment variables
-export const MONGODB_URI = resolveEnvironmentVariable("MONGODB_URI");
 // Main Database
 export const DB_HOST = resolveEnvironmentVariable("DB_HOST");
 export const DB_USER = resolveEnvironmentVariable("DB_USER");
 export const DB_PASSWORD = resolveEnvironmentVariable("DB_PASSWORD");
 export const DB_DATABASE = resolveEnvironmentVariable("DB_DATABASE");
-// Session Database
-export const SESSION_DB_HOST = resolveEnvironmentVariable("SESSION_DB_HOST");
-export const SESSION_DB_USER = resolveEnvironmentVariable("SESSION_DB_USER");
-export const SESSION_DB_PASSWORD = resolveEnvironmentVariable("SESSION_DB_PASSWORD");
-export const SESSION_DB_DATABASE = resolveEnvironmentVariable("SESSION_DB_DATABASE");
