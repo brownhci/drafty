@@ -4,17 +4,6 @@
 
 Steps:
 
-1. Configure your mongoDB server
-   ```bash
-   # create the db directory
-   sudo mkdir -p /data/db
-   # give the db correct read/write permissions
-   sudo chmod 777 /data/db
-   ```
-1. Start your mongoDB server (you'll probably want another command prompt)
-   ```
-   mongod
-   ```
 1. Start your mysql server
    ```bash
    mysql.server start
@@ -36,6 +25,7 @@ Steps:
      [Create MySQL Database, Table & User From Command Line Guide](https://www.a2hosting.com/kb/developer-corner/mysql/managing-mysql-databases-and-users-from-the-command-line)
    - create another database, user with proper privileges, password for session database (*okay to reuse previous database, user, password*)<br/>
 1. Create an environment file in `./backend/` directory, you can copy over `./backend/.env.example` for quick start
+1. Run `npm install` to install necessary dependencies
 1. Depends on whether you need continuous build (detects your changes and updates build), usually you want this for development, run one of the following script
     - run with `npm run watch` for continuous build
     - run with `npm run build` and `npm start` for normal build
