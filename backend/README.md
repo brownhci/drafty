@@ -60,6 +60,10 @@ Supporting libraries used:
   Web application security middleware.
 - [Express Flash](https://github.com/RGBboy/express-flash)<br/>
   Flash is an extension of connect-flash with the ability to define a flash message and render it without redirecting the request.
+- [express-validator](https://github.com/express-validator/express-validator)<br/>
+  An express.js middleware for validator.
+- [node.bcrypt.js](https://github.com/kelektiv/node.bcrypt.js)<br/>
+  A library to help you hash passwords.
 
 ## Contact
 [Zhengyi Peng](mailto:zhengyi_peng@brown.edu)
