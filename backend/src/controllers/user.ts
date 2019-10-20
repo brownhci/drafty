@@ -2,11 +2,12 @@ import async from "async";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 import passport from "passport";
-import { User, UserDocument, AuthToken } from "../models/User";
 import { Request, Response, NextFunction } from "express";
+import { UserRow, userTableIdFieldName, userTableUsernameFieldName, userTableEmailFieldName, userTablePasswordFieldName, findUserByField, findUserByFieldResultType, createUser, updateUser, deleteUser } from "../database/mysql";
 import { IVerifyOptions } from "passport-local";
-import { WriteError } from "mongodb";
-import { check, sanitize, validationResult } from "express-validator";
+import { check, body, sanitize, validationResult } from "express-validator";
+import { emailAlreadyTaken } from "../validation/validators";
+import { encryptPassword } from "../util/encrypt";
 import "../config/passport";
 
 /**
@@ -28,8 +29,8 @@ export const getLogin = (req: Request, res: Response) => {
  */
 export const postLogin = (req: Request, res: Response, next: NextFunction) => {
     //check for errors
-    check("email", "Email is not valid").isEmail();
-    check("password", "Password cannot be blank").isLength({min: 1});
+    body("email", "Email is not valid").isEmail();
+    body("password", "Password cannot be blank").isLength({min: 1});
     // eslint-disable-next-line @typescript-eslint/camelcase
     sanitize("email").normalizeEmail({ gmail_remove_dots: false });
 
@@ -41,17 +42,18 @@ export const postLogin = (req: Request, res: Response, next: NextFunction) => {
         return res.redirect("/login");
     }
 
-    // zomg we're good, do something
-    passport.authenticate("local", (err: Error, user: UserDocument, info: IVerifyOptions) => {
+    // we're good, do something
+    passport.authenticate("local", (err: Error, user: UserRow, info: IVerifyOptions) => {
         if (err) { return next(err); }
         if (!user) {
-            req.flash("errors", {msg: info.message});
-            return res.redirect("/login");
+          // authentication error
+          req.flash("errors", {msg: info.message});
+          return res.redirect("/login");
         }
-        req.logIn(user, (err) => {
-            if (err) { return next(err); }
-            req.flash("success", { msg: "Success! You are logged in." });
-            res.redirect(req.session.returnTo || "/");
+        req.login(user, (err) => {
+          if (err) { return next(err); }
+          req.flash("success", { msg: "Success! You are logged in." });
+          res.redirect(req.session.returnTo || "/");
         });
     })(req, res, next);
 };
@@ -84,9 +86,9 @@ export const getSignup = (req: Request, res: Response) => {
  */
 export const postSignup = (req: Request, res: Response, next: NextFunction) => {
     //check errors
-    check("email", "Email is not valid").isEmail();
-    check("password", "Password must be at least 4 characters long").isLength({ min: 4 });
-    check("confirmPassword", "Passwords do not match").equals(req.body.password);
+    body("email", "Email is not valid").isEmail().custom(emailAlreadyTaken);
+    body("password", "Password must be at least 4 characters long").isLength({ min: 4 });
+    body("confirmPassword", "Passwords do not match").equals(req.body.password);
     // eslint-disable-next-line @typescript-eslint/camelcase
     sanitize("email").normalizeEmail({ gmail_remove_dots: false });
 
@@ -97,26 +99,22 @@ export const postSignup = (req: Request, res: Response, next: NextFunction) => {
         return res.redirect("/signup");
     }
 
-    const user = new User({
-        email: req.body.email,
-        password: req.body.password
-    });
+    const email: string = req.body.email;
+    const password: string = req.body.password;
+    // creates new user
+    const newUser = {
+      [userTableEmailFieldName]: email,
+      [userTablePasswordFieldName]: password,
+    };
 
-    User.findOne({ email: req.body.email }, (err, existingUser) => {
-        if (err) { return next(err); }
-        if (existingUser) {
-            req.flash("errors", { msg: "Account with that email address already exists." });
-            return res.redirect("/signup");
-        }
-        user.save((err) => {
-            if (err) { return next(err); }
-            req.logIn(user, (err) => {
-                if (err) {
-                    return next(err);
-                }
-                res.redirect("/");
-            });
-        });
+    createUser(newUser, (err: Error) => {
+      if (err) { return next(err); }
+      req.logIn(newUser, (err) => {
+          if (err) {
+              return next(err);
+          }
+          res.redirect("/");
+      });
     });
 };
 
@@ -135,7 +133,7 @@ export const getAccount = (req: Request, res: Response) => {
  * Update profile information.
  */
 export const postUpdateProfile = (req: Request, res: Response, next: NextFunction) => {
-    check("email", "Please enter a valid email address.").isEmail();
+    check("email", "Please enter a valid email address.").isEmail().custom(emailAlreadyTaken);
     // eslint-disable-next-line @typescript-eslint/camelcase
     sanitize("email").normalizeEmail({ gmail_remove_dots: false });
 
@@ -146,25 +144,18 @@ export const postUpdateProfile = (req: Request, res: Response, next: NextFunctio
         return res.redirect("/account");
     }
 
-    const user = req.user as UserDocument;
-    User.findById(user.id, (err, user: UserDocument) => {
-        if (err) { return next(err); }
-        user.email = req.body.email || "";
-        user.profile.name = req.body.name || "";
-        user.profile.gender = req.body.gender || "";
-        user.profile.location = req.body.location || "";
-        user.profile.website = req.body.website || "";
-        user.save((err: WriteError) => {
-            if (err) {
-                if (err.code === 11000) {
-                    req.flash("errors", { msg: "The email address you have entered is already associated with an account." });
-                    return res.redirect("/account");
-                }
-                return next(err);
-            }
-            req.flash("success", { msg: "Profile information has been updated." });
-            res.redirect("/account");
-        });
+    const user = req.user as UserRow;
+    const userid = user[userTableIdFieldName];
+    const email: string = req.body.email || "";
+    const updatedUser = {
+      [userTableEmailFieldName]: email,
+    };
+    updateUser(updatedUser, {[userTableIdFieldName]: userid}, (error: Error) => {
+      if (error) {
+        return next(error);
+      }
+      req.flash("success", { msg: "Profile information has been updated." });
+      res.redirect("/account");
     });
 };
 
@@ -183,15 +174,18 @@ export const postUpdatePassword = (req: Request, res: Response, next: NextFuncti
         return res.redirect("/account");
     }
 
-    const user = req.user as UserDocument;
-    User.findById(user.id, (err, user: UserDocument) => {
-        if (err) { return next(err); }
-        user.password = req.body.password;
-        user.save((err: WriteError) => {
-            if (err) { return next(err); }
-            req.flash("success", { msg: "Password has been changed." });
-            res.redirect("/account");
-        });
+    const user = req.user as UserRow;
+    const userid = user[userTableIdFieldName];
+    const password: string = encryptPassword(req.body.password);
+    const updatedUser = {
+      [userTablePasswordFieldName]: password,
+    };
+    updateUser(updatedUser, {[userTableIdFieldName]: userid}, (error: Error) => {
+      if (error) {
+        return next(error);
+      }
+      req.flash("success", { msg: "Password has been changed." });
+      res.redirect("/account");
     });
 };
 
@@ -200,12 +194,13 @@ export const postUpdatePassword = (req: Request, res: Response, next: NextFuncti
  * Delete user account.
  */
 export const postDeleteAccount = (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user as UserDocument;
-    User.remove({ _id: user.id }, (err) => {
-        if (err) { return next(err); }
-        req.logout();
-        req.flash("info", { msg: "Your account has been deleted." });
-        res.redirect("/");
+    const user = req.user as UserRow;
+    const userid = user[userTableIdFieldName];
+    deleteUser({[userTableIdFieldName]: userid}, (error: Error) => {
+      if (error) { return next(error); }
+      req.logout();
+      req.flash("info", { msg: "Your account has been deleted." });
+      res.redirect("/");
     });
 };
 

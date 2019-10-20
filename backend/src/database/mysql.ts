@@ -1,5 +1,6 @@
 import logger from "../util/logger";
 import mysql from "mysql2/promise";
+import { MysqlError } from "mysql";
 import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } from "../util/secrets";
 
 /**
@@ -40,10 +41,31 @@ const validFieldNamesForUserLookup = [userTableIdFieldName, userTableUsernameFie
 export interface UserRow {
   [userTableIdFieldName]: number;
   [userTableUsernameFieldName]: string;
+  [userTableEmailFieldName]: string;
   [userTablePasswordFieldName]: string;
 }
 
 // DATABASE OPERATIONS
+/**
+ * Logs a database operation error
+ *
+ * Args:
+ *    error: A MysqlError.
+ *    message: Additional custom message, default to empty.
+ *    level: The level of logging, default to warning.
+ * Returns:
+ *    None, error will be logged.
+ */
+function logDatabaseError(error: MysqlError, message="", level="warn") {
+  logger.log({
+    level: level,
+    message: `${error.code}: ${error.sqlMessage}${message ? " - " + message : ""}`
+  });
+
+}
+// Result type of findUserByField
+export type findUserByFieldResultType = UserRow | null | undefined;
+export type findUserByFieldCallbackType = (error: Error | null, user?: findUserByFieldResultType) => any;
 /**
  * Try to find a user by table field.
  *
@@ -58,7 +80,7 @@ export interface UserRow {
  * Returns:
  *    None, callback will be called
  */
-export async function findUserByField(fieldName: string, fieldValue: string | number, callback: Function) {
+export async function findUserByField(fieldName: string, fieldValue: string | number, callback: findUserByFieldCallbackType) {
   if (!validFieldNamesForUserLookup.includes(fieldName)) {
       callback(new Error(`Cannot look up a user using field - ${fieldName}`));
   }
@@ -71,6 +93,7 @@ export async function findUserByField(fieldName: string, fieldValue: string | nu
       callback(new Error(`Cannot find a user whose ${fieldName} is ${fieldValue}`), null);
     }
   } catch (error) {
+    logDatabaseError(error, "error during finding user", "warn");
     callback(error);
   }
 }
@@ -88,6 +111,71 @@ export async function validateUserPassword(candidatePassword: string, password: 
   return true;
 }
 
+// Result type of createUser
+/**
+ * Save a new user in database
+ *
+ * Args:
+ *    user: An object containing row fields to field values.
+ *    callback: A callback function that will either
+ *      - receive [error] if the insertion fails
+ *      - receive [null, results, fields] if the insertion succeeds
+ * Returns:
+ *    None, callback will be called.
+ */
+export async function createUser(user: Partial<UserRow>, callback: Function) {
+  try {
+    const [results, fields] = await pool.query("INSERT INTO ?? SET ?", [userTableName, user]);
+    callback(null, results, fields);
+  } catch (error) {
+    logDatabaseError(error, "error during creating user", "warn");
+    callback(error);
+  }
+}
+
+/**
+ * Updates an existing user in database.
+ *
+ * Args:
+ *    updates: an object of field name and values to be updated.
+ *    constraints: an object of equalities between field name and field value.
+ *    callback: A callback function that will either
+ *      - receive [error] if the insertion fails
+ *      - receive [null, results, fields] if the update succeeds
+ * Returns:
+ *    None, callback will be called.
+ */
+export async function updateUser(updates: Partial<UserRow>, constraints: Partial<UserRow>, callback: Function) {
+  try {
+    const [results, fields] = await pool.query("UPDATE ?? SET ? WHERE ?", [userTableName, updates, constraints]);
+    callback(null, results, fields);
+  } catch (error) {
+    logDatabaseError(error, "error during updating existing user", "warn");
+    callback(error);
+  }
+}
+
+/**
+ * Deletes an existing user in database.
+ *
+ * Args:
+ *    constraints: an object of equalities between field name and field value, only the row matching
+ *      these constraints will be deleted.
+ *    callback: A callback function that will either
+ *      - receive [error] if the insertion fails
+ *      - receive [null, results, fields] if the delete succeeds
+ * Returns:
+ *    None, callback will be called.
+ */
+export async function deleteUser(constraints: Partial<UserRow>, callback: Function) {
+  try {
+    const [results, fields] = await pool.query("DELETE FROM ?? WHERE ? LIMIT 1", [userTableName, constraints]);
+    callback(null, results, fields);
+  } catch (error) {
+    logDatabaseError(error, "error during deleting user", "warn");
+    callback(error);
+  }
+}
 // exports
 export {
   pool as db
