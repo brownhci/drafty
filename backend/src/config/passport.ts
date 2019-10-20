@@ -1,7 +1,9 @@
 import passport from "passport";
 import passportLocal from "passport-local";
-import { userTableIdFieldName, userTableUsernameFieldName, userTableEmailFieldName, userTablePasswordFieldName, findUserByField, findUserByFieldResultType, validateUserPassword } from "../database/mysql";
+import { userTableIdFieldName, userTableUsernameFieldName, userTableEmailFieldName, userTablePasswordFieldName, findUserByField, findUserByFieldResultType } from "../database/mysql";
 import { Request, Response, NextFunction } from "express";
+import { comparePassword } from "../util/encrypt";
+
 
 const LocalStrategy = passportLocal.Strategy;
 
@@ -29,7 +31,7 @@ passport.use(new LocalStrategy((username, password, done) => {
       return done(error);
     }
 
-    if (!validateUserPassword(password, user[userTablePasswordFieldName])) {
+    if (!comparePassword(password, user[userTablePasswordFieldName])) {
       return done(null, false, { message: "Incorrect password." });
     }
 

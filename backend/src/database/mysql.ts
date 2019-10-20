@@ -98,19 +98,6 @@ export async function findUserByField(fieldName: string, fieldValue: string | nu
   }
 }
 
-/**
- * Validates whether supplied password matches the password in database
- *
- * Args:
- *    candidatePassword: The password to be tested, usually provided by user input.
- *    password: The password to be tested against, usually retrieved from database.
- * Returns:
- *    A boolean representing whether two passwords matches.
- */
-export async function validateUserPassword(candidatePassword: string, password: string) {
-  return true;
-}
-
 // Result type of createUser
 /**
  * Save a new user in database
