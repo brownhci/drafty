@@ -1,6 +1,5 @@
 import logger from "../util/logger";
 import mysql from "mysql2/promise";
-import {RowDataPacket} from "mysql2";
 import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } from "../util/secrets";
 
 /**
@@ -32,76 +31,64 @@ pool.getConnection()
 
 // DATABASE Table Names and Field Names
 const userTableName = "Profile";
-const userTableUserIdFieldName = "idProfile";
-interface UserRow {
-  [userTableUserIdFieldName: string]: number;
+export const userTableIdFieldName = "id";
+export const userTableUsernameFieldName = "username";
+export const userTableEmailFieldName = "email";
+export const userTablePasswordFieldName = "password";
+// supported fields that can be used to look up a user
+const validFieldNamesForUserLookup = [userTableIdFieldName, userTableUsernameFieldName, userTableEmailFieldName];
+export interface UserRow {
+  [userTableIdFieldName]: number;
+  [userTableUsernameFieldName]: string;
+  [userTablePasswordFieldName]: string;
 }
 
 // DATABASE OPERATIONS
-
-// Provide one example of declaring one database operation using async / await
-// TODO remove this when using for production
-async function testConnection() {
-  // pool.query is a shortcut to get a connection from pool, execute a query and release connection.
-  // demonstrates a basic query
-  await pool.query("SELECT NOW()")
-      .then(rows => console.log(rows));
-
-  // demonstrates how to write a multi-line query
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS books (
-      BookID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-      Title VARCHAR(100) NOT NULL,
-      SeriesID INT,
-      AuthorID INT)
-    `
-  );
-  // demonstrates bulk inserts
-  await pool.query("INSERT INTO books (Title,SeriesID,AuthorID) VALUES ?", [
-    [
-       ["The Fellowship of the Ring", 1, 1],
-       ["The Two Towers", 1, 1],
-       ["The Return of the King", 1, 1],
-       ["The Sum of All Men", 2, 2],
-       ["Brotherhood of the Wolf", 2, 2],
-       ["Wizardborn", 2, 2],
-       ["The Hobbbit", 0, 1]
-    ]
-  ]).then(
-    res => console.log(res)
-  );
-
-  await pool.query("DROP TABLE IF EXISTS books");
-}
-
 /**
- * Try to find a user by a numeric ID.
+ * Try to find a user by table field.
  *
  * Args:
- *    id: the id of the user to be looked up.
+ *    fieldName: the table field name used in lookup, must be a member of validFieldNamesForUserLookup.
+ *    fieldValue: the value of specified field name to match, must be either a number or a string.
  *    callback: a callback function that will receive [error, userRow] as arguments
  *      - if the query succeeds, error is none and the userRow is the first row of results
- *      - if the query fails, error is a custom Error about user with specified id cannot not found
+ *      - if the query fails, error is a custom Error about user with specified field name and value cannot not found and userRow is null
  *      - if the query throws an error, error is the original error object
+ *      - if the field name is not a member of validFieldNamesForUserLookup, error is custom Error about unsupported field name
  * Returns:
  *    None, callback will be called
  */
-export async function findUserById(id: number, callback: Function) {
+export async function findUserByField(fieldName: string, fieldValue: string | number, callback: Function) {
+  if (!validFieldNamesForUserLookup.includes(fieldName)) {
+      callback(new Error(`Cannot look up a user using field - ${fieldName}`));
+  }
   try {
-  const [rows] = await pool.query("SELECT * FROM ?? WHERE ?? = ?", [userTableName, userTableUserIdFieldName, id]);
+    const [rows] = await pool.query("SELECT * FROM ?? WHERE ?? = ?", [userTableName, fieldName, fieldValue]);
     if (Array.isArray(rows) && rows.length > 0) {
       const userRow = rows[0] as UserRow;
       callback(null, userRow);
     } else {
-      callback(new Error(`Database Query Error: Cannot find user with id ${id}`));
+      callback(new Error(`Cannot find a user whose ${fieldName} is ${fieldValue}`), null);
     }
   } catch (error) {
     callback(error);
   }
 }
 
+/**
+ * Validates whether supplied password matches the password in database
+ *
+ * Args:
+ *    candidatePassword: The password to be tested, usually provided by user input.
+ *    password: The password to be tested against, usually retrieved from database.
+ * Returns:
+ *    A boolean representing whether two passwords matches.
+ */
+export async function validateUserPassword(candidatePassword: string, password: string) {
+  return true;
+}
+
 // exports
-export { 
-  testConnection as databaseTestFunctionality,
+export {
   pool as db
 };

@@ -7,7 +7,6 @@ import flash from "express-flash";
 import path from "path";
 import passport from "passport";
 import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, SESSION_SECRET } from "./util/secrets";
-import { databaseTestFunctionality } from "./database/mysql";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const MySQLStore = require("express-mysql-session")(session);
