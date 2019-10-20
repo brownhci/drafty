@@ -22,13 +22,13 @@ const pool = mysql.createPool({
 });
 
 pool.getConnection()
-    .then(conn => {
-      logger.debug("Congratulations! We have connected the database!");
-      conn.release(); //release to pool
-    })
-    .catch(() => {
-      logger.error(`Error connecting to database ${DB_DATABASE} from ${DB_HOST} as ${DB_USER} identified with ${DB_PASSWORD}`);
-    });
+  .then(conn => {
+    logger.debug("Congratulations! We have connected the database!");
+    conn.release(); //release to pool
+  })
+  .catch(() => {
+    logger.error(`Error connecting to database ${DB_DATABASE} from ${DB_HOST} as ${DB_USER} identified with ${DB_PASSWORD}`);
+  });
 
 // DATABASE Table Names and Field Names
 const userTableName = "Profile";
@@ -101,4 +101,7 @@ export async function findUserById(id: number, callback: Function) {
 }
 
 // exports
-export { testConnection as databaseTestFunctionality };
+export { 
+  testConnection as databaseTestFunctionality,
+  pool as db
+};
