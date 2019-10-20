@@ -3,9 +3,9 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import passport from "passport";
 import { Request, Response, NextFunction } from "express";
-import { UserRow, userTableIdFieldName, userTableUsernameFieldName, userTableEmailFieldName, userTablePasswordFieldName, findUserByField, findUserByFieldResultType, createUser, updateUser, deleteUser } from "../database/mysql";
+import { UserRow, userTableIdFieldName, userTableUsernameFieldName, userTableEmailFieldName, userTablePasswordFieldName, createUser, updateUser, deleteUser } from "../database/mysql";
 import { IVerifyOptions } from "passport-local";
-import { check, body, sanitize, validationResult } from "express-validator";
+import { body, validationResult } from "express-validator";
 import { emailAlreadyTaken } from "../validation/validators";
 import { encryptPassword } from "../util/encrypt";
 import "../config/passport";
@@ -29,10 +29,9 @@ export const getLogin = (req: Request, res: Response) => {
  */
 export const postLogin = (req: Request, res: Response, next: NextFunction) => {
     //check for errors
-    body("email", "Email is not valid").isEmail();
+    body("email", "Email is not valid").isEmail()     // eslint-disable-next-line @typescript-eslint/camelcase
+                                       .normalizeEmail({ gmail_remove_dots: false });
     body("password", "Password cannot be blank").isLength({min: 1});
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    sanitize("email").normalizeEmail({ gmail_remove_dots: false });
 
     const errors = validationResult(req);
 
@@ -84,13 +83,14 @@ export const getSignup = (req: Request, res: Response) => {
  * POST /signup
  * Create a new local account.
  */
-export const postSignup = async (req: Request, res: Response, next: NextFunction) => {
+export const postSignup = (req: Request, res: Response, next: NextFunction) => {
     //check errors
-    body("email", "Email is not valid").isEmail().custom(emailAlreadyTaken);
-    body("password", "Password must be at least 4 characters long").isLength({ min: 4 });
+    body("email", "Email is not valid").isEmail()
+                                       .custom(emailAlreadyTaken) // eslint-disable-next-line @typescript-eslint/camelcase
+                                       .normalizeEmail({ gmail_remove_dots: false });
+    body("password", "Password must be at least 4 characters long").isLength({ min: 4 })
+                                                                   .customSanitizer(async password => await encryptPassword(password));
     body("confirmPassword", "Passwords do not match").equals(req.body.password);
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    sanitize("email").normalizeEmail({ gmail_remove_dots: false });
 
     const errors = validationResult(req);
 
@@ -100,7 +100,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
     }
 
     const email: string = req.body.email;
-    const password: string = await encryptPassword(req.body.password);
+    const password: string = req.body.password;
     // creates new user
     const newUser = {
       [userTableEmailFieldName]: email,
@@ -133,9 +133,9 @@ export const getAccount = (req: Request, res: Response) => {
  * Update profile information.
  */
 export const postUpdateProfile = (req: Request, res: Response, next: NextFunction) => {
-    check("email", "Please enter a valid email address.").isEmail().custom(emailAlreadyTaken);
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    sanitize("email").normalizeEmail({ gmail_remove_dots: false });
+    body("email", "Please enter a valid email address.").isEmail()
+                                                        .custom(emailAlreadyTaken) // eslint-disable-next-line @typescript-eslint/camelcase
+                                                        .normalizeEmail({ gmail_remove_dots: false });
 
     const errors = validationResult(req);
 
@@ -163,9 +163,10 @@ export const postUpdateProfile = (req: Request, res: Response, next: NextFunctio
  * POST /account/password
  * Update current password.
  */
-export const postUpdatePassword = async (req: Request, res: Response, next: NextFunction) => {
-    check("password", "Password must be at least 4 characters long").isLength({ min: 4 });
-    check("confirmPassword", "Passwords do not match").equals(req.body.password);
+export const postUpdatePassword = (req: Request, res: Response, next: NextFunction) => {
+  body("password", "Password must be at least 4 characters long").isLength({ min: 4 })
+                                                                 .customSanitizer(async password => await encryptPassword(password));
+    body("confirmPassword", "Passwords do not match").equals(req.body.password);
 
     const errors = validationResult(req);
 
@@ -176,7 +177,7 @@ export const postUpdatePassword = async (req: Request, res: Response, next: Next
 
     const user = req.user as UserRow;
     const userid = user[userTableIdFieldName];
-    const password: string = await encryptPassword(req.body.password);
+    const password: string = req.body.password;
     const updatedUser = {
       [userTablePasswordFieldName]: password,
     };
@@ -232,8 +233,8 @@ export const getReset = (req: Request, res: Response, next: NextFunction) => {
  * Process the reset password request.
  */
 export const postReset = (req: Request, res: Response, next: NextFunction) => {
-    check("password", "Password must be at least 4 characters long.").isLength({ min: 4 });
-    check("confirm", "Passwords must match.").equals(req.body.password);
+    body("password", "Password must be at least 4 characters long.").isLength({ min: 4 });
+    body("confirm", "Passwords must match.").equals(req.body.password);
 
     const errors = validationResult(req);
 
