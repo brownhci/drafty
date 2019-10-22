@@ -61,8 +61,8 @@ function logDatabaseError(error: MysqlError, message="", level="warn") {
     level: level,
     message: `${error.code}: ${error.sqlMessage}${message ? " - " + message : ""}`
   });
-
 }
+
 // Result type of findUserByField
 export type findUserByFieldResultType = UserRow | null | undefined;
 export type findUserByFieldCallbackType = (error: Error | null, user?: findUserByFieldResultType) => any;
@@ -167,3 +167,4 @@ export async function deleteUser(constraints: Partial<UserRow>, callback: Functi
 export {
   pool as db
 };
+
