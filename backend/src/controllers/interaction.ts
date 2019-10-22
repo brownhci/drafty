@@ -7,12 +7,13 @@ import async from "async";
  */
 //DB Code
 async function insertUserId(idSession: String, idInteractionType: String, callback: CallableFunction) {
-    db.run('INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)', [idSession, idInteractionType], function (err) {
-        if (err) {
-        //console.log('ERROR - INSERT INTO users: ' + err.message)
-        }
-        callback(this.lastID)
-    })
+    try {
+        const [results, fields] = await db.query("INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)", [idSession, idInteractionType]);
+        callback(null, results, fields);
+    } catch (error) {
+        db.logDatabaseError(error, "error during insert interaction", "warn");
+        callback(error);
+    }
 }
 
 /**
