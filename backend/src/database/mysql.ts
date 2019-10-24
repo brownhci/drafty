@@ -50,5 +50,6 @@ function logDatabaseError(error: MysqlError, message="", level="warn") {
 
 // exports
 export {
-  pool as db
+  pool as db,
+  logDatabaseError as logDbErr
 };
