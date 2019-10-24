@@ -1,22 +1,22 @@
-import { db } from "./mysql";
+import { db,logDbErr } from "./mysql";
 import { insertSuggestion, insertRowId } from  './suggestion'
 import async from "async";
 
-const stmtInsertInteraction: String = "INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)"
-const stmtInsertClick: String = "INSERT INTO Click (idInteraction, idSuggestion, rowvalues) VALUES (?, ?, ?);"
-const stmtInsertSort: String  = "INSERT INTO Sort (idInteraction, idSuggestionType) VALUES (?, ?);"
-const stmtInsertEdit: String  = "INSERT INTO Edit (idInteraction, idSuggestion, idEntryType, chosen) VALUES (?, ?, ?, ?);"
+const stmtInsertInteraction: string = "INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)"
+const stmtInsertClick: string = "INSERT INTO Click (idInteraction, idSuggestion, rowvalues) VALUES (?, ?, ?);"
+const stmtInsertSort: string  = "INSERT INTO Sort (idInteraction, idSuggestionType) VALUES (?, ?);"
+const stmtInsertEdit: string  = "INSERT INTO Edit (idInteraction, idSuggestion, idEntryType, chosen) VALUES (?, ?, ?, ?);"
 
 /**
  * save new interaction id
  */
 //DB Code
-async function insertInteraction(idSession: String, idInteractionType: String, callback: CallableFunction) {
+async function insertInteraction(idSession: string, idInteractionType: string, callback: CallableFunction) {
     try {
         const [results, fields] = await db.query(stmtInsertInteraction, [idSession, idInteractionType]);
         callback(null, results, fields);
     } catch (error) {
-        db.logDatabaseError(error, "error during insert interaction", "warn");
+        logDbErr(error, "error during insert interaction", "warn");
         callback(error);
     }
 }
