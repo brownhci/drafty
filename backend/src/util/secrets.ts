@@ -16,7 +16,7 @@ if (fs.existsSync(".env")) {
 }
 
 export const ENVIRONMENT = process.env.NODE_ENV;
-const prod = ENVIRONMENT === "production"; // Anything else is treated as 'dev'
+export const prod = ENVIRONMENT === "production"; // Anything else is treated as 'dev'
 
 export const SESSION_SECRET = process.env["SESSION_SECRET"];
 if (!SESSION_SECRET) {
@@ -67,3 +67,9 @@ export const DB_HOST = resolveEnvironmentVariable("DB_HOST");
 export const DB_USER = resolveEnvironmentVariable("DB_USER");
 export const DB_PASSWORD = resolveEnvironmentVariable("DB_PASSWORD");
 export const DB_DATABASE = resolveEnvironmentVariable("DB_DATABASE");
+
+export const EMAIL_ACCOUNT_HOST = resolveEnvironmentVariable("EMAIL_ACCOUNT_HOST");
+export const EMAIL_ACCOUNT_PORT = Number.parseInt(resolveEnvironmentVariable("EMAIL_ACCOUNT_PORT"));
+export const EMAIL_ACCOUNT_NAME = resolveEnvironmentVariable("EMAIL_ACCOUNT_NAME");
+export const EMAIL_ACCOUNT_USERNAME = resolveEnvironmentVariable("EMAIL_ACCOUNT_USERNAME");
+export const EMAIL_ACCOUNT_PASSWORD = resolveEnvironmentVariable("EMAIL_ACCOUNT_PASSWORD");
