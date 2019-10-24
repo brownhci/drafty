@@ -1,6 +1,5 @@
 import { db,logDbErr } from "./mysql";
-import { insertSuggestion, insertRowId } from  './suggestion'
-import async from "async";
+import { insertSuggestion, insertRowId } from  "./suggestion";
 
 const stmtInsertInteraction: string = "INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)"
 const stmtInsertClick: string = "INSERT INTO Click (idInteraction, idSuggestion, rowvalues) VALUES (?, ?, ?);"

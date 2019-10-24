@@ -1,13 +1,12 @@
 import { db,logDbErr } from "./mysql";
-import async from "async";
 
-const stmtInsertSuggestion: string = 'INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, ?, ?, ?, ?, ?)'
-const stmtInsertUniqueId: string = 'INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)'
+const stmtInsertSuggestion: string = "INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, ?, ?, ?, ?, ?)";
+const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)";
 
 /**
  * save new suggestion
  */
-export async function insertSuggestion(idSuggestionType: Number, idUniqueID: Number, idProfile: Number, suggestion: String, confidence: Number, callback: CallableFunction) {
+export async function insertSuggestion(idSuggestionType: number, idUniqueID: number, idProfile: number, suggestion: string, confidence: number, callback: CallableFunction) {
     try {
         const [results, fields] = await db.query(stmtInsertSuggestion, [idSuggestionType, idUniqueID, idProfile, suggestion, confidence]);
         callback(null, results, fields);

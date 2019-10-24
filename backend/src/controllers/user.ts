@@ -3,7 +3,8 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import passport from "passport";
 import { Request, Response, NextFunction } from "express";
-import { UserRow, userTableIdFieldName, userTableUsernameFieldName, userTableEmailFieldName, userTablePasswordFieldName, createUser, updateUser, deleteUser } from "../database/mysql";
+import { UserModel, idFieldName, usernameFieldName, emailFieldName, passwordFieldName } from "../models/user";
+import { createUser, updateUser } from "../database/user";
 import { IVerifyOptions } from "passport-local";
 import { body, validationResult } from "express-validator";
 import { emailAlreadyTaken } from "../validation/validators";
@@ -42,7 +43,7 @@ export const postLogin = (req: Request, res: Response, next: NextFunction) => {
     }
 
     // we're good, do something
-    passport.authenticate("local", (err: Error, user: UserRow, info: IVerifyOptions) => {
+    passport.authenticate("local", (err: Error, user: UserModel, info: IVerifyOptions) => {
         if (err) { return next(err); }
         if (!user) {
           // authentication error
@@ -103,8 +104,8 @@ export const postSignup = (req: Request, res: Response, next: NextFunction) => {
     const password: string = req.body.password;
     // creates new user
     const newUser = {
-      [userTableEmailFieldName]: email,
-      [userTablePasswordFieldName]: password,
+      [emailFieldName]: email,
+      [passwordFieldName]: password,
     };
 
     createUser(newUser, (err: Error) => {
@@ -144,13 +145,13 @@ export const postUpdateProfile = (req: Request, res: Response, next: NextFunctio
         return res.redirect("/account");
     }
 
-    const user = req.user as UserRow;
-    const userid = user[userTableIdFieldName];
+    const user = req.user as UserModel;
+    const userid = user[idFieldName];
     const email: string = req.body.email || "";
     const updatedUser = {
-      [userTableEmailFieldName]: email,
+      [emailFieldName]: email,
     };
-    updateUser(updatedUser, {[userTableIdFieldName]: userid}, (error: Error) => {
+    updateUser(updatedUser, {[idFieldName]: userid}, (error: Error) => {
       if (error) {
         return next(error);
       }
@@ -175,13 +176,13 @@ export const postUpdatePassword = (req: Request, res: Response, next: NextFuncti
         return res.redirect("/account");
     }
 
-    const user = req.user as UserRow;
-    const userid = user[userTableIdFieldName];
+    const user = req.user as UserModel;
+    const userid = user[idFieldName];
     const password: string = req.body.password;
     const updatedUser = {
-      [userTablePasswordFieldName]: password,
+      [passwordFieldName]: password,
     };
-    updateUser(updatedUser, {[userTableIdFieldName]: userid}, (error: Error) => {
+    updateUser(updatedUser, {[idFieldName]: userid}, (error: Error) => {
       if (error) {
         return next(error);
       }
@@ -194,16 +195,16 @@ export const postUpdatePassword = (req: Request, res: Response, next: NextFuncti
  * POST /account/delete
  * Delete user account.
  */
-export const postDeleteAccount = (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user as UserRow;
-    const userid = user[userTableIdFieldName];
-    deleteUser({[userTableIdFieldName]: userid}, (error: Error) => {
-      if (error) { return next(error); }
-      req.logout();
-      req.flash("info", { msg: "Your account has been deleted." });
-      res.redirect("/");
-    });
-};
+// export const postDeleteAccount = (req: Request, res: Response, next: NextFunction) => {
+//     const user = req.user as UserModel;
+//     const userid = user[idFieldName];
+//     deleteUser({[idFieldName]: userid}, (error: Error) => {
+//       if (error) { return next(error); }
+//       req.logout();
+//       req.flash("info", { msg: "Your account has been deleted." });
+//       res.redirect("/");
+//     });
+// };
 
 /**
  * GET /reset/:token

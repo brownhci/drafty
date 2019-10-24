@@ -1,17 +1,17 @@
 // DATABASE Table Names and Field Names
 export const tableName: string = "Profile";
 
-export const idFieldName       = "id";
+export const idFieldName       = "idProfile";
 export const usernameFieldName = "username";
 export const emailFieldName    = "email";
 export const passwordFieldName = "password";
 
 // supported fields that can be used to look up a user
-const validFieldNamesForUserLookup = [idFieldName, usernameFieldName, emailFieldName];
+export const validFieldNamesForLookup = [idFieldName, usernameFieldName, emailFieldName];
 
-export interface UserRow {
+export interface UserModel {
   [idFieldName]: number;
   [usernameFieldName]: string;
-  [emailFieldName]: String;
+  [emailFieldName]: string;
   [passwordFieldName]: string;
 }
