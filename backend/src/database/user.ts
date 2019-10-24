@@ -1,9 +1,13 @@
 import { db, logDbErr } from "./mysql";
 import async from "async";
 
-// DATABASE Table Names and Field Names
-const tableName: string = "Profile";
+// SQL Statements
+const stmtSelUser: string    = "SELECT * FROM Profile WHERE ?? = ?";
+const stmtInsertUser: string = "INSERT INTO Profile SET ?";
+const stmtUpdateUser: string = "UPDATE Profile SET ? WHERE ?";
 
+
+// DATABASE Table Names and Field Names
 export const idFieldName       = "id";
 export const usernameFieldName = "username";
 export const emailFieldName    = "email";
@@ -41,7 +45,7 @@ export async function findUserByField(fieldName: string, fieldValue: string | nu
       callback(new Error(`Cannot look up a user using field - ${fieldName}`));
   }
   try {
-    const [rows] = await db.query("SELECT * FROM ?? WHERE ?? = ?", [userTableName, fieldName, fieldValue]);
+    const [rows] = await db.query(stmtSelUser, [fieldName, fieldValue]);
     if (Array.isArray(rows) && rows.length > 0) {
       const userRow = rows[0] as UserModel;
       callback(null, userRow);
@@ -68,7 +72,7 @@ export async function findUserByField(fieldName: string, fieldValue: string | nu
  */
 export async function createUser(user: Partial<UserModel>, callback: Function) {
   try {
-    const [results, fields] = await db.query("INSERT INTO ?? SET ?", [userTableName, user]);
+    const [results, fields] = await db.query(stmtInsertUser, [user]);
     callback(null, results, fields);
   } catch (error) {
     logDbErr(error, "error during creating user", "warn");
@@ -90,7 +94,7 @@ export async function createUser(user: Partial<UserModel>, callback: Function) {
  */
 export async function updateUser(updates: Partial<UserModel>, constraints: Partial<UserModel>, callback: Function) {
   try {
-    const [results, fields] = await db.query("UPDATE ?? SET ? WHERE ?", [userTableName, updates, constraints]);
+    const [results, fields] = await db.query(stmtUpdateUser, [updates, constraints]);
     callback(null, results, fields);
   } catch (error) {
     logDbErr(error, "error during updating existing user", "warn");
