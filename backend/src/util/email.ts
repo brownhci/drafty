@@ -1,11 +1,11 @@
 import logger from "./logger";
 import nodemailer from "nodemailer";
 import Mail = require("nodemailer/lib/mailer");
-import { prod, EMAIL_ACCOUNT_HOST, EMAIL_ACCOUNT_PORT, EMAIL_ACCOUNT_NAME, EMAIL_ACCOUNT_USERNAME, EMAIL_ACCOUNT_PASSWORD } from "../util/secrets";
+import { prod, EMAIL_HOST, EMAIL_PORT, EMAIL_ACCOUNT_NAME, EMAIL_ACCOUNT_USERNAME, EMAIL_ACCOUNT_PASSWORD } from "../util/secrets";
 
 export const transporter = nodemailer.createTransport({
-  host: EMAIL_ACCOUNT_HOST,
-  port: EMAIL_ACCOUNT_PORT,
+  host: EMAIL_HOST,
+  port: EMAIL_PORT,
   secure: true,
   auth: {
       user: EMAIL_ACCOUNT_USERNAME,
