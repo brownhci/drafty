@@ -5,6 +5,8 @@ export const idFieldName       = "idProfile";
 export const usernameFieldName = "username";
 export const emailFieldName    = "email";
 export const passwordFieldName = "password";
+export const passwordResetToken = "passwordResetToken";
+export const passwordResetExpires = "passwordResetExpires";
 
 // supported fields that can be used to look up a user
 export const validFieldNamesForLookup = [idFieldName, usernameFieldName, emailFieldName];
@@ -14,4 +16,6 @@ export interface UserModel {
   [usernameFieldName]: string;
   [emailFieldName]: string;
   [passwordFieldName]: string;
+  [passwordResetToken]: string;
+  [passwordResetExpires]: Date;
 }

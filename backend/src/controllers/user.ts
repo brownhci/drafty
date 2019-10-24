@@ -1,19 +1,20 @@
 import async from "async";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
+import moment from "moment";
 import passport from "passport";
 import { Request, Response, NextFunction } from "express";
-import { UserModel, idFieldName, usernameFieldName, emailFieldName, passwordFieldName } from "../models/user";
-import { createUser, updateUser } from "../database/user";
+import { UserModel, idFieldName, usernameFieldName, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
+import { findUserByField, findUserByFieldResultType, createUser, updateUser } from "../database/user";
 import { IVerifyOptions } from "passport-local";
 import { body, validationResult } from "express-validator";
 import { emailAlreadyTaken } from "../validation/validators";
 import { encryptPassword } from "../util/encrypt";
+import { sendMail } from "../util/email";
 import "../config/passport";
 
 /**
  * GET /login
- * Login page.
+ * Login page
  */
 export const getLogin = (req: Request, res: Response) => {
     if (req.user) {
@@ -309,62 +310,70 @@ export const getForgot = (req: Request, res: Response) => {
  * Create a random token, then the send user an email with a reset link.
  */
 export const postForgot = (req: Request, res: Response, next: NextFunction) => {
-    // check("email", "Please enter a valid email address.").isEmail();
-    // // eslint-disable-next-line @typescript-eslint/camelcase
-    // sanitize("email").normalizeEmail({ gmail_remove_dots: false });
+  body("email", "Please enter a valid email address.").isEmail() // eslint-disable-next-line @typescript-eslint/camelcase
+                                                      .normalizeEmail({ gmail_remove_dots: false });
 
-    // const errors = validationResult(req);
+  const errors = validationResult(req);
 
-    // if (!errors.isEmpty()) {
-    //     req.flash("errors", errors.array());
-    //     return res.redirect("/forgot");
-    // }
+  if (!errors.isEmpty()) {
+      req.flash("errors", errors.array());
+      return res.redirect("/forgot");
+  }
 
-    // async.waterfall([
-    //     function createRandomToken(done: Function) {
-    //         crypto.randomBytes(16, (err, buf) => {
-    //             const token = buf.toString("hex");
-    //             done(err, token);
-    //         });
-    //     },
-    //     function setRandomToken(token: AuthToken, done: Function) {
-    //         User.findOne({ email: req.body.email }, (err, user: any) => {
-    //             if (err) { return done(err); }
-    //             if (!user) {
-    //                 req.flash("errors", { msg: "Account with that email address does not exist." });
-    //                 return res.redirect("/forgot");
-    //             }
-    //             user.passwordResetToken = token;
-    //             user.passwordResetExpires = Date.now() + 3600000; // 1 hour
-    //             user.save((err: WriteError) => {
-    //                 done(err, token, user);
-    //             });
-    //         });
-    //     },
-    //     function sendForgotPasswordEmail(token: AuthToken, user: UserDocument, done: Function) {
-    //         const transporter = nodemailer.createTransport({
-    //             service: "SendGrid",
-    //             auth: {
-    //                 user: process.env.SENDGRID_USER,
-    //                 pass: process.env.SENDGRID_PASSWORD
-    //             }
-    //         });
-    //         const mailOptions = {
-    //             to: user.email,
-    //             from: "hackathon@starter.com",
-    //             subject: "Reset your password on Hackathon Starter",
-    //             text: `You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n
-    //       Please click on the following link, or paste this into your browser to complete the process:\n\n
-    //       http://${req.headers.host}/reset/${token}\n\n
-    //       If you did not request this, please ignore this email and your password will remain unchanged.\n`
-    //         };
-    //         transporter.sendMail(mailOptions, (err) => {
-    //             req.flash("info", { msg: `An e-mail has been sent to ${user.email} with further instructions.` });
-    //             done(err);
-    //         });
-    //     }
-    // ], (err) => {
-    //     if (err) { return next(err); }
-    //     res.redirect("/forgot");
-    // });
+  const email = req.body.email;
+  async.waterfall([
+      function createRandomToken(done: Function) {
+          crypto.randomBytes(16, (err, buf) => {
+              const token = buf.toString("hex");
+              done(err, token);
+          });
+      },
+      function setRandomToken(token: string, done: Function) {
+        findUserByField(emailFieldName, email, (error: Error, user: findUserByFieldResultType) => {
+          if (user == null) {
+              req.flash("errors", { msg: "Account with that email address does not exist." });
+              return res.redirect("/forgot");
+          }
+          if (!user) {
+            // QueryError or cannot find user by given email
+            return done(error);
+          }
+          const expiration = moment();
+          expiration.hour(expiration.hour() + 1); // 1 hour
+
+          const updatedUser = {
+            [passwordResetToken]: token,
+            [passwordResetExpires]: expiration.toDate(), // 1 hour
+          };
+          updateUser(updatedUser, {[emailFieldName]: email}, (error: Error) => {
+            if (error) {
+              return done(error);
+            }
+            Object.assign(user, updatedUser);
+            done(error, token, user);
+          });
+
+        });
+      },
+      function sendForgotPasswordEmail(token: string, user: UserModel, done: Function) {
+        const mailOptions = {
+            to: user.email,
+            from: "no-reply@drafty.cs.brown.edu",
+            subject: "Reset your password on Drafty",
+            text: `You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n
+      Please click on the following link, or paste this into your browser to complete the process:\n\n
+      http://${req.headers.host}/reset/${token}\n\n
+      If you did not request this, please ignore this email and your password will remain unchanged.\n`
+        };
+        sendMail(mailOptions, (error: Error) => {
+          if (error) {
+              req.flash("info", { msg: `An e-mail has been sent to ${user.email} with further instructions.` });
+              done(error);
+          }
+        });
+      }
+  ], (err) => {
+      if (err) { return next(err); }
+      res.redirect("/forgot");
+  });
 };
