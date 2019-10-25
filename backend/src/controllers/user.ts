@@ -295,10 +295,8 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
           text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
       };
       const [error] = await sendMail(mailOptions);
-      if (error) {
-        req.flash("success", { msg: "Success! Your password has been changed." });
-        done(error);
-      }
+      req.flash("success", { msg: "Success! Your password has been changed." });
+      done(error);
     }
   ], (err) => {
       if (err) { return next(err); }
@@ -379,10 +377,8 @@ export const postForgot = (req: Request, res: Response, next: NextFunction) => {
     If you did not request this, please ignore this email and your password will remain unchanged.\n`
       };
       const [error] = await sendMail(mailOptions);
-      if (error) {
-        req.flash("info", { msg: `An e-mail has been sent to ${user.email} with further instructions.` });
-        done(error);
-      }
+      req.flash("info", { msg: `An e-mail has been sent to ${user.email} with further instructions.` });
+      done(error);
     }
   ], (err) => {
       if (err) { return next(err); }
