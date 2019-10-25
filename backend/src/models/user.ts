@@ -9,13 +9,13 @@ export const passwordResetToken = "passwordResetToken";
 export const passwordResetExpires = "passwordResetExpires";
 
 // supported fields that can be used to look up a user
-export const validFieldNamesForLookup = [idFieldName, usernameFieldName, emailFieldName];
+export const validFieldNamesForLookup = [idFieldName, usernameFieldName, emailFieldName, passwordResetToken];
 
 export interface UserModel {
   [idFieldName]: number;
   [usernameFieldName]: string;
   [emailFieldName]: string;
   [passwordFieldName]: string;
-  [passwordResetToken]: string;
-  [passwordResetExpires]: Date;
+  [passwordResetToken]: string | null;
+  [passwordResetExpires]: Date | null;
 }

@@ -212,22 +212,30 @@ export const postUpdatePassword = (req: Request, res: Response, next: NextFuncti
  * Reset Password page.
  */
 export const getReset = (req: Request, res: Response, next: NextFunction) => {
-    if (req.isAuthenticated()) {
-        return res.redirect("/");
+  if (req.isAuthenticated()) {
+    return res.redirect("/");
+  }
+
+  const token = req.params.token;
+  findUserByField(passwordResetToken, token, (error: Error, user: findUserByFieldResultType) => {
+    if (user == null) {
+        req.flash("errors", { msg: "Password reset token is invalid" });
+        return res.redirect("/forgot");
     }
-    // User
-    //     .findOne({ passwordResetToken: req.params.token })
-    //     .where("passwordResetExpires").gt(Date.now())
-    //     .exec((err, user) => {
-    //         if (err) { return next(err); }
-    //         if (!user) {
-    //             req.flash("errors", { msg: "Password reset token is invalid or has expired." });
-    //             return res.redirect("/forgot");
-    //         }
-    //         res.render("account/reset", {
-    //             title: "Password Reset"
-    //         });
-    //     });
+    if (!user) {
+      return next(error);
+    }
+    const expiration = user[passwordResetExpires];
+    if (moment().isSameOrAfter(expiration)) {
+      // reset token has expired
+      req.flash("errors", { msg: "Password reset token has expired" });
+      return res.redirect("/forgot");
+    }
+
+    res.render("account/reset", {
+        title: "Password Reset"
+    });
+  });
 };
 
 /**
@@ -235,61 +243,70 @@ export const getReset = (req: Request, res: Response, next: NextFunction) => {
  * Process the reset password request.
  */
 export const postReset = (req: Request, res: Response, next: NextFunction) => {
-    body("password", "Password must be at least 4 characters long.").isLength({ min: 4 });
-    body("confirm", "Passwords must match.").equals(req.body.password);
+  body("password", "Password must be at least 4 characters long.").isLength({ min: 4 });
+  body("confirm", "Passwords must match.").equals(req.body.password);
 
-    const errors = validationResult(req);
+  const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-        req.flash("errors", errors.array());
-        return res.redirect("back");
-    }
+  if (!errors.isEmpty()) {
+      req.flash("errors", errors.array());
+      return res.redirect("back");
+  }
 
-    // async.waterfall([
-    //     function resetPassword(done: Function) {
-    //         User
-    //             .findOne({ passwordResetToken: req.params.token })
-    //             .where("passwordResetExpires").gt(Date.now())
-    //             .exec((err, user: any) => {
-    //                 if (err) { return next(err); }
-    //                 if (!user) {
-    //                     req.flash("errors", { msg: "Password reset token is invalid or has expired." });
-    //                     return res.redirect("back");
-    //                 }
-    //                 user.password = req.body.password;
-    //                 user.passwordResetToken = undefined;
-    //                 user.passwordResetExpires = undefined;
-    //                 user.save((err: WriteError) => {
-    //                     if (err) { return next(err); }
-    //                     req.logIn(user, (err) => {
-    //                         done(err, user);
-    //                     });
-    //                 });
-    //             });
-    //     },
-    //     function sendResetPasswordEmail(user: UserDocument, done: Function) {
-    //         const transporter = nodemailer.createTransport({
-    //             service: "SendGrid",
-    //             auth: {
-    //                 user: process.env.SENDGRID_USER,
-    //                 pass: process.env.SENDGRID_PASSWORD
-    //             }
-    //         });
-    //         const mailOptions = {
-    //             to: user.email,
-    //             from: "express-ts@starter.com",
-    //             subject: "Your password has been changed",
-    //             text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
-    //         };
-    //         transporter.sendMail(mailOptions, (err) => {
-    //             req.flash("success", { msg: "Success! Your password has been changed." });
-    //             done(err);
-    //         });
-    //     }
-    // ], (err) => {
-    //     if (err) { return next(err); }
-    //     res.redirect("/");
-    // });
+  async.waterfall([
+    function resetPassword(done: Function) {
+      const token = req.params.token;
+      findUserByField(passwordResetToken, token, (error: Error, user: findUserByFieldResultType) => {
+        if (user == null) {
+            req.flash("errors", { msg: "Password reset token is invalid" });
+            return res.redirect("back");
+        }
+        if (!user) {
+          return next(error);
+        }
+
+        const expiration = user[passwordResetExpires];
+        if (moment().isSameOrAfter(expiration)) {
+          // reset token has expired
+          req.flash("errors", { msg: "Password reset token has expired" });
+          return res.redirect("back");
+        }
+
+        const password = req.body.password;
+        const updatedUser: Partial<UserModel> = {
+          [passwordFieldName]: password,
+          [passwordResetToken]: null,
+          [passwordResetExpires]: null,
+        };
+        updateUser(updatedUser, {[passwordResetToken]: token}, (error: Error) => {
+          if (error) {
+            return done(error);
+          }
+          Object.assign(user, updatedUser);
+          req.logIn(user, (err) => {
+              done(err, user);
+          });
+        });
+      });
+      },
+      function sendResetPasswordEmail(user: UserModel, done: Function) {
+          const mailOptions = {
+              to: user.email,
+              from: "express-ts@starter.com",
+              subject: "Your password has been changed",
+              text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
+          };
+          sendMail(mailOptions, (error: Error) => {
+            if (error) {
+              req.flash("success", { msg: "Success! Your password has been changed." });
+              done(error);
+            }
+          });
+      }
+  ], (err) => {
+      if (err) { return next(err); }
+      res.redirect("/");
+  });
 };
 
 /**
@@ -323,7 +340,7 @@ export const postForgot = (req: Request, res: Response, next: NextFunction) => {
   const email = req.body.email;
   async.waterfall([
       function createRandomToken(done: Function) {
-          crypto.randomBytes(16, (err, buf) => {
+          crypto.randomBytes(256, (err, buf) => {
               const token = buf.toString("hex");
               done(err, token);
           });
@@ -352,7 +369,6 @@ export const postForgot = (req: Request, res: Response, next: NextFunction) => {
             Object.assign(user, updatedUser);
             done(error, token, user);
           });
-
         });
       },
       function sendForgotPasswordEmail(token: string, user: UserModel, done: Function) {
