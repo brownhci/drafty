@@ -9,7 +9,7 @@ import { comparePassword } from "../util/encrypt";
 const LocalStrategy = passportLocal.Strategy;
 
 passport.serializeUser<any, any>((user, done) => {
-    done(null, user.id);
+    done(null, user[idFieldName]);
 });
 
 passport.deserializeUser((id: number, done) => {
