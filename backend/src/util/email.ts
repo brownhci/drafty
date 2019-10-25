@@ -6,7 +6,6 @@ import { prod, EMAIL_HOST, EMAIL_PORT, EMAIL_ACCOUNT_NAME, EMAIL_ACCOUNT_USERNAM
 export const transporter = nodemailer.createTransport({
   host: EMAIL_HOST,
   port: EMAIL_PORT,
-  secure: true,
   auth: {
       user: EMAIL_ACCOUNT_USERNAME,
       pass: EMAIL_ACCOUNT_PASSWORD
