@@ -36,6 +36,8 @@ Steps:
 -  `[Node] (node:36476) UnhandledPromiseRejectionWarning: Error: Client does not support authentication protocol requested by server; consider upgrading MySQL client`<br/>
    [Reason & Fix](https://stackoverflow.com/questions/50093144/mysql-8-0-client-does-not-support-authentication-protocol-requested-by-server)
 
+- `SASS` install node-sass globally: npm install -g node-sass
+
 ## Dependencies
 
 Supporting libraries used:
