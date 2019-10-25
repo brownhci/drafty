@@ -3,7 +3,7 @@ import crypto from "crypto";
 import moment from "moment";
 import passport from "passport";
 import { Request, Response, NextFunction } from "express";
-import { UserModel, idFieldName, usernameFieldName, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
+import { UserModel, idFieldName, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
 import { findUserByField, findUserByFieldResultType, createUser, updateUser } from "../database/user";
 import { IVerifyOptions } from "passport-local";
 import { body, validationResult } from "express-validator";
