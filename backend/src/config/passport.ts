@@ -1,6 +1,7 @@
 import passport from "passport";
 import passportLocal from "passport-local";
-import { userTableIdFieldName, userTableUsernameFieldName, userTableEmailFieldName, userTablePasswordFieldName, findUserByField, findUserByFieldResultType } from "../database/mysql";
+import { idFieldName, emailFieldName, passwordFieldName } from "../models/user";
+import { findUserByField, findUserByFieldResultType } from "../database/user";
 import { Request, Response, NextFunction } from "express";
 import { comparePassword } from "../util/encrypt";
 
@@ -13,7 +14,7 @@ passport.serializeUser<any, any>((user, done) => {
 
 passport.deserializeUser((id: number, done) => {
   // finding the user by ID when deserializing
-  findUserByField(userTableIdFieldName, id, done);
+  findUserByField(idFieldName, id, done);
 });
 
 
@@ -22,7 +23,7 @@ passport.deserializeUser((id: number, done) => {
  */
 passport.use(new LocalStrategy((username, password, done) => {
   // support login with email
-  findUserByField(userTableEmailFieldName, username, (error: Error, user: findUserByFieldResultType) => {
+  findUserByField(emailFieldName, username, (error: Error, user: findUserByFieldResultType) => {
     if (user == null) {
       return done(null, false, { message: error.message });
     }
@@ -31,7 +32,7 @@ passport.use(new LocalStrategy((username, password, done) => {
       return done(error);
     }
 
-    if (!comparePassword(password, user[userTablePasswordFieldName])) {
+    if (!comparePassword(password, user[passwordFieldName])) {
       return done(null, false, { message: "Incorrect password." });
     }
 

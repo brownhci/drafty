@@ -1,5 +1,4 @@
-import { Request, Response } from "express";
-import async from "async";
+import { Request, Response, NextFunction } from "express";
 
 /**
  * POST /new-row
@@ -7,7 +6,7 @@ import async from "async";
  */
 export const postNewRow = (req: Request, res: Response, next: NextFunction) => {
     //check for errors
-    
+
 
     //
 };
@@ -25,7 +24,7 @@ export const postEdit = (req: Request, res: Response, next: NextFunction) => {
  * Click
  */
 export const postClick = (req: Request, res: Response, next: NextFunction) => {
-    
+
 };
 
 /**
