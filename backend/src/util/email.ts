@@ -6,7 +6,6 @@ import { prod, EMAIL_HOST, EMAIL_PORT, EMAIL_ACCOUNT_NAME, EMAIL_ACCOUNT_USERNAM
 export const transporter = nodemailer.createTransport({
   host: EMAIL_HOST,
   port: EMAIL_PORT,
-  secure: true,
   auth: {
       user: EMAIL_ACCOUNT_USERNAME,
       pass: EMAIL_ACCOUNT_PASSWORD
@@ -18,11 +17,12 @@ export const transporter = nodemailer.createTransport({
  *
  * Args:
  *    mail: see <a href="https://nodemailer.com/message/">MESSAGE CONFIGURATION</a> for more info
- *    done: A callback function that will either
+ * Returns:
+ *    [error, info]
  *      - receive [error] if an error occurred during sending the email
  *      - receive [null, info] if the email is sent successfully
  */
-export async function sendMail(mail: Mail.Options, done: Function) {
+export async function sendMail(mail: Mail.Options) {
   try {
     const info = await transporter.sendMail(mail);
     if (prod) {
@@ -30,9 +30,9 @@ export async function sendMail(mail: Mail.Options, done: Function) {
     } else {
       logger.debug(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
     }
-    done(null, info);
+    return [null, info];
   } catch (error) {
     logger.warn(error);
-    done(error);
+    return [error];
   }
 }

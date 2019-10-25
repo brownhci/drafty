@@ -23,7 +23,7 @@ const pool = mysql.createPool({
 
 pool.getConnection()
   .then(conn => {
-    logger.debug("Congratulations! We have connected the database!");
+    logger.debug(`Congratulations! We have connected the ${DB_DATABASE} database!`);
     conn.release(); //release to pool
   })
   .catch(() => {

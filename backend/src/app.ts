@@ -23,23 +23,12 @@ import * as passportConfig from "./config/passport";
 // Create Express server
 const app = express();
 
-// Database
-// demonstrate we can also connect to mariaDB
-// databaseTestFunctionality();
-
-// Register '.mustache' extension with The Mustache Express
-//var mustacheExpress = require('mustache-express');
-//app.engine('mustache', mustacheExpress());
-var hbs = require( 'express-handlebars');
-
 // Express configuration
 app.set("port", process.env.PORT || 3000);
 
-//mustache
-//app.set("views", path.join(__dirname, "../views"));
-//app.set('view engine', 'mustache');
 
-//handlebars
+// handlebars express config
+var hbs = require( 'express-handlebars');
 app.engine( 'hbs', hbs( {
   extname: 'hbs',
   defaultView: 'index',
@@ -48,6 +37,9 @@ app.engine( 'hbs', hbs( {
 }));
 app.set('view engine', 'hbs');
 
+// Express configuration
+app.set("port", process.env.PORT || 3000);
+app.set("views", path.join(__dirname, "../views"));
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
