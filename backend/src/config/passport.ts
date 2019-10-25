@@ -1,7 +1,7 @@
 import passport from "passport";
 import passportLocal from "passport-local";
-import { idFieldName, emailFieldName, passwordFieldName } from "../models/user";
-import { findUserByField, findUserByFieldResultType } from "../database/user";
+import { emailFieldName, passwordFieldName } from "../models/user";
+import { findUserByField } from "../database/user";
 import { Request, Response, NextFunction } from "express";
 import { comparePassword } from "../util/encrypt";
 
@@ -9,16 +9,16 @@ import { comparePassword } from "../util/encrypt";
 const LocalStrategy = passportLocal.Strategy;
 
 passport.serializeUser<any, any>((user, done) => {
-    done(null, user[idFieldName]);
+  done(null, user[emailFieldName]);
 });
 
-passport.deserializeUser(async (id: number, done) => {
-  // finding the user by ID when deserializing
-  const [error, user] = await findUserByField(idFieldName, id);
+passport.deserializeUser(async (email: number, done) => {
+  // finding the user by email when deserializing
+  const [error, user] = await findUserByField(emailFieldName, email);
   if (error) {
     done(error);
   } else {
-    done(user);
+    done(null, user);
   }
 });
 
