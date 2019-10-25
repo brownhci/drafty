@@ -208,21 +208,6 @@ export const postUpdatePassword = async (req: Request, res: Response, next: Next
 };
 
 /**
- * POST /account/delete
- * Delete user account.
- */
-// export const postDeleteAccount = (req: Request, res: Response, next: NextFunction) => {
-//     const user = req.user as UserModel;
-//     const userid = user[idFieldName];
-//     deleteUser({[idFieldName]: userid}, (error: Error) => {
-//       if (error) { return next(error); }
-//       req.logout();
-//       req.flash("info", { msg: "Your account has been deleted." });
-//       res.redirect("/");
-//     });
-// };
-
-/**
  * GET /reset/:token
  * Reset Password page.
  */
