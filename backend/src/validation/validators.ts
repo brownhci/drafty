@@ -1,17 +1,20 @@
 import { emailFieldName } from "../models/user";
-import { findUserByField, findUserByFieldResultType } from "../database/user";
+import { findUserByField } from "../database/user";
+import logger from "../util/logger";
 
+export async function emailAlreadyTaken(email: string){
+  const [error, user] = await findUserByField(emailFieldName, email);
+  if (user == null) {
+    // email not taken
+    return [null];
+  }
 
-export const emailAlreadyTaken = (email: string) => {
-    findUserByField(emailFieldName, email, (error: Error, user: findUserByFieldResultType) => {
-      if (user) {
-        // conflicts with existing user
-        return Promise.reject("Account with that email address already exists.");
-      }
+  if (!user) {
+    // QueryError
+    return [error];
+  }
 
-      if (!user && error) {
-        // QueryError
-        throw new Error("Error when validating the email");
-      }
-    });
-};
+  // conflicts with existing user
+  logger.debug("Account with that email address already exists.");
+  return [new Error("Account with that email address already exists.")];
+}
