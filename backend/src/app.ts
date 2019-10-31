@@ -26,16 +26,17 @@ const app = express();
 // Express configuration
 app.set("port", process.env.PORT || 3000);
 
-
+// View Engine
 // handlebars express config
-var hbs = require( 'express-handlebars');
-app.engine( 'hbs', hbs( {
-  extname: 'hbs',
-  defaultView: 'index',
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const hbs = require( "express-handlebars");
+app.engine( "hbs", hbs({
+  extname: "hbs",
+  defaultView: "index",
   layoutsDir: path.join(__dirname, "../views/layouts/"),
   partialsDir: path.join(__dirname, "../views/partials/")
 }));
-app.set('view engine', 'hbs');
+app.set("view engine", "hbs");
 
 // Express configuration
 app.set("port", process.env.PORT || 3000);
