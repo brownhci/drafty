@@ -23,15 +23,23 @@ import * as passportConfig from "./config/passport";
 // Create Express server
 const app = express();
 
-// Register '.mustache' extension with The Mustache Express
-// var mustacheExpress = require('mustache-express');
-// app.engine('mustache', mustacheExpress());
+// Express configuration
+app.set("port", process.env.PORT || 3000);
+
+
+// handlebars express config
+var hbs = require( 'express-handlebars');
+app.engine( 'hbs', hbs( {
+  extname: 'hbs',
+  defaultView: 'index',
+  layoutsDir: path.join(__dirname, "../views/layouts/"),
+  partialsDir: path.join(__dirname, "../views/partials/")
+}));
+app.set('view engine', 'hbs');
 
 // Express configuration
 app.set("port", process.env.PORT || 3000);
 app.set("views", path.join(__dirname, "../views"));
-// app.set('view engine', 'mustache');
-app.set("view engine", "pug");
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -109,7 +117,6 @@ app.post("/contact", contactController.postContact);
 app.get("/account", passportConfig.isAuthenticated, userController.getAccount);
 app.post("/account/profile", passportConfig.isAuthenticated, userController.postUpdateProfile);
 app.post("/account/password", passportConfig.isAuthenticated, userController.postUpdatePassword);
-// app.post("/account/delete", passportConfig.isAuthenticated, userController.postDeleteAccount); // disable delete account
 
 // interactions
 app.post("/new-row", interactionController.postNewRow);
