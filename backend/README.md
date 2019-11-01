@@ -56,6 +56,8 @@ Supporting libraries used:
   An express.js middleware for validator.
 - [node.bcrypt.js](https://github.com/kelektiv/node.bcrypt.js)<br/>
   A library to help you hash passwords.
+- [node-sass](https://github.com/sass/node-sass)<br/>
+  Node-sass is a library that provides binding for Node.js to LibSass, the C version of the popular stylesheet preprocessor, Sass.
 
 ## Contact
 [Zhengyi Peng](mailto:zhengyi_peng@brown.edu)
