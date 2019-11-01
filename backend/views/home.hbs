@@ -16,25 +16,29 @@
             <div id="sheets">
                 <h4>Hosted Spreadsheets</h4>
                 <ul>
-                    <li class="spreadsheet">
-                        <a class="spreadsheet-link" href="https://drafty.cs.brown.edu/professors/">Computer Science Professors</a>
-                        <div class="spreadsheet-related-content">
-                            <p>See an <a href="https://jeffhuang.com/computer_science_professors.html">analysis of computer science hiring trends</a>
-                            </p>
-                        </div>
-                    </li>
-                    <li class="spreadsheet">
-                        <a class="spreadsheet-link" href="https://drafty.cs.brown.edu/ajobs/">Academic Jobs</a>
-                    </li>
+                    {{#each sheets}}
+                        <li class="spreadsheet">
+                            <a class="spreadsheet-link" href="{{link}}">
+                                {{name}}
+                            </a>
+                        </li>
+                        {{#if relatedContent}}
+                            <div class="spreadsheet-related-content">
+                                {{{relatedContent}}}
+                            </div>
+                        {{/if}}
+                    {{/each}}
                 </ul>
             </div>
             <div id="articles">
                 <h4>Articles and Publications</h4>
                 <ul>
-                    <li class="publication">
-                        <a class="publication-link" href="https://jeffhuang.com/Final_Drafty_HCOMP17.pdf">Drafty: Enlisting Users to be Editors who Maintain Structured Data</a>
-                        <p>Shaun Wallace, Lucy van Kleunen, Marianne Aubin-Le Quere, Abraham Peterkin, Yirui Huang, Jeff Huang. HCOMP 2017</p>
-                    </li>
+                    {{#each publications}}
+                        <li class="publication">
+                            <a class="publication-link" href="{{link}}">{{name}}</a>
+                            <p>{{description}}</p>
+                        </li>
+                    {{/each}}
                 </ul>
             </div>
             <p id="developers" class="footer">
