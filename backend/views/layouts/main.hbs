@@ -13,12 +13,16 @@
     <link rel="shortcut icon" href="/images/favicon.png" />
 </head>
 <body>
-    {{!-- {{> menu}} --}}
+    {{#unless ignoreHeader}}
+        {{> menu}}
+    {{/unless}}
     <div class="container pl-sm-0 pr-sm-0 pl-lg-3 spr-lg-3">
         {{> flash}}
     </div>
     {{{body}}}
-    {{!-- {{> footer}} --}}
+    {{#unless ignoreFooter}}
+        {{> footer}}
+    {{/unless}}
     <script src="/js/main.js"></script>
 </body>
 </html>
