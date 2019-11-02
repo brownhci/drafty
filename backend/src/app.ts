@@ -132,7 +132,7 @@ app.post("/search-full", interactionController.postSearchFull);
 
 // handle missing pages
 app.get("*", function(req, res) {
-  req.flash("errors", { msg: `Cannot find the requested page ${req.originalUrl}`});
+  req.flash("errors", { msg: `Cannot find requested page ${req.originalUrl}`});
   res.redirect("/");
 });
 
