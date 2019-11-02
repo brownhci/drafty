@@ -11,12 +11,12 @@ export const index = (req: Request, res: Response) => {
       title: "home",
       sheets: [
         {
-          link: "https://drafty.cs.brown.edu/professors",
+          link: "/sheet/professors",
           name: "Computer Science Professors",
           relatedContent: `<p>See an <a href="https://jeffhuang.com/computer_science_professors.html">analysis of computer science hiring trends</a></p>`
         },
         {
-          link: "https://drafty.cs.brown.edu/ajobs",
+          link: "/sheet/ajobs",
           name: "Academic Jobs"
         }
       ],
