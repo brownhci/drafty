@@ -1,0 +1,37 @@
+$flash-types: ".flash-error", ".flash-info", ".flash-success";
+
+#flash-messages {
+  @extend .fixed-top;
+  @extend .w-75;
+  @extend .ml-2;
+  #{$flash-types} {
+    @extend .d-flex;
+    @extend .justify-content-between;
+    @extend .align-items-center;
+    @extend .alert;
+    @extend .my-1;
+  }
+  .flash-error {
+    @extend .alert-danger;
+  }
+  .flash-info {
+    @extend .alert-info;
+  }
+  .flash-success {
+    @extend .alert-success;
+  }
+  .flash-dismiss {
+    @extend .d-none;
+    @extend .fas;
+    @extend .fa-times;
+    @extend .fa-lg;
+  }
+  @each $flash-type in $flash-types {
+    #{$flash-type}:hover {
+      .flash-dismiss {
+        @extend .d-inline-block;
+        @extend .fa-spin;
+      }
+    }
+  }
+}
