@@ -1,4 +1,4 @@
-$nav-icons: ("sheet": $fa-var-table, "credits": $fa-var-award);
+$nav-icons: ("sheet": ("before": $fa-var-table, "after": $fa-var-caret-down), "credits": ("before": $fa-var-award));
 
 
 nav {
@@ -25,11 +25,29 @@ nav {
       @extend .text-white;
     }
   }
-  @each $name, $icon in $nav-icons {
-    #navbar-#{$name}:before {
-      @extend %fa-icon;
-      @extend .fas;
-      content: fa-content($icon);
+  @each $name, $icons in $nav-icons {
+    @each $position, $icon in $icons {
+      #navbar-#{$name}:#{$position} {
+        @extend %fa-icon;
+        @extend .fas;
+        content: fa-content($icon);
+      }
     }
+  }
+  #navbar-sheet .dropdown-menu {
+    @extend .d-none;
+    @extend .position-absolute;
+    @extend .bg-secondary;
+    left: 6.3rem;
+    top: 2rem;
+    .dropdown-item.selected {
+      @extend .active;
+    }
+    .dropdown-item:hover {
+      @extend .active;
+    }
+  }
+  #navbar-sheet:hover .dropdown-menu {
+    @extend .d-inline-block;
   }
 }

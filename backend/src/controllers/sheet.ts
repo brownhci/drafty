@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getRequestedSheetName, hasRequestedSheet } from "../models/sheet";
+import { getRequestedSheetName, hasRequestedSheet, sheetNameToSheetURLName } from "../models/sheet";
 
 
 /**
@@ -15,6 +15,7 @@ export function getSheet(req: Request, res: Response) {
   const sheetName = getRequestedSheetName(sheetURL);
   res.render("sheet", {
     sheetName: sheetName,
+    sheetNameToSheetURLName: sheetNameToSheetURLName,
     title: `Sheet:${sheetName}`,
   });
 }

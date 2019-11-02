@@ -6,7 +6,7 @@ const academicJobSheetURLName = "ajobs";
 const sheetNames = [csProfessorSheetName, academicJobSheetName];
 const sheetURLNames = [csProfessorSheetURLName, academicJobSheetURLName];
 
-const sheetNameToSheetURLName = new Map();
+export const sheetNameToSheetURLName = new Map();
 const sheetURLNameToSheetName = new Map();
 
 for (let i = 0; i < sheetNames.length; i++) {

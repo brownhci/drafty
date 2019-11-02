@@ -28,12 +28,14 @@ const app = express();
 app.set("port", process.env.PORT || 3000);
 
 // View Engine
+import helpers from "./config/handlebars-helpers";
 // handlebars express config
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const hbs = require( "express-handlebars");
-app.engine( "hbs", hbs({
+app.engine("hbs", hbs({
   extname: "hbs",
   defaultView: "index",
+  helpers: helpers,
   layoutsDir: path.join(__dirname, "../views/layouts/"),
   partialsDir: path.join(__dirname, "../views/partials/")
 }));
