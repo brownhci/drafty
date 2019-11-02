@@ -4,6 +4,7 @@ $flash-types: ".flash-error", ".flash-info", ".flash-success";
   @extend .fixed-top;
   @extend .w-75;
   @extend .ml-2;
+  opacity: 0.95;
   #{$flash-types} {
     @extend .d-flex;
     @extend .justify-content-between;
