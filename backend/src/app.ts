@@ -13,6 +13,7 @@ const MySQLStore = require("express-mysql-session")(session);
 
 // Controllers (route handlers)
 import * as homeController from "./controllers/home";
+import * as sheetController from "./controllers/sheet";
 import * as userController from "./controllers/user";
 import * as contactController from "./controllers/contact";
 import * as interactionController from "./controllers/interaction";
@@ -98,6 +99,7 @@ app.use(
  */
 // home site rendering
 app.get("/", homeController.index);
+app.get("/sheet/:sheet", sheetController.getSheet);
 
 // user related functionalities
 app.get("/login", userController.getLogin);
@@ -127,5 +129,11 @@ app.post("/click-double", interactionController.postClickDouble);
 app.post("/sort", interactionController.postSort);
 app.post("/search-partial", interactionController.postSearchPartial);
 app.post("/search-full", interactionController.postSearchFull);
+
+// handle missing pages
+app.get("*", function(req, res) {
+  req.flash("errors", { msg: `Cannot find the requested page ${req.originalUrl}`});
+  res.redirect("/");
+});
 
 export default app;
