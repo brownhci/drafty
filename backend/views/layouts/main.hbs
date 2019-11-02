@@ -17,13 +17,12 @@
     {{#unless ignoreHeader}}
         {{> menu}}
     {{/unless}}
-    <div class="container pl-sm-0 pr-sm-0 pl-lg-3 spr-lg-3">
-        {{> flash}}
-    </div>
+    {{> flash}}
     {{{body}}}
     {{#unless ignoreFooter}}
         {{> footer}}
     {{/unless}}
     <script src="/js/main.js"></script>
+    <script src="/js/flash.js"></script>
 </body>
 </html>

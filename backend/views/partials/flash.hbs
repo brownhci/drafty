@@ -1,22 +1,40 @@
-{{#if messages.errors}}
-   alert alert-danger fade show
-    button close(type='button', data-dismiss='alert')
-      i fa fa-times-circle-o
-    for error in messages errors
-      div= error msg
-{{/if}}
-{{#if messages.info}}
-   <div class="alert alert-info fade show">
-    <button class="close" type='button', data-dismiss='alert'></button>
-      <i class="fa fa-times-circle-o"></i>
-    for info in messages info
-      <div>{{info.msg}}</div>
-    </div>
-{{/if}}
-{{#if messages.success}}
-   alert alert-success fade show
-    button close(type='button', data-dismiss='alert')
-      i fa fa-times-circle-o
-    for success in messages success
-      div= success msg
-{{/if}}
+<div id="flash-messages">
+    {{#if messages.errors}}
+        {{#with messages.errors as |errors|}}
+            <div id="flash-errors">
+                {{#each errors}}
+                    <div class="flash-error" role="alert">
+                        <span class="flash-message">{{msg}}</span>
+                        <i class="flash-dismiss" onclick="dismissFlashMessage" data-dismiss="alert" aria-label="Close"></i>
+                    </div>
+                {{/each}}
+            </div>
+        {{/with}}
+    {{/if}}
+
+    {{#if messages.info}}
+        {{#with messages.info as |info|}}
+            <div id="flash-infos">
+                {{#each info}}
+                    <div class="flash-info" role="alert">
+                        <span class="flash-message">{{msg}}</span>
+                        <i class="flash-dismiss" onclick="dismissFlashMessage" data-dismiss="alert" aria-label="Close"></i>
+                    </div>
+                {{/each}}
+            </div>
+        {{/with}}
+    {{/if}}
+
+    {{#if messages.success}}
+        {{#with messages.success as |success|}}
+            <div id="flash-successes">
+                {{#each success}}
+                    <div class="flash-success" role="alert">
+                        <span class="flash-message">{{msg}}</span>
+                        <i class="flash-dismiss" onclick="dismissFlashMessage" data-dismiss="alert" aria-label="Close"></i>
+                    </div>
+                {{/each}}
+            </div>
+        {{/with}}
+    {{/if}}
+</div>
