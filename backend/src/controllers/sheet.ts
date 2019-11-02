@@ -15,6 +15,6 @@ export function getSheet(req: Request, res: Response) {
   const sheetName = getRequestedSheetName(sheetURL);
   res.render("sheet", {
     sheetName: sheetName,
-    title: `sheet:${sheetName}`,
+    title: `Sheet:${sheetName}`,
   });
 }
