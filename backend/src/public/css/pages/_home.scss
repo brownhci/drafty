@@ -64,27 +64,28 @@ section#description-section {
   @extend .d-block;
   @extend .d-md-flex;
   #description-wrapper {
-    @extend .d-flex;
-    @extend .flex-column;
+    @extend .mh-100;
     @extend .text-center;
     @extend .text-md-left;
     @extend .mx-4;
     @extend .mx-md-5;
-    @extend .my-5;
     @extend .px-4;
     @extend .px-md-0;
     @extend .px-lg-5;
   }
-  #project-name {
-    @extend .text-primary;
-    @extend .h2;
-  }
-  #project-short-summary {
-    @extend .text-dark;
-    @extend .font-weight-bolder;
-  }
-  #project-description {
-    @extend .mt-4;
+  #introduction {
+    @extend .my-5;
+    #project-name {
+      @extend .text-primary;
+      @extend .h2;
+    }
+    #project-short-summary {
+      @extend .text-dark;
+      @extend .font-weight-bolder;
+    }
+    #project-description {
+      @extend .mt-4;
+    }
   }
   .spreadsheet-related-content {
     @extend .ml-4;
@@ -102,11 +103,4 @@ section#description-section {
 
 h1, h2, h3, h4, h5, h6 {
   @extend .font-weight-bold;
-}
-
-// github corner
-.github-corner {
-  @extend .position-absolute;
-  top: 0;
-  right: 0;
 }
