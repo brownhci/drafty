@@ -1,69 +1,7 @@
-@import "./vendors/bootstrap/bootstrap";
-@import "./vendors/fontawesome/fontawesome";
-@import "./vendors/fontawesome/solid";
-@import "./vendors/fontawesome/regular";
-@import "./pages/_pages";
+// import library
+@import "./vendors/_vendors";
+
+@import "./abstracts/_abstracts";
+@import "./base/_base";
 @import "./components/_components";
-
-// Scaffolding
-// -------------------------
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
-body {
-  padding-top: 80px;
-  margin-bottom: 75px;
-  height: 100%;
-}
-
-footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-
-  p, ul {
-    margin-bottom: 0;
-  }
-}
-
-// Input Fields
-// -------------------------
-
-textarea {
-  resize: vertical;
-}
-
-// Navbar
-// -------------------------
-
-.navbar-nav img {
-  width: 30px;
-  height: 30px;
-  margin: -15px 15px -15px;
-}
-
-// Alerts
-// -------------------------
-
-.alert {
-  margin-top: 20px;
-}
-
-// Thumbnails
-// -------------------------
-
-.thumbnail {
-  padding: 0;
-  border-radius: 0;
-  box-shadow: 0 0 5px #ccc, inset 0 0 0 #000;
-}
-
-// Font Icons
-// -------------------------
-
-.fa {
-  margin-right: 6px;
-}
+@import "./pages/_pages";

@@ -1,0 +1,35 @@
+$nav-icons: ("sheet": $fa-var-table, "credits": $fa-var-award);
+
+
+nav {
+  @extend .navbar;
+  @extend .navbar-light;
+  @extend .bg-primary;
+  @extend .navbar-expand-lg;
+  .navbar-brand {
+    @extend .text-white;
+    @extend .font-weight-bold;
+    font-size: large;
+  }
+  .navbar-nav {
+    @extend .mx-4;
+  }
+  .nav-item {
+    @extend .clickable;
+    @extend .mx-2;
+    @extend .text-capitalize;
+    * {
+    @extend .text-white-50;
+    }
+    *:hover {
+      @extend .text-white;
+    }
+  }
+  @each $name, $icon in $nav-icons {
+    #navbar-#{$name}:before {
+      @extend %fa-icon;
+      @extend .fas;
+      content: fa-content($icon);
+    }
+  }
+}
