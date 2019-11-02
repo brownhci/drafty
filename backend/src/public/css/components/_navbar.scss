@@ -9,7 +9,6 @@ nav {
   .navbar-brand {
     @extend .text-white;
     @extend .font-weight-bold;
-    font-size: large;
   }
   .navbar-nav {
     @extend .mx-4;
@@ -24,6 +23,9 @@ nav {
     *:hover {
       @extend .text-white;
     }
+  }
+  a {
+    @extend .text-decoration-none;
   }
   @each $name, $icons in $nav-icons {
     @each $position, $icon in $icons {
