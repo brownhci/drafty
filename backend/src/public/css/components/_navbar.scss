@@ -23,36 +23,41 @@ nav {
     *:hover {
       @extend .text-white;
     }
-  }
-  a {
-    @extend .text-decoration-none;
-  }
-  @each $name, $icons in $nav-icons {
-    @each $position, $icon in $icons {
-      #navbar-#{$name}:#{$position} {
-        @extend %fa-icon;
-        @extend .fas;
-        content: fa-content($icon);
+    .dropdown-menu {
+      @extend .d-none;
+      @extend .position-absolute;
+      @extend .bg-secondary;
+      top: 2rem;
+      .dropdown-item:hover {
+        @extend .active;
+      }
+    }
+    a {
+      @extend .text-decoration-none;
+    }
+    #navbar-sheet .dropdown-menu {
+      left: 6.3rem;
+      .dropdown-item.selected {
+        @extend .active;
+      }
+    }
+    #navbar-user .dropdown-menu {
+      left: 6.3rem;
+    }
+    #navbar-user::before {
+      @extend .fa-lg;
+    }
+    @each $name, $icons in $nav-icons {
+      @each $position, $icon in $icons {
+        #navbar-#{$name}:#{$position} {
+          @extend %fa-icon;
+          @extend .fas;
+          content: fa-content($icon);
+        }
       }
     }
   }
-  #navbar-sheet .dropdown-menu {
-    @extend .d-none;
-    @extend .position-absolute;
-    @extend .bg-secondary;
-    left: 6.3rem;
-    top: 2rem;
-    .dropdown-item.selected {
-      @extend .active;
-    }
-    .dropdown-item:hover {
-      @extend .active;
-    }
-  }
-  #navbar-sheet:hover .dropdown-menu {
+  .nav-item:hover .dropdown-menu {
     @extend .d-inline-block;
-  }
-  #navbar-user::before {
-    @extend .fa-lg;
   }
 }
