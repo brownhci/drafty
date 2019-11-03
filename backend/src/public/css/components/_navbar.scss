@@ -1,11 +1,11 @@
-$nav-icons: ("sheet": ("before": $fa-var-table, "after": $fa-var-caret-down), "credits": ("before": $fa-var-award));
+$nav-icons: ("sheet": ("before": $fa-var-table, "after": $fa-var-caret-down), "credits": ("before": $fa-var-award), "user": ("before": $fa-var-user-circle, "after": $fa-var-caret-down));
 
 
 nav {
   @extend .navbar;
   @extend .navbar-light;
   @extend .bg-primary;
-  @extend .navbar-expand-lg;
+  @extend .navbar-expand;
   .navbar-brand {
     @extend .text-white;
     @extend .font-weight-bold;
@@ -51,5 +51,8 @@ nav {
   }
   #navbar-sheet:hover .dropdown-menu {
     @extend .d-inline-block;
+  }
+  #navbar-user::before {
+    @extend .fa-lg;
   }
 }
