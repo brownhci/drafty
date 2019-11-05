@@ -47,3 +47,6 @@ vim-markdown-preview.html
 
 # data
 database/*.sql
+
+# sessions
+.sessions*
