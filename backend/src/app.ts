@@ -2,7 +2,6 @@ import express from "express";
 import compression from "compression";  // compresses requests
 import session from "express-session";
 import sessionFileStore from 'session-file-store';
-import user from './models/userFileSession';
 import bodyParser from "body-parser";
 import helmet from 'helmet';
 import lusca from "lusca";
@@ -63,8 +62,8 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
     cookie: {
-        secure: true, // sw after a change to session config not flipping this var true->false->true will result in multple sessionIDs
-        httpOnly: true, 
+        //secure: true, // sw after a change to session config not flipping this var true->false->true will result in multple sessionIDs
+        //httpOnly: true, 
         maxAge: expInMilliseconds
     },
     store: new FileStore({
@@ -91,11 +90,19 @@ app.use(lusca.referrerPolicy("same-origin"));
 app.use(helmet());
 
 // Global Middleware
+let user = {
+  idSession: -1,
+  idProfile: -1, 
+  isAuth: false, 
+  isAdmin: false,
+  views: 0,
+  failedLoginAttempts: 0
+}
 app.use((req, res, next) => {
   if(req.session.user === undefined) {
     req.session.user = user
   };
-  console.log(req.sessionID)
+  next();
 });
 app.use((req, res, next) => {
     res.locals.user = req.user;
