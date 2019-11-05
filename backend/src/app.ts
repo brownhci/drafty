@@ -1,7 +1,9 @@
 import express from "express";
 import compression from "compression";  // compresses requests
 import session from "express-session";
+import sessionFileStore from 'session-file-store';
 import bodyParser from "body-parser";
+import helmet from 'helmet';
 import lusca from "lusca";
 import flash from "express-flash";
 import path from "path";
@@ -9,7 +11,7 @@ import passport from "passport";
 import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, SESSION_SECRET } from "./util/secrets";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const MySQLStore = require("express-mysql-session")(session);
+//const MySQLStore = require("express-mysql-session")(session);
 
 // Controllers (route handlers)
 import * as homeController from "./controllers/home";
@@ -20,6 +22,9 @@ import * as interactionController from "./controllers/interaction";
 
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
+
+// Create session file store
+const FileStore = sessionFileStore(session);
 
 // Create Express server
 const app = express();
@@ -47,15 +52,22 @@ app.set("views", path.join(__dirname, "../views"));
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Session
+let hours = 24
+let expInMilliseconds = hours * 3600000
 app.use(session({
-    resave: false,
-    saveUninitialized: false,
     secret: SESSION_SECRET,
-    store: new MySQLStore({
-      host: DB_HOST,
-      user: DB_USER,
-      password: DB_PASSWORD,
-      database: DB_DATABASE,
+    name: 'zomg_this_enhances_security',
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+        secure: true, // sw after a change to session config not flipping this var true->false->true will result in multple sessionIDs
+        httpOnly: true, 
+        maxAge: expInMilliseconds
+    },
+    store: new FileStore({
+      path: process.env.NOW ? `/tmp/sessions` : `.sessions`
     })
 }));
 app.use(passport.initialize());
@@ -73,6 +85,11 @@ app.use(lusca.xframe("SAMEORIGIN"));
 app.use(lusca.xssProtection(true));
 app.use(lusca.nosniff());
 app.use(lusca.referrerPolicy("same-origin"));
+
+// added security: https://expressjs.com/en/advanced/best-practice-security.html#use-helmet
+app.use(helmet());
+
+// Global Middleware
 app.use((req, res, next) => {
     res.locals.user = req.user;
     next();
