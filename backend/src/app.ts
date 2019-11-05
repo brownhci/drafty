@@ -2,6 +2,7 @@ import express from "express";
 import compression from "compression";  // compresses requests
 import session from "express-session";
 import sessionFileStore from 'session-file-store';
+import user from './models/userFileSession';
 import bodyParser from "body-parser";
 import helmet from 'helmet';
 import lusca from "lusca";
@@ -90,6 +91,12 @@ app.use(lusca.referrerPolicy("same-origin"));
 app.use(helmet());
 
 // Global Middleware
+app.use((req, res, next) => {
+  if(req.session.user === undefined) {
+    req.session.user = user
+  };
+  console.log(req.sessionID)
+});
 app.use((req, res, next) => {
     res.locals.user = req.user;
     next();
