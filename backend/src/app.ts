@@ -132,7 +132,7 @@ app.use(
  */
 // home site rendering
 app.get("/", homeController.index);
-app.get("/sheet/:sheet", sheetController.getSheet);
+app.get("/:sheet", sheetController.getSheet);
 
 // user related functionalities
 app.get("/login", userController.getLogin);
