@@ -67,7 +67,8 @@ app.use(session({
         maxAge: expInMilliseconds
     },
     store: new FileStore({
-      path: process.env.NOW ? `/tmp/sessions` : `.sessions`
+      path: process.env.NOW ? `/tmp/sessions` : `.sessions`,
+      secret: 'testing_please_change'
     })
 }));
 app.use(passport.initialize());
