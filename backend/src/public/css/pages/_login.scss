@@ -4,6 +4,7 @@ main {
 }
 
 #login-component {
+  @extend .mx-2;
   @extend .my-0;
   @extend .my-md-5;
   & > * {
