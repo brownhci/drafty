@@ -1,10 +1,11 @@
 <main>
     <div id="login-component">
         <h1>Sign in to Drafty</h1>
-        <form id="login-form" class="custom-validation" novalidate>
+        <form action="/login" method="post" id="login-form" class="custom-validation" autocomplete novalidate>
+            <input type="hidden" name="_csrf" value="{{_csrf}}">
             <div>
                 <label for="email">Email address</label>
-                <input type="email" class="form-control" id="email" aria-describedby="email-usage-explanation" placeholder="Enter email" required>
+                <input type="email" class="form-control" id="email" name="email" aria-describedby="email-usage-explanation" placeholder="Enter email" required>
                 <small id="email-usage-explanation" class="form-text text-muted">Your email will only be used to retrieve your account.</small>
                 <div class="invalid-feedback">
                     Please provide a valid email.
