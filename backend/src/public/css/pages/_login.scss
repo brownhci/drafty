@@ -8,8 +8,7 @@ main {
   @extend .my-0;
   @extend .my-md-5;
   & > * {
-    @extend .my-2;
-    @extend .my-md-4;
+    @extend .my-4;
   }
 
   h1 {
