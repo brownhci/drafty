@@ -1,3 +1,23 @@
-#login-form {
-  @extend card;
+main {
+  @extend .justify-content-center;
+  @extend .bg-light;
+}
+
+#login-component {
+  @extend .my-0;
+  @extend .my-md-5;
+  & > * {
+    @extend .my-2;
+    @extend .my-md-4;
+  }
+
+  h1 {
+    @extend .h3;
+    @extend .text-center;
+  }
+
+  #login-form {
+    @extend .card;
+    @extend .p-4;
+  }
 }
