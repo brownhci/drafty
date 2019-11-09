@@ -8,7 +8,7 @@ export const index = (req: Request, res: Response) => {
     res.render("home", {
       ignoreHeader: true,
       ignoreFooter: true,
-      title: "home",
+      title: "Home",
       sheets: [
         {
           link: "/professors",
