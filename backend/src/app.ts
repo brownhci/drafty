@@ -63,7 +63,7 @@ app.use(session({
     saveUninitialized: true,
     cookie: {
         //secure: true, // sw after a change to session config not flipping this var true->false->true will result in multple sessionIDs
-        //httpOnly: true, 
+        //httpOnly: true,
         maxAge: expInMilliseconds
     },
     store: new FileStore({
@@ -93,8 +93,8 @@ app.use(helmet());
 // Global Middleware
 let user = {
   idSession: -1,
-  idProfile: -1, 
-  isAuth: false, 
+  idProfile: -1,
+  isAuth: false,
   isAdmin: false,
   views: 0,
   failedLoginAttempts: 0
@@ -133,7 +133,6 @@ app.use(
  */
 // home site rendering
 app.get("/", homeController.index);
-app.get("/:sheet", sheetController.getSheet);
 
 // user related functionalities
 app.get("/login", userController.getLogin);
@@ -163,6 +162,9 @@ app.post("/click-double", interactionController.postClickDouble);
 app.post("/sort", interactionController.postSort);
 app.post("/search-partial", interactionController.postSearchPartial);
 app.post("/search-full", interactionController.postSearchFull);
+
+// sheets
+app.get("/:sheet", sheetController.getSheet);
 
 // handle missing pages
 app.get("*", function(req, res) {
