@@ -21,7 +21,9 @@ export const getLogin = (req: Request, res: Response) => {
         return res.redirect("/");
     }
     res.render("account/login", {
-        title: "Login"
+        title: "Login",
+        ignoreHeader: true,
+        ignoreFooter: true
     });
 };
 
