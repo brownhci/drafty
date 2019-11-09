@@ -32,4 +32,10 @@ main {
       @extend .text-decoration-none;
     }
   }
+
+  #signup-container {
+    @extend .text-center;
+    @extend .border;
+    @extend .py-3;
+  }
 }
