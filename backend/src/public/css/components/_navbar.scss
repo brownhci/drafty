@@ -15,39 +15,26 @@ nav {
   }
   .nav-item {
     @extend .clickable;
-    @extend .mx-2;
+    @extend .px-2;
     @extend .text-capitalize;
-    * {
-    @extend .text-white-50;
-    }
-    *:hover {
-      @extend .text-white;
-    }
-    .dropdown-menu {
-      @extend .d-none;
-      @extend .position-absolute;
-      @extend .bg-secondary;
-      top: 2rem;
-      .dropdown-item:hover {
-        @extend .active;
-      }
-    }
     a {
       @extend .text-decoration-none;
     }
-    #navbar-sheet .dropdown-menu {
-      left: 6.3rem;
-      .dropdown-item.selected {
-        @extend .active;
+
+    &:hover {
+      @each $name, $icons in $nav-icons {
+        #navbar-#{$name} {
+          @extend .text-white;
+        }
       }
     }
-    #navbar-user .dropdown-menu {
-      left: 6.3rem;
-    }
-    #navbar-user::before {
-      @extend .fa-lg;
-    }
+
+    // navbar components
     @each $name, $icons in $nav-icons {
+      #navbar-#{$name} {
+        @extend .text-white-50;
+      }
+
       @each $position, $icon in $icons {
         #navbar-#{$name}:#{$position} {
           @extend %fa-icon;
@@ -56,8 +43,13 @@ nav {
         }
       }
     }
-  }
-  .nav-item:hover .dropdown-menu {
-    @extend .d-inline-block;
+    #navbar-user::before {
+      @extend .fa-lg;
+    }
+    #navbar-sheet + .dropdown-menu {
+      .selected {
+        @extend .disabled;
+      }
+    }
   }
 }
