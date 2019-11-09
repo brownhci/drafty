@@ -5,8 +5,10 @@ const helpers = {
   eachInMap: function(map: Map<string, string>, block: any) {
     let output = "";
 
-    for (const [ key, value ] of map) {
-      output += block.fn({ key, value });
+    if (map) {
+      for (const [ key, value ] of map) {
+        output += block.fn({ key, value });
+      }
     }
 
     return output;
