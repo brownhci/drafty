@@ -26,7 +26,8 @@ passport.deserializeUser(async (email: number, done) => {
 /**
  * Sign in using Email and Password.
  */
-passport.use(new LocalStrategy(async (username, password, done) => {
+passport.use(new LocalStrategy({ usernameField: "email" },
+  async (username, password, done) => {
   // support login with email
   const [error, user] = await findUserByField(emailFieldName, username);
   if (user == null) {
