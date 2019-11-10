@@ -47,6 +47,7 @@ export const postLogin = (req: Request, res: Response, next: NextFunction) => {
         if (err) { return next(err); }
         if (!user) {
           // authentication error
+          req.flash("errors", { msg: "Authentication error, please contact developers in help page" });
           return res.redirect("/login");
         }
         req.login(user, (err) => {
