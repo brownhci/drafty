@@ -1,6 +1,5 @@
 $nav-icons: ("sheet": ("before": $fa-var-table, "after": $fa-var-caret-down), "credits": ("before": $fa-var-award), "user": ("before": $fa-var-user-circle, "after": $fa-var-caret-down));
 
-
 nav {
   @extend .navbar;
   @extend .navbar-light;

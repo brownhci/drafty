@@ -1,6 +1,7 @@
 $components: "#login-component", "#signup-component";
 
 #form-container {
+  @extend .d-flex;
   @extend .flex-column;
   @extend .align-items-center;
   @extend .bg-light;
@@ -63,10 +64,8 @@ $components: "#login-component", "#signup-component";
       }
     }
   }
-}
 
-@include media-breakpoint-up(md) {
-  #form-container {
+  @include media-breakpoint-up(md) {
     $width: 500px;
     #info-section {
         width: $width;
