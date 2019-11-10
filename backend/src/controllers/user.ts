@@ -223,7 +223,7 @@ export const getReset = async (req: Request, res: Response, next: NextFunction) 
   const [error, user] = await findUserByField(passwordResetToken, token);
   if (user == null) {
       req.flash("errors", { msg: "Password reset token is invalid" });
-      return res.redirect("/forgot");
+      return res.redirect("/forget");
   }
   if (!user) {
     return next(error);
@@ -232,7 +232,7 @@ export const getReset = async (req: Request, res: Response, next: NextFunction) 
   if (moment().isSameOrAfter(expiration)) {
     // reset token has expired
     req.flash("errors", { msg: "Password reset token has expired" });
-    return res.redirect("/forgot");
+    return res.redirect("/forget");
   }
 
   // successful password reset
@@ -308,23 +308,23 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
 };
 
 /**
- * GET /forgot
- * Forgot Password page.
+ * GET /forget
+ * Forget Password page.
  */
-export const getForgot = (req: Request, res: Response) => {
+export const getForget = (req: Request, res: Response) => {
     if (req.isAuthenticated()) {
         return res.redirect("/");
     }
-    res.render("account/forgot", {
-        title: "Forgot Password"
+    res.render("account/forget", {
+        title: "Forget Password"
     });
 };
 
 /**
- * POST /forgot
+ * POST /forget
  * Create a random token, then the send user an email with a reset link.
  */
-export const postForgot = (req: Request, res: Response, next: NextFunction) => {
+export const postForget = (req: Request, res: Response, next: NextFunction) => {
   body("email", "Please enter a valid email address.").isEmail() // eslint-disable-next-line @typescript-eslint/camelcase
                                                       .normalizeEmail({ gmail_remove_dots: false });
 
@@ -332,7 +332,7 @@ export const postForgot = (req: Request, res: Response, next: NextFunction) => {
 
   if (!errors.isEmpty()) {
       req.flash("errors", errors.array());
-      return res.redirect("/forgot");
+      return res.redirect("/forget");
   }
 
   const email = req.body.email;
@@ -347,7 +347,7 @@ export const postForgot = (req: Request, res: Response, next: NextFunction) => {
       const [error, user] = await findUserByField(emailFieldName, email);
       if (user == null) {
           req.flash("errors", { msg: "Account with that email address does not exist." });
-          return res.redirect("/forgot");
+          return res.redirect("/forget");
       }
       if (!user) {
         // QueryError or cannot find user by given email
@@ -369,7 +369,7 @@ export const postForgot = (req: Request, res: Response, next: NextFunction) => {
       Object.assign(user, updatedUser);
       done(error, token, user);
     },
-    async function sendForgotPasswordEmail(token: string, user: UserModel, done: Function) {
+    async function sendForgetPasswordEmail(token: string, user: UserModel, done: Function) {
       const mailOptions = {
           to: user.email,
           from: "no-reply@drafty.cs.brown.edu",
@@ -385,6 +385,6 @@ export const postForgot = (req: Request, res: Response, next: NextFunction) => {
     }
   ], (err) => {
       if (err) { return next(err); }
-      res.redirect("/forgot");
+      res.redirect("/forget");
   });
 };

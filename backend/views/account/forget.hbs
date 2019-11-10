@@ -1,0 +1,31 @@
+<main id="form-container">
+    <div id="forget-component">
+        <h1>Reset your password</h1>
+        <form action="/forget" method="post" id="forget-form" class="custom-validation" autocomplete novalidate>
+            <input type="hidden" name="_csrf" value="{{_csrf}}">
+            <div>
+                <label for="email">Email address</label>
+                <input type="email" class="form-control{{getValidationClass messages.emailValidationFailure}}" id="email" name="email" aria-describedby="email-usage-explanation" placeholder="Enter email" required>
+                {{#if messages.emailValidationFailure}}
+                    {{#with messages.emailValidationFailure as |failure|}}
+                        {{#each failure}}
+                            <div class="invalid-tooltip">
+                                {{msg}}
+                            </div>
+                        {{/each}}
+                    {{/with}}
+                {{else}}
+                    <div class="invalid-feedback">
+                        Please provide a valid email
+                    </div>
+                {{/if}}
+                <small id="email-usage-explanation" class="form-text">Enter the email you used to sign up and we will send you an email with a password reset link.</small>
+            </div>
+            <button type="submit">Send password reset email</button>
+        </form>
+        <div id="signup-container">
+            Doesn't have an account yet? <a href="/signup" title="sign up">Sign up!</a>
+        </div>
+    </div>
+</main>
+<script src="/js/form.js"></script>

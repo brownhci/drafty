@@ -1,9 +1,9 @@
 import express from "express";
 import compression from "compression";  // compresses requests
 import session from "express-session";
-import sessionFileStore from 'session-file-store';
+import sessionFileStore from "session-file-store";
 import bodyParser from "body-parser";
-import helmet from 'helmet';
+import helmet from "helmet";
 import lusca from "lusca";
 import flash from "express-flash";
 import path from "path";
@@ -54,11 +54,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Session
-let hours = 24
-let expInMilliseconds = hours * 3600000
+const hours = 24;
+const expInMilliseconds = hours * 3600000;
 app.use(session({
     secret: SESSION_SECRET,
-    name: 'zomg_this_enhances_security',
+    name: "zomg_this_enhances_security",
     resave: true,
     saveUninitialized: true,
     cookie: {
@@ -68,7 +68,7 @@ app.use(session({
     },
     store: new FileStore({
       path: process.env.NOW ? `/tmp/sessions` : `.sessions`,
-      secret: 'testing_please_change'
+      secret: "testing_please_change"
     })
 }));
 app.use(passport.initialize());
@@ -138,8 +138,8 @@ app.get("/", homeController.index);
 app.get("/login", userController.getLogin);
 app.post("/login", userController.postLogin);
 app.get("/logout", userController.logout);
-app.get("/forgot", userController.getForgot);
-app.post("/forgot", userController.postForgot);
+app.get("/forget", userController.getForget);
+app.post("/forget", userController.postForget);
 app.get("/reset/:token", userController.getReset);
 app.post("/reset/:token", userController.postReset);
 app.get("/signup", userController.getSignup);
