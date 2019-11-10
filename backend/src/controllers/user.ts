@@ -74,6 +74,7 @@ export const logout = (req: Request, res: Response) => {
  */
 export const getSignup = (req: Request, res: Response) => {
     if (req.user) {
+        req.flash("info", {msg: "You are already logged in, please log out first"});
         return res.redirect("/");
     }
     res.render("account/signup", {
