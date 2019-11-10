@@ -3,7 +3,6 @@ const helpers = {
     return target === toMatch ? " selected" : "";
   },
   getValidationClass: function(validationErrors: any) {
-    console.log(validationErrors);
     if (Array.isArray(validationErrors) && validationErrors.length) {
       return " is-invalid";
     }
