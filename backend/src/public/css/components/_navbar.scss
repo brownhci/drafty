@@ -28,9 +28,6 @@ nav {
       @extend .text-decoration-none;
     }
 
-    .active-user {
-      @extend .text-white;
-    }
     .anonymous-user {
       &:before {
         content: fa-content($fa-var-user-ninja) !important;
