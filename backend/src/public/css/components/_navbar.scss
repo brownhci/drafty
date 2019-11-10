@@ -61,12 +61,6 @@ nav {
   }
 }
 
-.nav-spaceholder {
-  min-height: $navbar-height;
-}
-
 %reserve-padding-for-nav {
-  max-height: -webkit-calc(100% - #{$navbar-height});
-  max-height:    -moz-calc(100% - #{$navbar-height});
-  max-height:         calc(100% - #{$navbar-height});
+  padding-top: $navbar-height;
 }
