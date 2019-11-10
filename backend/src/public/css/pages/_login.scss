@@ -19,17 +19,20 @@ main {
   #login-form {
     @extend .card;
     @extend .p-4;
-  }
+    label {
+      @extend .d-block;
+    }
 
-  label {
-    @extend .d-block;
-  }
+    label[for="password"] {
+      a {
+        @extend .float-right;
+        @extend .font-size-small;
+        @extend .text-decoration-none;
+      }
+    }
 
-  label[for="password"] {
-    a {
-      @extend .float-right;
-      @extend .font-size-small;
-      @extend .text-decoration-none;
+    div  {
+      @extend .position-relative;
     }
   }
 

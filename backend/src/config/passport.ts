@@ -26,12 +26,17 @@ passport.deserializeUser(async (email: number, done) => {
 /**
  * Sign in using Email and Password.
  */
-passport.use(new LocalStrategy({ usernameField: "email" },
-  async (username, password, done) => {
+passport.use(new LocalStrategy({
+  usernameField: "email",
+  passReqToCallback: true
+},
+  async (req, username, password, done) => {
   // support login with email
   const [error, user] = await findUserByField(emailFieldName, username);
   if (user == null) {
-    return done(null, false, { message: error.message });
+    const errorMessage = error.message;
+    req.flash("emailValidationFailure", { msg: errorMessage });
+    return done(null, false, { message: errorMessage });
   }
 
   if (!user) {
@@ -41,7 +46,9 @@ passport.use(new LocalStrategy({ usernameField: "email" },
 
   const samePassword = await comparePassword(password, user[passwordFieldName]);
   if (!samePassword) {
-    return done(null, false, { message: "Incorrect password." });
+    const errorMessage = "Incorrect Password";
+    req.flash("passwordValidationFailure", { msg: errorMessage });
+    return done(null, false, { message: errorMessage });
   }
 
   return done(null, user);

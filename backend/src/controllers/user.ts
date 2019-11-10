@@ -50,12 +50,10 @@ export const postLogin = (req: Request, res: Response, next: NextFunction) => {
         if (err) { return next(err); }
         if (!user) {
           // authentication error
-          req.flash("errors", {msg: info.message});
           return res.redirect("/login");
         }
         req.login(user, (err) => {
           if (err) { return next(err); }
-          req.flash("success", { msg: "Success! You are logged in." });
           res.redirect(req.session.returnTo || "/");
         });
     })(req, res, next);

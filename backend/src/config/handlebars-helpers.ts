@@ -2,6 +2,13 @@ const helpers = {
   selected: function(target: string, toMatch: string) {
     return target === toMatch ? " selected" : "";
   },
+  getValidationClass: function(validationErrors: any) {
+    console.log(validationErrors);
+    if (Array.isArray(validationErrors) && validationErrors.length) {
+      return " is-invalid";
+    }
+    return "";
+  },
   eachInMap: function(map: Map<string, string>, block: any) {
     let output = "";
 
