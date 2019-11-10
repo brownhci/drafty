@@ -26,7 +26,7 @@
                     Password
                     <a href="/forget" title="forget password?">Forget password?</a>
                 </label>
-                <input type="password" class="form-control{{getValidationClass messages.passwordValidationFailure}}" id="password" name="Enter password" placeholder="Password" required>
+                <input type="password" class="form-control{{getValidationClass messages.passwordValidationFailure}}" id="password" name="password" placeholder="Enter password" required>
                 {{#if messages.passwordValidationFailure}}
                     {{#with messages.passwordValidationFailure as |failure|}}
                         {{#each failure}}
