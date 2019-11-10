@@ -15,7 +15,7 @@ const helpers = {
     return "";
   },
   getUserSignedInClass: function(isSignedIn: boolean) {
-    return isSignedIn ? " active-user" : "anonymous-user";
+    return isSignedIn ? " active-user" : " anonymous-user";
   },
   getValidationClass: function(validationErrors: undefined | Array<string>) {
     if (Array.isArray(validationErrors) && validationErrors.length) {
