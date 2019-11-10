@@ -54,6 +54,8 @@ $components: "#login-component", "#signup-component";
 
   #info-section {
     p {
+      @extend .text-muted;
+      @extend .font-size-small;
       &:hover {
         i {
             @extend .text-info;
