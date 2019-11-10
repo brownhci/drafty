@@ -1,4 +1,4 @@
-<main>
+<main id="form-container">
     <div id="login-component">
         <h1>Sign in to Drafty</h1>
         <form action="/login" method="post" id="login-form" class="custom-validation" autocomplete novalidate>
@@ -19,7 +19,7 @@
                         Please provide a valid email
                     </div>
                 {{/if}}
-                <small id="email-usage-explanation" class="form-text text-muted">Your email will only be used to retrieve your account.</small>
+                <small id="email-usage-explanation" class="form-text">Your email will only be used to retrieve your account.</small>
             </div>
             <div>
                 <label for="password">
@@ -44,7 +44,7 @@
             <button type="submit">Submit</button>
         </form>
         <div id="signup-container">
-            Doesn't have an account yet? <a href="signup" title="signup">Sign up!</a>
+            Doesn't have an account yet? <a href="/signup" title="sign up">Sign up!</a>
         </div>
     </div>
 </main>

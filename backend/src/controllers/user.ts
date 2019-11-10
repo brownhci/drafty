@@ -77,7 +77,9 @@ export const getSignup = (req: Request, res: Response) => {
         return res.redirect("/");
     }
     res.render("account/signup", {
-        title: "Create Account"
+        title: "Create Account",
+        ignoreHeader: true,
+        ignoreFooter: true
     });
 };
 

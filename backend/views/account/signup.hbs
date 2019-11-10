@@ -1,25 +1,55 @@
-extends ../layout
-
-block content
-  .page-header
-    h3 Sign up
-    hr
-  form.form-horizontal(id='signup-form', method='POST')
-    input(type='hidden', name='_csrf', value=_csrf)
-    .form-group.row.justify-content-md-center
-      label.col-sm-3.col-form-label.text-right.font-weight-bold(for='email') Email
-      .col-sm-7
-        input.form-control(type='email', name='email', id='email', placeholder='Email', autofocus, required)
-    .form-group.row.justify-content-md-center
-      label.col-sm-3.col-form-label.text-right.font-weight-bold(for='password') Password
-      .col-sm-7
-        input.form-control(type='password', name='password', id='password', placeholder='Password', required)
-    .form-group.row.justify-content-md-center
-      label.col-sm-3.col-form-label.text-right.font-weight-bold(for='confirmPassword') Confirm Password
-      .col-sm-7
-        input.form-control(type='password', name='confirmPassword', id='confirmPassword', placeholder='Confirm Password', required)
-    .form-group.row.justify-content-md-center
-      .offset-sm-3.col-sm-7
-        button.btn.btn-success(type='submit')
-          i.fa.fa-user-plus
-          | Signup
+<main id="form-container">
+    <div id="signup-component">
+        <h1>Create your account</h1>
+        <form action="/login" method="post" id="signup-form" class="custom-validation" autocomplete novalidate>
+            <input type="hidden" name="_csrf" value="{{_csrf}}">
+            <div>
+                <label for="email">Email address</label>
+                <input type="email" class="form-control{{getValidationClass messages.emailValidationFailure}}" id="email" name="email" aria-describedby="email-usage-explanation" placeholder="Enter email" required>
+                {{#if messages.emailValidationFailure}}
+                    {{#with messages.emailValidationFailure as |failure|}}
+                        {{#each failure}}
+                            <div class="invalid-tooltip">
+                                {{msg}}
+                            </div>
+                        {{/each}}
+                    {{/with}}
+                {{else}}
+                    <div class="invalid-feedback">
+                        Please provide a valid email
+                    </div>
+                {{/if}}
+                <small id="email-usage-explanation" class="form-text">
+                    Your email will only be used to retrieve your account.
+                </small>
+            </div>
+            <div>
+                <label for="password">
+                    Password
+                </label>
+                <input type="password" class="form-control{{getValidationClass messages.passwordValidationFailure}}" id="password" name="password" placeholder="Password" required>
+                {{#if messages.passwordValidationFailure}}
+                    {{#with messages.passwordValidationFailure as |failure|}}
+                        {{#each failure}}
+                            <div class="invalid-tooltip">
+                                {{msg}}
+                            </div>
+                        {{/each}}
+                    {{/with}}
+                {{else}}
+                    <div class="invalid-feedback">
+                        Please fill out the password field
+                    </div>
+                {{/if}}
+                <small id="password-usage-explanation" class="form-text">
+                    To improve password security, please make sure your password is at least 4 characters long and avoid reusing passwords from other sites.
+                </small>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="login-container">
+            Already have an account? <a href="/login" title="log in">Log in!</a>
+        </div>
+    </div>
+</main>
+<script src="/js/form.js"></script>

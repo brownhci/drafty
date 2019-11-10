@@ -1,0 +1,60 @@
+$components: "#login-component", "#signup-component";
+
+#form-container {
+  @extend .justify-content-center;
+  @extend .bg-light;
+}
+
+@include media-breakpoint-up(md) {
+  @each $component in $components {
+    #{$component} {
+      width: 400px;
+    }
+  }
+}
+
+@each $component in $components {
+  #{$component} {
+    @extend .mx-2;
+    @extend .my-0;
+    @extend .my-md-5;
+    & > * {
+      @extend .my-4;
+    }
+
+    h1 {
+      @extend .h3;
+      @extend .text-center;
+    }
+
+    form {
+      @extend .card;
+      @extend .p-4;
+      label {
+        @extend .d-block;
+      }
+
+      label[for="password"] {
+        a {
+          @extend .float-right;
+          @extend .font-size-small;
+          @extend .text-decoration-none;
+        }
+      }
+
+      div  {
+        @extend .position-relative;
+      }
+      .form-text {
+        @extend .text-muted;
+        @extend .text-wrap;
+      }
+    }
+
+    #login-container, #signup-container {
+      @extend .text-center;
+      @extend .border;
+      @extend .py-3;
+    }
+  }
+}
