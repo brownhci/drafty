@@ -9,7 +9,7 @@ import { IVerifyOptions } from "passport-local";
 import { body, validationResult } from "express-validator";
 import { emailAlreadyTaken } from "../validation/validators";
 import { encryptPassword } from "../util/encrypt";
-import { sendMail } from "../util/email";
+import { sendMail, userPasswordResetEmailAccount } from "../util/email";
 import "../config/passport";
 
 /**
@@ -233,7 +233,8 @@ export const getReset = async (req: Request, res: Response, next: NextFunction) 
 
   // successful password reset
   res.render("account/reset", {
-      title: "Password Reset"
+    title: "Password Reset",
+    email: user.email
   });
 };
 
@@ -289,7 +290,7 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
     async function sendResetPasswordEmail(user: UserModel, done: Function) {
       const mailOptions = {
           to: user.email,
-          from: "express-ts@starter.com",
+          from: userPasswordResetEmailAccount,
           subject: "Your password has been changed",
           text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
       };
@@ -368,7 +369,7 @@ export const postForget = (req: Request, res: Response, next: NextFunction) => {
     async function sendForgetPasswordEmail(token: string, user: UserModel, done: Function) {
       const mailOptions = {
           to: user.email,
-          from: "no-reply@drafty.cs.brown.edu",
+          from: userPasswordResetEmailAccount,
           subject: "Reset your password on Drafty",
           text: `You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n
     Please click on the following link, or paste this into your browser to complete the process:\n\n

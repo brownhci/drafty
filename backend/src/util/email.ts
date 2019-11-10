@@ -3,6 +3,9 @@ import nodemailer from "nodemailer";
 import Mail = require("nodemailer/lib/mailer");
 import { prod, EMAIL_HOST, EMAIL_PORT, EMAIL_ACCOUNT_NAME, EMAIL_ACCOUNT_USERNAME, EMAIL_ACCOUNT_PASSWORD } from "../util/secrets";
 
+const noReplyEmailAccount = "no-reply@drafty.cs.brown.edu";
+export const userPasswordResetEmailAccount = noReplyEmailAccount;
+
 export const transporter = nodemailer.createTransport({
   host: EMAIL_HOST,
   port: EMAIL_PORT,

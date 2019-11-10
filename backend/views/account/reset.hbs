@@ -1,18 +1,54 @@
-extends ../layout
-
-block content
-  .col-sm-8.offset-sm-2
-    form(method='POST')
-      legend Reset Password
-      hr
-      input(type='hidden', name='_csrf', value=_csrf)
-      .form-group
-        label.col-form-label.font-weight-bold(for='password') New Password
-        input.form-control(type='password', name='password', id='password', placeholder='New password', autofocus, required)
-      .form-group
-        label.col-form-label.font-weight-bold(for='confirm') Confirm Password
-        input.form-control(type='password', name='confirm', id='confirm', placeholder='Confirm password', required)
-      .form-group
-        button.btn.btn-primary.btn-reset(type='submit')
-          i.fa.fa-keyboard-o
-          | Change Password
+<main id="form-container">
+    <div id="forget-component">
+        <h1>Reset your password</h1>
+        <form method="post" id="forget-form" class="custom-validation" autocomplete novalidate>
+            <input type="hidden" name="_csrf" value="{{_csrf}}">
+            <div>
+                <label for="email">
+                    Email address
+                </label>
+                <input type="text" readonly class="form-control-plaintext" id="email" value="{{email}}">
+            </div>
+            <div>
+                <label for="password">
+                    New Password
+                </label>
+                <input type="password" class="form-control{{getValidationClass messages.passwordValidationFailure}}" id="password" name="password" placeholder="New password" autofocus required>
+                {{#if messages.passwordValidationFailure}}
+                    {{#with messages.passwordValidationFailure as |failure|}}
+                        {{#each failure}}
+                            <div class="invalid-tooltip">
+                                {{msg}}
+                            </div>
+                        {{/each}}
+                    {{/with}}
+                {{else}}
+                    <div class="invalid-feedback">
+                        Please fill out the new password
+                    </div>
+                {{/if}}
+            </div>
+            <div>
+                <label for="confirm">
+                    Confirm Password
+                </label>
+                <input type="password" class="form-control{{getValidationClass messages.confirmValidationFailure}}" id="confirm" name="confirm" placeholder="Re-enter your new password" required>
+                {{#if messages.confirmValidationFailure}}
+                    {{#with messages.confirmValidationFailure as |failure|}}
+                        {{#each failure}}
+                            <div class="invalid-tooltip">
+                                {{msg}}
+                            </div>
+                        {{/each}}
+                    {{/with}}
+                {{else}}
+                    <div class="invalid-feedback">
+                        Please fill out the confirm password field
+                    </div>
+                {{/if}}
+            </div>
+            <button type="submit">Change password</button>
+        </form>
+    </div>
+</main>
+<script src="/js/form.js"></script>

@@ -51,6 +51,10 @@ $components: "#login-component", "#signup-component", "#forget-component";
         @extend .border;
         @extend .py-3;
       }
+
+      .form-control-plaintext {
+        @extend .text-primary;
+      }
     }
   }
 
