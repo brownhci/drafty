@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
+import { makeRenderObject } from "../config/handlebars-helpers";
 
 /**
  * GET /
  * Home page.
  */
 export const index = (req: Request, res: Response) => {
-    res.render("home", {
+    res.render("home", makeRenderObject({
       ignoreHeader: true,
       ignoreFooter: true,
       title: "Home",
@@ -27,5 +28,5 @@ export const index = (req: Request, res: Response) => {
           description: "Shaun Wallace, Lucy van Kleunen, Marianne Aubin-Le Quere, Abraham Peterkin, Yirui Huang, Jeff Huang. HCOMP 2017"
         },
       ]
-    });
+    }, req));
 };

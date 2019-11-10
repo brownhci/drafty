@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { Request, Response } from "express";
 import { check, validationResult } from "express-validator";
+import { makeRenderObject } from "../config/handlebars-helpers";
 
 const transporter = nodemailer.createTransport({
     service: "SendGrid",
@@ -15,9 +16,7 @@ const transporter = nodemailer.createTransport({
  * Contact form page.
  */
 export const getContact = (req: Request, res: Response) => {
-    res.render("contact", {
-        title: "Contact"
-    });
+    res.render("contact", makeRenderObject({ title: "Contact" }, req));
 };
 
 /**

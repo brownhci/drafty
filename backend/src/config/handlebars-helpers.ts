@@ -1,3 +1,9 @@
+import { sheetNameToSheetURLName } from "../models/sheet";
+
+interface RequestWithUser {
+    user?: any;
+}
+
 const helpers = {
   selected: function(target: string, toMatch: string) {
     return target === toMatch ? " selected" : "";
@@ -7,6 +13,9 @@ const helpers = {
       return " reserve-navbar-padding";
     }
     return "";
+  },
+  getUserSignedInClass: function(isSignedIn: boolean) {
+    return isSignedIn ? " active-user" : "anonymous-user";
   },
   getValidationClass: function(validationErrors: undefined | Array<string>) {
     if (Array.isArray(validationErrors) && validationErrors.length) {
@@ -26,5 +35,12 @@ const helpers = {
     return output;
   },
 };
+
+export function makeRenderObject(renderObject: any, req: RequestWithUser) {
+  renderObject["signedIn"] = !!req.user;
+  renderObject["sheetNameToSheetURLName"] = sheetNameToSheetURLName;
+
+  return renderObject;
+}
 
 export default helpers;

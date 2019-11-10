@@ -10,6 +10,7 @@ import { body, validationResult } from "express-validator";
 import { emailAlreadyTaken } from "../validation/validators";
 import { encryptPassword } from "../util/encrypt";
 import { sendMail, userPasswordResetEmailAccount } from "../util/email";
+import { makeRenderObject } from "../config/handlebars-helpers";
 import "../config/passport";
 
 /**
@@ -20,9 +21,7 @@ export const getLogin = (req: Request, res: Response) => {
     if (req.user) {
         return res.redirect("/");
     }
-    res.render("account/login", {
-        title: "Login"
-    });
+    res.render("account/login", makeRenderObject({ title: "Login" }, req));
 };
 
 /**
@@ -75,9 +74,7 @@ export const getSignup = (req: Request, res: Response) => {
         req.flash("info", {msg: "You are already logged in, please log out first"});
         return res.redirect("/");
     }
-    res.render("account/signup", {
-        title: "Create Account"
-    });
+    res.render("account/signup", makeRenderObject({ title: "Create Account" }, req));
 };
 
 /**
@@ -131,9 +128,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
  * Profile page.
  */
 export const getAccount = (req: Request, res: Response) => {
-    res.render("account/profile", {
-        title: "Account Management"
-    });
+    res.render("account/profile", makeRenderObject({ title: "Account Management" }, req));
 };
 
 /**
@@ -232,10 +227,7 @@ export const getReset = async (req: Request, res: Response, next: NextFunction) 
   }
 
   // successful password reset
-  res.render("account/reset", {
-    title: "Password Reset",
-    email: user.email
-  });
+  res.render("account/reset", makeRenderObject({ title: "Password Reset", email: user.email }, req));
 };
 
 /**
@@ -312,9 +304,7 @@ export const getForget = (req: Request, res: Response) => {
     if (req.isAuthenticated()) {
         return res.redirect("/");
     }
-    res.render("account/forget", {
-      title: "Forget Password"
-    });
+    res.render("account/forget", makeRenderObject({ title: "Forget Password" }, req));
 };
 
 /**
