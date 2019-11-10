@@ -31,6 +31,56 @@ Steps:
     - run with `npm run build` and `npm start` for normal build
 
 
+## Directory Structure
+
++ `.vscode/` Contains VS Code specific settings
++ `dist/` Contains the distributable (or output) from build (typescript, sass, handlebars...). This is the code actually deployed.
++ `node_modules/` Contains all npm dependencies
++ **`src`** Contains source code that will be compiled to the dist dir
+    + `config/` Passport authentication strategies, login middleware, handlebars helpers and render function helper (**use makeRenderObject(renderObject, request)** to include user information and sheet information necessary for navbar rendering**).
+    + **`controllers/`** Controllers define functions that respond to various http requests
+    + **`database/`** Define MySQL connection (`mysql.ts`); SQL statements and common operations (for example, `user.ts` contains function to add user, update user)
+    + **`models/`** Define table and column name strings (**modify the corresponding model file after changing database schema**) and util functions that do not involve querying the database
+    + **`public/`** Static assets that will be used client side
+        + **`css/`** Page-wide and app-wide stylesheets (Sass is used and directory structure follows [7-1 Pattern](https://sass-guidelin.es/#the-7-1-pattern) )<br/>
+          To add new partials (*think it as modules to be imported*), put a new partial under correct directory and import it in the file with the same name as the directory
+            + `abstracts/` The `abstracts/` folder gathers all Sass tools and helpers used across the project. Every global variable, function, mixin and placeholder should be put in here.
+            + `base/` The `base/` folder holds what we might call the boilerplate code for the project. In there, you might find the reset file, some typographic rules, and probably a stylesheet defining some standard styles for commonly used HTML elements
+            + **`components/`** For smaller components, there is the `components/` folder. While `layout/` is macro (defining the global wireframe), `components/` is more focused on widgets. It contains all kind of specific modules like a slider, a loader, a widget, and basically anything along those lines. There are usually a lot of files in components/ since the whole site/application should be mostly composed of tiny modules.
+            + `layout/` The layout/ folder contains everything that takes part in laying out the site or application. This folder could have stylesheets for the main parts of the site (header, footer, navigation, sidebar…), the grid system or even CSS styles for all the forms.
+            + **`pages/`** page-specific styles. Each file should be named after the page.
+            + `themes/` Different themes. Not currently used.
+            + `vendors/` A folder containing all the CSS files from external libraries and frameworks
+        + `fonts/` Display required fonts
+        + `images/` Display required images and icons
+        + **`js/`** Client-side scripts
+        + `webfonts/` FontAwesome required fonts
+    + `types/` Holds .d.ts files not found on DefinitelyTyped.
+    + **`util`** Wrappers for third party libraries (for example, password authentifcation using bcrypt)
+    + `validation/` Custom vaidation middleware, see [Custom validators/sanitizers](https://express-validator.github.io/docs/custom-validators-sanitizers.html
+    + `src/server.ts` Entry point to your express app
+    + **`src/app.ts`** Register all routes and corresponding controllers, import all third party libraries used for entire app.
++ `test` Contains tests
++ **`views`** Views define how the website renders on the client.
+    + `account/` Views for account related pages (user sign in / sign out...)
+    + `layouts/` Basic layout for all pages
+    + `partial/` Reusable components
+    + `sheets/` Views for individual sheets
+    + `*.hbs` Views for other pages
++ **`.env.example`** Example configuration of database config, email config. Make sure to use a different `.env` file for production. **Do not commit actual `.env` file as it contains important secrets**.
++ `.eslintignore` Config settings for paths to exclude from linting
++ `.eslintrc` Config settings for ESLint code style checking
++ `.gitignore` Files and directories to be excluded from git commits
++ `.travis.yml` Used to configure Travis CI build
++ **`README.md`** Detailed information about this project. **Please update README when you introduce new functionalities or new directories**
++ `.copyStaticAssets.ts` Build script that copies images, fonts, and JS libs to the dist folder
++ `debug.log` A log of all error, warnings during running the application, a useful script to see the end of logs is `tail debug.log`
++ `jest.config.js` Used to configure Jest running tests written in TypeScript
++ `package.json` File that contains npm dependencies as well as build scripts
++ `tsconfig.json` Config settings for compiling server code written in TypeScript
+
+
+
 ## Troubleshooting
 
 -  `[Node] (node:36476) UnhandledPromiseRejectionWarning: Error: Client does not support authentication protocol requested by server; consider upgrading MySQL client`<br/>
