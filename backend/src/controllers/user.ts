@@ -47,7 +47,6 @@ export const postLogin = (req: Request, res: Response, next: NextFunction) => {
         if (err) { return next(err); }
         if (!user) {
           // authentication error
-          req.flash("errors", { msg: "Authentication error, please contact developers in help page" });
           return res.redirect("/login");
         }
         req.login(user, (err) => {
@@ -176,7 +175,7 @@ export const postUpdateProfile = async (req: Request, res: Response, next: NextF
  */
 export const postUpdatePassword = async (req: Request, res: Response, next: NextFunction) => {
   body("password", "Password must be at least 4 characters long").isLength({ min: 4 });
-  body("confirmPassword", "Passwords do not match").equals(req.body.password);
+  body("confirm", "Passwords do not match").equals(req.body.password);
 
   const errors = validationResult(req);
 
@@ -240,6 +239,7 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
   body("confirm", "Passwords must match.").equals(req.body.password);
 
   const errors = validationResult(req);
+  // TODO bugfix no actual check password match confirm
 
   if (!errors.isEmpty()) {
       req.flash("errors", errors.array());
