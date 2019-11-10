@@ -36,7 +36,7 @@ Steps:
 + `.vscode/` Contains VS Code specific settings
 + `dist/` Contains the distributable (or output) from build (typescript, sass, handlebars...). This is the code actually deployed.
 + `node_modules/` Contains all npm dependencies
-+ **`src`** Contains source code that will be compiled to the dist dir
++ **`src/`** Contains source code that will be compiled to the dist dir
     + `config/` Passport authentication strategies, login middleware, handlebars helpers and render function helper (**use makeRenderObject(renderObject, request)** to include user information and sheet information necessary for navbar rendering**).
     + **`controllers/`** Controllers define functions that respond to various http requests
     + **`database/`** Define MySQL connection (`mysql.ts`); SQL statements and common operations (for example, `user.ts` contains function to add user, update user)
@@ -56,12 +56,12 @@ Steps:
         + **`js/`** Client-side scripts
         + `webfonts/` FontAwesome required fonts
     + `types/` Holds .d.ts files not found on DefinitelyTyped.
-    + **`util`** Wrappers for third party libraries (for example, password authentifcation using bcrypt)
+    + **`util/`** Wrappers for third party libraries (for example, password authentifcation using bcrypt)
     + `validation/` Custom vaidation middleware, see [Custom validators/sanitizers](https://express-validator.github.io/docs/custom-validators-sanitizers.html
     + `src/server.ts` Entry point to your express app
     + **`src/app.ts`** Register all routes and corresponding controllers, import all third party libraries used for entire app.
-+ `test` Contains tests
-+ **`views`** Views define how the website renders on the client.
++ `test/` Contains tests
++ **`views/`** Views define how the website renders on the client.
     + `account/` Views for account related pages (user sign in / sign out...)
     + `layouts/` Basic layout for all pages
     + `partial/` Reusable components
