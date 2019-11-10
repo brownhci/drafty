@@ -1,10 +1,18 @@
 $nav-icons: ("sheet": ("before": $fa-var-table, "after": $fa-var-caret-down), "credits": ("before": $fa-var-award), "user": ("before": $fa-var-user-circle, "after": $fa-var-caret-down));
+$zindex-nav: $zindex-dropdown - 1;
+$navbar-height: 60px;
 
 nav {
+  @extend .position-absolute;
+  @extend .w-100;
   @extend .navbar;
   @extend .navbar-light;
   @extend .bg-primary;
   @extend .navbar-expand;
+
+  height: $navbar-height;
+  z-index: $zindex-nav;
+
   .navbar-brand {
     @extend .text-white;
     @extend .font-weight-bold;
@@ -51,4 +59,14 @@ nav {
       }
     }
   }
+}
+
+.nav-spaceholder {
+  min-height: $navbar-height;
+}
+
+%reserve-padding-for-nav {
+  max-height: -webkit-calc(100% - #{$navbar-height});
+  max-height:    -moz-calc(100% - #{$navbar-height});
+  max-height:         calc(100% - #{$navbar-height});
 }

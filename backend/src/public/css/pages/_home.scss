@@ -1,4 +1,5 @@
 #homepage-container {
+  @extend .h-100;
   @extend .px-0;
   @extend .d-flex;
   @extend .flex-column;
@@ -6,6 +7,10 @@
 
   // variables
   $img-width: 320px;
+
+  & > div.row {
+    @extend .h-100;
+  }
 
   %aside-text {
     @extend .font-size-small;

@@ -2,7 +2,13 @@ const helpers = {
   selected: function(target: string, toMatch: string) {
     return target === toMatch ? " selected" : "";
   },
-  getValidationClass: function(validationErrors: any) {
+  reserveNavbarPaddingClass: function(ignoreHeader: undefined | boolean) {
+    if (ignoreHeader === undefined || ignoreHeader) {
+      return " reserve-navbar-padding";
+    }
+    return "";
+  },
+  getValidationClass: function(validationErrors: undefined | Array<string>) {
     if (Array.isArray(validationErrors) && validationErrors.length) {
       return " is-invalid";
     }

@@ -21,9 +21,7 @@ export const getLogin = (req: Request, res: Response) => {
         return res.redirect("/");
     }
     res.render("account/login", {
-        title: "Login",
-        ignoreHeader: true,
-        ignoreFooter: true
+        title: "Login"
     });
 };
 
@@ -78,9 +76,7 @@ export const getSignup = (req: Request, res: Response) => {
         return res.redirect("/");
     }
     res.render("account/signup", {
-        title: "Create Account",
-        ignoreHeader: true,
-        ignoreFooter: true
+        title: "Create Account"
     });
 };
 
@@ -316,7 +312,7 @@ export const getForget = (req: Request, res: Response) => {
         return res.redirect("/");
     }
     res.render("account/forget", {
-        title: "Forget Password"
+      title: "Forget Password"
     });
 };
 

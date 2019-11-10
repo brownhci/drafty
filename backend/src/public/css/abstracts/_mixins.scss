@@ -1,11 +1,14 @@
-/// Mixin to prefix several properties at once
-/// @author Hugo Giraudel
-/// @param {Map} $declarations - Declarations to prefix
-/// @param {List} $prefixes (()) - List of prefixes to print
-@mixin prefix($declarations, $prefixes: ()) {
+// @param {Map} $declarations - Declarations to prefix
+// @param {List} $prefixes (()) - List of prefixes to print
+// @param {List} $prefix-property: ((true)) - Whether to prefix property or value
+@mixin prefix($declarations, $prefixes: (), $prefix-property: true) {
   @each $property, $value in $declarations {
     @each $prefix in $prefixes {
-      #{'-' + $prefix + '-' + $property}: $value;
+      @if $prefix-property {
+        #{'-' + $prefix + '-' + $property}: $value;
+      } @else {
+        $property: #{'-' + $prefix + '-' + $value};
+      }
     }
 
     // Output standard non-prefixed declaration
