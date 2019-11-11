@@ -119,7 +119,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
     if (err) {
       return next(err);
     }
-    res.redirect("/");
+    res.redirect(req.session.returnTo || "/");
   });
 };
 
