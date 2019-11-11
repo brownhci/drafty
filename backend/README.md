@@ -26,9 +26,10 @@ Steps:
    - create another database, user with proper privileges, password for session database (*okay to reuse previous database, user, password*)<br/>
 1. Create an environment file in `./backend/` directory, you can copy over `./backend/.env.example` for quick start
 1. Run `npm install` to install necessary dependencies
+1. Run `npm run build` to fully build the directory
 1. Depends on whether you need continuous build (detects your changes and updates build), usually you want this for development, run one of the following script
     - run with `npm run watch` for continuous build
-    - run with `npm run build` and `npm start` for normal build
+    - run with `npm start` for normal build
 
 
 ## Directory Structure
@@ -85,8 +86,9 @@ Steps:
 
 -  `[Node] (node:36476) UnhandledPromiseRejectionWarning: Error: Client does not support authentication protocol requested by server; consider upgrading MySQL client`<br/>
    [Reason & Fix](https://stackoverflow.com/questions/50093144/mysql-8-0-client-does-not-support-authentication-protocol-requested-by-server)
-
 - `SASS` install node-sass globally: npm install -g node-sass
+- Missing directory, page not displayed properly<br/>
+  Try run `npm run build` to fully rebuild the directory
 
 ## Dependencies
 
@@ -103,7 +105,7 @@ Supporting libraries used:
 - [Express Flash](https://github.com/RGBboy/express-flash)<br/>
   Flash is an extension of connect-flash with the ability to define a flash message and render it without redirecting the request.
 - [express-validator](https://github.com/express-validator/express-validator)<br/>
-  An express.js middleware for validator.
+  An express.js middleware for validator
 - [node.bcrypt.js](https://github.com/kelektiv/node.bcrypt.js)<br/>
   A library to help you hash passwords.
 - [node-sass](https://github.com/sass/node-sass)<br/>
