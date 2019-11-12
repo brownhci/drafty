@@ -165,6 +165,7 @@ app.post("/search-full", interactionController.postSearchFull);
 
 // sheets
 app.get("/:sheet", sheetController.getSheet);
+app.post("/gen", sheetController.genSheet);
 
 // handle missing pages
 app.get("*", function(req, res) {
