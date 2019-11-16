@@ -2,25 +2,8 @@
     <div id="login-component">
         <h1>Sign in to Drafty</h1>
         <form action="/login" method="post" id="login-form" class="custom-validation" autocomplete novalidate>
-            <input type="hidden" name="_csrf" value="{{_csrf}}">
-            <div>
-                <label for="email">Email address</label>
-                <input type="email" class="form-control{{getValidationClass messages.emailValidationFailure}}" id="email" name="email" aria-describedby="email-usage-explanation" placeholder="Enter email" required>
-                {{#if messages.emailValidationFailure}}
-                    {{#with messages.emailValidationFailure as |failure|}}
-                        {{#each failure}}
-                            <div class="invalid-tooltip">
-                                {{msg}}
-                            </div>
-                        {{/each}}
-                    {{/with}}
-                {{else}}
-                    <div class="invalid-feedback">
-                        Please provide a valid email
-                    </div>
-                {{/if}}
-                <small id="email-usage-explanation" class="form-text">Your email will only be used to retrieve your account.</small>
-            </div>
+            {{> account/csrf }}
+            {{> account/email-input-component }}
             <div>
                 <label for="password">
                     Password
@@ -43,9 +26,7 @@
             </div>
             <button type="submit">Submit</button>
         </form>
-        <div id="signup-container">
-            Doesn't have an account yet? <a href="/signup" title="sign up">Sign up!</a>
-        </div>
+        {{> account/signup-modal }}
     </div>
 </main>
 <script src="/js/form.js"></script>

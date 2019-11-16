@@ -1,0 +1,27 @@
+<div>
+    <label for="email">Email address</label>
+    <input
+        id="email"
+        type="email"
+        name="email"
+        class="form-control{{getValidationClass messages.emailValidationFailure}}"
+        aria-describedby="email-usage-explanation"
+        placeholder="Enter email"
+        required
+        >
+    {{#if messages.emailValidationFailure}}
+        {{#with messages.emailValidationFailure as |failure|}}
+            {{#each failure}}
+                <div class="invalid-tooltip">
+                    {{msg}}
+                </div>
+            {{/each}}
+        {{/with}}
+    {{/if}}
+    <div class="invalid-feedback">
+        Please provide a valid email
+    </div>
+    <small id="email-usage-explanation" class="form-text">
+        Your email will only be used to retrieve your account.
+    </small>
+</div>
