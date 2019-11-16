@@ -1,6 +1,5 @@
 #table-container {
-  @extend .d-flex;
-  @extend .bg-light;
+  @extend .px-0;
   @extend .overflow-auto;
 
   table {
