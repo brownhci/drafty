@@ -116,6 +116,7 @@ app.use((req, res, next) => {
     req.path !== "/signup" &&
     !req.path.match(/^\/auth/) &&
     !req.path.match(/\./)) {
+        console.log('bad request')
         req.session.returnTo = req.path;
     } else if (req.user &&
     req.path == "/account") {
@@ -155,17 +156,17 @@ app.post("/account/profile", passportConfig.isAuthenticated, userController.post
 app.post("/account/password", passportConfig.isAuthenticated, userController.postUpdatePassword);
 
 // interactions
-app.post("/new-row", interactionController.postNewRow);
-app.post("/edit", interactionController.postEdit);
-app.post("/click", interactionController.postClick);
-app.post("/click-double", interactionController.postClickDouble);
-app.post("/sort", interactionController.postSort);
-app.post("/search-partial", interactionController.postSearchPartial);
-app.post("/search-full", interactionController.postSearchFull);
+app.post("/api/1/new-row", interactionController.postNewRow);
+app.post("/api/1/edit", interactionController.postEdit);
+app.post("/api/1/click", interactionController.postClick);
+app.post("/api/1/click-double", interactionController.postClickDouble);
+app.post("/api/1/sort", interactionController.postSort);
+app.post("/api/1/search-partial", interactionController.postSearchPartial);
+app.post("/api/1/search-full", interactionController.postSearchFull);
 
 // sheets
 app.get("/:sheet", sheetController.getSheet);
-app.post("/gen", sheetController.genSheet);
+app.get("/api/1/generate-sheets", sheetController.genSheet);
 
 // handle missing pages
 app.get("*", function(req, res) {
