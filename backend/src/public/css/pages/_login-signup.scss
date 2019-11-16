@@ -40,6 +40,11 @@ $components: "#login-component", "#signup-component", "#forget-component";
         div  {
           @extend .position-relative;
         }
+
+        button[type="submit"] {
+          @extend .mt-2;
+        }
+
         .form-text {
           @extend .text-muted;
           @extend .text-wrap;

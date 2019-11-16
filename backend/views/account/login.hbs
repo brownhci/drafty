@@ -4,26 +4,7 @@
         <form action="/login" method="post" id="login-form" class="custom-validation" autocomplete novalidate>
             {{> account/csrf }}
             {{> account/email-input-component }}
-            <div>
-                <label for="password">
-                    Password
-                    <a href="/forget" title="forget password?">Forget password?</a>
-                </label>
-                <input type="password" class="form-control{{getValidationClass messages.passwordValidationFailure}}" id="password" name="password" placeholder="Enter password" required>
-                {{#if messages.passwordValidationFailure}}
-                    {{#with messages.passwordValidationFailure as |failure|}}
-                        {{#each failure}}
-                            <div class="invalid-tooltip">
-                                {{msg}}
-                            </div>
-                        {{/each}}
-                    {{/with}}
-                {{else}}
-                    <div class="invalid-feedback">
-                        Please fill out the password field
-                    </div>
-                {{/if}}
-            </div>
+            {{> account/password-input-component showForget=true }}
             <button type="submit">Submit</button>
         </form>
         {{> account/signup-modal }}

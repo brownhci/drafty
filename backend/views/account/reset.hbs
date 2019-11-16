@@ -4,33 +4,21 @@
         <form method="post" id="forget-form" class="custom-validation" autocomplete novalidate>
             {{> account/csrf }}
             <div>
-                {{> account/email-label }}
+                <label for="email">Your Email</label>
                 <input type="text" readonly class="form-control-plaintext" id="email" value="{{email}}">
             </div>
-            <div>
-                <label for="password">
-                    New Password
-                </label>
-                <input type="password" class="form-control{{getValidationClass messages.passwordValidationFailure}}" id="password" name="password" placeholder="New password" autofocus required>
-                {{#if messages.passwordValidationFailure}}
-                    {{#with messages.passwordValidationFailure as |failure|}}
-                        {{#each failure}}
-                            <div class="invalid-tooltip">
-                                {{msg}}
-                            </div>
-                        {{/each}}
-                    {{/with}}
-                {{else}}
-                    <div class="invalid-feedback">
-                        Please fill out the new password
-                    </div>
-                {{/if}}
-            </div>
+            {{> account/password-input-component showPasswordUsageExplanation=true }}
             <div>
                 <label for="confirm">
                     Confirm Password
                 </label>
-                <input type="password" class="form-control{{getValidationClass messages.confirmValidationFailure}}" id="confirm" name="confirm" placeholder="Re-enter your new password" required>
+                <input
+                    id="confirm"
+                    name="confirm"
+                    type="password"
+                    class="form-control{{getValidationClass messages.confirmValidationFailure}}"
+                    placeholder="Re-enter your new password"
+                    required>
                 {{#if messages.confirmValidationFailure}}
                     {{#with messages.confirmValidationFailure as |failure|}}
                         {{#each failure}}
@@ -39,11 +27,10 @@
                             </div>
                         {{/each}}
                     {{/with}}
-                {{else}}
-                    <div class="invalid-feedback">
-                        Please fill out the confirm password field
-                    </div>
                 {{/if}}
+                <div class="invalid-feedback">
+                    Please fill out the confirm password field
+                </div>
             </div>
             <button type="submit">Change password</button>
         </form>
