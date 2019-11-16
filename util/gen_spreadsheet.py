@@ -67,7 +67,7 @@ for r in rows:
     idColPrev = idCol
     idRowPrev = idRow
     
-with open('../backend/views/partials/profs.hbs', 'r+') as f:
+with open('../backend/views/partials/professors.hbs', 'r+') as f:
     for idRow,r in table.items():
         f.write(str(r) + '\n')
         #try:
