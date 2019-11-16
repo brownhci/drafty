@@ -4,6 +4,7 @@ import { emailFieldName, passwordFieldName } from "../models/user";
 import { findUserByField } from "../database/user";
 import { Request, Response, NextFunction } from "express";
 import { comparePassword } from "../util/encrypt";
+import { emailValidationFailure, passwordValidationFailure } from "../validation/validators";
 
 
 const LocalStrategy = passportLocal.Strategy;
@@ -35,7 +36,7 @@ passport.use(new LocalStrategy({
   const [error, user] = await findUserByField(emailFieldName, username);
   if (user == null) {
     const errorMessage = error.message;
-    req.flash("emailValidationFailure", { msg: errorMessage });
+    req.flash(emailValidationFailure, { msg: errorMessage });
     return done(null, false, { message: errorMessage });
   }
 
@@ -47,7 +48,7 @@ passport.use(new LocalStrategy({
   const samePassword = await comparePassword(password, user[passwordFieldName]);
   if (!samePassword) {
     const errorMessage = "Incorrect Password";
-    req.flash("passwordValidationFailure", { msg: errorMessage });
+    req.flash(passwordValidationFailure, { msg: errorMessage });
     return done(null, false, { message: errorMessage });
   }
 

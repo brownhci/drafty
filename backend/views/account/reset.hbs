@@ -8,30 +8,7 @@
                 <input type="text" readonly class="form-control-plaintext" id="email" value="{{email}}">
             </div>
             {{> account/password-input-component showPasswordUsageExplanation=true }}
-            <div>
-                <label for="confirm">
-                    Confirm Password
-                </label>
-                <input
-                    id="confirm"
-                    name="confirm"
-                    type="password"
-                    class="form-control{{getValidationClass messages.confirmValidationFailure}}"
-                    placeholder="Re-enter your new password"
-                    required>
-                {{#if messages.confirmValidationFailure}}
-                    {{#with messages.confirmValidationFailure as |failure|}}
-                        {{#each failure}}
-                            <div class="invalid-tooltip">
-                                {{msg}}
-                            </div>
-                        {{/each}}
-                    {{/with}}
-                {{/if}}
-                <div class="invalid-feedback">
-                    Please fill out the confirm password field
-                </div>
-            </div>
+            {{> account/confirm-input-component }}
             <button type="submit">Change password</button>
         </form>
     </div>

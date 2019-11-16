@@ -1,20 +1,74 @@
-import { emailFieldName } from "../models/user";
+import { emailFieldName, minPasswordLength } from "../models/user";
 import { findUserByField } from "../database/user";
-import logger from "../util/logger";
+import { Request } from "express";
+import { body, validationResult } from "express-validator";
 
-export async function emailAlreadyTaken(email: string){
+export const emailValidationFailure = "emailValidationFailure";
+export const passwordValidationFailure = "passwordValidationFailure";
+export const confirmValidationFailure = "confirmValidationFailure";
+
+export async function emailNotTaken(req: Request) {
+  const email = req.body.email;
   const [error, user] = await findUserByField(emailFieldName, email);
   if (user == null) {
     // email not taken
-    return [null];
+    return true;
   }
 
   if (!user) {
     // QueryError
-    return [error];
+    req.flash("errors", { msg: "Internal server error, please contact developer from help page" });
+    return false;
   }
 
   // conflicts with existing user
-  logger.debug("Account with that email address already exists.");
-  return [new Error("Account with that email address already exists.")];
+  req.flash(emailValidationFailure, { msg: `Account with email address ${email} already exists` });
+  return false;
+}
+
+export async function emailExists(req: Request) {
+  const email = req.body.email;
+  const [error, user] = await findUserByField(emailFieldName, email);
+  if (user == null) {
+    // email not taken
+    req.flash(emailValidationFailure, { msg: `Account with email address ${email} does not exists` });
+    return false;
+  }
+
+  if (!user) {
+    // QueryError
+    req.flash("errors", { msg: "Internal server error, please contact developer from help page" });
+    return false;
+  }
+
+  // email belongs to an existing user
+  return true;
+}
+
+export async function isValidEmail(req: Request) {
+  // eslint-disable-next-line @typescript-eslint/camelcase
+  const result = await body("email").normalizeEmail({ gmail_remove_dots: false }).isEmail().run(req);
+  if (!validationResult(req).isEmpty()) {
+    req.flash(emailValidationFailure, { msg: "Email not in valid format" });
+    return false;
+  }
+  return result;
+}
+
+export async function checkPasswordLength(req: Request) {
+  const result = await body("password").isLength({min: minPasswordLength}).run(req);
+  if (!validationResult(req).isEmpty()) {
+    req.flash(passwordValidationFailure, { msg: "Password should be at least 4 characters long" });
+    return false;
+  }
+  return result;
+}
+
+export async function confirmMatchPassword(req: Request) {
+  const result = await body("confirm").equals(req.body.password).run(req);
+  if (!validationResult(req).isEmpty()) {
+    req.flash(confirmValidationFailure, { msg: "Confirm password should match picked password" });
+    return false;
+  }
+  return result;
 }
