@@ -2,6 +2,7 @@ import pymysql, html
 from bs4 import BeautifulSoup
 
 table = {}
+table2 = ''
 row = ''
 
 # Open database connection
@@ -41,6 +42,7 @@ for r in rows:
     search += '<th id=\"' + str(idSuggType) + '\"><input type="text"></th>'
 
 table[0] = header + '</tr>' + search + '</tr>'
+table2 = header + '</tr>' + search + '</tr>'
 
 # execute SQL query using execute() method.
 cursor.execute(sql)
@@ -61,6 +63,7 @@ for r in rows:
     sugg   = r[3]
     if idRow != idRowPrev: # new row?
         table[idRowPrev] = row + '</tr>'
+        table2 += row + '</tr>'
         row = new_row(idRow,i)
         i += 1
     if idCol != idColPrev: # new cell?
@@ -69,9 +72,11 @@ for r in rows:
     idRowPrev = idRow
     
 with open('../backend/views/partials/profs.hbs', 'r+') as f:
-    for idRow,r in table.items():
-        soup = BeautifulSoup(str(r))
-        f.write(soup.prettify().strip('<html>').strip('</html>').strip('<body>').strip('</body>') + '\n')
+    soup = BeautifulSoup(table2)
+    f.write(soup.prettify() + '\n')
+    #for idRow,r in table.items():
+    #    soup = BeautifulSoup(str(r))
+    #    f.write(soup.prettify().strip('<html>').strip('</html>').strip('<body>').strip('</body>') + '\n')
         
         #f.write(str(r) + '\n')
         #try:
