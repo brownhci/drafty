@@ -68,10 +68,10 @@ for r in rows:
     idColPrev = idCol
     idRowPrev = idRow
     
-with open('../backend/views/partials/sheets/professors.hbs', 'r+') as f:
+with open('../backend/views/partials/profs.hbs', 'r+') as f:
     for idRow,r in table.items():
         soup = BeautifulSoup(str(r))
-        f.write(soup.prettify() + '\n')
+        f.write(soup.prettify().strip('<html>').strip('</html>').strip('<body>').strip('</body>') + '\n')
         
         #f.write(str(r) + '\n')
         #try:
