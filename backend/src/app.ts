@@ -170,7 +170,7 @@ app.post("/gen", sheetController.genSheet);
 // handle missing pages
 app.get("*", function(req, res) {
   req.flash("errors", { msg: `Cannot find requested page ${req.originalUrl}`});
-  res.redirect("/");
+  res.redirect(req.session.returnTo || "/");
 });
 
 export default app;
