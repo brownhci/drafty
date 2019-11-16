@@ -1,4 +1,4 @@
-$flash-types: ("error": "danger", "info": "info", "success": "success");
+$flash-types: ("errors": "danger", "infos": "info", "successes": "success");
 
 #flash-messages {
   @extend .fixed-top;
@@ -7,7 +7,7 @@ $flash-types: ("error": "danger", "info": "info", "success": "success");
   opacity: 0.95;
 
   @each $type, $class in $flash-types {
-    #flash-#{$type}s {
+    #flash-#{$type} {
       [role="alert"] {
         @extend .d-flex;
         @extend .justify-content-between;
