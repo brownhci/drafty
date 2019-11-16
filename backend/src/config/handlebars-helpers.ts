@@ -5,6 +5,13 @@ interface RequestWithUser {
 }
 
 const helpers = {
+  ifEquals: function(arg1: string, arg2: string) {
+    if(arg1 == arg2) {
+      return true;
+    } else {
+      return false;
+    }
+  },
   selected: function(target: string, toMatch: string) {
     return target === toMatch ? " selected" : "";
   },
