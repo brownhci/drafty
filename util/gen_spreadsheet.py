@@ -70,7 +70,10 @@ for r in rows:
     
 with open('../backend/views/partials/sheets/professors.hbs', 'r+') as f:
     for idRow,r in table.items():
-        f.write(str(r) + '\n')
+        soup = BeautifulSoup(str(r))
+        f.write(soup.prettify() + '\n')
+        
+        #f.write(str(r) + '\n')
         #try:
         #    f.write(r.encode('ascii'))
         #except:
