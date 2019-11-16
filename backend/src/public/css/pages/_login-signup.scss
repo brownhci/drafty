@@ -7,7 +7,6 @@ $components: "#login-component", "#signup-component", "#forget-component";
   @extend .bg-light;
   @extend .overflow-auto;
   @extend .px-2;
-  @extend %reserve-padding-for-nav;
 
   @each $component in $components {
     #{$component} {

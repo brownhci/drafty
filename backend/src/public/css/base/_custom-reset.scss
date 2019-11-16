@@ -10,6 +10,7 @@ h1, h2, h3, h4, h5, h6 {
 body {
   @extend .p-0;
   @extend .m-0;
+  @extend .overflow-hidden;
 }
 
 main {

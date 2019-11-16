@@ -1,0 +1,12 @@
+#table-container {
+  @extend .d-flex;
+  @extend .bg-light;
+  @extend .overflow-auto;
+
+  table {
+    @extend .table;
+    @extend .table-striped;
+    @extend .table-bordered;
+    @extend .table-hover;
+  }
+}

@@ -65,8 +65,8 @@ nav {
       }
     }
   }
-}
 
-%reserve-padding-for-nav {
-  padding-top: $navbar-height;
+  & ~ main {
+    padding-top: $navbar-height;
+  }
 }
