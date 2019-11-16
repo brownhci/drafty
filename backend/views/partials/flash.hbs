@@ -3,10 +3,7 @@
         {{#with messages.errors as |errors|}}
             <div id="flash-errors">
                 {{#each errors}}
-                    <div class="flash-error" role="alert">
-                        <span class="flash-message">{{msg}}</span>
-                        <i class="flash-dismiss" onclick="dismissFlashMessage" data-dismiss="alert" aria-label="Close"></i>
-                    </div>
+                    {{> single-flash}}
                 {{/each}}
             </div>
         {{/with}}
@@ -16,10 +13,7 @@
         {{#with messages.info as |info|}}
             <div id="flash-infos">
                 {{#each info}}
-                    <div class="flash-info" role="alert">
-                        <span class="flash-message">{{msg}}</span>
-                        <i class="flash-dismiss" onclick="dismissFlashMessage" data-dismiss="alert" aria-label="Close"></i>
-                    </div>
+                    {{> single-flash}}
                 {{/each}}
             </div>
         {{/with}}
@@ -29,10 +23,7 @@
         {{#with messages.success as |success|}}
             <div id="flash-successes">
                 {{#each success}}
-                    <div class="flash-success" role="alert">
-                        <span class="flash-message">{{msg}}</span>
-                        <i class="flash-dismiss" onclick="dismissFlashMessage" data-dismiss="alert" aria-label="Close"></i>
-                    </div>
+                    {{> single-flash}}
                 {{/each}}
             </div>
         {{/with}}
