@@ -14,7 +14,7 @@ export function getSheet(req: Request, res: Response) {
     return res.redirect("/");
   }
   const sheetName = getRequestedSheetName(sheetURL);
-  res.render("sheet", makeRenderObject({ title: `Sheet:${sheetName}`, sheetName: sheetName }, req));
+  res.render("pages/sheet", makeRenderObject({ title: `Sheet:${sheetName}`, sheetName: sheetName }, req));
 }
 
 /**

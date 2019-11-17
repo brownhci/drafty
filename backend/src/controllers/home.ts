@@ -6,7 +6,7 @@ import { makeRenderObject } from "../config/handlebars-helpers";
  * Home page.
  */
 export const index = (req: Request, res: Response) => {
-    res.render("home", makeRenderObject({
+    res.render("pages/home", makeRenderObject({
       ignoreHeader: true,
       ignoreFooter: true,
       title: "Home",
