@@ -2,7 +2,7 @@
     <div id="forget-component">
         <h1>Reset your password</h1>
         <form action="/forget" method="post" id="forget-form" class="custom-validation" autocomplete novalidate>
-            {{> account/csrf }}
+            {{> csrf }}
             {{> account/email-input-component }}
             <button type="submit">Send password reset email</button>
         </form>
