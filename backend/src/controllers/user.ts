@@ -16,10 +16,12 @@ import "../config/passport";
  * Login page
  */
 export const getLogin = (req: Request, res: Response) => {
-    if (req.user) {
-        return res.redirect("/");
-    }
-    res.render("account/login", makeRenderObject({ title: "Login" }, req));
+  if (req.user) {
+    // current user is already logged in
+    req.flash("info", {msg: "You are already logged in, please log out first"});
+    return res.redirect(req.session.returnTo || "/");
+  }
+  res.render("account/login", makeRenderObject({ title: "Login" }, req));
 };
 
 /**
