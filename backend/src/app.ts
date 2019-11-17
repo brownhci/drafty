@@ -153,7 +153,7 @@ app.get("/help", helpController.getHelp);
 app.post("/contact", contactController.postContact);
 
 // passport accounts
-app.get("/account", passportConfig.isAuthenticated, userController.getAccount);
+app.get("/account", userController.getAccount);
 app.post("/account/profile", passportConfig.isAuthenticated, userController.postUpdateProfile);
 app.post("/account/password", passportConfig.isAuthenticated, userController.postUpdatePassword);
 
@@ -173,7 +173,7 @@ app.post("/gen", sheetController.genSheet);
 // handle missing pages
 app.get("*", function(req, res) {
   req.flash("errors", { msg: `Cannot find requested page ${req.originalUrl}`});
-  res.redirect(req.session.returnTo || "/");
+  res.redirect("/");
 });
 
 export default app;
