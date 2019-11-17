@@ -17,6 +17,7 @@ main {
   @extend .container-fluid;
 }
 
+
 // form
 form {
   textarea {
@@ -28,6 +29,9 @@ form {
     @extend .mt-2;
   }
 
+  div {
+    @extend .position-relative;
+  }
 
   .form-text {
     @extend .text-muted;

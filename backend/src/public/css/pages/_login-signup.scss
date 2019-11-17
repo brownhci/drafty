@@ -35,10 +35,6 @@ $components: "#login-component", "#signup-component", "#forget-component";
             @extend .text-decoration-none;
           }
         }
-
-        div  {
-          @extend .position-relative;
-        }
       }
 
       #login-container, #signup-container {
