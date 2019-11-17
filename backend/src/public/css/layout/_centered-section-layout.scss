@@ -1,7 +1,8 @@
 .centered-section-layout {
+  @extend .overflow-auto;
   & > * {
     @extend .mx-auto;
-    @extend .mt-5;
+    @extend .my-5;
     @extend .w-75;
 
     h1 {
@@ -10,13 +11,26 @@
 
     section {
       @extend .py-5;
-      @extend .border-top;
-      @extend .border-bottom;
 
       & > * {
         max-width: 800px;
         @extend .mx-auto;
       }
+
+
+      h2 {
+        @extend .mb-4;
+      }
+      h2:not(:first-of-type) {
+        @extend .mt-4;
+      }
+    }
+    section:first-of-type {
+      @extend .border-top;
+      @extend .border-bottom;
+    }
+    section:not(:first-of-type) {
+      @extend .border-bottom;
     }
   }
 }

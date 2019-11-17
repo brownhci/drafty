@@ -55,7 +55,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
  */
 export const logout = (req: Request, res: Response) => {
     req.logout();
-    res.redirect("/");
+    res.redirect(req.session.returnTo || "/");
 };
 
 /**
@@ -111,7 +111,12 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
  * Profile page.
  */
 export const getAccount = (req: Request, res: Response) => {
-    res.render("account/profile", makeRenderObject({ title: "Account Management" }, req));
+  let username = "Anonymous User";
+  if (req.user) {
+    const user = req.user as Partial<UserModel>;
+    username = user.email;
+  }
+  res.render("account/profile", makeRenderObject({ title: "Account Management", username: username }, req));
 };
 
 /**
@@ -164,20 +169,20 @@ export const postUpdatePassword = async (req: Request, res: Response, next: Next
       return res.redirect("/account");
   }
 
-  const user = req.user as UserModel;
-  const userid = user[idFieldName];
+  const user = req.user as Partial<UserModel>;
+  const email = user.email;
   const password: string = await encryptPassword(req.body.password);
   const updatedUser = {
     [passwordFieldName]: password,
   };
 
-  const [error] = await updateUser(updatedUser, {[idFieldName]: userid});
+  const [error] = await updateUser(updatedUser, {[emailFieldName]: email});
   if (error) {
     return next(error);
   }
 
   // successfully updated password
-  req.flash("success", { msg: "Password has been changed." });
+  req.flash("success", { msg: "Password has been changed" });
   res.redirect("/account");
 };
 
