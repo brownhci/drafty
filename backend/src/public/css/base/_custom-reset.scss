@@ -16,3 +16,21 @@ body {
 main {
   @extend .container-fluid;
 }
+
+// form
+form {
+  textarea {
+    @extend .p-2;
+    @extend .d-block;
+  }
+
+  button[type="submit"] {
+    @extend .mt-2;
+  }
+
+
+  .form-text {
+    @extend .text-muted;
+    @extend .text-wrap;
+  }
+}

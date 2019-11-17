@@ -7,6 +7,15 @@ export const emailValidationFailure = "emailValidationFailure";
 export const passwordValidationFailure = "passwordValidationFailure";
 export const confirmValidationFailure = "confirmValidationFailure";
 
+export async function fieldNonEmpty(req: Request, fieldName: string) {
+  const result = await body(fieldName).not().isEmpty().run(req);
+  if (!validationResult(req).isEmpty()) {
+    req.flash(`${fieldName}ValidationFailure`, { msg: `${fieldName} should not be empty` });
+    return false;
+  }
+  return result;
+}
+
 export async function emailNotTaken(req: Request) {
   const email = req.body.email;
   const [error, user] = await findUserByField(emailFieldName, email);

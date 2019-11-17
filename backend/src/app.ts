@@ -14,6 +14,7 @@ import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, SESSION_SECRET } from "./ut
 //const MySQLStore = require("express-mysql-session")(session);
 
 // Controllers (route handlers)
+import * as helpController from "./controllers/help";
 import * as homeController from "./controllers/home";
 import * as sheetController from "./controllers/sheet";
 import * as userController from "./controllers/user";
@@ -116,7 +117,6 @@ app.use((req, res, next) => {
     req.path !== "/signup" &&
     !req.path.match(/^\/auth/) &&
     !req.path.match(/\./)) {
-        console.log('bad request')
         req.session.returnTo = req.path;
     } else if (req.user &&
     req.path == "/account") {
@@ -146,8 +146,10 @@ app.post("/reset/:token", userController.postReset);
 app.get("/signup", userController.getSignup);
 app.post("/signup", userController.postSignup);
 
+// getting help
+app.get("/help", helpController.getHelp);
+
 // contacting developers
-app.get("/contact", contactController.getContact);
 app.post("/contact", contactController.postContact);
 
 // passport accounts
@@ -156,17 +158,17 @@ app.post("/account/profile", passportConfig.isAuthenticated, userController.post
 app.post("/account/password", passportConfig.isAuthenticated, userController.postUpdatePassword);
 
 // interactions
-app.post("/api/1/new-row", interactionController.postNewRow);
-app.post("/api/1/edit", interactionController.postEdit);
-app.post("/api/1/click", interactionController.postClick);
-app.post("/api/1/click-double", interactionController.postClickDouble);
-app.post("/api/1/sort", interactionController.postSort);
-app.post("/api/1/search-partial", interactionController.postSearchPartial);
-app.post("/api/1/search-full", interactionController.postSearchFull);
+app.post("/new-row", interactionController.postNewRow);
+app.post("/edit", interactionController.postEdit);
+app.post("/click", interactionController.postClick);
+app.post("/click-double", interactionController.postClickDouble);
+app.post("/sort", interactionController.postSort);
+app.post("/search-partial", interactionController.postSearchPartial);
+app.post("/search-full", interactionController.postSearchFull);
 
 // sheets
 app.get("/:sheet", sheetController.getSheet);
-app.get("/api/1/generate-sheets", sheetController.genSheet);
+app.post("/gen", sheetController.genSheet);
 
 // handle missing pages
 app.get("*", function(req, res) {

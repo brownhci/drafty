@@ -15,4 +15,3 @@ interface Flash {
 }
 
 declare module "express-flash";
-

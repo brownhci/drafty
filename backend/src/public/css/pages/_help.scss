@@ -1,0 +1,37 @@
+#helppage-container {
+  @extend .overflow-auto;
+
+  & > div {
+    @extend .mx-auto;
+    @extend .mt-5;
+    @extend .w-75;
+
+    h1 {
+      @extend .my-5;
+    }
+
+    section {
+      @extend .py-5;
+      @extend .border-top;
+      @extend .border-bottom;
+    }
+
+    form {
+      max-width: 800px;
+      @extend .mx-auto;
+
+      h2 {
+        @extend .mb-4;
+      }
+      label {
+        @extend .d-block;
+      }
+      textarea {
+        @extend .w-100;
+      }
+      button[type="submit"] {
+        width: 200px;
+      }
+    }
+  }
+}
