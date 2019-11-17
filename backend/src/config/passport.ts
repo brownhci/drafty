@@ -75,8 +75,9 @@ passport.use(new LocalStrategy({
  * Login Required middleware.
  */
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.redirect("/login");
+  if (req.isAuthenticated()) {
+      return next();
+  }
+  req.flash("errors", { msg: "You need to log in first" });
+  return res.redirect("/login");
 };
