@@ -1,0 +1,22 @@
+.centered-section-layout {
+  & > * {
+    @extend .mx-auto;
+    @extend .mt-5;
+    @extend .w-75;
+
+    h1 {
+      @extend .my-5;
+    }
+
+    section {
+      @extend .py-5;
+      @extend .border-top;
+      @extend .border-bottom;
+
+      & > * {
+        max-width: 800px;
+        @extend .mx-auto;
+      }
+    }
+  }
+}
