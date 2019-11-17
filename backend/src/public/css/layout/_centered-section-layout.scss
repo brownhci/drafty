@@ -9,6 +9,11 @@
       @extend .my-5;
     }
 
+    #username {
+      @extend .text-primary;
+      @extend .ml-2;
+    }
+
     section {
       @extend .py-5;
 
@@ -16,7 +21,6 @@
         max-width: 800px;
         @extend .mx-auto;
       }
-
 
       h2 {
         @extend .mb-4;
