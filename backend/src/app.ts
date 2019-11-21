@@ -92,18 +92,18 @@ app.use(lusca.referrerPolicy("same-origin"));
 app.use(helmet());
 
 // Global Middleware
-let user = {
+const user = {
   idSession: -1,
   idProfile: -1,
   isAuth: false,
   isAdmin: false,
   views: 0,
   failedLoginAttempts: 0
-}
+};
 app.use((req, res, next) => {
   if(req.session.user === undefined) {
-    req.session.user = user
-  };
+    req.session.user = user;
+  }
   next();
 });
 app.use((req, res, next) => {

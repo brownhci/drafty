@@ -1,8 +1,8 @@
 import { db,logDbErr } from "./mysql";
 
-const stmtSelectSuggestionsAjobs: string = "SELECT * " + 
-                                            "FROM Suggestions " + 
-                                            "WHERE idProfile = 2 " + 
+const stmtSelectSuggestionsAjobs: string = "SELECT * " +
+                                            "FROM Suggestions " +
+                                            "WHERE idProfile = 2 " +
                                             "OR (idSuggestionType = 11 AND idProfile = ?) " + // private cols
                                             "OR (idSuggestionType = 14 AND idProfile = ?) " + // private cols
                                             "OR (idSuggestionType != 11 AND idSuggestionType != 14) " +
@@ -22,17 +22,17 @@ export async function genSheets(idProfile: number) {
     try {
         const [rows] = await db.query(stmtSelectSuggestionsProfs);
         if (Array.isArray(rows) && rows.length > 0) {
-            
+
             rows.forEach(function (row: any) {
                 console.log(row);
             });
         }
     } catch (error) {
         logDbErr(error, "error during generate spreadsheets", "warn");
-        return error
+        return error;
     }
 }
 
-async function genHeader() {
+// async function genHeader() {
 
-}
+// }
