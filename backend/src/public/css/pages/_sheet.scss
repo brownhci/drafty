@@ -1,10 +1,23 @@
+$shadow-width: 3px;
+
 #table-container {
   @extend .px-0;
   @extend .overflow-auto;
 
   table {
     @extend .table;
-    @extend .table-striped;
     @extend .table-bordered;
+    thead {
+      @extend .thead-light;
+    }
+    td {
+      &.clicked {
+        @extend .border-0;
+        @include vendor-prefix(box-shadow, inset 0px 0px 0px $shadow-width $primary, webkit ms);
+      }
+      &:not(:first-child) {
+        @extend .border-left-0;
+      }
+    }
   }
 }
