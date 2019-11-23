@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getRequestedSheetName, hasRequestedSheet } from "../models/sheet";
+import { getRequestedSheetName, getRequestedSheetTemplatePath, hasRequestedSheet } from "../models/sheet";
 import { makeRenderObject } from "../config/handlebars-helpers";
 import { genSheets } from "../database/gen_spreadsheets";
 
@@ -14,7 +14,8 @@ export function getSheet(req: Request, res: Response) {
     return res.redirect("/");
   }
   const sheetName = getRequestedSheetName(sheetURL);
-  res.render("pages/sheet", makeRenderObject({ title: `Sheet:${sheetName}`, sheetName: sheetName }, req));
+  const sheetPath = getRequestedSheetTemplatePath(sheetURL);
+  res.render("pages/sheet", makeRenderObject({ title: `Sheet:${sheetName}`, sheetName: sheetName, sheetPath: sheetPath }, req));
 }
 
 /**
