@@ -27,15 +27,20 @@ $shadow-width: 3px;
     }
     thead {
       @extend .thead-light;
-      tr {
-        th {
-          @extend %cell-overflow;
+      th {
+        @extend %cell-overflow;
+        &:focus {
+          outline: none;
+        }
+        &.active {
+          @extend .bg-secondary;
+          @extend .text-white;
         }
       }
     }
     tbody {
       td {
-          @extend %cell-overflow;
+        @extend %cell-overflow;
         &:focus {
           outline: none;
         }
