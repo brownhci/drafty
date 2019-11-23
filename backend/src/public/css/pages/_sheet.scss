@@ -11,7 +11,10 @@ $shadow-width: 3px;
       @extend .thead-light;
     }
     td {
-      &.clicked {
+      &:focus {
+        outline: none;
+      }
+      &.active {
         @extend .border-0;
         @include vendor-prefix(box-shadow, inset 0px 0px 0px $shadow-width $primary, webkit ms);
       }
