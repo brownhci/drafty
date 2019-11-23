@@ -3,23 +3,28 @@ $shadow-width: 3px;
 #table-container {
   @extend .px-0;
   @extend .overflow-auto;
+  border-collapse: collapse;
 
   table {
     @extend .table;
     @extend .table-bordered;
+    @extend .mw-100;
+    @extend .w-100;
+    @extend .mh-100;
     thead {
       @extend .thead-light;
     }
     td {
+      max-width: 0;
+      @extend .overflow-hidden;
+      @extend .text-nowrap;
+      text-overflow: ellipsis;
       &:focus {
         outline: none;
       }
       &.active {
         @extend .border-0;
         @include vendor-prefix(box-shadow, inset 0px 0px 0px $shadow-width $primary, webkit ms);
-      }
-      &:not(:first-child) {
-        @extend .border-left-0;
       }
     }
   }
