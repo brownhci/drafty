@@ -1,5 +1,5 @@
 import express from "express";
-import compression from "compression";  // compresses requests
+import compression from "compression"; // compresses requests
 import session from "express-session";
 import sessionFileStore from "session-file-store";
 import bodyParser from "body-parser";
@@ -62,15 +62,15 @@ app.use(session({
     name: "zomg_this_enhances_security",
     resave: true,
     saveUninitialized: true,
-    // cookie: {
-    //     secure: false, // sw after a change to session config not flipping this var true->false->true will result in multple sessionIDs
-    //     httpOnly: true,
-    //     maxAge: expInMilliseconds
-    // },
-    // store: new FileStore({
-    //   path: process.env.NOW ? `/tmp/sessions` : `.sessions`,
-    //   secret: "testing_please_change"
-    // })
+    cookie: {
+        secure: false, // sw after a change to session config not flipping this var true->false->true will result in multple sessionIDs
+        httpOnly: true,
+        maxAge: expInMilliseconds
+    },
+    store: new FileStore({
+      path: process.env.NOW ? `/tmp/sessions` : `.sessions`,
+      secret: "testing_please_change"
+    })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -92,38 +92,38 @@ app.use(lusca.referrerPolicy("same-origin"));
 app.use(helmet());
 
 // Global Middleware
-// const user = {
-//   idSession: -1,
-//   idProfile: -1,
-//   isAuth: false,
-//   isAdmin: false,
-//   views: 0,
-//   failedLoginAttempts: 0
-// };
-// app.use((req, res, next) => {
-//   if(req.session.user === undefined) {
-//     req.session.user = user;
-//   }
-//   next();
-// });
-// app.use((req, res, next) => {
-//     res.locals.user = req.user;
-//     next();
-// });
-// app.use((req, res, next) => {
-//     // After successful login, redirect back to the intended page
-//     if (!req.user &&
-//     req.path !== "/login" &&
-//     req.path !== "/signup" &&
-//     !req.path.match(/^\/auth/) &&
-//     !req.path.match(/\./)) {
-//         req.session.returnTo = req.path;
-//     } else if (req.user &&
-//     req.path == "/account") {
-//         req.session.returnTo = req.path;
-//     }
-//     next();
-// });
+const user = {
+  idSession: -1,
+  idProfile: -1,
+  isAuth: false,
+  isAdmin: false,
+  views: 0,
+  failedLoginAttempts: 0
+};
+app.use((req, res, next) => {
+  if(req.session.user === undefined) {
+    req.session.user = user;
+  }
+  next();
+});
+app.use((req, res, next) => {
+    res.locals.user = req.user;
+    next();
+});
+app.use((req, res, next) => {
+    // After successful login, redirect back to the intended page
+    if (!req.user &&
+    req.path !== "/login" &&
+    req.path !== "/signup" &&
+    !req.path.match(/^\/auth/) &&
+    !req.path.match(/\./)) {
+        req.session.returnTo = req.path;
+    } else if (req.user &&
+    req.path == "/account") {
+        req.session.returnTo = req.path;
+    }
+    next();
+});
 
 app.use(
     express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
