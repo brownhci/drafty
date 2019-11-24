@@ -29,6 +29,8 @@ def new_row(idRow,i):
 def new_cell(idSugg, sugg):
     return '<td id=' + str(idSugg) + '>' + str(sugg) + '</td>'
 
+def new_search(idSuggType):
+    return '<th id=\"' + str(idSuggType) + '\"><input type="text"></th>'
 
 # execute SQL query using execute() method.
 cursor.execute(sqlSuggType)
@@ -39,7 +41,7 @@ for r in rows:
     idSuggType = r[0]
     colName = r[2]
     header += '<th>' + str(colName) + '</th>'
-    search += '<th id=\"' + str(idSuggType) + '\"><input type="text"></th>'
+    search += new_search(idSuggType)
 
 table[0] = header + '</tr>' + search + '</tr>'
 table2 = header + '</tr>' + search + '</tr>'
@@ -71,7 +73,7 @@ for r in rows:
     idColPrev = idCol
     idRowPrev = idRow
     
-with open('../backend/views/partials/profs.hbs', 'r+') as f:
+with open('../backend/views/partials/sheets/professors.hbs', 'r+') as f:
     soup = BeautifulSoup(table2)
     f.write(soup.prettify() + '\n')
     #for idRow,r in table.items():
