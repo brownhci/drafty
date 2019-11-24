@@ -3,7 +3,7 @@ let activeTableCellElement: null | HTMLTableCellElement = null;
 /* activated when associated head is clicked */
 let activeTableColElement: null | HTMLTableColElement = null;
 const copiedClass = "copied";
-let lastCopiedTableCellElement: null | HTMLTableCellElement = null;
+let lastCopiedTableCellElement: null | HTMLTableCellElement | HTMLTableColElement = null;
 
 const tableElement: HTMLTableElement = document.getElementById("sheet") as HTMLTableElement;
 const tableRowElements: HTMLCollection = tableElement.rows;
@@ -207,7 +207,7 @@ function unhighlightCopiedElement() {
     lastCopiedTableCellElement = null;
   }
 }
-function highlightCopiedElement(element: HTMLTableCellElement) {
+function highlightCopiedElement(element: HTMLTableCellElement | HTMLTableColElement) {
   lastCopiedTableCellElement = element;
   element.classList.add(copiedClass);
 }
@@ -231,14 +231,17 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: K
   if (hasCopyModifier(event)) {
     unhighlightCopiedElement();
     clearClipboardTextarea();
+    let elementToHighlight;
     if (activeTableColElement) {
       // copy entire column
       copyTableColumnToTextarea(activeTableCellElement.cellIndex);
+      elementToHighlight = activeTableColElement;
     } else {
       copyElementTextToTextarea(tableCellElement);
+      elementToHighlight = tableCellElement;
     }
     copyTextareaToClipboard();
-    highlightCopiedElement(tableCellElement);
+    highlightCopiedElement(elementToHighlight);
   }
   // ignore when only C is pressed
 }
