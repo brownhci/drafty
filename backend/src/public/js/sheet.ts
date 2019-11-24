@@ -78,17 +78,21 @@ function activateTableCellElement(tableCellElement: HTMLTableCellElement) {
     activateTableData();
   } else if (isTableHead(tableCellElement)) {
     activateTableHead();
-    activateTableCol();
   }
+}
+function clickOnActiveElement(tableCellElement: HTMLTableCellElement) {
+  return tableCellElement === activeTableCellElement;
 }
 
 function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null) {
-  if (tableCellElement) {
-    if (activeTableCellElement) {
-      deactivateTableCellElement();
-    }
-    activateTableCellElement(tableCellElement);
+  if (!tableCellElement) {
+    return;
   }
+
+  if (activeTableCellElement) {
+    deactivateTableCellElement();
+  }
+  activateTableCellElement(tableCellElement);
 }
 
 // navigation
@@ -136,8 +140,32 @@ function getDownTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTa
 
 // events
 /* click event */
+function activeTableHeadOnRepeatedClick(event: MouseEvent) {
+  if (activeTableColElement) {
+    // table column is active, deactivate column and focus only on table head
+    deactivateTableCol();
+  } else {
+    // only activate table column at repeated click (after even number of clicks)
+    activateTableCol();
+  }
+}
+function activeElementOnRepeatedClick(event: MouseEvent) {
+  if (!activeTableCellElement) {
+    return;
+  }
+  if (isTableData(activeTableCellElement)) {
+    // TODO
+  } else if (isTableHead(activeTableCellElement)) {
+    activeTableHeadOnRepeatedClick(event);
+  }
+}
 function tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
-  updateActiveTableCellElement(tableCellElement);
+  if (clickOnActiveElement(tableCellElement)) {
+    // handle repeated click differently
+    activeElementOnRepeatedClick(event);
+  } else {
+    updateActiveTableCellElement(tableCellElement);
+  }
   event.preventDefault();
   event.stopPropagation();
 }

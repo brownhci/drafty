@@ -10,3 +10,6 @@
   font-size: large;
 }
 
+.unselectable {
+    @include vendor-prefix(user-select, none, ms moz khtml webkit webkit-touch);
+}

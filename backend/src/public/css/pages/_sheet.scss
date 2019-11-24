@@ -28,14 +28,19 @@ $shadow-width: 3px;
         background-color: rgba($primary, 0.1);
       }
     }
+
+    th, td {
+      @extend %cell-overflow;
+      @extend .unselectable;
+      &:focus {
+        outline: none;
+      }
+    }
+
     thead {
       @extend .thead-light;
       th {
-        @extend %cell-overflow;
         border-bottom-width: 1px;
-        &:focus {
-          outline: none;
-        }
         // &.copied {
         //   border: dashed $info 2px !important
         // }
@@ -47,10 +52,6 @@ $shadow-width: 3px;
     }
     tbody {
       td {
-        @extend %cell-overflow;
-        &:focus {
-          outline: none;
-        }
         &.copied {
           border: dashed $info 2px !important
         }
