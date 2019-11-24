@@ -1,7 +1,9 @@
+const activeClass = "active";
 let activeTableCellElement: null | HTMLTableCellElement = null;
 /* activated when associated head is clicked */
 let activeTableColElement: null | HTMLTableColElement = null;
-const activeClass = "active";
+const copiedClass = "copied";
+let lastCopiedTableCellElement: null | HTMLTableCellElement = null;
 
 const tableElement: HTMLTableElement = document.getElementById("sheet") as HTMLTableElement;
 const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
@@ -148,8 +150,18 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
 
 /* keyboard event */
 /** copy **/
+function unhighlightCopiedElement() {
+  if (lastCopiedTableCellElement) {
+    lastCopiedTableCellElement.classList.remove(copiedClass);
+    lastCopiedTableCellElement = null;
+  }
+}
+function highlightCopiedElement(element: HTMLTableCellElement) {
+  lastCopiedTableCellElement = element;
+  element.classList.add(copiedClass);
+}
 function hasCopyModifier(event: KeyboardEvent) {
-  if (isMac) {
+  if (onMac) {
     return event.metaKey;
   } else {
     return event.ctrlKey;
@@ -165,7 +177,9 @@ function copyElementText(element: HTMLElement) {
 }
 function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: KeyboardEvent) {
   if (hasCopyModifier(event)) {
+    unhighlightCopiedElement();
     copyElementText(tableCellElement);
+    highlightCopiedElement(tableCellElement);
   }
   // ignore when only C is pressed
 }

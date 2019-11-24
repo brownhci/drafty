@@ -32,9 +32,13 @@ $shadow-width: 3px;
       @extend .thead-light;
       th {
         @extend %cell-overflow;
+        border-bottom-width: 1px;
         &:focus {
           outline: none;
         }
+        // &.copied {
+        //   border: dashed $info 2px !important
+        // }
         &.active {
           @extend .bg-secondary;
           @extend .text-white;
@@ -46,6 +50,9 @@ $shadow-width: 3px;
         @extend %cell-overflow;
         &:focus {
           outline: none;
+        }
+        &.copied {
+          border: dashed $info 2px !important
         }
         &.active {
           @extend .border-0;
