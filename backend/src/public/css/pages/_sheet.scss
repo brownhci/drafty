@@ -25,7 +25,7 @@ $shadow-width: 3px;
     col {
       width: 10vw;
       &.active {
-        background-color: rgba($primary, 0.5);
+        background-color: rgba($primary, 0.1);
       }
     }
     thead {
@@ -49,7 +49,7 @@ $shadow-width: 3px;
         }
         &.active {
           @extend .border-0;
-          @include vendor-prefix(box-shadow, inset 0px 0px 0px $shadow-width $primary, webkit ms);
+          @include vendor-prefix(box-shadow, inset 0 0 0 $shadow-width $primary, webkit ms);
         }
       }
     }

@@ -6,6 +6,14 @@ const activeClass = "active";
 const tableElement: HTMLTableElement = document.getElementById("sheet") as HTMLTableElement;
 const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
 
+// platform
+function isMac() {
+  const platform = window.navigator.platform;
+  return platform.includes("Mac");
+}
+/* handle mac shortcut differently */
+const onMac: boolean = isMac();
+
 /* differentiate table element */
 function isTableData(element: HTMLElement): boolean {
   return element.tagName === "TD";
@@ -139,6 +147,29 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
 }, true);
 
 /* keyboard event */
+/** copy **/
+function hasCopyModifier(event: KeyboardEvent) {
+  if (isMac) {
+    return event.metaKey;
+  } else {
+    return event.ctrlKey;
+  }
+}
+function copyElementText(element: HTMLElement) {
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  window.getSelection().removeAllRanges(); // clear current selection
+  window.getSelection().addRange(range); // to select text
+  document.execCommand("copy");
+  window.getSelection().removeAllRanges();// to deselect
+}
+function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: KeyboardEvent) {
+  if (hasCopyModifier(event)) {
+    copyElementText(tableCellElement);
+  }
+  // ignore when only C is pressed
+}
+
 function tableCellElementOnKeyEvent(tableCellElement: HTMLTableCellElement, event: KeyboardEvent) {
   switch (event.key) {
     case "Down": // IE/Edge specific value
@@ -157,6 +188,9 @@ function tableCellElementOnKeyEvent(tableCellElement: HTMLTableCellElement, even
     case "ArrowRight":
     case "Tab": // handle Tab as a pressing Right arrow
       updateActiveTableCellElement(getRightTableCellElement(tableCellElement));
+      break;
+    case "c": // handle potential CTRL+c or CMD+c
+      tableCellElementOnCopy(tableCellElement, event);
       break;
   }
   event.preventDefault();
