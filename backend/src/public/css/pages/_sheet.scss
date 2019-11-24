@@ -1,4 +1,5 @@
 $shadow-width: 3px;
+$copy-color: $info;
 
 %cell-overflow {
     @extend .overflow-hidden;
@@ -31,9 +32,12 @@ $shadow-width: 3px;
 
     th, td {
       @extend %cell-overflow;
-      @extend .unselectable;
+      // @extend .unselectable;
       &:focus {
         outline: none;
+      }
+      &.copied {
+        border: dashed $copy-color 2px !important
       }
     }
 
@@ -41,9 +45,6 @@ $shadow-width: 3px;
       @extend .thead-light;
       th {
         border-bottom-width: 1px;
-        // &.copied {
-        //   border: dashed $info 2px !important
-        // }
         &.active {
           @extend .bg-secondary;
           @extend .text-white;
@@ -52,11 +53,7 @@ $shadow-width: 3px;
     }
     tbody {
       td {
-        &.copied {
-          border: dashed $info 2px !important
-        }
         &.active {
-          @extend .border-0;
           @include vendor-prefix(box-shadow, inset 0 0 0 $shadow-width $primary, webkit ms);
         }
       }

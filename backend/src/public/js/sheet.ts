@@ -196,12 +196,17 @@ function hasCopyModifier(event: KeyboardEvent) {
   }
 }
 function copyElementText(element: HTMLElement) {
+  const selection = window.getSelection();
   const range = document.createRange();
   range.selectNodeContents(element);
-  window.getSelection().removeAllRanges(); // clear current selection
-  window.getSelection().addRange(range); // to select text
-  document.execCommand("copy");
-  window.getSelection().removeAllRanges();// to deselect
+  selection.removeAllRanges();
+  selection.addRange(range);
+  try {
+    document.execCommand("copy");
+    selection.removeAllRanges();
+  } catch (error) {
+    console.error("copy cannot be performed");
+  }
 }
 function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: KeyboardEvent) {
   if (hasCopyModifier(event)) {
