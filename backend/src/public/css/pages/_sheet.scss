@@ -32,7 +32,7 @@ $copy-color: $info;
 
     th, td {
       @extend %cell-overflow;
-      // @extend .unselectable;
+      @extend .unselectable;
       &:focus {
         outline: none;
       }

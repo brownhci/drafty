@@ -6,6 +6,7 @@ const copiedClass = "copied";
 let lastCopiedTableCellElement: null | HTMLTableCellElement = null;
 
 const tableElement: HTMLTableElement = document.getElementById("sheet") as HTMLTableElement;
+const tableRowElements: HTMLCollection = tableElement.rows;
 const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
 
 // platform
@@ -30,6 +31,12 @@ function isTableCell(element: HTMLElement): boolean {
 
 function getTableColElement(index: number): HTMLTableColElement | undefined {
   return tableColElements[index] as HTMLTableColElement;
+}
+function* getTableColElements(index: number) {
+  for (const tableRowElement of tableRowElements) {
+    const tableRow = tableRowElement as HTMLTableRowElement;
+    yield tableRow.cells[index];
+  }
 }
 
 /* deactivate */
@@ -178,6 +185,22 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
 
 /* keyboard event */
 /** copy **/
+function initializeClipboardTextarea() {
+  const textarea = document.createElement("textarea");
+  textarea.id = "clipboard-textarea";
+  textarea.readOnly = true;
+  const bodyElement = document.body;
+  bodyElement.appendChild(textarea);
+  return textarea;
+}
+const clipboardTextarea: HTMLTextAreaElement = initializeClipboardTextarea();
+function copyTextareaToClipboard() {
+  clipboardTextarea.select();
+  document.execCommand("copy");
+}
+function clearClipboardTextarea() {
+  clipboardTextarea.value = "";
+}
 function unhighlightCopiedElement() {
   if (lastCopiedTableCellElement) {
     lastCopiedTableCellElement.classList.remove(copiedClass);
@@ -195,23 +218,26 @@ function hasCopyModifier(event: KeyboardEvent) {
     return event.ctrlKey;
   }
 }
-function copyElementText(element: HTMLElement) {
-  const selection = window.getSelection();
-  const range = document.createRange();
-  range.selectNodeContents(element);
-  selection.removeAllRanges();
-  selection.addRange(range);
-  try {
-    document.execCommand("copy");
-    selection.removeAllRanges();
-  } catch (error) {
-    console.error("copy cannot be performed");
+function copyElementTextToTextarea(tableCellElement: HTMLTableCellElement) {
+  clipboardTextarea.value = tableCellElement.textContent;
+}
+function copyTableColumnToTextarea(index: number) {
+  for (const tableCellElement of getTableColElements(index)) {
+    clipboardTextarea.value += `${tableCellElement.textContent}\n`;
   }
+  clipboardTextarea.value = clipboardTextarea.value.trimRight();
 }
 function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: KeyboardEvent) {
   if (hasCopyModifier(event)) {
     unhighlightCopiedElement();
-    copyElementText(tableCellElement);
+    clearClipboardTextarea();
+    if (activeTableColElement) {
+      // copy entire column
+      copyTableColumnToTextarea(activeTableCellElement.cellIndex);
+    } else {
+      copyElementTextToTextarea(tableCellElement);
+    }
+    copyTextareaToClipboard();
     highlightCopiedElement(tableCellElement);
   }
   // ignore when only C is pressed
