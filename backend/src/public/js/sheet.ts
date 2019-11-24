@@ -1,7 +1,10 @@
 let activeTableCellElement: null | HTMLTableCellElement = null;
+/* activated when associated head is clicked */
+let activeTableColElement: null | HTMLTableColElement = null;
 const activeClass = "active";
 
 const tableElement: HTMLTableElement = document.getElementById("sheet") as HTMLTableElement;
+const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
 
 /* differentiate table element */
 function isTableData(element: HTMLElement): boolean {
@@ -15,6 +18,10 @@ function isTableCell(element: HTMLElement): boolean {
   return tagName === "TD" || tagName === "TH";
 }
 
+function getTableColElement(index: number): HTMLTableColElement | undefined {
+  return tableColElements[index] as HTMLTableColElement;
+}
+
 /* deactivate */
 function deactivateTableData() {
   activeTableCellElement.classList.remove(activeClass);
@@ -22,11 +29,18 @@ function deactivateTableData() {
 function deactivateTableHead() {
   activeTableCellElement.classList.remove(activeClass);
 }
+function deactivateTableCol() {
+  if (activeTableColElement) {
+    activeTableColElement.classList.remove(activeClass);
+    activeTableColElement = null;
+  }
+}
 function deactivateTableCellElement() {
   if (isTableData(activeTableCellElement)) {
     deactivateTableData();
   } else if (isTableHead(activeTableCellElement)) {
     deactivateTableHead();
+    deactivateTableCol();
   }
   activeTableCellElement = null;
 }
@@ -40,12 +54,21 @@ function activateTableHead() {
   activeTableCellElement.classList.add(activeClass);
   activeTableCellElement.focus();
 }
+function activateTableCol() {
+  const index = activeTableCellElement.cellIndex;
+  const tableColElement = getTableColElement(index);
+  if (tableColElement) {
+    activeTableColElement = tableColElement;
+    activeTableColElement.classList.add(activeClass);
+  }
+}
 function activateTableCellElement(tableCellElement: HTMLTableCellElement) {
   activeTableCellElement = tableCellElement;
   if (isTableData(tableCellElement)) {
     activateTableData();
   } else if (isTableHead(tableCellElement)) {
     activateTableHead();
+    activateTableCol();
   }
 }
 

@@ -24,6 +24,9 @@ $shadow-width: 3px;
     border-collapse: collapse;
     col {
       width: 10vw;
+      &.active {
+        background-color: rgba($primary, 0.5);
+      }
     }
     thead {
       @extend .thead-light;
