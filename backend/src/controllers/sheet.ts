@@ -10,7 +10,9 @@ import { genSheets } from "../database/gen_spreadsheets";
 export function getSheet(req: Request, res: Response) {
   const sheetURL = req.params.sheet;
   if (!hasRequestedSheet(sheetURL)) {
-    req.flash("errors", { msg: "Oh sorry we cannot find requested sheet :("});
+    if(sheetURL !== 'service-worker.js') { // sw bug: service-worker.js is gitting this endpoint
+      req.flash("errors", { msg: "Oh sorry we cannot find requested sheet :("}); 
+    }
     return res.redirect("/");
   }
   const sheetName = getRequestedSheetName(sheetURL);
