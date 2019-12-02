@@ -156,7 +156,7 @@ function updateTableColumnWidth(index: number, newWidth: string) {
   tableColElement.style.width = newWidth;
 }
 function getMinimumAllowedColumnWidth(index: number) {
-  return vw2px(10);
+  return vw2px(5);
 }
 function getMaximumAllowedColumnWidth(index: number) {
   return vw2px(100);
@@ -319,6 +319,7 @@ interface ResizableHTMLTableCellElement extends HTMLTableCellElement {
   atResize?: boolean;
   nearLeftBorder?: boolean;
   nearRightBorder?: boolean;
+  startMouseX?: number;
 }
 let tableCellElementUnderMouse: null | ResizableHTMLTableCellElement = null;
 const nearLeftBorderClass = "near-left-border";
@@ -337,19 +338,33 @@ function resizingElementLeftBorder(element: HTMLElement) {
 function resizingElementRightBorder(element: HTMLElement) {
   return element.classList.contains(resizeRightBorderClass);
 }
-function stopResizing(resizableHTMLTableCellElement: ResizableHTMLTableCellElement) {
-  resizableHTMLTableCellElement.classList.remove(resizeLeftBorderClass, resizeRightBorderClass);
+function elementOnResizing(element: HTMLElement) {
+  return resizingElementLeftBorder(element) || resizingElementRightBorder(element);
 }
-function handleResizeLeftBorderOnTableHead(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
-  console.log(`resize left ${event.movementX}`);
+function startResizingLeftBorderOnTableHead(tableCellElement: ResizableHTMLTableCellElement, event: MouseEvent) {
+  tableCellElement.classList.add(resizeLeftBorderClass);
+  tableCellElement.startMouseX = event.clientX;
 }
-function handleResizeRightBorderOnTableHead(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
-  console.log(`resize right ${event.movementX}`);
+function startResizingRightBorderOnTableHead(tableCellElement: ResizableHTMLTableCellElement, event: MouseEvent) {
+  tableCellElement.classList.add(resizeRightBorderClass);
+  tableCellElement.startMouseX = event.clientX;
+}
+function finishResizingLeftBorderOnTableHead(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
+  //TODO
+  tableCellElement.classList.remove(resizeLeftBorderClass);
+}
+function finishResizingRightBorderOnTableHead(tableCellElement: ResizableHTMLTableCellElement, event: MouseEvent) {
+  const startMouseX = tableCellElement.startMouseX;
+  if (isNaN(startMouseX)) {
+    return;
+  }
+  const finishMouseX = event.clientX;
+  const resizeAmount = finishMouseX - startMouseX;
+  updateTableCellElementWidth(tableCellElement, resizeAmount);
+  tableCellElement.classList.remove(resizeRightBorderClass);
 }
 function updateTableCellElementUnderMouse(tableCellElement: HTMLTableCellElement) {
   if (tableCellElementUnderMouse) {
-    // stop resizing
-    stopResizing(tableCellElementUnderMouse);
     tableCellElementUnderMouse.classList.remove(nearLeftBorderClass, nearRightBorderClass);
   }
   tableCellElementUnderMouse = tableCellElement;
@@ -372,47 +387,51 @@ function handleMouseMoveNearElementBorder(tableCellElement: ResizableHTMLTableCe
   }
 }
 function tableHeadOnMouseMove(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
-  if (tableCellElement === tableCellElementUnderMouse) {
-    // same element under mouse move
-    if (resizingElementLeftBorder(tableCellElementUnderMouse)) {
-      handleResizeLeftBorderOnTableHead(tableCellElementUnderMouse, event);
-    } else if (resizingElementRightBorder(tableCellElementUnderMouse)) {
-      handleResizeRightBorderOnTableHead(tableCellElementUnderMouse, event);
-    }else {
-      // handle mouse move to element border
-      handleMouseMoveNearElementBorder(tableCellElement, event);
-    }
-  } else {
+  if (tableCellElementUnderMouse && elementOnResizing(tableCellElementUnderMouse)) {
+    // ignore mouse move during resizing
+    return;
+  }
+
+  if (tableCellElement !== tableCellElementUnderMouse) {
     // different element under mouse move
     updateTableCellElementUnderMouse(tableCellElement);
-    // handle mouse move to element border
-    handleMouseMoveNearElementBorder(tableCellElement, event);
   }
+  // handle mouse move to element border
+  handleMouseMoveNearElementBorder(tableCellElement, event);
+}
+function tableHeadOnMouseUp(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
+  if (tableCellElementUnderMouse !== null) {
+    if (resizingElementLeftBorder(tableCellElementUnderMouse)) {
+      finishResizingLeftBorderOnTableHead(tableCellElementUnderMouse, event);
+    } else if (resizingElementRightBorder(tableCellElementUnderMouse)) {
+      finishResizingRightBorderOnTableHead(tableCellElementUnderMouse, event);
+    }
+  }
+  updateTableCellElementUnderMouse(null);
 }
 function tableHeadOnMouseDown(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
   if (tableCellElementUnderMouse !== tableCellElement) {
     updateTableCellElementUnderMouse(tableCellElement);
   }
 
+  // when near a border, start resizing
   if (nearElementLeftBorder(tableCellElementUnderMouse)) {
-    tableCellElement.classList.add(resizeLeftBorderClass);
+    startResizingLeftBorderOnTableHead(tableCellElement, event);
   } else if (nearElementRightBorder(tableCellElementUnderMouse)) {
-    tableCellElement.classList.add(resizeRightBorderClass);
+    startResizingRightBorderOnTableHead(tableCellElement, event);
   }
 }
-function tableHeadOnMouseUp(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
-  updateTableCellElementUnderMouse(null);
-}
-tableElement.addEventListener("mousemove", function(event: MouseEvent) {
-  const target: HTMLElement = event.target as HTMLElement;
-  if (isTableHead(target)) {
-    tableHeadOnMouseMove(target as HTMLTableCellElement, event);
-  }
-});
+// mouse event handlers
 tableElement.addEventListener("mousedown", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableHead(target)) {
     tableHeadOnMouseDown(target as HTMLTableCellElement, event);
+  }
+});
+tableElement.addEventListener("mousemove", function(event: MouseEvent) {
+  const target: HTMLElement = event.target as HTMLElement;
+  if (isTableHead(target)) {
+    tableHeadOnMouseMove(target as HTMLTableCellElement, event);
   }
 });
 tableElement.addEventListener("mouseup", function(event) {
