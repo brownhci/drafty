@@ -53,6 +53,12 @@ $shadow-width: 3px;
         &.near-left-border, &.near-right-border {
           cursor: col-resize;
         }
+        &.resize-left-border {
+          cursor: w-resize;
+        }
+        &.resize-right-border {
+          cursor: e-resize;
+        }
         &.near-left-border {
           @include vendor-prefix(box-shadow, inset $shadow-width 0 0 0 $primary, webkit ms);
         }
