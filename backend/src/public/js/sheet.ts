@@ -278,3 +278,66 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
     tableCellElementOnKeyEvent(target as HTMLTableCellElement, event);
   }
 }, true);
+
+/* mouse events */
+interface ResizableHTMLTableCellElement extends HTMLTableCellElement {
+  atResize?: boolean;
+  nearLeftBorder?: boolean;
+  nearRightBorder?: boolean;
+}
+let tableCellElementUnderMouse: null | ResizableHTMLTableCellElement = null;
+const nearLeftBorderClass = "near-left-border";
+const nearRightBorderClass = "near-right-border";
+function stopResizing(resizableHTMLTableCellElement: ResizableHTMLTableCellElement) {
+  resizableHTMLTableCellElement.atResize = false;
+}
+function updateTableCellElementUnderMouse(tableCellElement: HTMLTableCellElement) {
+  if (tableCellElementUnderMouse) {
+    // stop resizing
+    stopResizing(tableCellElementUnderMouse);
+    tableCellElementUnderMouse.classList.remove(nearLeftBorderClass, nearRightBorderClass);
+  }
+  tableCellElementUnderMouse = tableCellElement;
+}
+function isTableCellElementAtResizing(tableCellElement: ResizableHTMLTableCellElement) {
+  return tableCellElement.atResize === true;
+}
+function handleMouseMoveNearElementBorder(tableCellElement: ResizableHTMLTableCellElement, event: MouseEvent) {
+  const {left: elementLeft, right: elementRight} = tableCellElement.getBoundingClientRect();
+  const mouseX = event.clientX;
+  const distanceFromLeftBorder = mouseX - elementLeft;
+  const distanceFromRightBorder = elementRight - mouseX;
+  if (distanceFromLeftBorder >= 10 && distanceFromRightBorder >= 10) {
+    // reset indicator classes if far from both borders
+    tableCellElement.classList.remove(nearLeftBorderClass, nearRightBorderClass);
+  } else {
+    if (distanceFromLeftBorder < 10) {
+      // near left border
+      tableCellElement.classList.add(nearLeftBorderClass);
+    }
+    if (distanceFromRightBorder < 10) {
+      // near right border
+    tableCellElement.classList.add(nearRightBorderClass);
+    }
+  }
+}
+function tableHeadOnMouseMove(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
+  if (tableCellElement === tableCellElementUnderMouse) {
+    // same element under mouse move
+    if (isTableCellElementAtResizing(tableCellElementUnderMouse)) {
+      // resize by moved amount
+      return;
+    }
+  } else {
+    // different element under mouse move
+    updateTableCellElementUnderMouse(tableCellElement);
+  }
+  // handle mouse move to element border
+  handleMouseMoveNearElementBorder(tableCellElement, event);
+}
+tableElement.addEventListener("mousemove", function(event: MouseEvent) {
+  const target: HTMLElement = event.target as HTMLElement;
+  if (isTableHead(target)) {
+    tableHeadOnMouseMove(target as HTMLTableCellElement, event);
+  }
+});

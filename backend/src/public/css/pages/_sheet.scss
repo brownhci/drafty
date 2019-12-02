@@ -50,6 +50,18 @@ $shadow-width: 3px;
           @extend .bg-secondary;
           @extend .text-white;
         }
+        &.near-left-border, &.near-right-border {
+          cursor: col-resize;
+        }
+        &.near-left-border {
+          @include vendor-prefix(box-shadow, inset $shadow-width 0 0 0 $primary, webkit ms);
+        }
+        &.near-right-border {
+          @include vendor-prefix(box-shadow, inset (-$shadow-width) 0 0 0 $primary, webkit ms);
+        }
+        &.near-left-border.near-right-border {
+          @include vendor-prefix(box-shadow, (inset $shadow-width 0 0 0 $primary, inset (-$shadow-width) 0 0 0 $primary), webkit ms);
+        }
       }
     }
     tbody {
