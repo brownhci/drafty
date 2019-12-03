@@ -144,6 +144,31 @@ function getDownTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTa
   }
   return getCellInTableRow(downTableRow, cellIndex);
 }
+
+// store resized width in local storage
+function getStoredColumnWidthKey(index: number) {
+  return `columnWidth${index}`;
+}
+function storePreferredColumnWidth(index: number, columnWidth: string) {
+  window.localStorage.setItem(getStoredColumnWidthKey(index), columnWidth);
+}
+function getPreferredColumnWidth(index: number): string | null {
+  return window.localStorage.getItem(getStoredColumnWidthKey(index));
+}
+function loadPreferredColumnWidths() {
+  let index = 0;
+  for (const tableColElement of tableColElements) {
+    const preferredColumnWidth = getPreferredColumnWidth(index);
+    if (preferredColumnWidth) {
+      const tableColEl = tableColElement as HTMLTableColElement;
+      tableColEl.style.width = preferredColumnWidth;
+    }
+
+    index += 1;
+  }
+}
+loadPreferredColumnWidths();
+
 // resize width
 function vw2px(vw: number) {
   return document.documentElement.clientWidth * vw / 100;
@@ -151,6 +176,7 @@ function vw2px(vw: number) {
 function updateTableColumnWidth(index: number, newWidth: string) {
   const tableColElement = getTableColElement(index);
   tableColElement.style.width = newWidth;
+  storePreferredColumnWidth(index, newWidth);
 }
 function getMinimumAllowedColumnWidth(index: number) {
   return vw2px(5);
@@ -171,7 +197,8 @@ function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, res
   }
   updateTableColumnWidth(index, `${newColumnWidth}px`);
 }
-// resize visual cue
+
+// visual cue during resize
 function initializeResizeVisualCue() {
   const visualCue = document.createElement("div");
   visualCue.id = "resize-visual-cue";
