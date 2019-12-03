@@ -480,9 +480,11 @@ function tableHeadOnMouseDown(tableCellElement: HTMLTableCellElement, event: Mou
   // when near a border, start resizing
   if (nearElementLeftBorder(tableCellElementUnderMouse)) {
     startResizingLeftBorderOnTableHead(tableCellElement, event);
+    repositionResizeVisualCue(event.clientX);
     activateResizeVisualCue();
   } else if (nearElementRightBorder(tableCellElementUnderMouse)) {
     startResizingRightBorderOnTableHead(tableCellElement, event);
+    repositionResizeVisualCue(event.clientX);
     activateResizeVisualCue();
   }
 }
