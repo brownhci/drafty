@@ -19,9 +19,9 @@ $resize-shadow-width: 5px;
     #resize-visual-cue {
       @extend .h-100;
       @extend .position-absolute;
-      @extend .bg-primary;
       @extend .d-none;
       pointer-events: none;
+      background-color: rgba($primary, 0.2);
       width: $resize-shadow-width !important;
       top: 0;
       left: 0;
