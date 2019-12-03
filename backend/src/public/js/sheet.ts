@@ -148,18 +148,12 @@ function getDownTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTa
 function vw2px(vw: number) {
   return document.documentElement.clientWidth * vw / 100;
 }
-function vh2px(vh: number) {
-  return document.documentElement.clientHeight * vh / 100;
-}
 function updateTableColumnWidth(index: number, newWidth: string) {
   const tableColElement = getTableColElement(index);
   tableColElement.style.width = newWidth;
 }
 function getMinimumAllowedColumnWidth(index: number) {
   return vw2px(5);
-}
-function getMaximumAllowedColumnWidth(index: number) {
-  return vw2px(100);
 }
 function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, resizeAmount: number) {
   if (resizeAmount === 0) {
@@ -172,14 +166,38 @@ function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, res
   let newColumnWidth = currenColumnWidth + resizeAmount;
 
   const minColumnWidth = getMinimumAllowedColumnWidth(index);
-  const maxColumnWidth = getMaximumAllowedColumnWidth(index);
   if (newColumnWidth < minColumnWidth) {
     newColumnWidth = minColumnWidth;
-  } else if (newColumnWidth > maxColumnWidth) {
-    newColumnWidth = maxColumnWidth;
   }
   updateTableColumnWidth(index, `${newColumnWidth}px`);
 }
+// resize visual cue
+function initializeResizeVisualCue() {
+  const visualCue = document.createElement("div");
+  visualCue.id = "resize-visual-cue";
+  tableElement.parentElement.appendChild(visualCue);
+  return visualCue;
+}
+const resizeVisualCue: HTMLElement = initializeResizeVisualCue();
+function resizeVisualCueMininumX(referencedTableCellElement: HTMLTableCellElement) {
+  const index = referencedTableCellElement.cellIndex;
+  const elementLeft = referencedTableCellElement.getBoundingClientRect().left;
+  return elementLeft + getMinimumAllowedColumnWidth(index);
+}
+function repositionResizeVisualCue(newXPos: number) {
+  resizeVisualCue.style.left = `${newXPos}px`;
+}
+function updateResizeVisualCuePosition(referencedTableCellElement: HTMLTableCellElement, newXPos: number, isFirstTableCell?: boolean) {
+  const minX = isFirstTableCell === true ? 0 : resizeVisualCueMininumX(referencedTableCellElement);
+  repositionResizeVisualCue(newXPos < minX ? minX : newXPos);
+}
+function activateResizeVisualCue() {
+  resizeVisualCue.classList.add(activeClass);
+}
+function deactivateResizeVisualCue() {
+  resizeVisualCue.classList.remove(activeClass);
+}
+
 // events
 /* click event */
 function activeTableHeadOnRepeatedClick(event: MouseEvent) {
@@ -338,9 +356,6 @@ function resizingElementLeftBorder(element: HTMLElement) {
 function resizingElementRightBorder(element: HTMLElement) {
   return element.classList.contains(resizeRightBorderClass);
 }
-function elementOnResizing(element: HTMLElement) {
-  return resizingElementLeftBorder(element) || resizingElementRightBorder(element);
-}
 function startResizingLeftBorderOnTableHead(tableCellElement: ResizableHTMLTableCellElement, event: MouseEvent) {
   tableCellElement.classList.add(resizeLeftBorderClass);
   tableCellElement.startMouseX = event.clientX;
@@ -404,9 +419,22 @@ function handleMouseMoveNearElementBorder(tableCellElement: ResizableHTMLTableCe
   }
 }
 function tableHeadOnMouseMove(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
-  if (tableCellElementUnderMouse && elementOnResizing(tableCellElementUnderMouse)) {
-    // ignore mouse move during resizing
-    return;
+  if (tableCellElementUnderMouse) {
+    if (resizingElementLeftBorder(tableCellElementUnderMouse)) {
+      // reposition visual cue
+      const referencedTableCellElement = getLeftTableCellElement(tableCellElementUnderMouse);
+      const isFirstTableCell = referencedTableCellElement === null;
+      updateResizeVisualCuePosition(referencedTableCellElement, event.clientX, isFirstTableCell);
+
+      // ignore mouse move during resizing
+      return;
+    } else if (resizingElementRightBorder(tableCellElementUnderMouse)) {
+      // reposition visual cue
+      updateResizeVisualCuePosition(tableCellElementUnderMouse, event.clientX);
+
+      // ignore mouse move during resizing
+      return;
+    }
   }
 
   if (tableCellElement !== tableCellElementUnderMouse) {
@@ -424,8 +452,10 @@ function tableHeadOnMouseDown(tableCellElement: HTMLTableCellElement, event: Mou
   // when near a border, start resizing
   if (nearElementLeftBorder(tableCellElementUnderMouse)) {
     startResizingLeftBorderOnTableHead(tableCellElement, event);
+    activateResizeVisualCue();
   } else if (nearElementRightBorder(tableCellElementUnderMouse)) {
     startResizingRightBorderOnTableHead(tableCellElement, event);
+    activateResizeVisualCue();
   }
 }
 function tableHeadOnMouseUp(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
@@ -436,6 +466,7 @@ function tableHeadOnMouseUp(tableCellElement: HTMLTableCellElement, event: Mouse
       finishResizingRightBorderOnTableHead(tableCellElementUnderMouse, event);
     }
   }
+  deactivateResizeVisualCue();
   updateTableCellElementUnderMouse(null);
 }
 // mouse event handlers

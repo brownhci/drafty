@@ -16,6 +16,19 @@ $resize-shadow-width: 5px;
     @extend .w-100;
     @extend .h-100;
     @extend .overflow-auto;
+    #resize-visual-cue {
+      @extend .h-100;
+      @extend .position-absolute;
+      @extend .bg-primary;
+      @extend .d-none;
+      pointer-events: none;
+      width: $resize-shadow-width !important;
+      top: 0;
+      left: 0;
+      &.active {
+        @extend .d-block;
+      }
+    }
   }
 
   table {
@@ -74,7 +87,7 @@ $resize-shadow-width: 5px;
     tbody {
       td {
         &.active {
-          @include vendor-prefix(box-shadow, inset 0 0 0 $resize-shadow-width $primary, webkit ms);
+          @include vendor-prefix(box-shadow, inset 0 0 0 $shadow-width $primary, webkit ms);
         }
       }
     }
