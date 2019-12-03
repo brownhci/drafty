@@ -375,6 +375,9 @@ function nearElementLeftBorder(element: HTMLElement) {
 function nearElementRightBorder(element: HTMLElement) {
   return element.classList.contains(nearRightBorderClass);
 }
+function removeNearBorderStatus(element: HTMLElement) {
+  element.classList.remove(nearLeftBorderClass, nearRightBorderClass);
+}
 const resizeLeftBorderClass = "resize-left-border";
 const resizeRightBorderClass = "resize-right-border";
 function resizingElementLeftBorder(element: HTMLElement) {
@@ -424,7 +427,7 @@ function finishResizingRightBorderOnTableHead(tableCellElement: ResizableHTMLTab
 }
 function updateTableCellElementUnderMouse(tableCellElement: HTMLTableCellElement) {
   if (tableCellElementUnderMouse) {
-    tableCellElementUnderMouse.classList.remove(nearLeftBorderClass, nearRightBorderClass);
+    removeNearBorderStatus(tableCellElementUnderMouse);
   }
   tableCellElementUnderMouse = tableCellElement;
 }
@@ -436,7 +439,7 @@ function handleMouseMoveNearElementBorder(tableCellElement: ResizableHTMLTableCe
   const distanceFromRightBorder = elementRight - mouseX;
   if (distanceFromLeftBorder > distanceConsideredNearToBorder && distanceFromRightBorder > distanceConsideredNearToBorder) {
     // reset indicator classes if far from both borders
-    tableCellElement.classList.remove(nearLeftBorderClass, nearRightBorderClass);
+    removeNearBorderStatus(tableCellElement);
   } else if (distanceFromLeftBorder <= distanceConsideredNearToBorder && distanceFromLeftBorder < distanceFromRightBorder) {
     // near left border
     tableCellElement.classList.add(nearLeftBorderClass);
@@ -452,8 +455,6 @@ function tableHeadOnMouseMove(tableCellElement: HTMLTableCellElement, event: Mou
       const referencedTableCellElement = getLeftTableCellElement(tableCellElementUnderMouse);
       const isFirstTableCell = referencedTableCellElement === null;
       updateResizeVisualCuePosition(referencedTableCellElement, event.clientX, isFirstTableCell);
-
-      // ignore mouse move during resizing
       return;
     } else if (resizingElementRightBorder(tableCellElementUnderMouse)) {
       // reposition visual cue
@@ -507,6 +508,18 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableHead(target)) {
     tableHeadOnMouseMove(target as HTMLTableCellElement, event);
+  } else {
+    if (tableCellElementUnderMouse) {
+      // some table cell is previous hovered or resized
+      if (resizingElementLeftBorder(tableCellElementUnderMouse)) {
+        // TODO allow moving of resize visual cue
+      } else if (resizingElementRightBorder(tableCellElementUnderMouse)) {
+        // TODO allow moving of resize visual cue
+      }
+
+      // remove near border status because mouse has leaved the cell region
+      removeNearBorderStatus(tableCellElementUnderMouse);
+    }
   }
 });
 tableElement.addEventListener("mouseup", tableHeadOnMouseUp);
