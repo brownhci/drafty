@@ -1,4 +1,5 @@
 $shadow-width: 3px;
+$resize-shadow-width: 5px;
 
 %cell-overflow {
     @extend .overflow-hidden;
@@ -60,20 +61,20 @@ $shadow-width: 3px;
           cursor: e-resize;
         }
         &.near-left-border {
-          @include vendor-prefix(box-shadow, inset $shadow-width 0 0 0 $primary, webkit ms);
+          @include vendor-prefix(box-shadow, inset $resize-shadow-width 0 0 0 $primary, webkit ms);
         }
         &.near-right-border {
-          @include vendor-prefix(box-shadow, inset (-$shadow-width) 0 0 0 $primary, webkit ms);
+          @include vendor-prefix(box-shadow, inset (-$resize-shadow-width) 0 0 0 $primary, webkit ms);
         }
         &.near-left-border.near-right-border {
-          @include vendor-prefix(box-shadow, (inset $shadow-width 0 0 0 $primary, inset (-$shadow-width) 0 0 0 $primary), webkit ms);
+          @include vendor-prefix(box-shadow, (inset $resize-shadow-width 0 0 0 $primary, inset (-$resize-shadow-width) 0 0 0 $primary), webkit ms);
         }
       }
     }
     tbody {
       td {
         &.active {
-          @include vendor-prefix(box-shadow, inset 0 0 0 $shadow-width $primary, webkit ms);
+          @include vendor-prefix(box-shadow, inset 0 0 0 $resize-shadow-width $primary, webkit ms);
         }
       }
     }
