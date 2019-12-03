@@ -458,7 +458,7 @@ function tableHeadOnMouseDown(tableCellElement: HTMLTableCellElement, event: Mou
     activateResizeVisualCue();
   }
 }
-function tableHeadOnMouseUp(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
+function tableHeadOnMouseUp(event: MouseEvent) {
   if (tableCellElementUnderMouse !== null) {
     if (resizingElementLeftBorder(tableCellElementUnderMouse)) {
       finishResizingLeftBorderOnTableHead(tableCellElementUnderMouse, event);
@@ -482,9 +482,4 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
     tableHeadOnMouseMove(target as HTMLTableCellElement, event);
   }
 });
-tableElement.addEventListener("mouseup", function(event) {
-  const target: HTMLElement = event.target as HTMLElement;
-  if (isTableHead(target)) {
-    tableHeadOnMouseUp(target as HTMLTableCellElement, event);
-  }
-});
+tableElement.addEventListener("mouseup", tableHeadOnMouseUp);
