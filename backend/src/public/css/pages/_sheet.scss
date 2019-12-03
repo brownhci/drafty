@@ -50,7 +50,6 @@ $resize-shadow-width: 5px;
 
     th, td {
       @extend %cell-overflow;
-      @extend .py-2;
       @extend .unselectable;
       &:focus {
         outline: none;
