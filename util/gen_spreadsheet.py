@@ -1,8 +1,7 @@
 import pymysql, html
 from bs4 import BeautifulSoup
 
-table = {}
-table2 = ''
+table = ''
 row = ''
 
 # Open database connection
@@ -30,12 +29,24 @@ def new_cell(idSugg, sugg):
     return '<td id=' + str(idSugg) + '>' + str(sugg) + '</td>'
 
 def new_search(idSuggType):
-    return '<th id=\"' + str(idSuggType) + '\"><input type="text"></th>'
+    return ' \
+            <th id="{}"> \
+                <div class="input-group"> \
+                    <input class="form-control py-2 border-right-0 border" type="search" value="" id="{}"> \
+                    <span class="input-group-append"> \
+                        <div class="input-group-text bg-transparent" style="padding: 0px 4px;"><i class="fa fa-search"></i></div> \
+                    </span> \
+                </div> \
+            </th> \
+        '.format(idSuggType, idSuggType)
+
+
+    #return '<th id=\"' + str(idSuggType) + '\"><input type="text"></th>'
 
 # execute SQL query using execute() method.
 cursor.execute(sqlSuggType)
 rows = cursor.fetchall()
-header  = '<tr>'
+header  = ''
 search  = '<tr>'
 for r in rows:
     idSuggType = r[0]
@@ -43,8 +54,7 @@ for r in rows:
     header += '<th>' + str(colName) + '</th>'
     search += new_search(idSuggType)
 
-table[0] = header + '</tr>' + search + '</tr>'
-table2 = header + '</tr>' + search + '</tr>'
+table += '<thead>' + header + '</thead>' + search + '</tr>'
 
 # execute SQL query using execute() method.
 cursor.execute(sql)
@@ -64,27 +74,23 @@ for r in rows:
     idRow  = r[2]
     sugg   = r[3]
     if idRow != idRowPrev: # new row?
-        table[idRowPrev] = row + '</tr>'
-        table2 += row + '</tr>'
+        table += row + '</tr>'
         row = new_row(idRow,i)
         i += 1
     if idCol != idColPrev: # new cell?
         row += new_cell(idSugg, sugg)
     idColPrev = idCol
     idRowPrev = idRow
-    
+
+def replace_bad_html(val):
+    return val.replace('<html>', '').replace('</html>', '').replace('<body>', '').replace('</body>', '').replace(' <body>', '').replace(' </body>', '')
+
 with open('../backend/views/partials/sheets/professors.hbs', 'r+') as f:
-    soup = BeautifulSoup(table2)
-    f.write(soup.prettify() + '\n')
-    #for idRow,r in table.items():
-    #    soup = BeautifulSoup(str(r))
-    #    f.write(soup.prettify().strip('<html>').strip('</html>').strip('<body>').strip('</body>') + '\n')
-        
-        #f.write(str(r) + '\n')
-        #try:
-        #    f.write(r.encode('ascii'))
-        #except:
-        #    f.write(html.escape(r).encode('ascii', 'xmlcharrefreplace'))
+    soup = BeautifulSoup(table, 'lxml')
+    html = soup.prettify()
+    html = replace_bad_html(html)
+    print(html)
+    f.write(html)
 
 # disconnect from server
 db.close()
