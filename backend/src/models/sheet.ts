@@ -1,35 +1,38 @@
-const csProfessorSheetName = "CS Professors";
-const csProfessorSheetURLName = "professors";
-const csProfessorTemplatePath = "sheets/professors";
-const academicJobSheetName = "Academic Jobs";
-const academicJobSheetURLName = "ajobs";
-const academicJobTemplatePath = "sheets/ajobs";
+const csProfessorName = "CS Professors";
+const csProfessorURL = "professors";
+const csProfessorPath = "sheets/professors";
+const academicJobName = "Academic Jobs";
+const academicJobURL = "ajobs";
+const academicJobPath = "sheets/ajobs";
+const demoName = "Demo";
+const demoURL = "demo";
+const demoPath = "sheets/demo";
 
-const sheetNames = [csProfessorSheetName, academicJobSheetName];
-const sheetURLNames = [csProfessorSheetURLName, academicJobSheetURLName];
-const sheetTemplatePaths = [csProfessorTemplatePath, academicJobTemplatePath];
+const sheetNames = [csProfessorName, academicJobName, demoName];
+const sheetURLs = [csProfessorURL, academicJobURL, demoURL];
+const sheetPaths = [csProfessorPath, academicJobPath, demoPath];
 
-export const sheetNameToSheetURLName = new Map();
-const sheetURLNameToSheetName = new Map();
-const sheetURLNameToSheetTemplatePath = new Map();
+export const sheetNameToURL = new Map();
+const sheetURLToName = new Map();
+const sheetURLToSheetPath = new Map();
 
 for (let i = 0; i < sheetNames.length; i++) {
   const sheetName = sheetNames[i];
-  const sheetURLName = sheetURLNames[i];
-  const sheetTemplatePath = sheetTemplatePaths[i];
-  sheetNameToSheetURLName.set(sheetName, sheetURLName);
-  sheetURLNameToSheetName.set(sheetURLName, sheetName);
-  sheetURLNameToSheetTemplatePath.set(sheetURLName, sheetTemplatePath);
+  const sheetURL = sheetURLs[i];
+  const sheetPath = sheetPaths[i];
+  sheetNameToURL.set(sheetName, sheetURL);
+  sheetURLToName.set(sheetURL, sheetName);
+  sheetURLToSheetPath.set(sheetURL, sheetPath);
 }
 
 export function hasRequestedSheet(urlName: string) {
-  return sheetURLNameToSheetName.has(urlName);
+  return sheetURLToName.has(urlName);
 }
 
-export function getRequestedSheetName(urlName: string) {
-  return sheetURLNameToSheetName.get(urlName);
+export function getRequestedName(urlName: string) {
+  return sheetURLToName.get(urlName);
 }
 
-export function getRequestedSheetTemplatePath(urlName: string) {
-  return sheetURLNameToSheetTemplatePath.get(urlName);
+export function getRequestedSheetPath(urlName: string) {
+  return sheetURLToSheetPath.get(urlName);
 }
