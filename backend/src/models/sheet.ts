@@ -29,7 +29,7 @@ export function hasRequestedSheet(urlName: string) {
   return sheetURLToName.has(urlName);
 }
 
-export function getRequestedName(urlName: string) {
+export function getRequestedSheetName(urlName: string) {
   return sheetURLToName.get(urlName);
 }
 

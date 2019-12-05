@@ -1,4 +1,4 @@
-import { sheetNameToSheetURLName } from "../models/sheet";
+import { sheetNameToURL } from "../models/sheet";
 
 interface RequestWithUser {
     user?: any;
@@ -45,7 +45,7 @@ const helpers = {
 
 export function makeRenderObject(renderObject: any, req: RequestWithUser) {
   renderObject["signedIn"] = !!req.user;
-  renderObject["sheetNameToSheetURLName"] = sheetNameToSheetURLName;
+  renderObject["sheetNameToURL"] = sheetNameToURL;
 
   return renderObject;
 }

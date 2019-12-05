@@ -12,9 +12,9 @@
                      {{/if}}
                  </span>
                  <div class="dropdown-menu" aria-labelledby="navabr-sheet">
-                     {{#eachInMap sheetNameToSheetURLName}}
+                     {{#eachInMap sheetNameToURL}}
                          <a class="dropdown-item{{selected ../sheetName key}}" href="{{value}}">
-                             {{key}}
+                            {{key}}
                          </a>
                      {{/eachInMap}}
                  </div>
