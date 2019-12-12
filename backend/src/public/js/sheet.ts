@@ -8,6 +8,8 @@ let lastCopiedTableCellElement: null | HTMLTableCellElement | HTMLTableColElemen
 const tableElement: HTMLTableElement = document.getElementById("sheet") as HTMLTableElement;
 const tableRowElements: HTMLCollection = tableElement.rows;
 const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
+const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
+const tableColumnLabels: HTMLTableRowElement = tableRowElements[0] as HTMLTableRowElement;
 
 // platform
 function isMac() {
@@ -103,6 +105,12 @@ function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | n
 }
 
 // navigation
+function getColumnLabel(index: number): HTMLTableCellElement {
+  return tableColumnLabels.cells[index];
+}
+function getColumnLabelText(tableCellElement: HTMLTableCellElement): string {
+  return tableCellElement.textContent;
+}
 function getTopTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | null {
   return tableRowElement.previousElementSibling as HTMLTableRowElement;
 }
@@ -196,6 +204,21 @@ function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, res
     newColumnWidth = minColumnWidth;
   }
   updateTableColumnWidth(index, `${newColumnWidth}px`);
+}
+// input form
+const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
+const tableCellInputFormLabel: HTMLLabelElement = tableCellInputFormElement.querySelector("label");
+let tableCellInputFormTargetElement: HTMLTableCellElement | null = null;
+function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement) {
+  tableCellInputFormTargetElement = targetHTMLTableCellElement;
+  const cellIndex = targetHTMLTableCellElement.cellIndex;
+  // set label text
+  const labelText = getColumnLabelText(getColumnLabel(cellIndex));
+  tableCellInputFormLabel.textContent = labelText;
+  // set position
+  const {left, bottom} = targetHTMLTableCellElement.getBoundingClientRect();
+  tableCellInputFormElement.style.left = `${left}px`;
+  tableCellInputFormElement.style.top = `${bottom}px`;
 }
 
 // visual cue during resize

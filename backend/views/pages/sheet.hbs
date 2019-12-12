@@ -1,5 +1,18 @@
 <main id="table-container">
     <div>
+        <form id="table-cell-input-form" class="custom-validation" autocomplete novalidate>
+            {{> csrf }}
+            <div>
+                <label for="entry"></label>
+                <input
+                    id="entry"
+                    name="entry"
+                    type="text"
+                    class="form-control"
+                    required
+                    >
+            </div>
+        </form>
         {{> (lookup . 'sheetPath') }}
     </div>
 </main>

@@ -29,6 +29,17 @@ $resize-shadow-width: 5px;
         @extend .d-block;
       }
     }
+
+    #table-cell-input-form {
+      @extend .position-absolute;
+      @extend .d-inline-block;
+      @extend .bg-light;
+      @extend .border;
+      @extend .px-4;
+      @extend .py-2;
+      top: 0;
+      left: 0;
+    }
   }
 
   table {
