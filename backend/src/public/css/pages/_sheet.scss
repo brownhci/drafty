@@ -8,6 +8,16 @@ $resize-shadow-width: 5px;
     text-overflow: ellipsis;
 }
 
+#text-width-measure {
+  @extend .m-0;
+  @extend .p-0;
+  @extend .position-absolute;
+  @extend .overflow-hidden;
+  height: 0;
+  font: inherit;
+  white-space: pre;
+}
+
 #table-container {
   @extend .px-0;
   @extend .position-relative;
@@ -35,7 +45,6 @@ $resize-shadow-width: 5px;
       @extend .d-none;
       @extend .bg-light;
       @extend .border;
-      @extend .px-2;
       @extend .py-1;
       top: 0;
       left: 0;
@@ -44,6 +53,7 @@ $resize-shadow-width: 5px;
       }
       div {
         @extend .mb-0;
+        @extend .px-2;
       }
     }
   }

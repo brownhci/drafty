@@ -11,6 +11,13 @@ const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col"
 const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
 const tableColumnLabels: HTMLTableRowElement = tableRowElements[0] as HTMLTableRowElement;
 
+// measure text width
+const textWidthMeasureElement: HTMLElement = document.getElementById("text-width-measure");
+function measureTextWidth(text: string): number {
+  textWidthMeasureElement.textContent = text;
+  return textWidthMeasureElement.offsetWidth;
+}
+
 // platform
 function isMac() {
   const platform = window.navigator.platform;
@@ -103,7 +110,10 @@ function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | n
   }
   activateTableCellElement(tableCellElement);
 }
-
+// text extraction
+function getTableDataText(tableCellElement: HTMLTableCellElement) {
+  return tableCellElement.textContent;
+}
 // navigation
 function getColumnLabel(index: number): HTMLTableCellElement {
   return tableColumnLabels.cells[index];
@@ -178,6 +188,13 @@ loadPreferredColumnWidths();
 function vw2px(vw: number) {
   return document.documentElement.clientWidth * vw / 100;
 }
+function em2px(em: number, fontSize = 16, element: HTMLElement | null = null) {
+  if (element === null) {
+    return fontSize * em;
+  } else {
+    return em * parseFloat(getComputedStyle(element).fontSize);
+  }
+}
 function updateTableColumnWidth(index: number, newWidth: string) {
   const tableColElement = getTableColElement(index);
   tableColElement.style.width = newWidth;
@@ -205,6 +222,8 @@ function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, res
 // input form
 const inputingClass = "inputing";
 const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
+const tableCellInputFormInputElement: HTMLInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
+// const tableCellInputFormInputStyle: CSSStyleDeclaration = getComputedStyle(tableCellInputFormInputElement);
 let tableCellInputFormTargetElement: HTMLTableCellElement | null = null;
 function deactivateTableCellInputForm() {
   if (tableCellInputFormTargetElement) {
@@ -238,14 +257,23 @@ function activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellEle
   tableCellInputFormTargetElement = targetHTMLTableCellElement;
   tableCellInputFormTargetElement.classList.add(inputingClass);
 }
+function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCellElement) {
+  const text = getTableDataText(targetHTMLTableCellElement);
+  tableCellInputFormInputElement.value = text;
+  const minWidth = targetHTMLTableCellElement.offsetWidth;
+  const resizeWidth = measureTextWidth(text) + em2px(3);
+  const width = Math.max(minWidth, resizeWidth);
+  tableCellInputFormElement.style.width = `${width}px`;
+}
 function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement) {
   deactivateTableCellInputForm();
   activateTableCellInputForm(targetHTMLTableCellElement);
+  updateTableCellInputFormInput(targetHTMLTableCellElement);
 
   // set position
-  const {left, bottom} = targetHTMLTableCellElement.getBoundingClientRect();
+  const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
   tableCellInputFormElement.style.left = `${left}px`;
-  tableCellInputFormElement.style.top = `${bottom}px`;
+  tableCellInputFormElement.style.top = `${top}px`;
 }
 
 // visual cue during resize
