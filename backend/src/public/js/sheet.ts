@@ -108,9 +108,6 @@ function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | n
 function getColumnLabel(index: number): HTMLTableCellElement {
   return tableColumnLabels.cells[index];
 }
-function getColumnLabelText(tableCellElement: HTMLTableCellElement): string {
-  return tableCellElement.textContent;
-}
 function getTopTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | null {
   return tableRowElement.previousElementSibling as HTMLTableRowElement;
 }
@@ -206,15 +203,45 @@ function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, res
   updateTableColumnWidth(index, `${newColumnWidth}px`);
 }
 // input form
+const inputingClass = "inputing";
 const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
-const tableCellInputFormLabel: HTMLLabelElement = tableCellInputFormElement.querySelector("label");
 let tableCellInputFormTargetElement: HTMLTableCellElement | null = null;
-function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement) {
-  tableCellInputFormTargetElement = targetHTMLTableCellElement;
+function deactivateTableCellInputForm() {
+  if (tableCellInputFormTargetElement) {
+    // hide the form
+    tableCellInputFormElement.classList.remove(activeClass);
+
+    // unhighlight the table head
+    const cellIndex = tableCellInputFormTargetElement.cellIndex;
+    const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
+    if (columnLabel) {
+      columnLabel.classList.remove(inputingClass);
+    }
+
+    // unhighlight the target cell
+    tableCellInputFormTargetElement.classList.remove(inputingClass);
+    tableCellInputFormTargetElement = null;
+  }
+}
+function activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement) {
+  // show the form
+  tableCellInputFormElement.classList.add(activeClass);
+
+  // highlight the table head
   const cellIndex = targetHTMLTableCellElement.cellIndex;
-  // set label text
-  const labelText = getColumnLabelText(getColumnLabel(cellIndex));
-  tableCellInputFormLabel.textContent = labelText;
+  const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
+  if (columnLabel) {
+    columnLabel.classList.add(inputingClass);
+  }
+
+  // highlight the target cell
+  tableCellInputFormTargetElement = targetHTMLTableCellElement;
+  tableCellInputFormTargetElement.classList.add(inputingClass);
+}
+function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement) {
+  deactivateTableCellInputForm();
+  activateTableCellInputForm(targetHTMLTableCellElement);
+
   // set position
   const {left, bottom} = targetHTMLTableCellElement.getBoundingClientRect();
   tableCellInputFormElement.style.left = `${left}px`;

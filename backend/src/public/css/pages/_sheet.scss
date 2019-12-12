@@ -32,13 +32,19 @@ $resize-shadow-width: 5px;
 
     #table-cell-input-form {
       @extend .position-absolute;
-      @extend .d-inline-block;
+      @extend .d-none;
       @extend .bg-light;
       @extend .border;
-      @extend .px-4;
-      @extend .py-2;
+      @extend .px-2;
+      @extend .py-1;
       top: 0;
       left: 0;
+      &.active {
+        @extend .d-inline-block;
+      }
+      div {
+        @extend .mb-0;
+      }
     }
   }
 
@@ -71,7 +77,7 @@ $resize-shadow-width: 5px;
       @extend .thead-light;
       th {
         border-bottom-width: 1px;
-        &.active {
+        &.active, &.inputing {
           @extend .bg-secondary;
           @extend .text-white;
         }
