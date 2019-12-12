@@ -18,6 +18,13 @@ sql = "SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st
         WHERE s.active = 1 AND st.isActive = 1 \
         ORDER BY idUniqueID, st.columnOrder, confidence desc"
 
+def init_col_group(rows):
+    colGroup = '<colgroup>'
+    for col in rows[0]:
+        colGroup += '<col>'
+    colGroup += '</colgroup>'
+    return colGroup
+
 def new_row(idRow,i):
     if i > 200:
         style = 'style=\"display:none\"'
@@ -46,15 +53,15 @@ def new_search(idSuggType):
 # execute SQL query using execute() method.
 cursor.execute(sqlSuggType)
 rows = cursor.fetchall()
-header  = ''
+header  = '<tr>'
 search  = '<tr>'
 for r in rows:
     idSuggType = r[0]
     colName = r[2]
-    header += '<th>' + str(colName) + '</th>'
+    header += '<th scope="col" tabindex="-1">' + str(colName) + '</th>'
     search += new_search(idSuggType)
 
-table += '<thead>' + header + '</thead>' + search + '</tr>'
+table +=  '<table id="table" class="mb-0 sticky-top"> ' + init_col_group(rows)  + '<thead id="headerArea">' + header + '</tr>' + search + '</tr>' + '</thead>'
 
 # execute SQL query using execute() method.
 cursor.execute(sql)
@@ -89,7 +96,7 @@ with open('../backend/views/partials/sheets/professors.hbs', 'r+') as f:
     soup = BeautifulSoup(table, 'lxml')
     html = soup.prettify()
     html = replace_bad_html(html)
-    print(html)
+    #print(html)
     f.write(html)
 
 # disconnect from server
