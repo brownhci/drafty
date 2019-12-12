@@ -219,12 +219,17 @@ function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, res
   }
   updateTableColumnWidth(index, `${newColumnWidth}px`);
 }
-// input form
+/* input form */
 const inputingClass = "inputing";
 const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
 const tableCellInputFormInputElement: HTMLInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
 // const tableCellInputFormInputStyle: CSSStyleDeclaration = getComputedStyle(tableCellInputFormInputElement);
 let tableCellInputFormTargetElement: HTMLTableCellElement | null = null;
+// location
+const tableCellInputFormLocateCellElement: HTMLButtonElement = document.getElementById("locate-cell") as HTMLButtonElement;
+const tableCellInputFormLocateCellRowElement: HTMLSpanElement = document.getElementById("locate-cell-associated-row") as HTMLSpanElement;
+const tableCellInputFormLocateCellColElement: HTMLSpanElement = document.getElementById("locate-cell-associated-col") as HTMLSpanElement;
+
 function deactivateTableCellInputForm() {
   if (tableCellInputFormTargetElement) {
     // hide the form
@@ -265,11 +270,21 @@ function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCell
   const width = Math.max(minWidth, resizeWidth);
   tableCellInputFormElement.style.width = `${width}px`;
 }
+function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
+  // row index
+  const tableRow: HTMLTableRowElement = targetHTMLTableCellElement.parentElement as HTMLTableRowElement;
+  const rowIndex = tableRow.rowIndex;
+  tableCellInputFormLocateCellRowElement.textContent = `${rowIndex}`;
+  // column index
+  const colIndex = targetHTMLTableCellElement.cellIndex + 1; // since we do not have row label
+  tableCellInputFormLocateCellColElement.textContent = `${colIndex}`;
+}
 function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement) {
   deactivateTableCellInputForm();
   activateTableCellInputForm(targetHTMLTableCellElement);
   updateTableCellInputFormInput(targetHTMLTableCellElement);
 
+  updateTableCellInputFormLocation(targetHTMLTableCellElement);
   // set position
   const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
   tableCellInputFormElement.style.left = `${left}px`;

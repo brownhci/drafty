@@ -51,6 +51,18 @@ $resize-shadow-width: 5px;
       &.active {
         @extend .d-inline-block;
       }
+      #locate-cell {
+        @extend .btn;
+        @extend .btn-primary;
+        @extend .d-none;
+        @extend .mb-0;
+        #locate-cell-row-col {
+          @extend .font-size-small;
+        }
+        &.active {
+          @extend .d-inline-block;
+        }
+      }
       div {
         @extend .mb-0;
         @extend .px-2;
