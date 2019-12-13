@@ -8,6 +8,16 @@ $resize-shadow-width: 5px;
     text-overflow: ellipsis;
 }
 
+#text-width-measure {
+  @extend .m-0;
+  @extend .p-0;
+  @extend .position-absolute;
+  @extend .overflow-hidden;
+  height: 0;
+  font: inherit;
+  white-space: pre;
+}
+
 #table-container {
   @extend .px-0;
   @extend .position-relative;
@@ -27,6 +37,35 @@ $resize-shadow-width: 5px;
       left: 0;
       &.active {
         @extend .d-block;
+      }
+    }
+
+    #table-cell-input-form {
+      @extend .position-absolute;
+      @extend .d-none;
+      @extend .bg-light;
+      @extend .border;
+      @extend .py-1;
+      top: 0;
+      left: 0;
+      &.active {
+        @extend .d-inline-block;
+      }
+      #locate-cell {
+        @extend .btn;
+        @extend .btn-primary;
+        @extend .btn-sm;
+        @extend .d-none;
+        #locate-cell-row-col {
+          @extend .font-size-small;
+        }
+        &.active {
+          @extend .d-inline-block;
+        }
+      }
+      div {
+        @extend .mb-0;
+        @extend .px-1;
       }
     }
   }
@@ -60,7 +99,7 @@ $resize-shadow-width: 5px;
       @extend .thead-light;
       th {
         border-bottom-width: 1px;
-        &.active {
+        &.active, &.inputing {
           @extend .bg-secondary;
           @extend .text-white;
         }

@@ -1,13 +1,29 @@
 const activeClass = "active";
-let activeTableCellElement: null | HTMLTableCellElement = null;
+interface ActiveHTMLTableCellElement extends HTMLTableCellElement {
+  lastActiveTimestamp?: number;
+}
+let activeTableCellElement: null | ActiveHTMLTableCellElement = null;
 /* activated when associated head is clicked */
 let activeTableColElement: null | HTMLTableColElement = null;
 const copiedClass = "copied";
 let lastCopiedTableCellElement: null | HTMLTableCellElement | HTMLTableColElement = null;
 
 const tableElement: HTMLTableElement = document.getElementById("sheet") as HTMLTableElement;
+const tableScrollContainer: HTMLElement = tableElement.parentElement;
 const tableRowElements: HTMLCollection = tableElement.rows;
 const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
+const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
+const tableColumnLabels: HTMLTableRowElement = tableRowElements[0] as HTMLTableRowElement;
+
+function updateActiveTimestamp() {
+  activeTableCellElement.lastActiveTimestamp = Date.now();
+}
+// measure text width
+const textWidthMeasureElement: HTMLElement = document.getElementById("text-width-measure");
+function measureTextWidth(text: string): number {
+  textWidthMeasureElement.textContent = text;
+  return textWidthMeasureElement.offsetWidth;
+}
 
 // platform
 function isMac() {
@@ -39,70 +55,27 @@ function* getTableColElements(index: number) {
   }
 }
 
-/* deactivate */
-function deactivateTableData() {
-  activeTableCellElement.classList.remove(activeClass);
+/* width conversion */
+function vw2px(vw: number) {
+  return document.documentElement.clientWidth * vw / 100;
 }
-function deactivateTableHead() {
-  activeTableCellElement.classList.remove(activeClass);
-}
-function deactivateTableCol() {
-  if (activeTableColElement) {
-    activeTableColElement.classList.remove(activeClass);
-    activeTableColElement = null;
+function em2px(em: number, fontSize = 16, element: HTMLElement | null = null) {
+  if (element === null) {
+    return fontSize * em;
+  } else {
+    return em * parseFloat(getComputedStyle(element).fontSize);
   }
-}
-function deactivateTableCellElement() {
-  if (isTableData(activeTableCellElement)) {
-    deactivateTableData();
-  } else if (isTableHead(activeTableCellElement)) {
-    deactivateTableHead();
-    deactivateTableCol();
-  }
-  activeTableCellElement = null;
 }
 
-/* activate */
-function activateTableData() {
-  activeTableCellElement.classList.add(activeClass);
-  activeTableCellElement.focus();
-}
-function activateTableHead() {
-  activeTableCellElement.classList.add(activeClass);
-  activeTableCellElement.focus();
-}
-function activateTableCol() {
-  const index = activeTableCellElement.cellIndex;
-  const tableColElement = getTableColElement(index);
-  if (tableColElement) {
-    activeTableColElement = tableColElement;
-    activeTableColElement.classList.add(activeClass);
-  }
-}
-function activateTableCellElement(tableCellElement: HTMLTableCellElement) {
-  activeTableCellElement = tableCellElement;
-  if (isTableData(tableCellElement)) {
-    activateTableData();
-  } else if (isTableHead(tableCellElement)) {
-    activateTableHead();
-  }
-}
-function clickOnActiveElement(tableCellElement: HTMLTableCellElement) {
-  return tableCellElement === activeTableCellElement;
+/* text extraction */
+function getTableDataText(tableCellElement: HTMLTableCellElement) {
+  return tableCellElement.textContent;
 }
 
-function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null) {
-  if (!tableCellElement) {
-    return;
-  }
-
-  if (activeTableCellElement) {
-    deactivateTableCellElement();
-  }
-  activateTableCellElement(tableCellElement);
+/* navigation */
+function getColumnLabel(index: number): HTMLTableCellElement {
+  return tableColumnLabels.cells[index];
 }
-
-// navigation
 function getTopTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | null {
   return tableRowElement.previousElementSibling as HTMLTableRowElement;
 }
@@ -145,6 +118,188 @@ function getDownTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTa
   return getCellInTableRow(downTableRow, cellIndex);
 }
 
+/* input form */
+const inputingClass = "inputing";
+const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
+const tableCellInputFormInputElement: HTMLInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
+// const tableCellInputFormInputStyle: CSSStyleDeclaration = getComputedStyle(tableCellInputFormInputElement);
+let tableCellInputFormTargetElement: HTMLTableCellElement | null = null;
+// location
+const tableCellInputFormLocateCellElement: HTMLButtonElement = document.getElementById("locate-cell") as HTMLButtonElement;
+const tableCellInputFormLocateCellRowElement: HTMLSpanElement = document.getElementById("locate-cell-associated-row") as HTMLSpanElement;
+const tableCellInputFormLocateCellColElement: HTMLSpanElement = document.getElementById("locate-cell-associated-col") as HTMLSpanElement;
+let tableCellInputFormLocationActive: boolean = false;
+function activateTableCellInputFormLocation() {
+  if (!tableCellInputFormLocationActive) {
+    tableCellInputFormLocateCellElement.classList.add(activeClass);
+    tableCellInputFormLocationActive = true;
+    // reposition the tableCellInputFormElement
+    const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
+    const formTop = parseFloat(tableCellInputFormElement.style.top);
+    tableCellInputFormElement.style.top = `${formTop - buttonHeight}px`;
+  }
+}
+function deactivateTableCellInputFormLocation() {
+  tableCellInputFormLocateCellElement.classList.remove(activeClass);
+  tableCellInputFormLocationActive = false;
+}
+function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
+  // row index
+  const tableRow: HTMLTableRowElement = targetHTMLTableCellElement.parentElement as HTMLTableRowElement;
+  const rowIndex = tableRow.rowIndex;
+  tableCellInputFormLocateCellRowElement.textContent = `${rowIndex}`;
+  // column index
+  const colIndex = targetHTMLTableCellElement.cellIndex + 1; // since we do not have row label
+  tableCellInputFormLocateCellColElement.textContent = `${colIndex}`;
+}
+function restoreTableCellInputFormLocation() {
+  if (tableCellInputFormLocationActive && tableCellInputFormTargetElement) {
+    const {left: targetLeft, bottom: targetBottom} = tableCellInputFormTargetElement.getBoundingClientRect();
+    const {left: inputFormLeft, bottom: inputFormBottom} = tableCellInputFormElement.getBoundingClientRect();
+    tableScrollContainer.scrollTop += targetBottom - inputFormBottom;
+    tableScrollContainer.scrollLeft += targetLeft - inputFormLeft;
+  }
+}
+tableCellInputFormLocateCellElement.addEventListener("click", function(event: MouseEvent) {
+  restoreTableCellInputFormLocation();
+  event.stopPropagation();
+}, true);
+
+function deactivateTableCellInputForm() {
+  if (tableCellInputFormTargetElement) {
+    // hide the form
+    tableCellInputFormElement.classList.remove(activeClass);
+
+    // unhighlight the table head
+    const cellIndex = tableCellInputFormTargetElement.cellIndex;
+    const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
+    if (columnLabel) {
+      columnLabel.classList.remove(inputingClass);
+    }
+
+    // unhighlight the target cell
+    tableCellInputFormTargetElement.classList.remove(inputingClass);
+    tableCellInputFormTargetElement = null;
+  }
+}
+function activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement) {
+  // show the form
+  tableCellInputFormElement.classList.add(activeClass);
+
+  // highlight the table head
+  const cellIndex = targetHTMLTableCellElement.cellIndex;
+  const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
+  if (columnLabel) {
+    columnLabel.classList.add(inputingClass);
+  }
+
+  // highlight the target cell
+  tableCellInputFormTargetElement = targetHTMLTableCellElement;
+  tableCellInputFormTargetElement.classList.add(inputingClass);
+}
+function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCellElement) {
+  const text = getTableDataText(targetHTMLTableCellElement);
+  tableCellInputFormInputElement.value = text;
+  const minWidth = targetHTMLTableCellElement.offsetWidth;
+  const resizeWidth = measureTextWidth(text) + em2px(3);
+  const width = Math.max(minWidth, resizeWidth);
+  tableCellInputFormElement.style.width = `${width}px`;
+}
+function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement) {
+  deactivateTableCellInputForm();
+  deactivateTableCellInputFormLocation();
+  if (targetHTMLTableCellElement) {
+    activateTableCellInputForm(targetHTMLTableCellElement);
+    updateTableCellInputFormInput(targetHTMLTableCellElement);
+
+    updateTableCellInputFormLocation(targetHTMLTableCellElement);
+    // set position
+    const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
+    tableCellInputFormElement.style.left = `${left}px`;
+    tableCellInputFormElement.style.top = `${top}px`;
+  }
+}
+
+/* deactivate */
+function deactivateTableData() {
+  activeTableCellElement.classList.remove(activeClass);
+  activeTableCellElement.lastActiveTimestamp = null;
+}
+function deactivateTableHead() {
+  activeTableCellElement.classList.remove(activeClass);
+}
+function deactivateTableCol() {
+  if (activeTableColElement) {
+    activeTableColElement.classList.remove(activeClass);
+    activeTableColElement = null;
+  }
+}
+function deactivateTableCellElement() {
+  if (isTableData(activeTableCellElement)) {
+    deactivateTableData();
+  } else if (isTableHead(activeTableCellElement)) {
+    deactivateTableHead();
+    deactivateTableCol();
+  }
+  activeTableCellElement = null;
+}
+
+/* activate */
+function activateTableData() {
+  activeTableCellElement.classList.add(activeClass);
+  updateActiveTimestamp();
+  activeTableCellElement.focus();
+}
+function activateTableHead() {
+  activeTableCellElement.classList.add(activeClass);
+  activeTableCellElement.focus();
+}
+function activateTableCol() {
+  const index = activeTableCellElement.cellIndex;
+  const tableColElement = getTableColElement(index);
+  if (tableColElement) {
+    activeTableColElement = tableColElement;
+    activeTableColElement.classList.add(activeClass);
+  }
+}
+function activateTableCellElement(tableCellElement: HTMLTableCellElement) {
+  activeTableCellElement = tableCellElement;
+  if (isTableData(tableCellElement)) {
+    activateTableData();
+  } else if (isTableHead(tableCellElement)) {
+    activateTableHead();
+  }
+}
+const recentTimeLimit = 1000;
+function isTableDataLastActivatedRecently() {
+  if (activeTableCellElement === null) {
+    return false;
+  }
+
+  if (activeTableCellElement.lastActiveTimestamp === null) {
+    return false;
+  }
+
+  return Date.now() - activeTableCellElement.lastActiveTimestamp <= recentTimeLimit;
+}
+
+function clickOnActiveElement(tableCellElement: HTMLTableCellElement) {
+  return tableCellElement === activeTableCellElement;
+}
+
+function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null) {
+  if (!tableCellElement) {
+    return;
+  }
+
+  if (activeTableCellElement) {
+    deactivateTableCellElement();
+    // remove input form
+    deactivateTableCellInputForm();
+  }
+  activateTableCellElement(tableCellElement);
+}
+
 // store resized width in local storage
 function getStoredColumnWidthKey(index: number) {
   return `columnWidth${index}`;
@@ -170,9 +325,6 @@ function loadPreferredColumnWidths() {
 loadPreferredColumnWidths();
 
 // resize width
-function vw2px(vw: number) {
-  return document.documentElement.clientWidth * vw / 100;
-}
 function updateTableColumnWidth(index: number, newWidth: string) {
   const tableColElement = getTableColElement(index);
   tableColElement.style.width = newWidth;
@@ -197,12 +349,11 @@ function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, res
   }
   updateTableColumnWidth(index, `${newColumnWidth}px`);
 }
-
-// visual cue during resize
+/* visual cue during resize */
 function initializeResizeVisualCue() {
   const visualCue = document.createElement("div");
   visualCue.id = "resize-visual-cue";
-  tableElement.parentElement.appendChild(visualCue);
+  tableScrollContainer.appendChild(visualCue);
   return visualCue;
 }
 const resizeVisualCue: HTMLElement = initializeResizeVisualCue();
@@ -241,7 +392,12 @@ function activeElementOnRepeatedClick(event: MouseEvent) {
     return;
   }
   if (isTableData(activeTableCellElement)) {
-    // TODO
+    if (isTableDataLastActivatedRecently()) {
+      tableCellInputFormAssignTarget(activeTableCellElement);
+      activeTableCellElement.lastActiveTimestamp = null;
+    } else {
+      updateActiveTimestamp();
+    }
   } else if (isTableHead(activeTableCellElement)) {
     activeTableHeadOnRepeatedClick(event);
   }
@@ -264,6 +420,9 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
 }, true);
 
 /* keyboard event */
+interface ConsumableKeyboardEvent extends KeyboardEvent {
+  consumed?: boolean;
+}
 /** copy **/
 function initializeClipboardTextarea() {
   const textarea = document.createElement("textarea");
@@ -307,7 +466,7 @@ function copyTableColumnToTextarea(index: number) {
   }
   clipboardTextarea.value = clipboardTextarea.value.trimRight();
 }
-function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: KeyboardEvent) {
+function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   if (hasCopyModifier(event)) {
     unhighlightCopiedElement();
     clearClipboardTextarea();
@@ -322,40 +481,65 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: K
     }
     copyTextareaToClipboard();
     highlightCopiedElement(elementToHighlight);
+    event.consumed = true;
   }
   // ignore when only C is pressed
 }
 
-function tableCellElementOnKeyEvent(tableCellElement: HTMLTableCellElement, event: KeyboardEvent) {
+function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+  tableCellInputFormAssignTarget(tableDataElement);
+  event.consumed = true;
+}
+function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
+  if (event.consumed) {
+    // ignore if already handled
+    return;
+  }
+
+  const tableCellElement: HTMLTableCellElement = event.target as HTMLTableCellElement;
+  if (isTableData(tableCellElement)) {
+    tableDataElementOnInput(tableCellElement, event);
+  } else if (isTableHead(tableCellElement)) {
+    // ignore if input on table head
+    return;
+  }
+}
+function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+  event.consumed = false;
   switch (event.key) {
     case "Down": // IE/Edge specific value
     case "ArrowDown":
       updateActiveTableCellElement(getDownTableCellElement(tableCellElement));
+      event.consumed = true;
       break;
     case "Up": // IE/Edge specific value
     case "ArrowUp":
       updateActiveTableCellElement(getUpTableCellElement(tableCellElement));
+      event.consumed = true;
       break;
     case "Left": // IE/Edge specific value
     case "ArrowLeft":
       updateActiveTableCellElement(getLeftTableCellElement(tableCellElement));
+      event.consumed = true;
       break;
     case "Right": // IE/Edge specific value
     case "ArrowRight":
     case "Tab": // handle Tab as a pressing Right arrow
       updateActiveTableCellElement(getRightTableCellElement(tableCellElement));
+      event.consumed = true;
       break;
     case "c": // handle potential CTRL+c or CMD+c
       tableCellElementOnCopy(tableCellElement, event);
       break;
   }
+  tableCellElementOnInput(event);
   event.preventDefault();
   event.stopPropagation();
 }
 tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
-    tableCellElementOnKeyEvent(target as HTMLTableCellElement, event);
+    tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
   }
 }, true);
 
@@ -525,3 +709,11 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
   }
 });
 tableElement.addEventListener("mouseup", tableHeadOnMouseUp);
+
+/* scroll event */
+function tableCellInputFormLocationOnScroll(event: Event) {
+  activateTableCellInputFormLocation();
+}
+tableScrollContainer.addEventListener("scroll", function(event: Event) {
+  tableCellInputFormLocationOnScroll(event);
+}, true);
