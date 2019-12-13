@@ -6,6 +6,7 @@ const copiedClass = "copied";
 let lastCopiedTableCellElement: null | HTMLTableCellElement | HTMLTableColElement = null;
 
 const tableElement: HTMLTableElement = document.getElementById("sheet") as HTMLTableElement;
+const tableScrollContainer: HTMLElement = tableElement.parentElement;
 const tableRowElements: HTMLCollection = tableElement.rows;
 const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
 const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
@@ -270,6 +271,17 @@ function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCell
   const width = Math.max(minWidth, resizeWidth);
   tableCellInputFormElement.style.width = `${width}px`;
 }
+let tableCellInputFormLocationActive: boolean = false;
+function activateTableCellInputFormLocation() {
+  if (!tableCellInputFormLocationActive) {
+    tableCellInputFormLocateCellElement.classList.add(activeClass);
+    tableCellInputFormLocationActive = true;
+  }
+}
+function deactivateTableCellInputFormLocation() {
+  tableCellInputFormLocateCellElement.classList.remove(activeClass);
+  tableCellInputFormLocationActive = false;
+}
 function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
   // row index
   const tableRow: HTMLTableRowElement = targetHTMLTableCellElement.parentElement as HTMLTableRowElement;
@@ -281,6 +293,7 @@ function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableC
 }
 function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement) {
   deactivateTableCellInputForm();
+  deactivateTableCellInputFormLocation();
   activateTableCellInputForm(targetHTMLTableCellElement);
   updateTableCellInputFormInput(targetHTMLTableCellElement);
 
@@ -295,7 +308,7 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
 function initializeResizeVisualCue() {
   const visualCue = document.createElement("div");
   visualCue.id = "resize-visual-cue";
-  tableElement.parentElement.appendChild(visualCue);
+  tableScrollContainer.appendChild(visualCue);
   return visualCue;
 }
 const resizeVisualCue: HTMLElement = initializeResizeVisualCue();
@@ -618,3 +631,11 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
   }
 });
 tableElement.addEventListener("mouseup", tableHeadOnMouseUp);
+
+/* scroll event */
+function tableCellInputFormLocationOnScroll(event: Event) {
+  activateTableCellInputFormLocation();
+}
+tableScrollContainer.addEventListener("scroll", function(event: Event) {
+  tableCellInputFormLocationOnScroll(event);
+});
