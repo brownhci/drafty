@@ -1,5 +1,8 @@
 const activeClass = "active";
-let activeTableCellElement: null | HTMLTableCellElement = null;
+interface ActiveHTMLTableCellElement extends HTMLTableCellElement {
+  lastActiveTimestamp?: number;
+}
+let activeTableCellElement: null | ActiveHTMLTableCellElement = null;
 /* activated when associated head is clicked */
 let activeTableColElement: null | HTMLTableColElement = null;
 const copiedClass = "copied";
@@ -12,6 +15,9 @@ const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col"
 const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
 const tableColumnLabels: HTMLTableRowElement = tableRowElements[0] as HTMLTableRowElement;
 
+function updateActiveTimestamp() {
+  activeTableCellElement.lastActiveTimestamp = Date.now();
+}
 // measure text width
 const textWidthMeasureElement: HTMLElement = document.getElementById("text-width-measure");
 function measureTextWidth(text: string): number {
@@ -217,6 +223,7 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
 /* deactivate */
 function deactivateTableData() {
   activeTableCellElement.classList.remove(activeClass);
+  activeTableCellElement.lastActiveTimestamp = null;
 }
 function deactivateTableHead() {
   activeTableCellElement.classList.remove(activeClass);
@@ -240,6 +247,7 @@ function deactivateTableCellElement() {
 /* activate */
 function activateTableData() {
   activeTableCellElement.classList.add(activeClass);
+  updateActiveTimestamp();
   activeTableCellElement.focus();
 }
 function activateTableHead() {
@@ -262,6 +270,19 @@ function activateTableCellElement(tableCellElement: HTMLTableCellElement) {
     activateTableHead();
   }
 }
+const recentTimeLimit = 1000;
+function isTableDataLastActivatedRecently() {
+  if (activeTableCellElement === null) {
+    return false;
+  }
+
+  if (activeTableCellElement.lastActiveTimestamp === null) {
+    return false;
+  }
+
+  return Date.now() - activeTableCellElement.lastActiveTimestamp <= recentTimeLimit;
+}
+
 function clickOnActiveElement(tableCellElement: HTMLTableCellElement) {
   return tableCellElement === activeTableCellElement;
 }
@@ -371,7 +392,12 @@ function activeElementOnRepeatedClick(event: MouseEvent) {
     return;
   }
   if (isTableData(activeTableCellElement)) {
-    // TODO
+    if (isTableDataLastActivatedRecently()) {
+      tableCellInputFormAssignTarget(activeTableCellElement);
+      activeTableCellElement.lastActiveTimestamp = null;
+    } else {
+      updateActiveTimestamp();
+    }
   } else if (isTableHead(activeTableCellElement)) {
     activeTableHeadOnRepeatedClick(event);
   }
