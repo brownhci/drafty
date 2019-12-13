@@ -376,6 +376,8 @@ function tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: 
     activeElementOnRepeatedClick(event);
   } else {
     updateActiveTableCellElement(tableCellElement);
+    // remove input form
+    deactivateTableCellInputForm();
   }
   event.preventDefault();
   event.stopPropagation();
