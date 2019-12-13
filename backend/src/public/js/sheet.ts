@@ -49,73 +49,24 @@ function* getTableColElements(index: number) {
   }
 }
 
-/* deactivate */
-function deactivateTableData() {
-  activeTableCellElement.classList.remove(activeClass);
+/* width conversion */
+function vw2px(vw: number) {
+  return document.documentElement.clientWidth * vw / 100;
 }
-function deactivateTableHead() {
-  activeTableCellElement.classList.remove(activeClass);
-}
-function deactivateTableCol() {
-  if (activeTableColElement) {
-    activeTableColElement.classList.remove(activeClass);
-    activeTableColElement = null;
+function em2px(em: number, fontSize = 16, element: HTMLElement | null = null) {
+  if (element === null) {
+    return fontSize * em;
+  } else {
+    return em * parseFloat(getComputedStyle(element).fontSize);
   }
-}
-function deactivateTableCellElement() {
-  if (isTableData(activeTableCellElement)) {
-    deactivateTableData();
-  } else if (isTableHead(activeTableCellElement)) {
-    deactivateTableHead();
-    deactivateTableCol();
-  }
-  activeTableCellElement = null;
 }
 
-/* activate */
-function activateTableData() {
-  activeTableCellElement.classList.add(activeClass);
-  activeTableCellElement.focus();
-}
-function activateTableHead() {
-  activeTableCellElement.classList.add(activeClass);
-  activeTableCellElement.focus();
-}
-function activateTableCol() {
-  const index = activeTableCellElement.cellIndex;
-  const tableColElement = getTableColElement(index);
-  if (tableColElement) {
-    activeTableColElement = tableColElement;
-    activeTableColElement.classList.add(activeClass);
-  }
-}
-function activateTableCellElement(tableCellElement: HTMLTableCellElement) {
-  activeTableCellElement = tableCellElement;
-  if (isTableData(tableCellElement)) {
-    activateTableData();
-  } else if (isTableHead(tableCellElement)) {
-    activateTableHead();
-  }
-}
-function clickOnActiveElement(tableCellElement: HTMLTableCellElement) {
-  return tableCellElement === activeTableCellElement;
-}
-
-function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null) {
-  if (!tableCellElement) {
-    return;
-  }
-
-  if (activeTableCellElement) {
-    deactivateTableCellElement();
-  }
-  activateTableCellElement(tableCellElement);
-}
-// text extraction
+/* text extraction */
 function getTableDataText(tableCellElement: HTMLTableCellElement) {
   return tableCellElement.textContent;
 }
-// navigation
+
+/* navigation */
 function getColumnLabel(index: number): HTMLTableCellElement {
   return tableColumnLabels.cells[index];
 }
@@ -161,65 +112,6 @@ function getDownTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTa
   return getCellInTableRow(downTableRow, cellIndex);
 }
 
-// store resized width in local storage
-function getStoredColumnWidthKey(index: number) {
-  return `columnWidth${index}`;
-}
-function storePreferredColumnWidth(index: number, columnWidth: string) {
-  window.localStorage.setItem(getStoredColumnWidthKey(index), columnWidth);
-}
-function getPreferredColumnWidth(index: number): string | null {
-  return window.localStorage.getItem(getStoredColumnWidthKey(index));
-}
-function loadPreferredColumnWidths() {
-  let index = 0;
-  for (const tableColElement of tableColElements) {
-    const preferredColumnWidth = getPreferredColumnWidth(index);
-    if (preferredColumnWidth) {
-      const tableColEl = tableColElement as HTMLTableColElement;
-      tableColEl.style.width = preferredColumnWidth;
-    }
-
-    index += 1;
-  }
-}
-loadPreferredColumnWidths();
-
-// resize width
-function vw2px(vw: number) {
-  return document.documentElement.clientWidth * vw / 100;
-}
-function em2px(em: number, fontSize = 16, element: HTMLElement | null = null) {
-  if (element === null) {
-    return fontSize * em;
-  } else {
-    return em * parseFloat(getComputedStyle(element).fontSize);
-  }
-}
-function updateTableColumnWidth(index: number, newWidth: string) {
-  const tableColElement = getTableColElement(index);
-  tableColElement.style.width = newWidth;
-  storePreferredColumnWidth(index, newWidth);
-}
-function getMinimumAllowedColumnWidth(index: number) {
-  return vw2px(5);
-}
-function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, resizeAmount: number) {
-  if (resizeAmount === 0) {
-    return;
-  }
-
-  const index = tableCellElement.cellIndex;
-  // in pixels
-  const currenColumnWidth = tableCellElement.clientWidth;
-  let newColumnWidth = currenColumnWidth + resizeAmount;
-
-  const minColumnWidth = getMinimumAllowedColumnWidth(index);
-  if (newColumnWidth < minColumnWidth) {
-    newColumnWidth = minColumnWidth;
-  }
-  updateTableColumnWidth(index, `${newColumnWidth}px`);
-}
 /* input form */
 const inputingClass = "inputing";
 const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
@@ -322,7 +214,121 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
   }
 }
 
-// visual cue during resize
+/* deactivate */
+function deactivateTableData() {
+  activeTableCellElement.classList.remove(activeClass);
+}
+function deactivateTableHead() {
+  activeTableCellElement.classList.remove(activeClass);
+}
+function deactivateTableCol() {
+  if (activeTableColElement) {
+    activeTableColElement.classList.remove(activeClass);
+    activeTableColElement = null;
+  }
+}
+function deactivateTableCellElement() {
+  if (isTableData(activeTableCellElement)) {
+    deactivateTableData();
+  } else if (isTableHead(activeTableCellElement)) {
+    deactivateTableHead();
+    deactivateTableCol();
+  }
+  activeTableCellElement = null;
+}
+
+/* activate */
+function activateTableData() {
+  activeTableCellElement.classList.add(activeClass);
+  activeTableCellElement.focus();
+}
+function activateTableHead() {
+  activeTableCellElement.classList.add(activeClass);
+  activeTableCellElement.focus();
+}
+function activateTableCol() {
+  const index = activeTableCellElement.cellIndex;
+  const tableColElement = getTableColElement(index);
+  if (tableColElement) {
+    activeTableColElement = tableColElement;
+    activeTableColElement.classList.add(activeClass);
+  }
+}
+function activateTableCellElement(tableCellElement: HTMLTableCellElement) {
+  activeTableCellElement = tableCellElement;
+  if (isTableData(tableCellElement)) {
+    activateTableData();
+  } else if (isTableHead(tableCellElement)) {
+    activateTableHead();
+  }
+}
+function clickOnActiveElement(tableCellElement: HTMLTableCellElement) {
+  return tableCellElement === activeTableCellElement;
+}
+
+function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null) {
+  if (!tableCellElement) {
+    return;
+  }
+
+  if (activeTableCellElement) {
+    deactivateTableCellElement();
+    // remove input form
+    deactivateTableCellInputForm();
+  }
+  activateTableCellElement(tableCellElement);
+}
+
+// store resized width in local storage
+function getStoredColumnWidthKey(index: number) {
+  return `columnWidth${index}`;
+}
+function storePreferredColumnWidth(index: number, columnWidth: string) {
+  window.localStorage.setItem(getStoredColumnWidthKey(index), columnWidth);
+}
+function getPreferredColumnWidth(index: number): string | null {
+  return window.localStorage.getItem(getStoredColumnWidthKey(index));
+}
+function loadPreferredColumnWidths() {
+  let index = 0;
+  for (const tableColElement of tableColElements) {
+    const preferredColumnWidth = getPreferredColumnWidth(index);
+    if (preferredColumnWidth) {
+      const tableColEl = tableColElement as HTMLTableColElement;
+      tableColEl.style.width = preferredColumnWidth;
+    }
+
+    index += 1;
+  }
+}
+loadPreferredColumnWidths();
+
+// resize width
+function updateTableColumnWidth(index: number, newWidth: string) {
+  const tableColElement = getTableColElement(index);
+  tableColElement.style.width = newWidth;
+  storePreferredColumnWidth(index, newWidth);
+}
+function getMinimumAllowedColumnWidth(index: number) {
+  return vw2px(5);
+}
+function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, resizeAmount: number) {
+  if (resizeAmount === 0) {
+    return;
+  }
+
+  const index = tableCellElement.cellIndex;
+  // in pixels
+  const currenColumnWidth = tableCellElement.clientWidth;
+  let newColumnWidth = currenColumnWidth + resizeAmount;
+
+  const minColumnWidth = getMinimumAllowedColumnWidth(index);
+  if (newColumnWidth < minColumnWidth) {
+    newColumnWidth = minColumnWidth;
+  }
+  updateTableColumnWidth(index, `${newColumnWidth}px`);
+}
+/* visual cue during resize */
 function initializeResizeVisualCue() {
   const visualCue = document.createElement("div");
   visualCue.id = "resize-visual-cue";
@@ -376,8 +382,6 @@ function tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: 
     activeElementOnRepeatedClick(event);
   } else {
     updateActiveTableCellElement(tableCellElement);
-    // remove input form
-    deactivateTableCellInputForm();
   }
   event.preventDefault();
   event.stopPropagation();
