@@ -394,6 +394,9 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
 }, true);
 
 /* keyboard event */
+interface ConsumableKeyboardEvent extends KeyboardEvent {
+  consumed?: boolean;
+}
 /** copy **/
 function initializeClipboardTextarea() {
   const textarea = document.createElement("textarea");
@@ -437,7 +440,7 @@ function copyTableColumnToTextarea(index: number) {
   }
   clipboardTextarea.value = clipboardTextarea.value.trimRight();
 }
-function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: KeyboardEvent) {
+function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   if (hasCopyModifier(event)) {
     unhighlightCopiedElement();
     clearClipboardTextarea();
@@ -452,40 +455,65 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: K
     }
     copyTextareaToClipboard();
     highlightCopiedElement(elementToHighlight);
+    event.consumed = true;
   }
   // ignore when only C is pressed
 }
 
-function tableCellElementOnKeyEvent(tableCellElement: HTMLTableCellElement, event: KeyboardEvent) {
+function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+  tableCellInputFormAssignTarget(tableDataElement);
+  event.consumed = true;
+}
+function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
+  if (event.consumed) {
+    // ignore if already handled
+    return;
+  }
+
+  const tableCellElement: HTMLTableCellElement = event.target as HTMLTableCellElement;
+  if (isTableData(tableCellElement)) {
+    tableDataElementOnInput(tableCellElement, event);
+  } else if (isTableHead(tableCellElement)) {
+    // ignore if input on table head
+    return;
+  }
+}
+function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+  event.consumed = false;
   switch (event.key) {
     case "Down": // IE/Edge specific value
     case "ArrowDown":
       updateActiveTableCellElement(getDownTableCellElement(tableCellElement));
+      event.consumed = true;
       break;
     case "Up": // IE/Edge specific value
     case "ArrowUp":
       updateActiveTableCellElement(getUpTableCellElement(tableCellElement));
+      event.consumed = true;
       break;
     case "Left": // IE/Edge specific value
     case "ArrowLeft":
       updateActiveTableCellElement(getLeftTableCellElement(tableCellElement));
+      event.consumed = true;
       break;
     case "Right": // IE/Edge specific value
     case "ArrowRight":
     case "Tab": // handle Tab as a pressing Right arrow
       updateActiveTableCellElement(getRightTableCellElement(tableCellElement));
+      event.consumed = true;
       break;
     case "c": // handle potential CTRL+c or CMD+c
       tableCellElementOnCopy(tableCellElement, event);
       break;
   }
+  tableCellElementOnInput(event);
   event.preventDefault();
   event.stopPropagation();
 }
 tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
-    tableCellElementOnKeyEvent(target as HTMLTableCellElement, event);
+    tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
   }
 }, true);
 
