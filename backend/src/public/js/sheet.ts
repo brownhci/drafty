@@ -230,6 +230,42 @@ let tableCellInputFormTargetElement: HTMLTableCellElement | null = null;
 const tableCellInputFormLocateCellElement: HTMLButtonElement = document.getElementById("locate-cell") as HTMLButtonElement;
 const tableCellInputFormLocateCellRowElement: HTMLSpanElement = document.getElementById("locate-cell-associated-row") as HTMLSpanElement;
 const tableCellInputFormLocateCellColElement: HTMLSpanElement = document.getElementById("locate-cell-associated-col") as HTMLSpanElement;
+let tableCellInputFormLocationActive: boolean = false;
+function activateTableCellInputFormLocation() {
+  if (!tableCellInputFormLocationActive) {
+    tableCellInputFormLocateCellElement.classList.add(activeClass);
+    tableCellInputFormLocationActive = true;
+    // reposition the tableCellInputFormElement
+    const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
+    const formTop = parseFloat(tableCellInputFormElement.style.top);
+    tableCellInputFormElement.style.top = `${formTop - buttonHeight}px`;
+  }
+}
+function deactivateTableCellInputFormLocation() {
+  tableCellInputFormLocateCellElement.classList.remove(activeClass);
+  tableCellInputFormLocationActive = false;
+}
+function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
+  // row index
+  const tableRow: HTMLTableRowElement = targetHTMLTableCellElement.parentElement as HTMLTableRowElement;
+  const rowIndex = tableRow.rowIndex;
+  tableCellInputFormLocateCellRowElement.textContent = `${rowIndex}`;
+  // column index
+  const colIndex = targetHTMLTableCellElement.cellIndex + 1; // since we do not have row label
+  tableCellInputFormLocateCellColElement.textContent = `${colIndex}`;
+}
+function restoreTableCellInputFormLocation() {
+  if (tableCellInputFormLocationActive && tableCellInputFormTargetElement) {
+    const {left: targetLeft, bottom: targetBottom} = tableCellInputFormTargetElement.getBoundingClientRect();
+    const {left: inputFormLeft, bottom: inputFormBottom} = tableCellInputFormElement.getBoundingClientRect();
+    tableScrollContainer.scrollTop += targetBottom - inputFormBottom;
+    tableScrollContainer.scrollLeft += targetLeft - inputFormLeft;
+  }
+}
+tableCellInputFormLocateCellElement.addEventListener("click", function(event: MouseEvent) {
+  restoreTableCellInputFormLocation();
+  event.stopPropagation();
+}, true);
 
 function deactivateTableCellInputForm() {
   if (tableCellInputFormTargetElement) {
@@ -270,26 +306,6 @@ function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCell
   const resizeWidth = measureTextWidth(text) + em2px(3);
   const width = Math.max(minWidth, resizeWidth);
   tableCellInputFormElement.style.width = `${width}px`;
-}
-let tableCellInputFormLocationActive: boolean = false;
-function activateTableCellInputFormLocation() {
-  if (!tableCellInputFormLocationActive) {
-    tableCellInputFormLocateCellElement.classList.add(activeClass);
-    tableCellInputFormLocationActive = true;
-  }
-}
-function deactivateTableCellInputFormLocation() {
-  tableCellInputFormLocateCellElement.classList.remove(activeClass);
-  tableCellInputFormLocationActive = false;
-}
-function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
-  // row index
-  const tableRow: HTMLTableRowElement = targetHTMLTableCellElement.parentElement as HTMLTableRowElement;
-  const rowIndex = tableRow.rowIndex;
-  tableCellInputFormLocateCellRowElement.textContent = `${rowIndex}`;
-  // column index
-  const colIndex = targetHTMLTableCellElement.cellIndex + 1; // since we do not have row label
-  tableCellInputFormLocateCellColElement.textContent = `${colIndex}`;
 }
 function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement) {
   deactivateTableCellInputForm();
@@ -640,4 +656,4 @@ function tableCellInputFormLocationOnScroll(event: Event) {
 }
 tableScrollContainer.addEventListener("scroll", function(event: Event) {
   tableCellInputFormLocationOnScroll(event);
-});
+}, true);
