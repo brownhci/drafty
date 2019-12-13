@@ -294,14 +294,16 @@ function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableC
 function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement) {
   deactivateTableCellInputForm();
   deactivateTableCellInputFormLocation();
-  activateTableCellInputForm(targetHTMLTableCellElement);
-  updateTableCellInputFormInput(targetHTMLTableCellElement);
+  if (targetHTMLTableCellElement) {
+    activateTableCellInputForm(targetHTMLTableCellElement);
+    updateTableCellInputFormInput(targetHTMLTableCellElement);
 
-  updateTableCellInputFormLocation(targetHTMLTableCellElement);
-  // set position
-  const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
-  tableCellInputFormElement.style.left = `${left}px`;
-  tableCellInputFormElement.style.top = `${top}px`;
+    updateTableCellInputFormLocation(targetHTMLTableCellElement);
+    // set position
+    const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
+    tableCellInputFormElement.style.left = `${left}px`;
+    tableCellInputFormElement.style.top = `${top}px`;
+  }
 }
 
 // visual cue during resize
