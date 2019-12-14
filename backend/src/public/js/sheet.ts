@@ -129,6 +129,9 @@ const tableCellInputFormLocateCellElement: HTMLButtonElement = document.getEleme
 const tableCellInputFormLocateCellRowElement: HTMLSpanElement = document.getElementById("locate-cell-associated-row") as HTMLSpanElement;
 const tableCellInputFormLocateCellColElement: HTMLSpanElement = document.getElementById("locate-cell-associated-col") as HTMLSpanElement;
 let tableCellInputFormLocationActive: boolean = false;
+function isTableCellInputFormActive() {
+  return tableCellInputFormElement.classList.contains(activeClass);
+}
 function activateTableCellInputFormLocation() {
   if (!tableCellInputFormLocationActive) {
     tableCellInputFormLocateCellElement.classList.add(activeClass);
@@ -543,6 +546,20 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   }
 }, true);
 
+function tableCellInputFormOnKeyDown(event: KeyboardEvent) {
+  switch (event.key) {
+    case "Esc": // IE/Edge specific value
+    case "Escape":
+      deactivateTableCellInputForm();
+  }
+  event.stopPropagation();
+}
+
+tableCellInputFormElement.addEventListener("keydown", function(event: KeyboardEvent) {
+  if (isTableCellInputFormActive()) {
+    tableCellInputFormOnKeyDown(event);
+  }
+}, true);
 /* mouse events */
 interface ResizableHTMLTableCellElement extends HTMLTableCellElement {
   atResize?: boolean;
