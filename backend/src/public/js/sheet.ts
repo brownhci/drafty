@@ -553,7 +553,11 @@ function tableCellInputFormOnKeyDown(event: KeyboardEvent) {
   switch (event.key) {
     case "Esc": // IE/Edge specific value
     case "Escape":
-      deactivateTableCellInputForm();
+      tableCellInputFormAssignTarget(null);
+      if (activeTableCellElement) {
+        activeTableCellElement.focus({preventScroll: true});
+      }
+      break;
   }
   event.stopPropagation();
 }
