@@ -205,12 +205,17 @@ function activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellEle
 }
 function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCellElement) {
   const text = getTableDataText(targetHTMLTableCellElement);
+
   tableCellInputFormInputElement.value = text;
   const minWidth = targetHTMLTableCellElement.offsetWidth;
   const resizeWidth = measureTextWidth(text) + em2px(3);
   const width = Math.max(minWidth, resizeWidth);
+
   tableCellInputFormElement.style.width = `${width}px`;
 }
+/**
+ * <b>Use this function to change the editor associated table cell</b>
+ */
 function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement) {
   deactivateTableCellInputForm();
   deactivateTableCellInputFormLocation();
@@ -223,22 +228,6 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
     const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
     tableCellInputFormElement.style.left = `${left}px`;
     tableCellInputFormElement.style.top = `${top}px`;
-  }
-}
-function saveTableCellInputForm() {
-  const text = tableCellInputFormInputElement.value;
-  if (tableCellInputFormTargetElement) {
-    tableCellInputFormTargetElement.textContent = text;
-    // TODO: call backend api to send user submission
-  }
-}
-function quitTableCellInputForm(saveContent = false) {
-  if (saveContent) {
-    saveTableCellInputForm();
-  }
-  tableCellInputFormAssignTarget(null);
-  if (activeTableCellElement) {
-    activeTableCellElement.focus({preventScroll: true});
   }
 }
 
@@ -309,6 +298,9 @@ function clickOnActiveElement(tableCellElement: HTMLTableCellElement) {
   return tableCellElement === activeTableCellElement;
 }
 
+/**
+ * <b>Use this function to change table cell element to ensure previous active element is properly deactivated</b>
+ */
 function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null) {
   if (!tableCellElement) {
     return;
@@ -565,6 +557,30 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   }
 }, true);
 
+function saveTableCellInputForm() {
+  const text = tableCellInputFormInputElement.value;
+  if (tableCellInputFormTargetElement) {
+    tableCellInputFormTargetElement.textContent = text;
+    // TODO: call backend api to send user submission
+  }
+}
+function quitTableCellInputForm(saveContent = false) {
+  if (saveContent) {
+    saveTableCellInputForm();
+    // move to next cell to allow continuous edit
+    if (activeTableCellElement) {
+      const nextCell = getRightTableCellElement(activeTableCellElement);
+      if (nextCell) {
+        updateActiveTableCellElement(nextCell);
+      }
+    }
+  }
+
+  tableCellInputFormAssignTarget(null);
+  if (activeTableCellElement) {
+    activeTableCellElement.focus({preventScroll: true});
+  }
+}
 function tableCellInputFormOnKeyDown(event: KeyboardEvent) {
   switch (event.key) {
     case "Esc": // IE/Edge specific value
