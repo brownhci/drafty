@@ -189,6 +189,9 @@ function activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellEle
   // show the form
   tableCellInputFormElement.classList.add(activeClass);
 
+  // focus the input
+  tableCellInputFormInputElement.focus({preventScroll: true});
+
   // highlight the table head
   const cellIndex = targetHTMLTableCellElement.cellIndex;
   const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
