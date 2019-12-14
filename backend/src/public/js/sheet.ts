@@ -225,6 +225,22 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
     tableCellInputFormElement.style.top = `${top}px`;
   }
 }
+function saveTableCellInputForm() {
+  const text = tableCellInputFormInputElement.value;
+  if (tableCellInputFormTargetElement) {
+    tableCellInputFormTargetElement.textContent = text;
+    // TODO: call backend api to send user submission
+  }
+}
+function quitTableCellInputForm(saveContent = false) {
+  if (saveContent) {
+    saveTableCellInputForm();
+  }
+  tableCellInputFormAssignTarget(null);
+  if (activeTableCellElement) {
+    activeTableCellElement.focus({preventScroll: true});
+  }
+}
 
 /* deactivate */
 function deactivateTableData() {
@@ -553,11 +569,12 @@ function tableCellInputFormOnKeyDown(event: KeyboardEvent) {
   switch (event.key) {
     case "Esc": // IE/Edge specific value
     case "Escape":
-      tableCellInputFormAssignTarget(null);
-      if (activeTableCellElement) {
-        activeTableCellElement.focus({preventScroll: true});
-      }
+      quitTableCellInputForm(false);
       break;
+    case "Enter":
+      quitTableCellInputForm(true);
+      break;
+
   }
   event.stopPropagation();
 }
@@ -741,3 +758,10 @@ function tableCellInputFormLocationOnScroll(event: Event) {
 tableScrollContainer.addEventListener("scroll", function(event: Event) {
   tableCellInputFormLocationOnScroll(event);
 }, true);
+
+/* submit event */
+tableCellInputFormElement.addEventListener("submit", function(event: Event) {
+  // disable submitting
+  event.preventDefault();
+  return false;
+});
