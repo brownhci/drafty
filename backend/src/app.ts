@@ -79,8 +79,8 @@ app.use(lusca.csrf());
 app.use(lusca.csp({
   policy: {
     // TODO remove localhost origin in production
-    "default-src": "self http://localhost:3000",
-    "img-src": "*"
+    //"default-src": "self http://localhost:3000",
+    //"img-src": "*"
   }
 }));
 app.use(lusca.xframe("SAMEORIGIN"));
