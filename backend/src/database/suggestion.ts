@@ -2,6 +2,7 @@ import { db,logDbErr } from "./mysql";
 
 const stmtInsertSuggestion: string = "INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, ?, ?, ?, ?, ?)";
 const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)";
+const stmtSelectPrevSuggestions: string = "SELECT * FROM Suggestions WHERE idUniqueID = ? AND idSuggestionType = ? GROUP BY suggestion ORDER BY suggestion"
 
 /**
  * save new suggestion
