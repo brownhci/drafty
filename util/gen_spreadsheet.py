@@ -1,8 +1,12 @@
 import pymysql, html
 from bs4 import BeautifulSoup
+from lxml.html import tostring, html5parser
+import html.entities as fix
 
-table = ''
-row = ''
+init_num_rows = 3
+table_header = '<table id="table" class="mb-0 sticky-top">'
+table_display = '<div id="scrollArea" class="clusterize-scroll"><table id="drafty-table"><tbody id="contentArea" class="clusterize-content">'
+table_hidden = '<table id="drafty-table-hidden" class="hidden"><tbody>'
 
 # Open database connection
 db = pymysql.connect("localhost","gensheet","chi2020","profs" )
@@ -15,25 +19,30 @@ sqlSuggType = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.co
 sql = "SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder \
         FROM Suggestions s \
         INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType \
-        WHERE s.active = 1 AND st.isActive = 1 \
+        WHERE s.active = 1 AND st.isActive = 1 AND idUniqueID < 10000000000000 \
         ORDER BY idUniqueID, st.columnOrder, confidence desc"
 
-def init_col_group(rows):
+# replace beautiful soup add-ins
+def replace_bad_html(val):
+    return val.replace('<html>', '').replace('</html>', '').replace('<body>', '').replace('</body>', '').replace(' <body>', '').replace(' </body>', '')
+
+def col_group(rows):
     colGroup = '<colgroup>'
     for col in rows[0]:
         colGroup += '<col>'
     colGroup += '</colgroup>'
     return colGroup
 
-def new_row(idRow,i):
-    if i > 200:
-        style = 'style=\"display:none\"'
-    else:
-        style = ''
-    return '<tr id=\"' + str(idRow) + '\" ' + style + '>'
+def new_row(idRow):
+    return '<tr id=\"' + str(idRow) + '>'
 
 def new_cell(idSugg, sugg):
-    return '<td id=' + str(idSugg) + '>' + str(sugg) + '</td>'
+    #html = tostring(html5parser.fromstring(str(sugg))).decode("utf-8")
+
+    #print(html)
+    #html = sugg.encode("utf-8")
+    html = fix.html5(sugg)
+    return '<td id=' + str(idSugg) + '>' + str(html) + '</td>'
 
 def new_search(idSuggType):
     return ' \
@@ -46,9 +55,7 @@ def new_search(idSuggType):
                 </div> \
             </th> \
         '.format(idSuggType, idSuggType)
-
-
-    #return '<th id=\"' + str(idSuggType) + '\"><input type="text"></th>'
+        
 
 # execute SQL query using execute() method.
 cursor.execute(sqlSuggType)
@@ -61,42 +68,54 @@ for r in rows:
     header += '<th scope="col" tabindex="-1">' + str(colName) + '</th>'
     search += new_search(idSuggType)
 
-table +=  '<table id="table" class="mb-0 sticky-top"> ' + init_col_group(rows)  + '<thead id="headerArea">' + header + '</tr>' + search + '</tr>' + '</thead>'
+table_header +=  col_group(rows)  + '<thead id="headerArea">' + header + '</tr>' + search + '</tr>' + '</thead></table>'
 
 # execute SQL query using execute() method.
 cursor.execute(sql)
 rows = cursor.fetchall()
 
 i = 0
-idSugg = rows[0][0]
+idSugg    = rows[0][0]
 idColPrev = rows[0][1]
 idRowPrev = rows[0][2]
-sugg   = rows[0][3]
-row = new_row(idRowPrev,i)
-row += new_cell(idSugg, sugg)
+sugg      = rows[0][3]
+row = new_row(idRowPrev) + new_cell(idSugg, sugg)
+print(row)
 
 for r in rows:
     idSugg = r[0]
     idCol  = r[1]
     idRow  = r[2]
     sugg   = r[3]
+
+    #print(str(idRow) + ' == ' + str(idRowPrev))
+
     if idRow != idRowPrev: # new row?
-        table += row + '</tr>'
-        row = new_row(idRow,i)
+        #print(str(idRow) + ' :: ' +  str(row) + '\n')
+        if i <= init_num_rows:
+            table_display += row + '</tr>'
+        else:
+            table_hidden += row + '</tr>'
+        row = new_row(idRow)
         i += 1
     if idCol != idColPrev: # new cell?
         row += new_cell(idSugg, sugg)
     idColPrev = idCol
     idRowPrev = idRow
 
-def replace_bad_html(val):
-    return val.replace('<html>', '').replace('</html>', '').replace('<body>', '').replace('</body>', '').replace(' <body>', '').replace(' </body>', '')
+table_display += '</tbody></table></div>'
+table_hidden  += '</tbody></table>'
+
+#print(table_display)
 
 with open('../backend/views/partials/sheets/professors.hbs', 'r+') as f:
-    soup = BeautifulSoup(table, 'lxml')
-    html = soup.prettify()
-    html = replace_bad_html(html)
+    html = table_header + table_display + table_hidden
+    
+    #soup = BeautifulSoup(final_html, 'lxml')
+    #html = soup.prettify()
+    #html = replace_bad_html(html)
     #print(html)
+    
     f.write(html)
 
 # disconnect from server
