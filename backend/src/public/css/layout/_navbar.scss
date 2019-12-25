@@ -8,7 +8,7 @@ nav {
   @extend .navbar;
   @extend .navbar-light;
   @extend .bg-primary;
-  @extend .navbar-expand;
+  @extend .navbar-expand-lg;
 
   height: $navbar-height;
   z-index: $zindex-nav;
@@ -16,6 +16,23 @@ nav {
   .navbar-brand {
     @extend .text-white;
     @extend .font-weight-bold;
+  }
+  .navbar-toggler {
+    @extend .btn;
+    @extend .text-white;
+    @extend .border-0;
+    &:before {
+      @extend %fa-icon;
+      @extend .fas;
+      content: fa-content($fa-var-bars);
+    }
+    &:hover {
+      @extend .bg-white;
+      @extend .text-primary;
+      &:before {
+        content: fa-content($fa-var-hamburger);
+      }
+    }
   }
   .navbar-nav {
     @extend .mx-4;
