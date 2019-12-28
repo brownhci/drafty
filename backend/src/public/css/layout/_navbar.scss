@@ -32,14 +32,11 @@ nav {
       &:before {
         content: fa-content($fa-var-hamburger);
       }
-      & + .navbar-nav-sm {
-        @extend .d-flex;
-        @extend .flex-column;
-      }
     }
   }
   .navbar-nav-sm {
     @extend .d-none;
+    @extend .flex-column;
     @extend .list-unstyled;
     @extend .my-3;
     flex-basis: 100%;
@@ -128,8 +125,11 @@ nav {
   }
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(xs) {
   nav {
     height: auto;
+    .navbar-toggler.active + .navbar-nav-sm {
+       display: flex !important;
+    }
   }
 }
