@@ -203,8 +203,8 @@ function activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellEle
   tableCellInputFormTargetElement = targetHTMLTableCellElement;
   tableCellInputFormTargetElement.classList.add(inputingClass);
 }
-function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCellElement) {
-  const text = getTableDataText(targetHTMLTableCellElement);
+function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
+  const text = input ? input : getTableDataText(targetHTMLTableCellElement);
 
   tableCellInputFormInputElement.value = text;
   const minWidth = targetHTMLTableCellElement.offsetWidth;
@@ -216,12 +216,12 @@ function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCell
 /**
  * <b>Use this function to change the editor associated table cell</b>
  */
-function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement) {
+function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
   deactivateTableCellInputForm();
   deactivateTableCellInputFormLocation();
   if (targetHTMLTableCellElement) {
     activateTableCellInputForm(targetHTMLTableCellElement);
-    updateTableCellInputFormInput(targetHTMLTableCellElement);
+    updateTableCellInputFormInput(targetHTMLTableCellElement, input);
 
     updateTableCellInputFormLocation(targetHTMLTableCellElement);
     // set position
@@ -502,7 +502,7 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: C
 }
 
 function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  tableCellInputFormAssignTarget(tableDataElement);
+  tableCellInputFormAssignTarget(tableDataElement, event.key);
   event.consumed = true;
 }
 function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
@@ -558,7 +558,6 @@ function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event
       event.consumed = true;
   }
   if (!event.consumed) {
-    console.log(event);
     tableCellElementOnInput(event);
   }
 
