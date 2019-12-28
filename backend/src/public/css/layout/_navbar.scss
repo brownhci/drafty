@@ -26,25 +26,42 @@ nav {
       @extend .fas;
       content: fa-content($fa-var-bars);
     }
-    &:hover, &.active {
+    &.active {
       @extend .bg-white;
       @extend .text-primary;
       &:before {
         content: fa-content($fa-var-hamburger);
       }
-    }
-    &.active + .navbar-nav-sm {
-      @extend .d-flex;
-      @extend .flex-column;
+      & + .navbar-nav-sm {
+        @extend .d-flex;
+        @extend .flex-column;
+      }
     }
   }
-
   .navbar-nav-sm {
     @extend .d-none;
     @extend .list-unstyled;
+    @extend .my-3;
     flex-basis: 100%;
     li {
-      @extend .text-white;
+      @extend .border-top;
+      @extend .px-3;
+      @extend .py-2;
+      @extend .clickable;
+      border-color: $gray;
+      &:last-of-type {
+        @extend .border-bottom;
+      }
+      &:hover {
+        @extend .bg-white;
+        a {
+          @extend .text-primary;
+        }
+      }
+      a {
+        @extend .text-decoration-none;
+        @extend .text-white;
+      }
     }
   }
   .navbar-nav {
@@ -98,5 +115,11 @@ nav {
 
   & ~ main {
     padding-top: $navbar-height;
+  }
+}
+
+@include media-breakpoint-down(sm) {
+  nav {
+    height: auto;
   }
 }
