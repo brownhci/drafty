@@ -3,7 +3,17 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" aria-label="Toggle navigation">
     </button>
     <ul class="navbar-nav-sm">
-         <li data-href="/credits">Credits</li>
+        <li>
+            Sheets
+            <div id="list-sheets-horizontal" role="group" aria-label="sheets">
+                {{#eachInMap sheetNameToURL}}
+                    <button type="button" class="btn{{selected ../sheetName key}}" data-href="{{value}}">
+                       {{key}}
+                    </button>
+                {{/eachInMap}}
+            </div>
+        </li>
+        <li data-href="/credits">Credits</li>
         <li data-href="/account">Your Profile</li>
         <li data-href="/account/edits">Your edits</li>
         <li data-href="/account/digests">Your digests</li>

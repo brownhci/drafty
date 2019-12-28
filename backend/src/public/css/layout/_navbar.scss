@@ -55,6 +55,19 @@ nav {
       &:hover {
         @extend .bg-white;
         @extend .text-primary;
+        #list-sheets-horizontal {
+          button {
+            @extend .btn-primary;
+          }
+        }
+      }
+      #list-sheets-horizontal {
+        @extend .btn-group;
+        button {
+          @extend .btn-outline-light;
+          @extend .btn-sm
+          font-size: smaller;
+        }
       }
     }
   }
