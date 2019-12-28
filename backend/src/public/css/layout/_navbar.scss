@@ -48,19 +48,13 @@ nav {
       @extend .px-3;
       @extend .py-2;
       @extend .clickable;
-      border-color: $gray;
+      @extend .text-white;
       &:last-of-type {
         @extend .border-bottom;
       }
       &:hover {
         @extend .bg-white;
-        a {
-          @extend .text-primary;
-        }
-      }
-      a {
-        @extend .text-decoration-none;
-        @extend .text-white;
+        @extend .text-primary;
       }
     }
   }
