@@ -49,6 +49,9 @@ nav {
       @extend .py-2;
       @extend .clickable;
       @extend .text-white;
+      &#list-sheets {
+        cursor: default;
+      }
       &:last-of-type {
         @extend .border-bottom;
       }
@@ -65,7 +68,7 @@ nav {
         @extend .btn-group;
         button {
           @extend .btn-outline-light;
-          @extend .btn-sm
+          @extend .btn-sm;
           font-size: smaller;
         }
       }
