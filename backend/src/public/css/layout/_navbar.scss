@@ -63,6 +63,7 @@ nav {
       }
       #list-sheets-horizontal {
         @extend .btn-group;
+        @extend .mx-2;
         button {
           @extend .btn-outline-light;
           @extend .btn-sm;

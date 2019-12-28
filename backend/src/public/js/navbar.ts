@@ -1,14 +1,27 @@
-const navbarToggler = document.querySelector("button.navbar-toggler");
-navbarToggler.addEventListener("click", function() {
+const navElement = document.querySelector("nav");
+function setMainPaddingTop() {
+  const paddingTop = navElement.offsetHeight;
+  const mainElement = document.querySelector("main");
+  if (mainElement) {
+    mainElement.style.paddingTop = `${paddingTop}px`;
+  }
+}
+
+const navbarTogglerElement = navElement.querySelector("button.navbar-toggler");
+navbarTogglerElement.addEventListener("click", function() {
   const activeClass = "active";
-  if (navbarToggler.classList.contains(activeClass)) {
-    navbarToggler.classList.remove(activeClass);
+  if (navbarTogglerElement.classList.contains(activeClass)) {
+    // hide menu
+    navbarTogglerElement.classList.remove(activeClass);
+    setMainPaddingTop();
   } else {
-    navbarToggler.classList.add(activeClass);
+    // show menu
+    navbarTogglerElement.classList.add(activeClass);
+    setMainPaddingTop();
   }
 });
-const navbarNavSmall = document.querySelector(".navbar-nav-sm");
-navbarNavSmall.addEventListener("click", function(event) {
+const NavbarNavSmallElement = navElement.querySelector(".navbar-nav-sm");
+NavbarNavSmallElement.addEventListener("click", function(event) {
   const target = event.target as HTMLElement;
   const href = target.dataset.href;
   if (href) {
