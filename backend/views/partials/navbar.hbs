@@ -3,44 +3,17 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" aria-label="Toggle navigation">
     </button>
     <ul class="navbar-nav-sm">
-        <li>
-            <a href="/account">
-                Your Profile
-            </a>
-        </li>
-        <li>
-            <a href="/account/edits">
-                Your edits
-            </a>
-        </li>
-        <li>
-            <a href="/account/digests">
-                Your digests
-            </a>
-        </li>
-        <li>
-            <a href="/help">
-                Help
-            </a>
-        </li>
+         <li data-href="/credits">Credits</li>
+        <li data-href="/account">Your Profile</li>
+        <li data-href="/account/edits">Your edits</li>
+        <li data-href="/account/digests">Your digests</li>
+        <li data-href="/help">Help</li>
          {{#unless signedIn}}
-             <li>
-                 <a href="/login">
-                     Sign in
-                 </a>
-             </li>
-             <li>
-                 <a href="/signup">
-                     Sign up
-                 </a>
-             </li>
+             <li data-href="/login">Sign in</li>
+             <li data-href="/signup">Sign up</li>
          {{/unless}}
          {{#if signedIn}}
-             <li>
-                 <a href="/logout">
-                     Sign out
-                 </a>
-             </li>
+             <li data-href="/logout">Sign out</li>
          {{/if}}
     </ul>
     <div class="collapse navbar-collapse">
