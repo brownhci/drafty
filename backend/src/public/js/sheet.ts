@@ -442,6 +442,7 @@ function initializeClipboardTextarea() {
   const textarea = document.createElement("textarea");
   textarea.id = "clipboard-textarea";
   textarea.readOnly = true;
+  textarea.tabIndex = -1;
   const bodyElement = document.body;
   bodyElement.appendChild(textarea);
   return textarea;
@@ -505,11 +506,6 @@ function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: 
   event.consumed = true;
 }
 function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
-  if (event.consumed) {
-    // ignore if already handled
-    return;
-  }
-
   const tableCellElement: HTMLTableCellElement = event.target as HTMLTableCellElement;
   if (isTableData(tableCellElement)) {
     tableDataElementOnInput(tableCellElement, event);
@@ -545,8 +541,27 @@ function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event
     case "c": // handle potential CTRL+c or CMD+c
       tableCellElementOnCopy(tableCellElement, event);
       break;
+    case "Alt":
+    case "AltLock":
+    case "CapsLock":
+    case "Control":
+    case "Fn":
+    case "FnLock":
+    case "Hyper":
+    case "Meta":
+    case "NumLock":
+    case "ScrollLock":
+    case "Shift":
+    case "Super":
+    case "Symbol":
+    case "SymbolLock":
+      event.consumed = true;
   }
-  tableCellElementOnInput(event);
+  if (!event.consumed) {
+    console.log(event);
+    tableCellElementOnInput(event);
+  }
+
   event.preventDefault();
   event.stopPropagation();
 }
