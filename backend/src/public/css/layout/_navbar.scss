@@ -8,7 +8,7 @@ nav {
   @extend .navbar;
   @extend .navbar-light;
   @extend .bg-primary;
-  @extend .navbar-expand-lg;
+  @extend .navbar-expand-sm;
 
   height: $navbar-height;
   z-index: $zindex-nav;
@@ -26,12 +26,25 @@ nav {
       @extend .fas;
       content: fa-content($fa-var-bars);
     }
-    &:hover {
+    &:hover, &.active {
       @extend .bg-white;
       @extend .text-primary;
       &:before {
         content: fa-content($fa-var-hamburger);
       }
+    }
+    &.active + .navbar-nav-sm {
+      @extend .d-flex;
+      @extend .flex-column;
+    }
+  }
+
+  .navbar-nav-sm {
+    @extend .d-none;
+    @extend .list-unstyled;
+    flex-basis: 100%;
+    li {
+      @extend .text-white;
     }
   }
   .navbar-nav {
