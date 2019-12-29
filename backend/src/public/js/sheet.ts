@@ -97,11 +97,13 @@ function getColumnSearch(index: number): HTMLTableCellElement {
 function getColumnSearchInput(columnSearch: HTMLTableCellElement): HTMLInputElement {
   return columnSearch.querySelector("input");
 }
-function getTopTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | null {
-  return tableRowElement.previousElementSibling as HTMLTableRowElement;
+function getTopTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | undefined {
+  const rowIndex = tableRowElement.rowIndex;
+  return tableRowElements[rowIndex - 1] as HTMLTableRowElement;
 }
-function getDownTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | null {
-  return tableRowElement.nextElementSibling as HTMLTableRowElement;
+function getDownTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | undefined {
+  const rowIndex = tableRowElement.rowIndex;
+  return tableRowElements[rowIndex + 1] as HTMLTableRowElement;
 }
 
 function getLeftTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTableCellElement | null {
