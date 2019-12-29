@@ -1,4 +1,5 @@
 const activeClass = "active";
+const activeAccompanyClass = "active-accompany";
 /* this interface is used to detect double click (two clicks within short interval specified by {@link recentTimeLimit} */
 interface ActiveHTMLTableCellElement extends HTMLTableCellElement {
   lastActiveTimestamp?: number;
@@ -305,6 +306,8 @@ function deactivateTableHead() {
   const columnSearch = getColumnSearch(index);
   columnLabel.classList.remove(activeClass);
   columnSearch.classList.remove(activeClass);
+  columnLabel.classList.remove(activeAccompanyClass);
+  columnSearch.classList.remove(activeAccompanyClass);
 }
 function deactivateTableCol() {
   if (activeTableColElement) {
@@ -332,21 +335,13 @@ function activateTableHead() {
   const index = activeTableCellElement.cellIndex;
   if (isColumnLabel(activeTableCellElement)) {
     const columnSearch = getColumnSearch(index);
-    // add active class
-    columnSearch.classList.add(activeClass);
-    activeTableCellElement.classList.add(activeClass);
-
-    // focus on active column label
-    activeTableCellElement.focus();
+    columnSearch.classList.add(activeAccompanyClass);
   } else if (isColumnSearch(activeTableCellElement)) {
     const columnLabel = getColumnLabel(index);
-    // add active class
-    columnLabel.classList.add(activeClass);
-    activeTableCellElement.classList.add(activeClass);
-
-    // focus on input in active column search
-    getColumnSearchInput(activeTableCellElement).focus();
+    columnLabel.classList.add(activeAccompanyClass);
   }
+  activeTableCellElement.classList.add(activeClass);
+  activeTableCellElement.focus();
 }
 function activateTableCol() {
   const index = activeTableCellElement.cellIndex;
@@ -577,7 +572,7 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: C
       // copy entire column
       copyTableColumnToTextarea(activeTableCellElement.cellIndex);
       elementToHighlight = activeTableColElement;
-    } else {
+    } else if (!(isColumnSearch(tableCellElement))) {
       // copy single table cell
       copyElementTextToTextarea(tableCellElement);
       elementToHighlight = tableCellElement;

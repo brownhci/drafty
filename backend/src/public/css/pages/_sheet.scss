@@ -103,6 +103,10 @@ $resize-shadow-width: 5px;
           @extend .bg-primary;
           @extend .text-white;
         }
+        &.active-accompany {
+          @extend .bg-secondary;
+          @extend .text-white;
+        }
         &.near-left-border, &.near-right-border {
           cursor: col-resize;
         }
