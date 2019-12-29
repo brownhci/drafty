@@ -76,6 +76,12 @@ function isTableCell(element: HTMLElement): boolean {
   const tagName = element.tagName;
   return tagName === "TD" || tagName === "TH";
 }
+function isColumnLabel(element: HTMLElement): boolean {
+  return element.classList.contains("column-label");
+}
+function isColumnSearch(element: HTMLElement): boolean {
+  return element.classList.contains("column-search");
+}
 
 // getters
 function getCellInTableRow(tableRowElement: HTMLTableRowElement, cellIndex: number): HTMLTableCellElement | null {
@@ -744,7 +750,17 @@ function updateTableCellElementUnderMouse(tableCellElement: HTMLTableCellElement
   tableCellElementUnderMouse = tableCellElement;
 }
 const distanceConsideredNearToBorder = 10;
+/**
+ * Handle mouse move near the borders of elements.
+ *
+ * @param {ResizableHTMLTableCellElement} tableCellElement - An resizable table cell element.
+ * @param {MouseEvent} event - The invoking mouse event.
+ */
 function handleMouseMoveNearElementBorder(tableCellElement: ResizableHTMLTableCellElement, event: MouseEvent) {
+  if (!isColumnLabel(tableCellElement)) {
+    // ignore mouse moving near borders on elements other than column labels
+    return;
+  }
   const {left: elementLeft, right: elementRight} = tableCellElement.getBoundingClientRect();
   const mouseX = event.clientX;
   const distanceFromLeftBorder = mouseX - elementLeft;
@@ -790,14 +806,16 @@ function tableHeadOnMouseDown(tableCellElement: HTMLTableCellElement, event: Mou
   }
 
   // when near a border, start resizing
-  if (nearElementLeftBorder(tableCellElementUnderMouse)) {
-    startResizingLeftBorderOnTableHead(tableCellElement, event);
-    repositionResizeVisualCue(event.clientX);
-    activateResizeVisualCue();
-  } else if (nearElementRightBorder(tableCellElementUnderMouse)) {
-    startResizingRightBorderOnTableHead(tableCellElement, event);
-    repositionResizeVisualCue(event.clientX);
-    activateResizeVisualCue();
+  if (isColumnLabel(tableCellElement)) {
+    if (nearElementLeftBorder(tableCellElementUnderMouse)) {
+      startResizingLeftBorderOnTableHead(tableCellElement, event);
+      repositionResizeVisualCue(event.clientX);
+      activateResizeVisualCue();
+    } else if (nearElementRightBorder(tableCellElementUnderMouse)) {
+      startResizingRightBorderOnTableHead(tableCellElement, event);
+      repositionResizeVisualCue(event.clientX);
+      activateResizeVisualCue();
+    }
   }
 }
 function tableHeadOnMouseUp(event: MouseEvent) {
