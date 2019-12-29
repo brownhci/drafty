@@ -255,7 +255,7 @@ function activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellEle
  * @param {string} input - The text to initialize the input element with.
  */
 function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
-  const text = input ? input : getTableDataText(targetHTMLTableCellElement);
+  const text = input === undefined ? getTableDataText(targetHTMLTableCellElement): input;
 
   tableCellInputFormInputElement.value = text;
   const minWidth = targetHTMLTableCellElement.offsetWidth;
@@ -332,6 +332,25 @@ function activateTableCellElement(tableCellElement: HTMLTableCellElement) {
     activateTableHead();
   }
 }
+/**
+ * Use this function to change table cell element to ensure previous active element is properly deactivated
+ */
+function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null) {
+  if (!tableCellElement) {
+    return;
+  }
+
+  if (activeTableCellElement) {
+    deactivateTableCellElement();
+    // remove input form
+    deactivateTableCellInputForm();
+  }
+  activateTableCellElement(tableCellElement);
+}
+
+/**
+ * Whether the table data is activated recently.
+ */
 function isTableDataLastActivatedRecently() {
   if (activeTableCellElement === null) {
     return false;
@@ -348,20 +367,29 @@ function clickOnActiveElement(tableCellElement: HTMLTableCellElement) {
   return tableCellElement === activeTableCellElement;
 }
 
-/**
- * <b>Use this function to change table cell element to ensure previous active element is properly deactivated</b>
- */
-function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null) {
-  if (!tableCellElement) {
+function activeTableHeadOnRepeatedClick(event: MouseEvent) {
+  if (activeTableColElement) {
+    // table column is active, deactivate column and focus only on table head
+    deactivateTableCol();
+  } else {
+    // only activate table column at repeated click (after even number of clicks)
+    activateTableCol();
+  }
+}
+function activeElementOnRepeatedClick(event: MouseEvent) {
+  if (!activeTableCellElement) {
     return;
   }
-
-  if (activeTableCellElement) {
-    deactivateTableCellElement();
-    // remove input form
-    deactivateTableCellInputForm();
+  if (isTableData(activeTableCellElement)) {
+    if (isTableDataLastActivatedRecently()) {
+      tableCellInputFormAssignTarget(activeTableCellElement);
+      activeTableCellElement.lastActiveTimestamp = null;
+    } else {
+      updateActiveTimestamp();
+    }
+  } else if (isTableHead(activeTableCellElement)) {
+    activeTableHeadOnRepeatedClick(event);
   }
-  activateTableCellElement(tableCellElement);
 }
 
 // store resized width in local storage
@@ -442,30 +470,6 @@ function deactivateResizeVisualCue() {
 
 // events
 /* click event */
-function activeTableHeadOnRepeatedClick(event: MouseEvent) {
-  if (activeTableColElement) {
-    // table column is active, deactivate column and focus only on table head
-    deactivateTableCol();
-  } else {
-    // only activate table column at repeated click (after even number of clicks)
-    activateTableCol();
-  }
-}
-function activeElementOnRepeatedClick(event: MouseEvent) {
-  if (!activeTableCellElement) {
-    return;
-  }
-  if (isTableData(activeTableCellElement)) {
-    if (isTableDataLastActivatedRecently()) {
-      tableCellInputFormAssignTarget(activeTableCellElement);
-      activeTableCellElement.lastActiveTimestamp = null;
-    } else {
-      updateActiveTimestamp();
-    }
-  } else if (isTableHead(activeTableCellElement)) {
-    activeTableHeadOnRepeatedClick(event);
-  }
-}
 function tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
   if (clickOnActiveElement(tableCellElement)) {
     // handle repeated click differently
@@ -526,7 +530,7 @@ function copyElementTextToTextarea(tableCellElement: HTMLTableCellElement) {
   clipboardTextarea.value = tableCellElement.textContent;
 }
 function copyTableColumnToTextarea(index: number) {
-  for (const tableCellElement of getTableCellElementsInColumn(index)) {
+  for (const tableCellElement of getTableCellElementsInColumn(index, true)) {
     clipboardTextarea.value += `${tableCellElement.textContent}\n`;
   }
   clipboardTextarea.value = clipboardTextarea.value.trimRight();
@@ -535,15 +539,18 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: C
   if (hasCopyModifier(event)) {
     unhighlightCopiedElement();
     clearClipboardTextarea();
+
     let elementToHighlight;
     if (activeTableColElement) {
       // copy entire column
       copyTableColumnToTextarea(activeTableCellElement.cellIndex);
       elementToHighlight = activeTableColElement;
     } else {
+      // copy single table cell
       copyElementTextToTextarea(tableCellElement);
       elementToHighlight = tableCellElement;
     }
+
     copyTextareaToClipboard();
     highlightCopiedElement(elementToHighlight);
     event.consumed = true;
