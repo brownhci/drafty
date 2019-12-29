@@ -1,39 +1,71 @@
 const activeClass = "active";
+/* this interface is used to detect double click (two clicks within short interval specified by {@link recentTimeLimit} */
 interface ActiveHTMLTableCellElement extends HTMLTableCellElement {
   lastActiveTimestamp?: number;
 }
+const recentTimeLimit = 1000;
+
+/* which table cell (either a table head or a table data) element is currently active */
 let activeTableCellElement: null | ActiveHTMLTableCellElement = null;
-/* activated when associated head is clicked */
-let activeTableColElement: null | HTMLTableColElement = null;
-const copiedClass = "copied";
-let lastCopiedTableCellElement: null | HTMLTableCellElement | HTMLTableColElement = null;
-
-const tableElement: HTMLTableElement = document.getElementById("sheet") as HTMLTableElement;
-const tableScrollContainer: HTMLElement = tableElement.parentElement;
-const tableRowElements: HTMLCollection = tableElement.rows;
-const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
-const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
-const tableColumnLabels: HTMLTableRowElement = tableRowElements[0] as HTMLTableRowElement;
-
+/**
+ * renew the timestamp on the active table cell element.
+ */
 function updateActiveTimestamp() {
   activeTableCellElement.lastActiveTimestamp = Date.now();
 }
+
+/* which table column is active: a table column is activated when associated head is clicked */
+let activeTableColElement: null | HTMLTableColElement = null;
+
+// copying
+const copiedClass = "copied";
+/* which table cell element (either a table head or a table data) was copied */
+let lastCopiedTableCellElement: null | HTMLTableCellElement | HTMLTableColElement = null;
+
+// DOM Elements
+const tableElement: HTMLTableElement = document.getElementById("sheet") as HTMLTableElement;
+const tableScrollContainer: HTMLElement = tableElement.parentElement;
+
+/* <thead> */
+const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
+/* <tr>s */
+const tableRowElements: HTMLCollection = tableElement.rows;
+/* first table row: column labels */
+const tableColumnLabels: HTMLTableRowElement = tableRowElements[0] as HTMLTableRowElement;
+/* first table row: column labels */
+const columnSearchRowIndex = 1;
+const tableColumnSearchs: HTMLTableRowElement = tableRowElements[columnSearchRowIndex] as HTMLTableRowElement;
+
+/* <col>s */
+const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
+
 // measure text width
+/* the element used to measure text width */
 const textWidthMeasureElement: HTMLElement = document.getElementById("text-width-measure");
+/**
+ * Changing the text content of textWidthMeasureElement and measure element width.
+ *
+ * @param {string} text - the text whose width will be measured.
+ * @returns {number} The text width.
+ */
 function measureTextWidth(text: string): number {
   textWidthMeasureElement.textContent = text;
   return textWidthMeasureElement.offsetWidth;
 }
 
 // platform
+/**
+ * Tells whether the browser runs on a Mac.
+ *
+ * @returns {boolean} Whether the browser runs on a Mac.
+ */
 function isMac() {
   const platform = window.navigator.platform;
   return platform.includes("Mac");
 }
-/* handle mac shortcut differently */
 const onMac: boolean = isMac();
 
-/* differentiate table element */
+// Get HTML Element type
 function isTableData(element: HTMLElement): boolean {
   return element.tagName === "TD";
 }
@@ -45,17 +77,68 @@ function isTableCell(element: HTMLElement): boolean {
   return tagName === "TD" || tagName === "TH";
 }
 
+// getters
+function getCellInTableRow(tableRowElement: HTMLTableRowElement, cellIndex: number): HTMLTableCellElement | null {
+  return tableRowElement.cells[cellIndex];
+}
+function getColumnLabel(index: number): HTMLTableCellElement {
+  return getCellInTableRow(tableColumnLabels, index);
+}
+function getTopTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | null {
+  return tableRowElement.previousElementSibling as HTMLTableRowElement;
+}
+function getDownTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | null {
+  return tableRowElement.nextElementSibling as HTMLTableRowElement;
+}
+
+function getLeftTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTableCellElement | null {
+  return tableCellElement.previousElementSibling as HTMLTableCellElement;
+}
+function getRightTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTableCellElement | null {
+  return tableCellElement.nextElementSibling as HTMLTableCellElement;
+}
+function getUpTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTableCellElement | null {
+  const cellIndex = tableCellElement.cellIndex;
+  const topTableRow = getTopTableRow(tableCellElement.parentElement as HTMLTableRowElement);
+  if (!topTableRow) {
+    return null;
+  }
+  return getCellInTableRow(topTableRow, cellIndex);
+}
+function getDownTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTableCellElement | null {
+  const cellIndex = tableCellElement.cellIndex;
+  const downTableRow = getDownTableRow(tableCellElement.parentElement as HTMLTableRowElement);
+  if (!downTableRow) {
+    return null;
+  }
+  return getCellInTableRow(downTableRow, cellIndex);
+}
+
+/**
+ * Gets the <col> element for the specified column index.
+ */
 function getTableColElement(index: number): HTMLTableColElement | undefined {
   return tableColElements[index] as HTMLTableColElement;
 }
-function* getTableColElements(index: number) {
-  for (const tableRowElement of tableRowElements) {
-    const tableRow = tableRowElement as HTMLTableRowElement;
-    yield tableRow.cells[index];
+/**
+ * Gets the table cell elements for the specified column index.
+ *
+ * @param {number} index - Index of column.
+ * @param {boolean} [skipColumnSearch = false] - whether skip column search in yielded elements.
+ * @yields {HTMLTableCellElement} Table cells in the specified column.
+ */
+function* getTableCellElementsInColumn(index: number, skipColumnSearch = false) {
+  for (let i = 0; i < tableRowElements.length; i++) {
+    const tableRow = tableRowElements[i] as HTMLTableRowElement;
+    if (skipColumnSearch && i === columnSearchRowIndex) {
+      // skip over column search row
+      continue;
+    }
+    yield getCellInTableRow(tableRow, index);
   }
 }
 
-/* width conversion */
+// width conversion
 function vw2px(vw: number) {
   return document.documentElement.clientWidth * vw / 100;
 }
@@ -67,71 +150,33 @@ function em2px(em: number, fontSize = 16, element: HTMLElement | null = null) {
   }
 }
 
-/* text extraction */
+// text extraction
 function getTableDataText(tableCellElement: HTMLTableCellElement) {
   return tableCellElement.textContent;
 }
 
-/* navigation */
-function getColumnLabel(index: number): HTMLTableCellElement {
-  return tableColumnLabels.cells[index];
-}
-function getTopTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | null {
-  return tableRowElement.previousElementSibling as HTMLTableRowElement;
-}
-function getDownTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | null {
-  return tableRowElement.nextElementSibling as HTMLTableRowElement;
-}
-
-function getCellInTableRow(tableRowElement: HTMLTableRowElement, cellIndex: number): HTMLTableCellElement | null {
-  return tableRowElement.cells[cellIndex];
-}
-
-function getLeftTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTableCellElement | null {
-  return tableCellElement.previousElementSibling as HTMLTableCellElement;
-}
-function getRightTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTableCellElement | null {
-  return tableCellElement.nextElementSibling as HTMLTableCellElement;
-}
-function getUpTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTableCellElement | null {
-  if (!isTableData(tableCellElement)) {
-    // ignore up request on table head
-    return null;
-  }
-  const cellIndex = tableCellElement.cellIndex;
-  const topTableRow = getTopTableRow(tableCellElement.parentElement as HTMLTableRowElement);
-  if (!topTableRow) {
-    return null;
-  }
-  return getCellInTableRow(topTableRow, cellIndex);
-}
-function getDownTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTableCellElement | null {
-  if (!isTableData(tableCellElement)) {
-    // ignore up request on table head
-    return null;
-  }
-  const cellIndex = tableCellElement.cellIndex;
-  const downTableRow = getDownTableRow(tableCellElement.parentElement as HTMLTableRowElement);
-  if (!downTableRow) {
-    return null;
-  }
-  return getCellInTableRow(downTableRow, cellIndex);
-}
-
-/* input form */
+// input editor
 const inputingClass = "inputing";
+/* input editor element */
 const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
-const tableCellInputFormInputElement: HTMLInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
-// const tableCellInputFormInputStyle: CSSStyleDeclaration = getComputedStyle(tableCellInputFormInputElement);
-let tableCellInputFormTargetElement: HTMLTableCellElement | null = null;
-// location
-const tableCellInputFormLocateCellElement: HTMLButtonElement = document.getElementById("locate-cell") as HTMLButtonElement;
-const tableCellInputFormLocateCellRowElement: HTMLSpanElement = document.getElementById("locate-cell-associated-row") as HTMLSpanElement;
-const tableCellInputFormLocateCellColElement: HTMLSpanElement = document.getElementById("locate-cell-associated-col") as HTMLSpanElement;
-let tableCellInputFormLocationActive: boolean = false;
 function isTableCellInputFormActive() {
   return tableCellInputFormElement.classList.contains(activeClass);
 }
+/* the input element in the input editor */
+const tableCellInputFormInputElement: HTMLInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
+/* the target element the input editor is associated with */
+let tableCellInputFormTargetElement: HTMLTableCellElement | null = null;
+
+// input editor location
+/* the location element */
+const tableCellInputFormLocateCellElement: HTMLButtonElement = document.getElementById("locate-cell") as HTMLButtonElement;
+/* the row index element in the location element */
+const tableCellInputFormLocateCellRowElement: HTMLSpanElement = document.getElementById("locate-cell-associated-row") as HTMLSpanElement;
+/* the column index element in the location element */
+const tableCellInputFormLocateCellColElement: HTMLSpanElement = document.getElementById("locate-cell-associated-col") as HTMLSpanElement;
+/* whether the location element is shown in the input editor */
+let tableCellInputFormLocationActive: boolean = false;
+
 function activateTableCellInputFormLocation() {
   if (!tableCellInputFormLocationActive) {
     tableCellInputFormLocateCellElement.classList.add(activeClass);
@@ -149,7 +194,7 @@ function deactivateTableCellInputFormLocation() {
 function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
   // row index
   const tableRow: HTMLTableRowElement = targetHTMLTableCellElement.parentElement as HTMLTableRowElement;
-  const rowIndex = tableRow.rowIndex;
+  const rowIndex = tableRow.rowIndex - 1; // since we have both column label and column search
   tableCellInputFormLocateCellRowElement.textContent = `${rowIndex}`;
   // column index
   const colIndex = targetHTMLTableCellElement.cellIndex + 1; // since we do not have row label
@@ -203,6 +248,12 @@ function activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellEle
   tableCellInputFormTargetElement = targetHTMLTableCellElement;
   tableCellInputFormTargetElement.classList.add(inputingClass);
 }
+/**
+ * Updates the text inside the input element inside the input editor and resizes the input eidtor properly.
+ *
+ * @param {HTMLTableCellElement} targetHTMLTableCellElement - Target HTMLTableCellElement to associate the input editor with.
+ * @param {string} input - The text to initialize the input element with.
+ */
 function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
   const text = input ? input : getTableDataText(targetHTMLTableCellElement);
 
@@ -214,7 +265,7 @@ function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCell
   tableCellInputFormElement.style.width = `${width}px`;
 }
 /**
- * <b>Use this function to change the editor associated table cell</b>
+ * Use this function to change the editor associated table cell.
  */
 function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
   deactivateTableCellInputForm();
@@ -281,7 +332,6 @@ function activateTableCellElement(tableCellElement: HTMLTableCellElement) {
     activateTableHead();
   }
 }
-const recentTimeLimit = 1000;
 function isTableDataLastActivatedRecently() {
   if (activeTableCellElement === null) {
     return false;
@@ -476,7 +526,7 @@ function copyElementTextToTextarea(tableCellElement: HTMLTableCellElement) {
   clipboardTextarea.value = tableCellElement.textContent;
 }
 function copyTableColumnToTextarea(index: number) {
-  for (const tableCellElement of getTableColElements(index)) {
+  for (const tableCellElement of getTableCellElementsInColumn(index)) {
     clipboardTextarea.value += `${tableCellElement.textContent}\n`;
   }
   clipboardTextarea.value = clipboardTextarea.value.trimRight();
