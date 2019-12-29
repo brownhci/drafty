@@ -591,13 +591,27 @@ function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: 
   tableCellInputFormAssignTarget(tableDataElement, event.key);
   event.consumed = true;
 }
+function tableColumnSearchElementOnInput(tableColumnSearchElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+  // focus on the input
+  const columnSearchInput: HTMLInputElement = getColumnSearchInput(tableColumnSearchElement);
+  const activeElement = document.activeElement;
+  if (activeElement !== columnSearchInput) {
+    // give focus to the column search input
+    columnSearchInput.focus();
+    // update the text
+    columnSearchInput.value = event.key;
+  }
+  event.consumed = true;
+}
 function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
   const tableCellElement: HTMLTableCellElement = event.target as HTMLTableCellElement;
   if (isTableData(tableCellElement)) {
     tableDataElementOnInput(tableCellElement, event);
   } else if (isTableHead(tableCellElement)) {
-    // ignore if input on table head
-    return;
+    // ignore if input on table head column label
+    if (isColumnSearch(tableCellElement)) {
+      tableColumnSearchElementOnInput(tableCellElement, event);
+    }
   }
 }
 function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
