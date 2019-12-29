@@ -90,6 +90,12 @@ function getCellInTableRow(tableRowElement: HTMLTableRowElement, cellIndex: numb
 function getColumnLabel(index: number): HTMLTableCellElement {
   return getCellInTableRow(tableColumnLabels, index);
 }
+function getColumnSearch(index: number): HTMLTableCellElement {
+  return getCellInTableRow(tableColumnSearchs, index);
+}
+function getColumnSearchInput(columnSearch: HTMLTableCellElement): HTMLInputElement {
+  return columnSearch.querySelector("input");
+}
 function getTopTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | null {
   return tableRowElement.previousElementSibling as HTMLTableRowElement;
 }
@@ -294,7 +300,11 @@ function deactivateTableData() {
   activeTableCellElement.lastActiveTimestamp = null;
 }
 function deactivateTableHead() {
-  activeTableCellElement.classList.remove(activeClass);
+  const index = activeTableCellElement.cellIndex;
+  const columnLabel = getColumnLabel(index);
+  const columnSearch = getColumnSearch(index);
+  columnLabel.classList.remove(activeClass);
+  columnSearch.classList.remove(activeClass);
 }
 function deactivateTableCol() {
   if (activeTableColElement) {
@@ -319,8 +329,24 @@ function activateTableData() {
   activeTableCellElement.focus();
 }
 function activateTableHead() {
-  activeTableCellElement.classList.add(activeClass);
-  activeTableCellElement.focus();
+  const index = activeTableCellElement.cellIndex;
+  if (isColumnLabel(activeTableCellElement)) {
+    const columnSearch = getColumnSearch(index);
+    // add active class
+    columnSearch.classList.add(activeClass);
+    activeTableCellElement.classList.add(activeClass);
+
+    // focus on active column label
+    activeTableCellElement.focus();
+  } else if (isColumnSearch(activeTableCellElement)) {
+    const columnLabel = getColumnLabel(index);
+    // add active class
+    columnLabel.classList.add(activeClass);
+    activeTableCellElement.classList.add(activeClass);
+
+    // focus on input in active column search
+    getColumnSearchInput(activeTableCellElement).focus();
+  }
 }
 function activateTableCol() {
   const index = activeTableCellElement.cellIndex;

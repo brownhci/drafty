@@ -100,7 +100,7 @@ $resize-shadow-width: 5px;
       th {
         border-bottom-width: 1px;
         &.active, &.inputing {
-          @extend .bg-secondary;
+          @extend .bg-primary;
           @extend .text-white;
         }
         &.near-left-border, &.near-right-border {
