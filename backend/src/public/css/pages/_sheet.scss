@@ -118,6 +118,12 @@ $resize-shadow-width: 5px;
         &.near-left-border.near-right-border {
           @include vendor-prefix(box-shadow, (inset $resize-shadow-width 0 0 0 $primary, inset (-$resize-shadow-width) 0 0 0 $primary), webkit ms);
         }
+        &.column-search {
+          input {
+            @extend .w-100;
+            @extend .form-control;
+          }
+        }
       }
     }
     tbody {
