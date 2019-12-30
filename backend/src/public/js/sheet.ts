@@ -54,10 +54,6 @@ function measureTextWidth(text: string): number {
   return textWidthMeasureElement.offsetWidth;
 }
 
-// rounding
-function closestMultiple(numberToRound: number, multiplier: number): number {
-  return (Math.floor(numberToRound / multiplier) + (+!!(numberToRound % multiplier))) * multiplier;
-}
 // platform
 /**
  * Tells whether the browser runs on a Mac.
