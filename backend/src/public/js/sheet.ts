@@ -54,6 +54,10 @@ function measureTextWidth(text: string): number {
   return textWidthMeasureElement.offsetWidth;
 }
 
+// rounding
+function closestMultiple(numberToRound: number, multiplier: number): number {
+  return (Math.floor(numberToRound / multiplier) + (+!!(numberToRound % multiplier))) * multiplier;
+}
 // platform
 /**
  * Tells whether the browser runs on a Mac.
@@ -77,11 +81,17 @@ function isTableCell(element: HTMLElement): boolean {
   const tagName = element.tagName;
   return tagName === "TD" || tagName === "TH";
 }
+function isInput(element: HTMLElement): boolean {
+  return element.tagName === "INPUT";
+}
 function isColumnLabel(element: HTMLElement): boolean {
   return element.classList.contains("column-label");
 }
 function isColumnSearch(element: HTMLElement): boolean {
   return element.classList.contains("column-search");
+}
+function isColumnSearchInput(element: HTMLElement): boolean {
+  return false;
 }
 
 // getters
@@ -451,6 +461,19 @@ function updateTableColumnWidth(index: number, newWidth: string) {
   tableColElement.style.width = newWidth;
   storePreferredColumnWidth(index, newWidth);
 }
+function updateTableColumnWidthToFitText(tableColumnSearchElement: HTMLTableCellElement, tableColumnSearchInputElement: HTMLInputElement) {
+  const textLength = measureTextWidth(tableColumnSearchInputElement.value);
+  const padding = 24;
+  const slack = 24;
+  const estimatedTextWidth = textLength + slack + padding;
+
+  const currentTextWidthCanFit = tableColumnSearchInputElement.offsetWidth;
+  if (estimatedTextWidth > currentTextWidthCanFit) {
+    const index = tableColumnSearchElement.cellIndex;
+    const newColumnWidth = estimatedTextWidth + padding;
+    updateTableColumnWidth(index, `${newColumnWidth}px`);
+  }
+}
 function getMinimumAllowedColumnWidth(index: number) {
   return vw2px(5);
 }
@@ -601,6 +624,8 @@ function tableColumnSearchElementOnInput(tableColumnSearchElement: HTMLTableCell
     // update the text
     columnSearchInput.value = event.key;
   }
+
+  updateTableColumnWidthToFitText(tableColumnSearchElement, columnSearchInput);
   event.consumed = true;
 }
 function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
@@ -608,10 +633,7 @@ function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
   if (isTableData(tableCellElement)) {
     tableDataElementOnInput(tableCellElement, event);
   } else if (isTableHead(tableCellElement)) {
-    // ignore if input on table head column label
-    if (isColumnSearch(tableCellElement)) {
-      tableColumnSearchElementOnInput(tableCellElement, event);
-    }
+    // ignore if input on table head
   }
 }
 function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
@@ -668,6 +690,12 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
     tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
+  } else if (isInput(target)) {
+    const columnSearch = target.closest("th.column-search");
+    if (columnSearch) {
+      const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
+      tableColumnSearchElementOnInput(tableColumnSearchElement, event);
+    }
   }
 }, true);
 
