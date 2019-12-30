@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { makeRenderObject } from "../config/handlebars-helpers";
 import { getSuggestionsWithSuggestionType } from "../database/suggestion";
 import { isValidIdSuggestionType } from "../validation/validators";
 
@@ -11,7 +10,7 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
     if (await isValidIdSuggestionType(req) === false) {
       return res.sendStatus(400);
     }
-  const idSuggestionType = req.query.idSuggestionType;
+  const idSuggestionType: string = req.query.idSuggestionType;
 
   // valid suggestion type, get suggestions from database
   const [error, results] = await getSuggestionsWithSuggestionType(idSuggestionType);
@@ -19,5 +18,5 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
     return next(error);
   }
 
-  return res.json(results);
+  return res.status(200).json(results);
 };

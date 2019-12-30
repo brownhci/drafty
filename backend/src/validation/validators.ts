@@ -2,7 +2,8 @@ import { emailFieldName, minPasswordLength } from "../models/user";
 import { findUserByField } from "../database/user";
 import { Request } from "express";
 import { body, validationResult } from "express-validator";
-import { idSuggestionType,  idSuggestionTypeLowerBound, idSuggestionTypeUpperBound } from "../models/suggestion";
+import { idSuggestionType as idSuggestionTypeFieldName } from "../models/suggestion";
+import { idSuggestionTypeLowerBound, idSuggestionTypeUpperBound, names } from "../models/suggestionType";
 
 export const emailValidationFailure = "emailValidationFailure";
 export const passwordValidationFailure = "passwordValidationFailure";
@@ -84,11 +85,24 @@ export async function confirmMatchPassword(req: Request) {
 }
 
 export async function isValidIdSuggestionType(req: Request) {
-  const suggestionType: number = Number.parseInt(req.query[idSuggestionType]);
-  if (suggestionType >= idSuggestionTypeLowerBound && suggestionType <= idSuggestionTypeUpperBound) {
-    return true;
+  const idSuggestionType: string = req.query[idSuggestionTypeFieldName];
+  const suggestionType: number = Number.parseInt(idSuggestionType);
+
+  let result;
+  if (Number.isNaN(suggestionType)) {
+    // passed a string
+    result = names.has(idSuggestionType);
+  } else {
+    if (suggestionType >= idSuggestionTypeLowerBound && suggestionType <= idSuggestionTypeUpperBound) {
+      result = true;
+    } else {
+      result = false;
+    }
   }
 
-  req.flash("errors", { msg: `Invalid suggestion type ${suggestionType} passed` });
-  return false;
+  if (!result) {
+    req.flash("errors", { msg: `Invalid suggestion type ${suggestionType} passed` });
+  }
+
+  return result;
 }

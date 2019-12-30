@@ -8,10 +8,6 @@ export const suggestion = "suggestion"; // content of the suggestion
 export const active = "active"; // whether the suggestion is active
 export const confidence = "confidence"; // how useful this suggetsion is
 
-// @TODO auto-update suggestion type lower bound and upper bound
-export const idSuggestionTypeLowerBound = 1;
-export const idSuggestionTypeUpperBound = 14;
-
 export interface SuggestionRow {
   [suggestion]: string;
   [confidence]: number;

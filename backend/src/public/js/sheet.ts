@@ -91,11 +91,23 @@ function isColumnSearchInput(element: HTMLElement): boolean {
 }
 
 // getters
+function getRowIndex(tableCellElement: HTMLTableCellElement): number {
+  // since we have both column label and column search
+  const tableRow: HTMLTableRowElement = tableCellElement.parentElement as HTMLTableRowElement;
+  return tableRow.rowIndex - 1;
+}
+function getColumnIndex(tableCellElement: HTMLTableCellElement): number {
+  // since we do not have row label
+  return tableCellElement.cellIndex + 1;
+}
 function getCellInTableRow(tableRowElement: HTMLTableRowElement, cellIndex: number): HTMLTableCellElement | null {
   return tableRowElement.cells[cellIndex];
 }
 function getColumnLabel(index: number): HTMLTableCellElement {
   return getCellInTableRow(tableColumnLabels, index);
+}
+function getColumnLabelText(columnLabel: HTMLTableCellElement): string {
+  return columnLabel.textContent;
 }
 function getColumnSearch(index: number): HTMLTableCellElement {
   return getCellInTableRow(tableColumnSearchs, index);
@@ -134,6 +146,9 @@ function getDownTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTa
   }
   return getCellInTableRow(downTableRow, cellIndex);
 }
+function getTableDataText(tableCellElement: HTMLTableCellElement) {
+  return tableCellElement.textContent;
+}
 
 /**
  * Gets the <col> element for the specified column index.
@@ -169,11 +184,6 @@ function em2px(em: number, fontSize = 16, element: HTMLElement | null = null) {
   } else {
     return em * parseFloat(getComputedStyle(element).fontSize);
   }
-}
-
-// text extraction
-function getTableDataText(tableCellElement: HTMLTableCellElement) {
-  return tableCellElement.textContent;
 }
 
 // input editor
@@ -214,11 +224,10 @@ function deactivateTableCellInputFormLocation() {
 }
 function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
   // row index
-  const tableRow: HTMLTableRowElement = targetHTMLTableCellElement.parentElement as HTMLTableRowElement;
-  const rowIndex = tableRow.rowIndex - 1; // since we have both column label and column search
+  const rowIndex = getRowIndex(targetHTMLTableCellElement);
   tableCellInputFormLocateCellRowElement.textContent = `${rowIndex}`;
   // column index
-  const colIndex = targetHTMLTableCellElement.cellIndex + 1; // since we do not have row label
+  const colIndex = getColumnIndex(targetHTMLTableCellElement);
   tableCellInputFormLocateCellColElement.textContent = `${colIndex}`;
 }
 function restoreTableCellInputFormLocation() {
@@ -300,6 +309,26 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
     const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
     tableCellInputFormElement.style.left = `${left}px`;
     tableCellInputFormElement.style.top = `${top}px`;
+  }
+}
+
+// input form suggestions
+interface Suggestion {
+  suggestion: string;
+  confidence: number;
+}
+async function getSuggestions(targetHTMLTableCellElement: HTMLTableCellElement): Promise<Array<Suggestion>> {
+  const cellIndex = targetHTMLTableCellElement.cellIndex;
+  const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
+  const idSuggestionType: string = getColumnLabelText(columnLabel);
+  try {
+    const response = await fetch(`/suggestions?idSuggestionType=${idSuggestionType}`);
+    if (!response.ok) {
+      return [];
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Network error when fetching suggestions", error);
   }
 }
 
