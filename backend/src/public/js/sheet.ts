@@ -343,15 +343,15 @@ function restoreSuggestionsFromLocalStorage(columnLabelText: string): Array<Sugg
 function getSuggestionTimestampKey(columnLabelText: string): string {
   return `timestamp-for-${columnLabelText}`;
 }
+const suggestionsInLocalStorageExpirationLimit = 300000;
 function shouldSuggestionsInLocalStorageExpire(storedTimestamp: number) {
-  const minutesElapsed = (Date.now() - storedTimestamp) / 60000;
-  return minutesElapsed > 5;
+  return (Date.now() - storedTimestamp) > suggestionsInLocalStorageExpirationLimit;
 }
 /**
  * Fetch suggestions from database for a particular table cell.
  *
  * @async
- * @param {HTMLTableCellElement} targetHTMLTableCellElement - The target table cell for which suggestions are to be fetched. Its belonging column label will be used to fetch suggestions.
+ * @param {string} columnLabelText - The text for the column label of the table cell we are fetching suggestions for.
  * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Suggestion objects.
  */
 async function fetchSuggestions(columnLabelText: string): Promise<Array<Suggestion>> {
@@ -365,6 +365,14 @@ async function fetchSuggestions(columnLabelText: string): Promise<Array<Suggesti
     console.error("Network error when fetching suggestions", error);
   }
 }
+/**
+ * If last fetched suggestions are still valid, gets suggestions from local storage.
+ * Otherwise, fetch suggestions from database and store the fetched suggestions in local storage.
+ *
+ * @param {string} columnLabelText - The text for the column label of the table cell we are fetching suggestions for.
+ * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Suggestion objects.
+
+ */
 async function getSuggestions(columnLabelText: string): Promise<Array<Suggestion>> {
   const timestampKey: string = getSuggestionTimestampKey(columnLabelText);
   const storedTimestamp: number | null = restoreTimestampFromLocalStorage(timestampKey);
