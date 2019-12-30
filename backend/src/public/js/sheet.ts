@@ -607,7 +607,12 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: C
 }
 
 function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  tableCellInputFormAssignTarget(tableDataElement, event.key);
+  const input = event.key;
+  if (input.length === 1) {
+    tableCellInputFormAssignTarget(tableDataElement, input);
+  } else {
+    tableCellInputFormAssignTarget(tableDataElement);
+  }
   event.consumed = true;
 }
 function tableColumnSearchElementOnInput(tableColumnSearchElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
@@ -626,10 +631,9 @@ function tableColumnSearchElementOnInput(tableColumnSearchElement: HTMLTableCell
 }
 function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
   const tableCellElement: HTMLTableCellElement = event.target as HTMLTableCellElement;
+  // ignore if input on table head
   if (isTableData(tableCellElement)) {
     tableDataElementOnInput(tableCellElement, event);
-  } else if (isTableHead(tableCellElement)) {
-    // ignore if input on table head
   }
 }
 function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
@@ -687,6 +691,7 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   if (isTableCell(target)) {
     tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
   } else if (isInput(target)) {
+    // inputing on column search
     const columnSearch = target.closest("th.column-search");
     if (columnSearch) {
       const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
