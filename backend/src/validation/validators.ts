@@ -2,6 +2,7 @@ import { emailFieldName, minPasswordLength } from "../models/user";
 import { findUserByField } from "../database/user";
 import { Request } from "express";
 import { body, validationResult } from "express-validator";
+import { idSuggestionType,  idSuggestionTypeLowerBound, idSuggestionTypeUpperBound } from "../models/suggestion";
 
 export const emailValidationFailure = "emailValidationFailure";
 export const passwordValidationFailure = "passwordValidationFailure";
@@ -80,4 +81,14 @@ export async function confirmMatchPassword(req: Request) {
     return false;
   }
   return result;
+}
+
+export async function isValidIdSuggestionType(req: Request) {
+  const suggestionType: number = Number.parseInt(req.query[idSuggestionType]);
+  if (suggestionType >= idSuggestionTypeLowerBound && suggestionType <= idSuggestionTypeUpperBound) {
+    return true;
+  }
+
+  req.flash("errors", { msg: `Invalid suggestion type ${suggestionType} passed` });
+  return false;
 }

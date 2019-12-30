@@ -20,6 +20,7 @@ import * as sheetController from "./controllers/sheet";
 import * as userController from "./controllers/user";
 import * as contactController from "./controllers/contact";
 import * as interactionController from "./controllers/interaction";
+import * as suggestionController from "./controllers/suggestion";
 
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
@@ -67,10 +68,10 @@ app.use(session({
         httpOnly: true,
         maxAge: expInMilliseconds
     },
-    store: new FileStore({
-      path: process.env.NOW ? `/tmp/sessions` : `.sessions`,
-      secret: "testing_please_change"
-    })
+    // store: new FileStore({
+    //   path: process.env.NOW ? `/tmp/sessions` : `.sessions`,
+    //   secret: "testing_please_change"
+    // })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -165,6 +166,9 @@ app.post("/click-double", interactionController.postClickDouble);
 app.post("/sort", interactionController.postSort);
 app.post("/search-partial", interactionController.postSearchPartial);
 app.post("/search-full", interactionController.postSearchFull);
+
+// suggestions
+app.get("/suggestions", suggestionController.getSuggestions);
 
 // sheets
 app.get("/:sheet", sheetController.getSheet);
