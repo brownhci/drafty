@@ -317,18 +317,67 @@ interface Suggestion {
   suggestion: string;
   confidence: number;
 }
-async function getSuggestions(targetHTMLTableCellElement: HTMLTableCellElement): Promise<Array<Suggestion>> {
-  const cellIndex = targetHTMLTableCellElement.cellIndex;
-  const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
-  const idSuggestionType: string = getColumnLabelText(columnLabel);
+/**
+ * Stores current time in local storage with specified key.
+ */
+function storeTimestampInLocalStorage(key: string) {
+  window.localStorage.setItem(key, Date.now().toString());
+}
+function restoreTimestampFromLocalStorage(key: string): number | null {
+  const storedTimestamp: string | null = window.localStorage.getItem(key);
+  if (storedTimestamp === null) {
+    return null;
+  }
+  return Number.parseInt(storedTimestamp);
+}
+function storeSuggestionInLocalStorage(columnLabelText: string, suggestions: Array<Suggestion>) {
+  window.localStorage.setItem(columnLabelText, JSON.stringify(suggestions));
+}
+function restoreSuggestionsFromLocalStorage(columnLabelText: string): Array<Suggestion> {
+  const suggestions: string | null = window.localStorage.getItem(columnLabelText);
+  if (suggestions === null) {
+    return [];
+  }
+  return JSON.parse(suggestions);
+}
+function getSuggestionTimestampKey(columnLabelText: string): string {
+  return `timestamp-for-${columnLabelText}`;
+}
+function shouldSuggestionsInLocalStorageExpire(storedTimestamp: number) {
+  const minutesElapsed = (Date.now() - storedTimestamp) / 60000;
+  return minutesElapsed > 5;
+}
+/**
+ * Fetch suggestions from database for a particular table cell.
+ *
+ * @async
+ * @param {HTMLTableCellElement} targetHTMLTableCellElement - The target table cell for which suggestions are to be fetched. Its belonging column label will be used to fetch suggestions.
+ * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Suggestion objects.
+ */
+async function fetchSuggestions(columnLabelText: string): Promise<Array<Suggestion>> {
   try {
-    const response = await fetch(`/suggestions?idSuggestionType=${idSuggestionType}`);
+    const response = await fetch(`/suggestions?idSuggestionType=${columnLabelText}`);
     if (!response.ok) {
-      return [];
+      return null;
     }
     return await response.json();
   } catch (error) {
     console.error("Network error when fetching suggestions", error);
+  }
+}
+async function getSuggestions(columnLabelText: string): Promise<Array<Suggestion>> {
+  const timestampKey: string = getSuggestionTimestampKey(columnLabelText);
+  const storedTimestamp: number | null = restoreTimestampFromLocalStorage(timestampKey);
+  if (storedTimestamp === null || shouldSuggestionsInLocalStorageExpire(storedTimestamp)) {
+    // fetch new suggestions
+    const suggestions: Array<Suggestion> = await fetchSuggestions(columnLabelText);
+
+    storeTimestampInLocalStorage(timestampKey);
+    storeSuggestionInLocalStorage(columnLabelText, suggestions);
+    return suggestions;
+  } else {
+    // reuse suggestions in local storage
+    return restoreSuggestionsFromLocalStorage(columnLabelText);
   }
 }
 
