@@ -14,6 +14,10 @@ interface SelectConfig {
 }
 type Option = Record<string, any>;
 interface SelectInfo {
+  identifier: string;
+
+  selectConfig: SelectConfig;
+
   targetInputElement: HTMLInputElement;
 
   optionContainer: HTMLElement;
@@ -32,6 +36,8 @@ interface SelectInfo {
 }
 function initializeSelectInfo(): SelectInfo {
   return {
+    identifier: null,
+    selectConfig: null,
     targetInputElement: null,
     optionContainer: null,
     optionElements: [],
@@ -55,8 +61,8 @@ const defaultConfig: SelectConfig = {
 function fillDefaultsToUserConfig(userConfig: SelectConfig) {
   return Object.assign({}, defaultConfig, userConfig);
 }
-function interpolatePriorities(options: Array<Option>, selectConfig: SelectConfig, selectInfo: SelectInfo) {
-  const priorityKey = selectConfig.priorityKey;
+function interpolatePriorities(options: Array<Option>, selectInfo: SelectInfo) {
+  const priorityKey = selectInfo.selectConfig.priorityKey;
   let minPriority: number = null;
   let maxPriority: number = null;
   for (let i = 0; i < selectInfo.numOptions; i++) {
@@ -95,7 +101,8 @@ function optionElementOnClick(optionElement: HTMLElement, selectInfo: SelectInfo
   targetInputElement.value = text;
 
 }
-function createOptionContainer(options: Array<Option>, selectConfig: SelectConfig, selectInfo: SelectInfo) {
+function createOptionContainer(options: Array<Option>, selectInfo: SelectInfo) {
+  const selectConfig = selectInfo.selectConfig;
   const optionContainer = document.createElement("div");
   optionContainer.classList.add(optionContainerClass);
   selectInfo.optionContainer = optionContainer;
@@ -145,8 +152,8 @@ function createOptionContainer(options: Array<Option>, selectConfig: SelectConfi
   }
 }
 
-function sortOptionsByPriority(options: Array<Option>, selectConfig: SelectConfig, selectInfo: SelectInfo) {
-  const priorityKey = selectConfig.priorityKey;
+function sortOptionsByPriority(options: Array<Option>, selectInfo: SelectInfo) {
+  const priorityKey = selectInfo.selectConfig.priorityKey;
   options.sort((option1, option2) => option2[priorityKey] - option1[priorityKey]);
   selectInfo.options = options;
 }
@@ -156,12 +163,14 @@ function createSelect(identifier: string, targetInputElement: HTMLInputElement, 
     // initialize new select info
     const selectConfig: SelectConfig = fillDefaultsToUserConfig(userConfig);
     selectInfo = initializeSelectInfo();
+    selectInfo.selectConfig = selectConfig;
+    selectInfo.identifier = identifier;
     selectInfo.numOptions = options.length;
 
-    interpolatePriorities(options, selectConfig, selectInfo);
-    sortOptionsByPriority(options, selectConfig, selectInfo);
+    interpolatePriorities(options, selectInfo);
+    sortOptionsByPriority(options, selectInfo);
 
-    createOptionContainer(options, selectConfig, selectInfo);
+    createOptionContainer(options, selectInfo);
     // register created select info under identifier
     identifierToSelectInfo.set(identifier, selectInfo);
   }
@@ -176,4 +185,9 @@ function removeSelect(selectInfo: SelectInfo) {
   if (selectInfo) {
     selectInfo.optionContainer.remove();
   }
+}
+/**
+ * Re
+ */
+function filterSelectOptions(query: string, selectInfo: SelectInfo, scoreFunction: (similarity: number, priority: number) => number, updateOptionContainer = true) {
 }
