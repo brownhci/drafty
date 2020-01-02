@@ -195,8 +195,11 @@ function isTableCellInputFormActive() {
 }
 /* the input element in the input editor */
 const tableCellInputFormInputElement: HTMLInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
+const tableCellInputFormInputSaveButtonElement: HTMLButtonElement = document.getElementById("table-cell-input-save") as HTMLButtonElement;
 /* the target element the input editor is associated with */
 let tableCellInputFormTargetElement: HTMLTableCellElement | null = null;
+
+let tableCellInputFormSelectInfo: SelectInfo | null = null;
 
 // input editor location
 /* the location element */
@@ -207,6 +210,8 @@ const tableCellInputFormLocateCellRowElement: HTMLSpanElement = document.getElem
 const tableCellInputFormLocateCellColElement: HTMLSpanElement = document.getElementById("locate-cell-associated-col") as HTMLSpanElement;
 /* whether the location element is shown in the input editor */
 let tableCellInputFormLocationActive: boolean = false;
+
+const tableCellInputFormInputContainer: HTMLElement = tableCellInputFormLocateCellElement.parentElement;
 
 function activateTableCellInputFormLocation() {
   if (!tableCellInputFormLocationActive) {
@@ -380,15 +385,14 @@ async function getSuggestions(columnLabelText: string): Promise<Array<Suggestion
   }
 }
 async function attachSuggestions(columnLabelText: string) {
-  const targetInputElement: HTMLInputElement = tableCellInputFormInputElement;
   const userConfig = {
     nameKey: "suggestion",
     priorityKey: "confidence"
   };
   const suggestions = await getSuggestions(columnLabelText);
-  const selectInfo = createSelect(columnLabelText, targetInputElement, suggestions, userConfig);
+  tableCellInputFormSelectInfo = createSelect(columnLabelText, tableCellInputFormInputElement, tableCellInputFormInputContainer, suggestions, userConfig);
   // resize form editor
-  updateTableCellInputFormWidthToFitText(selectInfo.longestText);
+  updateTableCellInputFormWidthToFitText(tableCellInputFormSelectInfo.longestText);
 }
 
 /**
@@ -397,7 +401,7 @@ async function attachSuggestions(columnLabelText: string) {
 function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
   deactivateTableCellInputForm();
   deactivateTableCellInputFormLocation();
-  removeSelect(tableCellInputFormInputElement);
+  removeSelect(tableCellInputFormSelectInfo);
 
   if (targetHTMLTableCellElement) {
     activateTableCellInputForm(targetHTMLTableCellElement);
@@ -410,6 +414,13 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
     const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
     tableCellInputFormElement.style.left = `${left}px`;
     tableCellInputFormElement.style.top = `${top}px`;
+  }
+}
+function saveTableCellInputForm() {
+  const text = tableCellInputFormInputElement.value;
+  if (tableCellInputFormTargetElement) {
+    tableCellInputFormTargetElement.textContent = text;
+    // TODO: call backend api to send user submission
   }
 }
 
@@ -626,6 +637,24 @@ function deactivateResizeVisualCue() {
   resizeVisualCue.classList.remove(activeClass);
 }
 
+// input editor exit
+function quitTableCellInputForm(saveContent = false) {
+  if (saveContent) {
+    saveTableCellInputForm();
+    // move to next cell to allow continuous edit
+    if (activeTableCellElement) {
+      const nextCell = getRightTableCellElement(activeTableCellElement);
+      if (nextCell) {
+        updateActiveTableCellElement(nextCell);
+      }
+    }
+  }
+
+  tableCellInputFormAssignTarget(null);
+  if (activeTableCellElement) {
+    activeTableCellElement.focus({preventScroll: true});
+  }
+}
 // events
 /* click event */
 function tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
@@ -644,6 +673,11 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
     tableCellElementOnClick(target as HTMLTableCellElement, event);
   }
 }, true);
+
+
+tableCellInputFormInputSaveButtonElement.addEventListener("click", function() {
+   quitTableCellInputForm(true);
+});
 
 /* keyboard event */
 interface ConsumableKeyboardEvent extends KeyboardEvent {
@@ -810,30 +844,6 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   }
 }, true);
 
-function saveTableCellInputForm() {
-  const text = tableCellInputFormInputElement.value;
-  if (tableCellInputFormTargetElement) {
-    tableCellInputFormTargetElement.textContent = text;
-    // TODO: call backend api to send user submission
-  }
-}
-function quitTableCellInputForm(saveContent = false) {
-  if (saveContent) {
-    saveTableCellInputForm();
-    // move to next cell to allow continuous edit
-    if (activeTableCellElement) {
-      const nextCell = getRightTableCellElement(activeTableCellElement);
-      if (nextCell) {
-        updateActiveTableCellElement(nextCell);
-      }
-    }
-  }
-
-  tableCellInputFormAssignTarget(null);
-  if (activeTableCellElement) {
-    activeTableCellElement.focus({preventScroll: true});
-  }
-}
 function tableCellInputFormOnKeyDown(event: KeyboardEvent) {
   switch (event.key) {
     case "Esc": // IE/Edge specific value

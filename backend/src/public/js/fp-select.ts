@@ -150,7 +150,7 @@ function sortOptionsByPriority(options: Array<Option>, selectConfig: SelectConfi
   options.sort((option1, option2) => option2[priorityKey] - option1[priorityKey]);
   selectInfo.options = options;
 }
-function createSelect(identifier: string, targetInputElement: HTMLInputElement, options: Array<Option>, userConfig = {}) {
+function createSelect(identifier: string, targetInputElement: HTMLInputElement, appendTo: HTMLElement, options: Array<Option>, userConfig = {}) {
   let selectInfo: SelectInfo = identifierToSelectInfo.get(identifier);
   if (!selectInfo) {
     // initialize new select info
@@ -168,12 +168,12 @@ function createSelect(identifier: string, targetInputElement: HTMLInputElement, 
 
   // append select info after input element
   selectInfo.targetInputElement = targetInputElement;
-  targetInputElement.after(selectInfo.optionContainer);
+
+  appendTo.appendChild(selectInfo.optionContainer);
   return selectInfo;
 }
-function removeSelect(targetInputElement: HTMLInputElement) {
-  const selectElement = targetInputElement.nextElementSibling;
-  if (selectElement && selectElement.classList.contains(optionContainerClass)) {
-    selectElement.remove();
+function removeSelect(selectInfo: SelectInfo) {
+  if (selectInfo) {
+    selectInfo.optionContainer.remove();
   }
 }

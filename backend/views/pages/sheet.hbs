@@ -4,19 +4,26 @@
         <form id="table-cell-input-form" class="custom-validation" autocomplete novalidate>
             {{> csrf }}
             <div>
-            <button id="locate-cell" type="button">
-                <i class="fas fa-map-marker-alt"></i>
-                <span id="locate-cell-row-col">
-                    (<span id="locate-cell-associated-row"></span>, <span id="locate-cell-associated-col"></span>)
-                </span>
-            </button>
-                <input
-                    id="table-cell-input-entry"
-                    name="entry"
-                    type="text"
-                    class="form-control"
-                    required
-                    >
+                <button id="locate-cell" type="button">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="locate-cell-row-col">
+                        (<span id="locate-cell-associated-row"></span>, <span id="locate-cell-associated-col"></span>)
+                    </span>
+                </button>
+                <div class="input-group">
+                    <input
+                        id="table-cell-input-entry"
+                        name="entry"
+                        type="search"
+                        class="form-control"
+                        required
+                        >
+                        <div class="input-group-append">
+                            <button id="table-cell-input-save" class="btn btn-primary" type="button">
+                                <i class="fas fa-check-circle"></i>
+                            </button>
+                        </div>
+                </div>
             </div>
         </form>
         {{> (lookup . 'sheetPath') }}
