@@ -48,6 +48,7 @@ $resize-shadow-width: 5px;
       @extend .py-1;
       top: 0;
       left: 0;
+      max-width: 90vw;
       &.active {
         @extend .d-inline-block;
       }
