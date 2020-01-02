@@ -1,4 +1,10 @@
 const originalIndexKey = "original-index";
+
+const optionContainerClass = "fp-select-options";
+const optionClass = "fp-select-option";
+const optionPriorityClass = "fp-select-option-priority";
+const optionTextClass = "fp-select-option-text";
+
 const identifierToSelectInfo: Map<string, SelectInfo> = new Map();
 
 interface SelectConfig {
@@ -8,6 +14,8 @@ interface SelectConfig {
 }
 type Option = Record<string, any>;
 interface SelectInfo {
+  targetInputElement: HTMLInputElement;
+
   optionContainer: HTMLElement;
   optionElements: Array<HTMLElement>;
 
@@ -24,6 +32,7 @@ interface SelectInfo {
 }
 function initializeSelectInfo(): SelectInfo {
   return {
+    targetInputElement: null,
     optionContainer: null,
     optionElements: [],
     options: [],
@@ -79,10 +88,24 @@ function setOptionPriorityElementStyle(priority: number, optionPriorityElement: 
   optionPriorityElement.style.width = `${proportion}%`;
   optionPriorityElement.setAttribute("aria-valuenow", `${proportion}`);
 }
+function optionElementOnClick(optionElement: HTMLElement, selectInfo: SelectInfo) {
+  const optionTextElement = optionElement.querySelector(`.${optionTextClass}`);
+  const text = optionTextElement.textContent;
+  const targetInputElement = selectInfo.targetInputElement;
+  targetInputElement.value = text;
+
+}
 function createOptionContainer(options: Array<Option>, selectConfig: SelectConfig, selectInfo: SelectInfo) {
   const optionContainer = document.createElement("div");
-  optionContainer.classList.add("fp-select-options");
+  optionContainer.classList.add(optionContainerClass);
   selectInfo.optionContainer = optionContainer;
+  optionContainer.addEventListener("click", function(event: MouseEvent) {
+    const target: HTMLElement= event.target as HTMLElement;
+    const optionElement: HTMLElement = target.closest(`.${optionClass}`) as HTMLElement;
+    if (optionElement) {
+      optionElementOnClick(optionElement, selectInfo);
+    }
+  });
 
   const nameKey = selectConfig.nameKey;
   const priorityKey = selectConfig.priorityKey;
@@ -91,19 +114,19 @@ function createOptionContainer(options: Array<Option>, selectConfig: SelectConfi
 
     // create option
     const optionElement = document.createElement("div");
-    optionElement.classList.add("fp-select-option");
+    optionElement.classList.add(optionClass);
     selectInfo.optionElements.push(optionElement);
 
     // create option priority
     const optionPriorityElement = document.createElement("div");
-    optionPriorityElement.classList.add("fp-select-option-priority");
+    optionPriorityElement.classList.add(optionPriorityClass);
     optionPriorityElement.setAttribute("role", "progressbar");
     optionPriorityElement.setAttribute("aria-valuemin", "0");
     optionPriorityElement.setAttribute("aria-valuemax", "100");
 
     // create option text
     const optionTextElement = document.createElement("span");
-    optionTextElement.classList.add("fp-select-option-text");
+    optionTextElement.classList.add(optionTextClass);
     const text: string = option[nameKey];
     const textLength = text.length;
     if (selectInfo.longestTextLength === null || selectInfo.longestTextLength < textLength) {
@@ -144,12 +167,13 @@ function createSelect(identifier: string, targetInputElement: HTMLInputElement, 
   }
 
   // append select info after input element
+  selectInfo.targetInputElement = targetInputElement;
   targetInputElement.after(selectInfo.optionContainer);
   return selectInfo;
 }
 function removeSelect(targetInputElement: HTMLInputElement) {
   const selectElement = targetInputElement.nextElementSibling;
-  if (selectElement && selectElement.classList.contains("fp-select-options")) {
+  if (selectElement && selectElement.classList.contains(optionContainerClass)) {
     selectElement.remove();
   }
 }
