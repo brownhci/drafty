@@ -11,6 +11,7 @@ interface SelectConfig {
   numOptionShown?: number;
   nameKey?: string;
   priorityKey?: string;
+  scoreKey?: string;
 }
 type Option = Record<string, any>;
 interface SelectInfo {
@@ -56,6 +57,33 @@ const defaultConfig: SelectConfig = {
   numOptionShown: 10,
   nameKey: "name",
   priorityKey: "priority",
+  scoreKey: "score",
+};
+const defaultScoreFunction = (query: string, option: Option, selectInfo: SelectInfo) => {
+  query = query.toLowerCase();
+  const queryLength: number = query.length;
+  const nameKey: string = selectInfo.selectConfig.nameKey;
+  const optionText: string = option[nameKey].toLowerCase();
+  const optionTextLength: number = optionText.length;
+
+  // computes edit distance
+  const editDistance = new Map();
+  for (let r = 0; r <= optionTextLength; r++) {
+    editDistance.set(`${r},0`, r);
+  }
+  for (let c = 0; c <= queryLength; c++) {
+    editDistance.set(`0,${c}`, c);
+  }
+  for (let r = 1; r <= optionTextLength; r++) {
+    for (let c = 1; c <= queryLength; c++) {
+      const costFromUpperCell = editDistance.get(`${r - 1},${c}`) + 1;
+      const costFromLeftCell = editDistance.get(`${r},${c - 1}`) + 1;
+      const differentChar = optionText.charAt(r - 1) !== query.charAt(c - 1);
+      const costFromUpperLeftCell = editDistance.get(`${r - 1},${c - 1}`) + differentChar;
+      editDistance.set(`${r},${c}`, Math.min(costFromUpperCell, costFromLeftCell, costFromUpperLeftCell));
+    }
+  }
+  return -editDistance.get(`${optionTextLength},${queryLength}`);
 };
 
 function fillDefaultsToUserConfig(userConfig: SelectConfig) {
@@ -99,7 +127,7 @@ function optionElementOnClick(optionElement: HTMLElement, selectInfo: SelectInfo
   const text = optionTextElement.textContent;
   const targetInputElement = selectInfo.targetInputElement;
   targetInputElement.value = text;
-
+  targetInputElement.dispatchEvent(new Event("input"));
 }
 function createOptionContainer(options: Array<Option>, selectInfo: SelectInfo) {
   const selectConfig = selectInfo.selectConfig;
@@ -157,6 +185,10 @@ function sortOptionsByPriority(options: Array<Option>, selectInfo: SelectInfo) {
   options.sort((option1, option2) => option2[priorityKey] - option1[priorityKey]);
   selectInfo.options = options;
 }
+function sortOptionsByScore(selectInfo: SelectInfo) {
+  const scoreKey = selectInfo.selectConfig.scoreKey;
+  selectInfo.options.sort((option1, option2) => option2[scoreKey] - option1[scoreKey]);
+}
 function createSelect(identifier: string, targetInputElement: HTMLInputElement, appendTo: HTMLElement, options: Array<Option>, userConfig = {}) {
   let selectInfo: SelectInfo = identifierToSelectInfo.get(identifier);
   if (!selectInfo) {
@@ -186,8 +218,36 @@ function removeSelect(selectInfo: SelectInfo) {
     selectInfo.optionContainer.remove();
   }
 }
+
 /**
- * Re
+ * Reorder options based on the computed score from query
+ *
+ * @param {string} query - User provided query.
+ * @param {SelectInfo} selectInfo - contains information about the select element.
+ * @param {Function} scoreFunction - computes score using string similarity and priority, score will be used to reorder the options.
+ * @param {boolean} updateOptionContainer - whether the DOM will be modified, default to true.
  */
-function filterSelectOptions(query: string, selectInfo: SelectInfo, scoreFunction: (similarity: number, priority: number) => number, updateOptionContainer = true) {
+function filterSelectOptions(query: string, selectInfo: SelectInfo, scoreFunction = defaultScoreFunction, updateOptionContainer = true) {
+  if (!selectInfo) {
+    return;
+  }
+
+  const scoreKey = selectInfo.selectConfig.scoreKey;
+  for (const option of selectInfo.options) {
+    const score = scoreFunction(query, option, selectInfo);
+    option[scoreKey] = score;
+  }
+
+  sortOptionsByScore(selectInfo);
+
+  if (updateOptionContainer) {
+    // removing previous option elements
+    while (selectInfo.optionContainer.lastChild) {
+      selectInfo.optionContainer.removeChild(selectInfo.optionContainer.lastChild);
+    }
+    // adding back option element in sorted orders
+    for (const option of selectInfo.options) {
+      selectInfo.optionContainer.appendChild(getOptionElementWithOption(option, selectInfo));
+    }
+  }
 }

@@ -1056,3 +1056,9 @@ tableCellInputFormElement.addEventListener("submit", function(event: Event) {
   event.preventDefault();
   return false;
 });
+
+/* input event */
+tableCellInputFormInputElement.addEventListener("input", function() {
+  const query = tableCellInputFormInputElement.value;
+  filterSelectOptions(query, tableCellInputFormSelectInfo);
+});
