@@ -4,7 +4,7 @@ import { tableName as suggestionTypeTableName, name as nameTableFieldName } from
 
 const stmtInsertSuggestion: string = "INSERT INTO Suggestions (idSuggestion, idSuggestionTypeFieldName, idUniqueID, idProfile, suggestion, confidence) VALUES (null, ?, ?, ?, ?, ?)";
 const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)";
-const stmtSelectPrevSuggestions: string = "SELECT * FROM Suggestions WHERE idUniqueID = ? AND idSuggestionTypeFieldName = ? GROUP BY suggestion ORDER BY suggestion"
+const stmtSelectPrevSuggestions: string = "SELECT * FROM Suggestions WHERE idUniqueID = ? AND idSuggestionTypeFieldName = ? GROUP BY suggestion ORDER BY suggestion";
 
 /**
  * save new suggestion

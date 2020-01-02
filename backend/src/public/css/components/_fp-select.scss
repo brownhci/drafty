@@ -1,0 +1,32 @@
+.fp-select-options {
+  @extend .overflow-auto;
+  @extend .my-2;
+  @extend .px-0;
+  max-height: 25vh;
+  .fp-select-option {
+    @extend .progress;
+    @extend .bg-secondary;
+    @extend .my-1;
+    height: 20px !important;
+    .fp-select-option-priority {
+      @extend .progress-bar;
+      @extend .bg-primary;
+    }
+    .fp-select-option-text {
+      @extend .w-75;
+      @extend .text-white;
+      @extend .absolute-center;
+      @extend .text-truncate;
+      z-index: $zindex-dropdown;
+    }
+    &.active, &:hover {
+      .fp-select-option-priority {
+        @extend .progress-bar-striped;
+        @extend .progress-bar-animated;
+      }
+      .fp-select-option-text {
+        @extend .font-weight-bold;
+      }
+    }
+  }
+}

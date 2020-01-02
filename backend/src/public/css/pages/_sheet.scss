@@ -22,7 +22,7 @@ $resize-shadow-width: 5px;
   @extend .px-0;
   @extend .position-relative;
 
-  div {
+  & > div {
     @extend .w-100;
     @extend .h-100;
     @extend .overflow-auto;
@@ -63,7 +63,7 @@ $resize-shadow-width: 5px;
           @extend .d-inline-block;
         }
       }
-      div {
+      & > div {
         @extend .mb-0;
         @extend .px-1;
       }

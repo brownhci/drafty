@@ -288,27 +288,18 @@ function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCell
   const text = input === undefined ? getTableDataText(targetHTMLTableCellElement): input;
 
   tableCellInputFormInputElement.value = text;
+
+  // resize
   const minWidth = targetHTMLTableCellElement.offsetWidth;
   const resizeWidth = measureTextWidth(text) + em2px(3);
   const width = Math.max(minWidth, resizeWidth);
-
   tableCellInputFormElement.style.width = `${width}px`;
 }
-/**
- * Use this function to change the editor associated table cell.
- */
-function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
-  deactivateTableCellInputForm();
-  deactivateTableCellInputFormLocation();
-  if (targetHTMLTableCellElement) {
-    activateTableCellInputForm(targetHTMLTableCellElement);
-    updateTableCellInputFormInput(targetHTMLTableCellElement, input);
-
-    updateTableCellInputFormLocation(targetHTMLTableCellElement);
-    // set position
-    const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
-    tableCellInputFormElement.style.left = `${left}px`;
-    tableCellInputFormElement.style.top = `${top}px`;
+function updateTableCellInputFormWidthToFitText(textToFit: string) {
+  const ttextWidth = measureTextWidth(textToFit);
+  const formWidth = tableCellInputFormElement.offsetWidth;
+  if (ttextWidth > formWidth) {
+    tableCellInputFormElement.style.width = `${ttextWidth}px`;
   }
 }
 
@@ -386,6 +377,39 @@ async function getSuggestions(columnLabelText: string): Promise<Array<Suggestion
   } else {
     // reuse suggestions in local storage
     return restoreSuggestionsFromLocalStorage(columnLabelText);
+  }
+}
+async function attachSuggestions(columnLabelText: string) {
+  const targetInputElement: HTMLInputElement = tableCellInputFormInputElement;
+  const userConfig = {
+    nameKey: "suggestion",
+    priorityKey: "confidence"
+  };
+  const suggestions = await getSuggestions(columnLabelText);
+  const selectInfo = createSelect(columnLabelText, targetInputElement, suggestions, userConfig);
+  // resize form editor
+  updateTableCellInputFormWidthToFitText(selectInfo.longestText);
+}
+
+/**
+ * Use this function to change the editor associated table cell.
+ */
+function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
+  deactivateTableCellInputForm();
+  deactivateTableCellInputFormLocation();
+  removeSelect(tableCellInputFormInputElement);
+
+  if (targetHTMLTableCellElement) {
+    activateTableCellInputForm(targetHTMLTableCellElement);
+    updateTableCellInputFormInput(targetHTMLTableCellElement, input);
+    const columnLabelText = getColumnLabelText(getColumnLabel(targetHTMLTableCellElement.cellIndex));
+    attachSuggestions(columnLabelText);
+
+    updateTableCellInputFormLocation(targetHTMLTableCellElement);
+    // set position
+    const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
+    tableCellInputFormElement.style.left = `${left}px`;
+    tableCellInputFormElement.style.top = `${top}px`;
   }
 }
 
