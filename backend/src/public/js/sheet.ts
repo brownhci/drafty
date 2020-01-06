@@ -301,10 +301,13 @@ function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCell
   tableCellInputFormElement.style.width = `${width}px`;
 }
 function updateTableCellInputFormWidthToFitText(textToFit: string) {
-  const ttextWidth = measureTextWidth(textToFit);
+  const textWidth = measureTextWidth(textToFit);
+  const slack = 100;
+  const newWidth = textWidth + slack;
+
   const formWidth = tableCellInputFormElement.offsetWidth;
-  if (ttextWidth > formWidth) {
-    tableCellInputFormElement.style.width = `${ttextWidth}px`;
+  if (newWidth > formWidth) {
+    tableCellInputFormElement.style.width = `${newWidth}px`;
   }
 }
 
