@@ -117,6 +117,7 @@ function optionElementOnClick(optionElement: HTMLElement, selectInfo: SelectInfo
   const targetInputElement = selectInfo.targetInputElement;
   targetInputElement.value = text;
   targetInputElement.dispatchEvent(new Event("input"));
+  targetInputElement.focus();
 }
 function createOptionContainer(options: Array<Option>, selectInfo: SelectInfo) {
   const selectConfig = selectInfo.selectConfig;
