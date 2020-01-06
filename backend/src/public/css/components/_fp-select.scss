@@ -14,8 +14,13 @@
     }
     .fp-select-option-text {
       @extend .text-white;
-      @extend .absolute-center;
       @extend .text-truncate;
+      @extend .position-absolute;
+      @extend .ml-1;
+      width: 98%;
+      top: 50%;
+      left: 20px;
+      transform: translateY(-50%);
       z-index: $zindex-dropdown;
     }
     &.active, &:hover {

@@ -159,6 +159,7 @@ function createOptionContainer(options: Array<Option>, selectInfo: SelectInfo) {
       selectInfo.longestTextLength = textLength;
     }
     optionTextElement.textContent = text;
+    optionTextElement.title = text;
 
     const priority: number = option[priorityKey];
     setOptionPriorityElementStyle(priority, optionPriorityElement, selectInfo);
