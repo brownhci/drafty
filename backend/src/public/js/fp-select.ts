@@ -11,7 +11,7 @@ interface SelectConfig {
   numOptionShown?: number;
   nameKey?: string;
   priorityKey?: string;
-  scoreKey?: string;
+  fuseOptions?: Fuse.FuseOptions<Option>;
 }
 type Option = Record<string, any>;
 interface SelectInfo {
@@ -34,6 +34,8 @@ interface SelectInfo {
   maxPriority: number;
   priorityRange: number;
   priorityInterpolator: (priority: number) => number;
+
+  fuse: any;
 }
 function initializeSelectInfo(): SelectInfo {
   return {
@@ -50,6 +52,7 @@ function initializeSelectInfo(): SelectInfo {
     maxPriority: null,
     priorityRange: null,
     priorityInterpolator: null,
+    fuse: null,
   };
 }
 
@@ -57,37 +60,23 @@ const defaultConfig: SelectConfig = {
   numOptionShown: 10,
   nameKey: "name",
   priorityKey: "priority",
-  scoreKey: "score",
+  fuseOptions: {
+    shouldSort: true,
+    findAllMatches: true,
+    threshold: 1,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    minMatchCharLength: 1,
+    keys: [
+      "name"
+    ]
+  }
 };
-const defaultScoreFunction = (query: string, option: Option, selectInfo: SelectInfo) => {
-  query = query.toLowerCase();
-  const queryLength: number = query.length;
-  const nameKey: string = selectInfo.selectConfig.nameKey;
-  const optionText: string = option[nameKey].toLowerCase();
-  const optionTextLength: number = optionText.length;
-
-  // computes edit distance
-  const editDistance = new Map();
-  for (let r = 0; r <= optionTextLength; r++) {
-    editDistance.set(`${r},0`, r);
-  }
-  for (let c = 0; c <= queryLength; c++) {
-    editDistance.set(`0,${c}`, c);
-  }
-  for (let r = 1; r <= optionTextLength; r++) {
-    for (let c = 1; c <= queryLength; c++) {
-      const costFromUpperCell = editDistance.get(`${r - 1},${c}`) + 1;
-      const costFromLeftCell = editDistance.get(`${r},${c - 1}`) + 1;
-      const differentChar = optionText.charAt(r - 1) !== query.charAt(c - 1);
-      const costFromUpperLeftCell = editDistance.get(`${r - 1},${c - 1}`) + differentChar;
-      editDistance.set(`${r},${c}`, Math.min(costFromUpperCell, costFromLeftCell, costFromUpperLeftCell));
-    }
-  }
-  return -editDistance.get(`${optionTextLength},${queryLength}`);
-};
-
 function fillDefaultsToUserConfig(userConfig: SelectConfig) {
-  return Object.assign({}, defaultConfig, userConfig);
+  const selectConfig = Object.assign({}, defaultConfig, userConfig);
+  selectConfig.fuseOptions.keys = [selectConfig.nameKey];
+  return selectConfig;
 }
 function interpolatePriorities(options: Array<Option>, selectInfo: SelectInfo) {
   const priorityKey = selectInfo.selectConfig.priorityKey;
@@ -180,14 +169,9 @@ function createOptionContainer(options: Array<Option>, selectInfo: SelectInfo) {
   }
 }
 
-function sortOptionsByPriority(options: Array<Option>, selectInfo: SelectInfo) {
+function sortOptionsByPriority(selectInfo: SelectInfo) {
   const priorityKey = selectInfo.selectConfig.priorityKey;
-  options.sort((option1, option2) => option2[priorityKey] - option1[priorityKey]);
-  selectInfo.options = options;
-}
-function sortOptionsByScore(selectInfo: SelectInfo) {
-  const scoreKey = selectInfo.selectConfig.scoreKey;
-  selectInfo.options.sort((option1, option2) => option2[scoreKey] - option1[scoreKey]);
+  selectInfo.options.sort((option1, option2) => option2[priorityKey] - option1[priorityKey]);
 }
 function createSelect(identifier: string, targetInputElement: HTMLInputElement, appendTo: HTMLElement, options: Array<Option>, userConfig = {}) {
   let selectInfo: SelectInfo = identifierToSelectInfo.get(identifier);
@@ -197,10 +181,13 @@ function createSelect(identifier: string, targetInputElement: HTMLInputElement, 
     selectInfo = initializeSelectInfo();
     selectInfo.selectConfig = selectConfig;
     selectInfo.identifier = identifier;
+
+    selectInfo.options = options;
     selectInfo.numOptions = options.length;
 
     interpolatePriorities(options, selectInfo);
-    sortOptionsByPriority(options, selectInfo);
+    sortOptionsByPriority(selectInfo);
+    selectInfo.fuse = new Fuse(selectInfo.options, selectInfo.selectConfig.fuseOptions);
 
     createOptionContainer(options, selectInfo);
     // register created select info under identifier
@@ -227,18 +214,16 @@ function removeSelect(selectInfo: SelectInfo) {
  * @param {Function} scoreFunction - computes score using string similarity and priority, score will be used to reorder the options.
  * @param {boolean} updateOptionContainer - whether the DOM will be modified, default to true.
  */
-function filterSelectOptions(query: string, selectInfo: SelectInfo, scoreFunction = defaultScoreFunction, updateOptionContainer = true) {
+function filterSelectOptions(query: string, selectInfo: SelectInfo, updateOptionContainer = true) {
   if (!selectInfo) {
     return;
   }
 
-  const scoreKey = selectInfo.selectConfig.scoreKey;
-  for (const option of selectInfo.options) {
-    const score = scoreFunction(query, option, selectInfo);
-    option[scoreKey] = score;
+  let result: Array<Option> = selectInfo.fuse.search(query);
+  if (result.length === 0) {
+    // use priority sorted options
+    result = selectInfo.options;
   }
-
-  sortOptionsByScore(selectInfo);
 
   if (updateOptionContainer) {
     // removing previous option elements
@@ -246,7 +231,7 @@ function filterSelectOptions(query: string, selectInfo: SelectInfo, scoreFunctio
       selectInfo.optionContainer.removeChild(selectInfo.optionContainer.lastChild);
     }
     // adding back option element in sorted orders
-    for (const option of selectInfo.options) {
+    for (const option of result) {
       selectInfo.optionContainer.appendChild(getOptionElementWithOption(option, selectInfo));
     }
   }
