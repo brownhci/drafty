@@ -16,7 +16,10 @@ export const postNewRow = (req: Request, res: Response, next: NextFunction) => {
  * Edit
  */
 export const postEdit = (req: Request, res: Response, next: NextFunction) => {
-
+  // TODO
+  const edit = req.body.edit;
+  console.log(`received user edit: ${edit}`);
+  return res.sendStatus(200);
 };
 
 /**

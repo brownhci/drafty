@@ -190,6 +190,7 @@ function em2px(em: number, fontSize = 16, element: HTMLElement | null = null) {
 const inputingClass = "inputing";
 /* input editor element */
 const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
+const tableCellInputFormCSRFInput: HTMLInputElement = tableCellInputFormElement.querySelector("input[name='_csrf']");
 function isTableCellInputFormActive() {
   return tableCellInputFormElement.classList.contains(activeClass);
 }
@@ -419,11 +420,32 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
     tableCellInputFormElement.style.top = `${top}px`;
   }
 }
+function saveEdit(text: string) {
+  // supply enough fields to update database entry for table cell
+  const data = {
+    "edit": text,
+    "_csrf": tableCellInputFormCSRFInput.value,
+  };
+  fetch("/edit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data),
+    })
+    .then(response => {
+      if (!response.ok) {
+        console.error(`${response.status}: ${response.statusText}`);
+      }
+    })
+    .catch(error => console.error("Network error when posting edit", error));
+}
 function saveTableCellInputForm() {
   const text = tableCellInputFormInputElement.value;
   if (tableCellInputFormTargetElement) {
     tableCellInputFormTargetElement.textContent = text;
-    // TODO: call backend api to send user submission
+    // call backend api to send user submission
+    saveEdit(text);
   }
 }
 
