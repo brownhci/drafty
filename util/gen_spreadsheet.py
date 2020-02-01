@@ -1,9 +1,6 @@
-import pymysql, html
-from bs4 import BeautifulSoup
-from lxml.html import tostring, html5parser
-import html.entities as fix
+import pymysql, html, re
 
-init_num_rows = 3
+init_num_rows = 5
 table_header = '<table id="table" class="mb-0 sticky-top">'
 table_display = '<div id="scrollArea" class="clusterize-scroll"><table id="drafty-table"><tbody id="contentArea" class="clusterize-content">'
 table_hidden = '<table id="drafty-table-hidden" class="hidden"><tbody>'
@@ -19,12 +16,10 @@ sqlSuggType = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.co
 sql = "SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder \
         FROM Suggestions s \
         INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType \
-        WHERE s.active = 1 AND st.isActive = 1 AND idUniqueID < 10000000000000 \
+        WHERE s.active = 1 AND st.isActive = 1 AND idUniqueID > 0 \
         ORDER BY idUniqueID, st.columnOrder, confidence desc"
-
-# replace beautiful soup add-ins
-def replace_bad_html(val):
-    return val.replace('<html>', '').replace('</html>', '').replace('<body>', '').replace('</body>', '').replace(' <body>', '').replace(' </body>', '')
+    #AND idUniqueID < 10000000000000
+    # 15223 is a bad field
 
 def col_group(rows):
     colGroup = '<colgroup>'
@@ -34,15 +29,15 @@ def col_group(rows):
     return colGroup
 
 def new_row(idRow):
-    return '<tr id=\"' + str(idRow) + '>'
+    return '\n<tr id=' + str(idRow) + '>'
 
 def new_cell(idSugg, sugg):
-    #html = tostring(html5parser.fromstring(str(sugg))).decode("utf-8")
-
-    #print(html)
-    #html = sugg.encode("utf-8")
-    html = fix.html5(sugg)
-    return '<td id=' + str(idSugg) + '>' + str(html) + '</td>'
+    new_val = ''
+    for x in sugg.encode('ascii','xmlcharrefreplace'):
+        if x != 0:
+            new_val += chr(x)
+    #sugg.encode('ascii','xmlcharrefreplace').strip(b'\x00').decode("utf-8"))
+    return '<td id=' + str(idSugg) + '>' + str(new_val) + '</td>\n'
 
 def new_search(idSuggType):
     return ' \
@@ -80,7 +75,7 @@ idColPrev = rows[0][1]
 idRowPrev = rows[0][2]
 sugg      = rows[0][3]
 row = new_row(idRowPrev) + new_cell(idSugg, sugg)
-print(row)
+
 
 for r in rows:
     idSugg = r[0]
@@ -88,34 +83,26 @@ for r in rows:
     idRow  = r[2]
     sugg   = r[3]
 
-    #print(str(idRow) + ' == ' + str(idRowPrev))
-
     if idRow != idRowPrev: # new row?
-        #print(str(idRow) + ' :: ' +  str(row) + '\n')
         if i <= init_num_rows:
-            table_display += row + '</tr>'
+            table_display += row + '</tr>\n'
         else:
-            table_hidden += row + '</tr>'
+            table_hidden += row + '</tr>\n'
         row = new_row(idRow)
         i += 1
     if idCol != idColPrev: # new cell?
         row += new_cell(idSugg, sugg)
+
     idColPrev = idCol
     idRowPrev = idRow
 
 table_display += '</tbody></table></div>'
 table_hidden  += '</tbody></table>'
-
 #print(table_display)
+
 
 with open('../backend/views/partials/sheets/professors.hbs', 'r+') as f:
     html = table_header + table_display + table_hidden
-    
-    #soup = BeautifulSoup(final_html, 'lxml')
-    #html = soup.prettify()
-    #html = replace_bad_html(html)
-    #print(html)
-    
     f.write(html)
 
 # disconnect from server
