@@ -10,6 +10,7 @@
     "sourceType": "module"
   },
   "rules": {
+    "require-atomic-updates": "off",
     "semi": ["error", "always"],
     "quotes": ["error", "double", { "allowTemplateLiterals": true }],
     "@typescript-eslint/explicit-function-return-type": "off",
