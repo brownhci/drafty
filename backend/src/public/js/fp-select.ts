@@ -84,7 +84,6 @@ function interpolatePriorities(options: Array<Option>, selectInfo: SelectInfo) {
   let maxPriority: number = null;
   for (let i = 0; i < selectInfo.numOptions; i++) {
     const option = options[i];
-    option[originalIndexKey] = i;
 
     const priority: number = option[priorityKey];
     if (minPriority === null || priority < minPriority) {
@@ -136,6 +135,7 @@ function createOptionContainer(options: Array<Option>, selectInfo: SelectInfo) {
   const priorityKey = selectConfig.priorityKey;
   for (let i = 0; i < selectInfo.numOptions; i++) {
     const option: Option = options[i];
+    option[originalIndexKey] = i;
 
     // create option
     const optionElement = document.createElement("div");
@@ -168,7 +168,7 @@ function createOptionContainer(options: Array<Option>, selectInfo: SelectInfo) {
     // optionElement.appendChild(optionPriorityElement);
     optionElement.appendChild(optionTextElement);
 
-    optionContainer.appendChild(getOptionElementWithOption(option, selectInfo));
+    optionContainer.appendChild(optionElement);
   }
 }
 
@@ -188,8 +188,12 @@ function createSelect(identifier: string, targetInputElement: HTMLInputElement, 
     selectInfo.options = options;
     selectInfo.numOptions = options.length;
 
-    interpolatePriorities(options, selectInfo);
-    sortOptionsByPriority(selectInfo);
+    // stop using priority
+    // const priorityKey = selectInfo.selectConfig.priorityKey;
+    // if (options.hasOwnProperty(priorityKey)) {
+    //   interpolatePriorities(options, selectInfo);
+    //   sortOptionsByPriority(selectInfo);
+    // }
     selectInfo.fuse = new Fuse(selectInfo.options, selectInfo.selectConfig.fuseOptions);
 
     createOptionContainer(options, selectInfo);

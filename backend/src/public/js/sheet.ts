@@ -312,6 +312,29 @@ function updateTableCellInputFormWidthToFitText(textToFit: string) {
   }
 }
 
+const columnLabelToIdSuggestionType: Map<string, number> | null = null;
+async function initializeColumnLabelToIdSuggestionType() {
+  console.log("initializing");
+  // try {
+  //   const response = await fetch(`/suggestions?idSuggestionType=${idSuggestionType}`);
+  //   if (!response.ok) {
+  //     return null;
+  //   }
+  //   return await response.json();
+  // } catch (error) {
+  //   console.error("Network error when fetching suggestion types", error);
+  // }
+}
+function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
+  if (!columnLabelToIdSuggestionType) {
+    initializeColumnLabelToIdSuggestionType();
+    return null;
+  }
+  // already has mapping between column label and idSuggestionType
+  const columnLabelText = getColumnLabelText(columnLabel);
+  const idSuggestionType = columnLabelToIdSuggestionType.get(columnLabelText);
+  return idSuggestionType;
+}
 // input form suggestions
 interface Suggestion {
   suggestion: string;
@@ -351,12 +374,13 @@ function shouldSuggestionsInLocalStorageExpire(storedTimestamp: number) {
  * Fetch suggestions from database for a particular table cell.
  *
  * @async
- * @param {string} columnLabelText - The text for the column label of the table cell we are fetching suggestions for.
+ * @param {HTMLTableCellElement} columnLabel - The column label of the table cell we are fetching suggestions for.
  * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Suggestion objects.
  */
-async function fetchSuggestions(columnLabelText: string): Promise<Array<Suggestion>> {
+async function fetchSuggestions(columnLabel: HTMLTableCellElement): Promise<Array<Suggestion>> {
+  const idSuggestionType: number | null = getIdSuggestionType(columnLabel);
   try {
-    const response = await fetch(`/suggestions?idSuggestionType=${columnLabelText}`);
+    const response = await fetch(`/suggestions?idSuggestionType=${idSuggestionType ? idSuggestionType : getColumnLabelText(columnLabel)}`);
     if (!response.ok) {
       return null;
     }
@@ -369,16 +393,18 @@ async function fetchSuggestions(columnLabelText: string): Promise<Array<Suggesti
  * If last fetched suggestions are still valid, gets suggestions from local storage.
  * Otherwise, fetch suggestions from database and store the fetched suggestions in local storage.
  *
- * @param {string} columnLabelText - The text for the column label of the table cell we are fetching suggestions for.
+ * @async
+ * @param {HTMLTableCellElement} columnLabel - The column label of the table cell we are fetching suggestions for.
  * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Suggestion objects.
 
  */
-async function getSuggestions(columnLabelText: string): Promise<Array<Suggestion>> {
+async function getSuggestions(columnLabel: HTMLTableCellElement): Promise<Array<Suggestion>> {
+  const columnLabelText = getColumnLabelText(columnLabel);
   const timestampKey: string = getSuggestionTimestampKey(columnLabelText);
   const storedTimestamp: number | null = restoreTimestampFromLocalStorage(timestampKey);
   if (storedTimestamp === null || shouldSuggestionsInLocalStorageExpire(storedTimestamp)) {
     // fetch new suggestions
-    const suggestions: Array<Suggestion> = await fetchSuggestions(columnLabelText);
+    const suggestions: Array<Suggestion> = await fetchSuggestions(columnLabel);
 
     storeTimestampInLocalStorage(timestampKey);
     storeSuggestionInLocalStorage(columnLabelText, suggestions);
@@ -388,15 +414,18 @@ async function getSuggestions(columnLabelText: string): Promise<Array<Suggestion
     return restoreSuggestionsFromLocalStorage(columnLabelText);
   }
 }
-async function attachSuggestions(columnLabelText: string) {
+async function attachSuggestions(columnLabel: HTMLTableCellElement) {
   const userConfig = {
     nameKey: "suggestion",
-    priorityKey: "confidence"
   };
-  const suggestions = await getSuggestions(columnLabelText);
-  tableCellInputFormSelectInfo = createSelect(columnLabelText, tableCellInputFormInputElement, tableCellInputFormInputContainer, suggestions, userConfig);
-  // resize form editor
-  updateTableCellInputFormWidthToFitText(tableCellInputFormSelectInfo.longestText);
+
+  const columnLabelText = getColumnLabelText(columnLabel);
+  const suggestions = await getSuggestions(columnLabel);
+  if (suggestions) {
+    tableCellInputFormSelectInfo = createSelect(columnLabelText, tableCellInputFormInputElement, tableCellInputFormInputContainer, suggestions, userConfig);
+    // resize form editor
+    updateTableCellInputFormWidthToFitText(tableCellInputFormSelectInfo.longestText);
+  }
 }
 
 /**
@@ -410,8 +439,8 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
   if (targetHTMLTableCellElement) {
     activateTableCellInputForm(targetHTMLTableCellElement);
     updateTableCellInputFormInput(targetHTMLTableCellElement, input);
-    const columnLabelText = getColumnLabelText(getColumnLabel(targetHTMLTableCellElement.cellIndex));
-    attachSuggestions(columnLabelText);
+    const columnLabel = getColumnLabel(targetHTMLTableCellElement.cellIndex);
+    attachSuggestions(columnLabel);
 
     updateTableCellInputFormLocation(targetHTMLTableCellElement);
     // set position
