@@ -97,6 +97,8 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
     return next(error);
   }
 
+  // need to update session
+
   // successful insertion
   req.logIn(newUser, (err) => {
     if (err) {
@@ -110,14 +112,16 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
  * Function to ceate AnonymousUser
  */
 export async function createAnonUser() {
+  const email: null = null;
+  const password: null = null;
   // creates new user
   const newUser = {
-    [emailFieldName]: "",
-    [passwordFieldName]: "",
+    [emailFieldName]: email,
+    [passwordFieldName]: password,
   };
   
   const [error, results] = await createUser(newUser);
-  return results.insertID;
+  return results.insertId;
 }
 
 /**

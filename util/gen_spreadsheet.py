@@ -60,7 +60,7 @@ search  = '<tr>'
 for r in rows:
     idSuggType = r[0]
     colName = r[2]
-    header += '<th scope="col" tabindex="-1">' + str(colName) + '</th>'
+    header += '<th scope="col" tabindex="-1" id=' + str(idSuggType) + '>' + str(colName) + '</th>\n'
     search += new_search(idSuggType)
 
 table_header +=  col_group(rows)  + '<thead id="headerArea">' + header + '</tr>' + search + '</tr>' + '</thead></table>'
