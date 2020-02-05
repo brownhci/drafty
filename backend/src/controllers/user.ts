@@ -92,7 +92,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
     [passwordFieldName]: password,
   };
 
-  const [error] = await createUser(newUser);
+  const [error, results] = await createUser(newUser);
   if (error) {
     return next(error);
   }
@@ -105,6 +105,20 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
     res.redirect(req.session.returnTo || "/");
   });
 };
+
+/**
+ * Function to ceate AnonymousUser
+ */
+export async function createAnonUser() {
+  // creates new user
+  const newUser = {
+    [emailFieldName]: "",
+    [passwordFieldName]: "",
+  };
+  
+  const [error, results] = await createUser(newUser);
+  return results.insertID;
+}
 
 /**
  * GET /account
