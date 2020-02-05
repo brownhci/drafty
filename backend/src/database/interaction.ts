@@ -10,9 +10,24 @@ const stmtInsertEdit: string  = "INSERT INTO Edit (idInteraction, idSuggestion, 
  * save new interaction id
  */
 //DB Code
-async function insertInteraction(idSession: string, idInteractionType: string, callback: CallableFunction) {
+export async function insertInteraction(idSession: string, idInteractionType: string) {
     try {
         const [results, fields] = await db.query(stmtInsertInteraction, [idSession, idInteractionType]);
+        return [results.insertId];
+    } catch (error) {
+        logDbErr(error, "error during insert interaction", "warn");
+        return [error];
+    }
+}
+
+/**
+ * save new click
+ */
+//DB Code
+async function insertClick(idSession: string, idInteractionType: string, idSuggestion: string, rowvalues: string, callback: CallableFunction) {
+    try {
+        const idInteraction = await insertInteraction(idSession, idInteractionType);
+        const [results, fields] = await db.query(stmtInsertClick, [idInteraction, idSuggestion, rowvalues]);
         callback(null, results, fields);
     } catch (error) {
         logDbErr(error, "error during insert interaction", "warn");
