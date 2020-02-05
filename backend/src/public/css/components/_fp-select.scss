@@ -25,7 +25,6 @@
     &.active, &:hover {
       .fp-select-option-priority {
         @extend .progress-bar-striped;
-        @extend .progress-bar-animated;
       }
       .fp-select-option-text {
         @extend .font-weight-bold;

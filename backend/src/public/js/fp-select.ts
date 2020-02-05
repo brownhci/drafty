@@ -143,11 +143,11 @@ function createOptionContainer(options: Array<Option>, selectInfo: SelectInfo) {
     selectInfo.optionElements.push(optionElement);
 
     // create option priority
-    const optionPriorityElement = document.createElement("div");
-    optionPriorityElement.classList.add(optionPriorityClass);
-    optionPriorityElement.setAttribute("role", "progressbar");
-    optionPriorityElement.setAttribute("aria-valuemin", "0");
-    optionPriorityElement.setAttribute("aria-valuemax", "100");
+    // const optionPriorityElement = document.createElement("div");
+    // optionPriorityElement.classList.add(optionPriorityClass);
+    // optionPriorityElement.setAttribute("role", "progressbar");
+    // optionPriorityElement.setAttribute("aria-valuemin", "0");
+    // optionPriorityElement.setAttribute("aria-valuemax", "100");
 
     // create option text
     const optionTextElement = document.createElement("span");
@@ -161,10 +161,11 @@ function createOptionContainer(options: Array<Option>, selectInfo: SelectInfo) {
     optionTextElement.textContent = text;
     optionTextElement.title = text;
 
-    const priority: number = option[priorityKey];
-    setOptionPriorityElementStyle(priority, optionPriorityElement, selectInfo);
+    // set progress bar
+    // const priority: number = option[priorityKey];
+    // setOptionPriorityElementStyle(priority, optionPriorityElement, selectInfo);
 
-    optionElement.appendChild(optionPriorityElement);
+    // optionElement.appendChild(optionPriorityElement);
     optionElement.appendChild(optionTextElement);
 
     optionContainer.appendChild(getOptionElementWithOption(option, selectInfo));
