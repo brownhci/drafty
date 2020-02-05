@@ -10,6 +10,9 @@ import path from "path";
 import passport from "passport";
 import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, SESSION_SECRET } from "./util/secrets";
 
+//user session functions
+import { createAnonUser } from "./controllers/user"; //TODO: create createSession
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 //const MySQLStore = require("express-mysql-session")(session);
 
@@ -68,10 +71,10 @@ app.use(session({
         httpOnly: true,
         maxAge: expInMilliseconds
     },
-    // store: new FileStore({
-    //   path: process.env.NOW ? `/tmp/sessions` : `.sessions`,
-    //   secret: "testing_please_change"
-    // })
+    store: new FileStore({
+       path: process.env.NOW ? `sessions` : `.sessions`,
+       secret: "testing_please_change"
+    })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -101,10 +104,14 @@ const user = {
   views: 0,
   failedLoginAttempts: 0
 };
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
+  //check if new session (req.sessionID)
   if(req.session.user === undefined) {
+    user.idProfile = await createAnonUser();
     req.session.user = user;
   }
+  //const idSession = await createUser();
+  console.log(req.session)
   next();
 });
 app.use((req, res, next) => {
