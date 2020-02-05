@@ -111,7 +111,7 @@ app.use(async (req, res, next) => {
     req.session.user = user;
   }
   //const idSession = await createUser();
-  console.log(req.session)
+  console.log(req.session);
   next();
 });
 app.use((req, res, next) => {
