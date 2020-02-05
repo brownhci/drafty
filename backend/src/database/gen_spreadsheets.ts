@@ -32,7 +32,3 @@ export async function genSheets(idProfile: number) {
         return error;
     }
 }
-
-// async function genHeader() {
-
-// }
