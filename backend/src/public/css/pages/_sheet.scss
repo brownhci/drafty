@@ -74,6 +74,7 @@ $resize-shadow-width: 5px;
   table {
     @extend .table;
     @extend .table-bordered;
+    @extend .table-striped;
     table-layout: fixed;
     border-collapse: collapse;
 
