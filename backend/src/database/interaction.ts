@@ -10,7 +10,7 @@ const stmtInsertEdit: string  = "INSERT INTO Edit (idInteraction, idSuggestion, 
  * save new interaction id
  */
 //DB Code
-export async function insertInteraction(idSession: string, idInteractionType: string) {
+async function insertInteraction(idSession: string, idInteractionType: string) {
     try {
         const [results, fields] = await db.query(stmtInsertInteraction, [idSession, idInteractionType]);
         return [results.insertId];
@@ -24,13 +24,43 @@ export async function insertInteraction(idSession: string, idInteractionType: st
  * save new click
  */
 //DB Code
-async function insertClick(idSession: string, idInteractionType: string, idSuggestion: string, rowvalues: string, callback: CallableFunction) {
+export async function insertClick(idSession: string, idInteractionType: string, idSuggestion: string, rowvalues: string, callback: CallableFunction) {
     try {
         const idInteraction = await insertInteraction(idSession, idInteractionType);
         const [results, fields] = await db.query(stmtInsertClick, [idInteraction, idSuggestion, rowvalues]);
         callback(null, results, fields);
     } catch (error) {
-        logDbErr(error, "error during insert interaction", "warn");
+        logDbErr(error, "error during insert click", "warn");
+        callback(error);
+    }
+}
+
+/**
+ * save new sort
+ */
+//DB Code
+export async function insertSort(idSession: string, idInteractionType: string, idSuggestionType: string, callback: CallableFunction) {
+    try {
+        const idInteraction = await insertInteraction(idSession, idInteractionType);
+        const [results, fields] = await db.query(stmtInsertSort, [idInteraction, idSuggestionType]);
+        callback(null, results, fields);
+    } catch (error) {
+        logDbErr(error, "error during insert sort", "warn");
+        callback(error);
+    }
+}
+
+/**
+ * save new sort
+ */
+//DB Code
+export async function insertEdit(idSession: string, idInteractionType: string, idSuggestion: string, idEntryType: string, chosen: boolean, callback: CallableFunction) {
+    try {
+        const idInteraction = await insertInteraction(idSession, idInteractionType);
+        const [results, fields] = await db.query(stmtInsertEdit, [idInteraction, idSuggestion, idEntryType, chosen]);
+        callback(null, results, fields);
+    } catch (error) {
+        logDbErr(error, "error during insert edit", "warn");
         callback(error);
     }
 }
