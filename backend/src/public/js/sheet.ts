@@ -24,7 +24,7 @@ const copiedClass = "copied";
 let lastCopiedTableCellElement: null | HTMLTableCellElement | HTMLTableColElement = null;
 
 // DOM Elements
-const tableElement: HTMLTableElement = document.getElementById("sheet") as HTMLTableElement;
+const tableElement: HTMLTableElement = document.getElementById("table") as HTMLTableElement;
 const tableScrollContainer: HTMLElement = tableElement.parentElement;
 
 /* <thead> */
