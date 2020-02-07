@@ -6,9 +6,8 @@ import { Request, Response, NextFunction } from "express";
  */
 export const postNewRow = (req: Request, res: Response, next: NextFunction) => {
     //check for errors
-
-
-    //
+  // TODO
+    return res.sendStatus(200);
 };
 
 /**
@@ -27,7 +26,8 @@ export const postEdit = (req: Request, res: Response, next: NextFunction) => {
  * Click
  */
 export const postClick = (req: Request, res: Response, next: NextFunction) => {
-
+  // TODO
+    return res.sendStatus(200);
 };
 
 /**
@@ -35,6 +35,9 @@ export const postClick = (req: Request, res: Response, next: NextFunction) => {
  * Double click
  */
 export const postClickDouble = (req: Request, res: Response, next: NextFunction) => {
+
+  // TODO
+    return res.sendStatus(200);
 
 };
 
@@ -44,6 +47,8 @@ export const postClickDouble = (req: Request, res: Response, next: NextFunction)
  */
 export const postSort = (req: Request, res: Response, next: NextFunction) => {
 
+  // TODO
+    return res.sendStatus(200);
 };
 
 /**
@@ -52,6 +57,8 @@ export const postSort = (req: Request, res: Response, next: NextFunction) => {
  */
 export const postSearchPartial = (req: Request, res: Response, next: NextFunction) => {
 
+  // TODO
+    return res.sendStatus(200);
 };
 
 /**
@@ -60,4 +67,6 @@ export const postSearchPartial = (req: Request, res: Response, next: NextFunctio
  */
 export const postSearchFull = (req: Request, res: Response, next: NextFunction) => {
 
+  // TODO
+    return res.sendStatus(200);
 };
