@@ -59,7 +59,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Session
-const hours = 24;
+const hours = .1;
 const expInMilliseconds = hours * 3600000;
 app.use(session({
     secret: SESSION_SECRET,
@@ -110,9 +110,18 @@ app.use(async (req, res, next) => {
     user.idProfile = await createAnonUser();
     req.session.user = user;
   }
-  //const idSession = await createUser();
-  console.log(req.session)
-  next();
+
+  //const idSession = await createSession();
+/*
+  console.log("\n\n######");
+  console.log(req.session);
+  console.log(req.sessionID);
+  console.log("\n");
+  console.log(Date.now());
+  console.log(req.session.__lastAccess);
+  console.log("######\n\n");
+*/
+  next();  
 });
 app.use((req, res, next) => {
     res.locals.user = req.user;
