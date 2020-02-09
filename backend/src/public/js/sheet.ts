@@ -24,7 +24,7 @@ const copiedClass = "copied";
 let lastCopiedTableCellElement: null | HTMLTableCellElement | HTMLTableColElement = null;
 
 // DOM Elements
-const tableElement: HTMLTableElement = document.getElementById("sheet") as HTMLTableElement;
+const tableElement: HTMLTableElement = document.getElementById("table") as HTMLTableElement;
 const tableScrollContainer: HTMLElement = tableElement.parentElement;
 
 /* <thead> */
@@ -312,28 +312,12 @@ function updateTableCellInputFormWidthToFitText(textToFit: string) {
   }
 }
 
-const columnLabelToIdSuggestionType: Map<string, number> | null = null;
-async function initializeColumnLabelToIdSuggestionType() {
-  console.log("initializing");
-  // try {
-  //   const response = await fetch(`/suggestions?idSuggestionType=${idSuggestionType}`);
-  //   if (!response.ok) {
-  //     return null;
-  //   }
-  //   return await response.json();
-  // } catch (error) {
-  //   console.error("Network error when fetching suggestion types", error);
-  // }
-}
 function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
-  if (!columnLabelToIdSuggestionType) {
-    initializeColumnLabelToIdSuggestionType();
-    return null;
+  const idSuggestionType = columnLabel.id;
+  if (idSuggestionType) {
+    return Number.parseInt(idSuggestionType);
   }
-  // already has mapping between column label and idSuggestionType
-  const columnLabelText = getColumnLabelText(columnLabel);
-  const idSuggestionType = columnLabelToIdSuggestionType.get(columnLabelText);
-  return idSuggestionType;
+  return null;
 }
 // input form suggestions
 interface Suggestion {

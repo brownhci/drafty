@@ -110,7 +110,6 @@ app.use(async (req, res, next) => {
     user.idProfile = await createAnonUser();
     req.session.user = user;
   }
-
   //const idSession = await createSession();
 /*
   console.log("\n\n######");

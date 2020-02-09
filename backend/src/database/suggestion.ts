@@ -35,7 +35,7 @@ export async function insertRowId(callback: CallableFunction) {
 /**
  * Get suggestions with specified suggestion type.
  *
- * @param {string} idSuggestionType - Either a numberic string representing the suggestion type (between {@link ../models/suggestion.ts idSuggestionTypeLowerBound } and {@link ../models/suggestion.ts idSuggestionTypeUpperBound } or a string value from {@link ../models/suggestion.ts names}
+ * @param {string} idSuggestionType - Either a numeric string representing the suggestion type (between {@link ../models/suggestion.ts idSuggestionTypeLowerBound } and {@link ../models/suggestion.ts idSuggestionTypeUpperBound } or a string value from {@link ../models/suggestion.ts names}
  * @returns {(Error|null, Array<SuggestionRow>)} Either an error when lookup fails or null and an array of SuggestionRow as results.
  */
 export async function getSuggestionsWithSuggestionType(idSuggestionType: string) {
