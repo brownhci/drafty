@@ -234,7 +234,8 @@ function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableC
   tableCellInputFormLocateCellRowElement.textContent = `${rowIndex}`;
   // column index
   const colIndex = getColumnIndex(targetHTMLTableCellElement);
-  tableCellInputFormLocateCellColElement.textContent = `${colIndex}`;
+  const columnLabelText = getColumnLabelText(getColumnLabel(colIndex - 1));
+  tableCellInputFormLocateCellColElement.textContent = columnLabelText;
 }
 function restoreTableCellInputFormLocation() {
   if (tableCellInputFormLocationActive && tableCellInputFormTargetElement) {

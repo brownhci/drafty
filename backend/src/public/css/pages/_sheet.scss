@@ -59,6 +59,9 @@ $resize-shadow-width: 5px;
         @extend .d-none;
         #locate-cell-row-col {
           @extend .font-size-small;
+          #locate-cell-associated-row, #locate-cell-associated-col {
+            @extend .font-weight-bold;
+          }
         }
         &.active {
           @extend .d-inline-block;
