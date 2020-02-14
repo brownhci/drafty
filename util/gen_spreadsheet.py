@@ -13,6 +13,8 @@ cursor = db.cursor()
 
 sqlSuggType = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.columnOrder"
 
+sqlColWidth = "SELECT idSuggestionType, (ROUND(AVG(LENGTH(suggestion))) * 6) + 100 as avg_length FROM Suggestions GROUP BY idSuggestionType"
+
 sql = "SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder \
         FROM Suggestions s \
         INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType \
@@ -29,15 +31,15 @@ def col_group(rows):
     return colGroup
 
 def new_row(idRow):
-    return '\n<tr id=' + str(idRow) + '>'
+    return '\n<tr id=' + str(idRow) + '>' 
 
-def new_cell(idSugg, sugg):
+def new_cell(idSugg, sugg, idSuggType):
     new_val = ''
     for x in sugg.encode('ascii','xmlcharrefreplace'):
         if x != 0:
             new_val += chr(x)
     #sugg.encode('ascii','xmlcharrefreplace').strip(b'\x00').decode("utf-8"))
-    return '<td id=' + str(idSugg) + '>' + str(new_val) + '</td>\n'
+    return '<td id=' + str(idSugg) + ' style=\"width:' + str(colWidths[idSuggType]) + 'px\">' + str(new_val) + '</td>\n'
 
 def new_search(idSuggType):
     return ' \
@@ -51,6 +53,14 @@ def new_search(idSuggType):
             </th> \
         '.format(idSuggType, idSuggType)
         
+# SQL 
+cursor.execute(sqlColWidth)
+rows = cursor.fetchall()
+colWidths = {}
+for r in rows:
+    idSuggType = r[0]
+    width = r[1]
+    colWidths[idSuggType] = width
 
 # execute SQL query using execute() method.
 cursor.execute(sqlSuggType)
@@ -60,10 +70,12 @@ search  = '<tr>'
 for r in rows:
     idSuggType = r[0]
     colName = r[2]
-    header += '<th scope="col" tabindex="-1" id=' + str(idSuggType) + '>' + str(colName) + '</th>\n'
+    #header += '<th scope="col" tabindex="-1" id=' + str(idSuggType) + '>' + str(colName) + '</th>\n'
+    header += '<th style=\"width:' + str(colWidths[idSuggType]) + 'px\" id=' + str(idSuggType) + '>' + str(colName) + '</th>\n'
     search += new_search(idSuggType)
 
-table_header +=  col_group(rows)  + '<thead id="headerArea">' + header + '</tr>' + search + '</tr>' + '</thead></table>'
+#table_header +=  col_group(rows)  + '<thead id="headerArea">' + header + '</tr>' + search + '</tr>' + '</thead></table>'
+table_header +=  '<thead id="headerArea">' + header + '</tr>' + search + '</tr>' + '</thead></table>'
 
 # execute SQL query using execute() method.
 cursor.execute(sql)
@@ -74,7 +86,7 @@ idSugg    = rows[0][0]
 idColPrev = rows[0][1]
 idRowPrev = rows[0][2]
 sugg      = rows[0][3]
-row = new_row(idRowPrev) + new_cell(idSugg, sugg)
+row = new_row(idRowPrev) + new_cell(idSugg, sugg, idColPrev)
 
 
 for r in rows:
@@ -91,7 +103,7 @@ for r in rows:
         row = new_row(idRow)
         i += 1
     if idCol != idColPrev: # new cell?
-        row += new_cell(idSugg, sugg)
+        row += new_cell(idSugg, sugg, idCol)
 
     idColPrev = idCol
     idRowPrev = idRow
