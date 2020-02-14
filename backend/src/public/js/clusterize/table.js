@@ -75,7 +75,7 @@ function getRowData(tbl) {
     for (var j = 0, col; col = row.cells[j]; j++) {
       //iterate through columns
       //columns would be accessed using the "col" variable assigned in the for loop
-      vals.push(col.innerHTML)
+      vals.push(col.innerHTML);
     }
     
     rows.push({
@@ -88,9 +88,9 @@ function getRowData(tbl) {
 
 // get row data
 //log('start: ' + performance.now())
-getRowData(table)
-getRowData(tableHidden)
-initClusterize()
+getRowData(table);
+getRowData(tableHidden);
+initClusterize();
 //log('end: ' + performance.now())
 
 /*
@@ -113,22 +113,22 @@ search.oninput = onSearch;
 * Sorting: sw: need to switched a
 */
 var onSort = function(col_sort) {
-  log(col_sort)
+  log(col_sort);
 
   if(sortIsAsc) {
     //asc
-    rows = rows.sort((a, b) => (a.values[col_sort] >= b.values[col_sort]) ? 1 : (a.values[col_sort] === b.values[col_sort]) ? ((a.size > b.size) ? 1 : -1) : -1 )
+    rows = rows.sort((a, b) => (a.values[col_sort] >= b.values[col_sort]) ? 1 : (a.values[col_sort] === b.values[col_sort]) ? ((a.size > b.size) ? 1 : -1) : -1 );
   } else {
     //desc
-    rows = rows.sort((a, b) => (a.values[col_sort] <= b.values[col_sort]) ? 1 : (a.values[col_sort] === b.values[col_sort]) ? ((a.size < b.size) ? 1 : -1) : -1 )
+    rows = rows.sort((a, b) => (a.values[col_sort] <= b.values[col_sort]) ? 1 : (a.values[col_sort] === b.values[col_sort]) ? ((a.size < b.size) ? 1 : -1) : -1 );
   }
-  sortIsAsc = !sortIsAsc
-  clusterize.update(filterRows(rows)) //sw: filterRows prob not necessary in some cases
+  sortIsAsc = !sortIsAsc;
+  clusterize.update(filterRows(rows)); //sw: filterRows prob not necessary in some cases
 }
 
 /*
 * short hand logging function
 */
 function log(val) {
-  console.log(val)
+  console.log(val);
 }
