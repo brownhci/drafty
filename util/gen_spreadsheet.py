@@ -1,4 +1,5 @@
 import pymysql, html, re
+from atomicwrites import atomic_write
 
 init_num_rows = 5
 table_header = '<table id="table" class="mb-0 sticky-top">'
@@ -113,7 +114,11 @@ table_hidden  += '</tbody></table>'
 #print(table_display)
 
 
-with open('../backend/views/partials/sheets/professors.hbs', 'r+') as f:
+#with open('../backend/views/partials/sheets/professors.hbs', 'r+') as f:
+#    html = table_header + table_display + table_hidden
+#    f.write(html)
+
+with atomic_write('../backend/views/partials/sheets/professors.hbs', overwrite=True) as f:
     html = table_header + table_display + table_hidden
     f.write(html)
 
