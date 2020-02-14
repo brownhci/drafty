@@ -90,6 +90,20 @@ function isColumnSearchInput(element: HTMLElement): boolean {
   return false;
 }
 
+function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
+  if (tableCellElement.contentEditable === "false") {
+    return false;
+  }
+  const columnLabel = getColumnLabel(tableCellElement.cellIndex);
+  const columnLabelText = getColumnLabelText(columnLabel);
+  if (columnLabelText === "Last_Updated_By" || columnLabelText === "Last_Updated") {
+    tableCellElement.contentEditable = "false";
+    return false;
+  }
+
+  return true;
+}
+
 // getters
 function getRowIndex(tableCellElement: HTMLTableCellElement): number {
   // since we have both column label and column search
@@ -417,6 +431,10 @@ async function attachSuggestions(columnLabel: HTMLTableCellElement) {
  * Use this function to change the editor associated table cell.
  */
 function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
+  if (!isTableCellEditable(targetHTMLTableCellElement)) {
+    return;
+  }
+
   deactivateTableCellInputForm();
   deactivateTableCellInputFormLocation();
   removeSelect(tableCellInputFormSelectInfo);
