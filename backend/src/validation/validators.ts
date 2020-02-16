@@ -91,7 +91,7 @@ export async function isValidIdSuggestionType(req: Request) {
   let result;
   if (Number.isNaN(suggestionType)) {
     // passed a string
-    result = names.has(idSuggestionType);
+    result = false;
   } else {
     if (suggestionType >= idSuggestionTypeLowerBound && suggestionType <= idSuggestionTypeUpperBound) {
       result = true;

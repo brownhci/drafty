@@ -61,22 +61,12 @@ export async function insertRowId(callback: CallableFunction) {
 /**
  * Get suggestions with specified suggestion type.
  *
- * @param {string} idSuggestionType - Either a numeric string representing the suggestion type (between {@link ../models/suggestion.ts idSuggestionTypeLowerBound } and {@link ../models/suggestion.ts idSuggestionTypeUpperBound } or a string value from {@link ../models/suggestion.ts names}
+ * @param {string} idSuggestionType - A numer representing the suggestion type (between {@link ../models/suggestion.ts idSuggestionTypeLowerBound } and {@link ../models/suggestion.ts idSuggestionTypeUpperBound }
  * @returns {(Error|null, Array<SuggestionRow>)} Either an error when lookup fails or null and an array of SuggestionRow as results.
  */
-export async function getSuggestionsWithSuggestionType(idSuggestionType: string) {
-  const suggestionType: number = Number.parseInt(idSuggestionType);
-  const matchNameField = Number.isNaN(suggestionType);
-  const stmtGetSugggestions = `select ?? AS suggestion from ?? where ${matchNameField ? "?? IN (SELECT ?? from ?? WHERE ?? = ?)" : "?? = ?"}`;
+export async function getSuggestionsWithSuggestionType(idSuggestionType: number) {
   try {
-    const values = [suggestionTextFieldName, sugggestionTableName];
-    if (matchNameField) {
-      // use idSuggestionType as string name to find the number version of idSuggestionType in subquery
-      values.push(idSuggestionTypeFieldName, idSuggestionTypeFieldName, suggestionTypeTableName, nameTableFieldName, idSuggestionType);
-    } else {
-      values.push(suggestionTextFieldName, idSuggestionType);
-    }
-    const [results] = await db.query(stmtGetSugggestions, values);
+    const [results] = await db.query("select ?? AS suggestion from ?? where ?? = ?", [suggestionTextFieldName, sugggestionTableName, idSuggestionTypeFieldName, idSuggestionType]);
     return [null, results];
   } catch (error) {
     logDbErr(error, "error during fetching suggestions", "warn");

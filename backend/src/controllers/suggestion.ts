@@ -11,9 +11,10 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
       return res.sendStatus(400);
     }
   const idSuggestionType: string = req.query.idSuggestionType;
+  const suggestionType: number = Number.parseInt(idSuggestionType);
 
   // valid suggestion type, get suggestions from database
-  const [error, results] = await getSuggestionsWithSuggestionType(idSuggestionType);
+  const [error, results] = await getSuggestionsWithSuggestionType(suggestionType);
   if (error) {
     return next(error);
   }
