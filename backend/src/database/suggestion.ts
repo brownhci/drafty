@@ -9,7 +9,8 @@ const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VA
 const stmtSelectPrevSuggestions: string = "SELECT * FROM Suggestions WHERE idUniqueID = ? AND idSuggestionTypeFieldName = ? GROUP BY suggestion ORDER BY suggestion";
 
 /**
- * save new suggestion
+ * updates new suggestion confidence
+ * needs only the idSuggestion for the newly chosen suggestion ;)
  */
 export async function updateSuggestion(idSuggestion: number, callback: CallableFunction) {
   try {
