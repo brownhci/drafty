@@ -331,8 +331,8 @@ function updateTableCellInputFormWidthToFitText(textToFit: string) {
 }
 
 function getIdUniqueID(tableCellElement: HTMLTableCellElement): number {
-  // TODO differentiate the difference between idSuggestion and uniqueId
-  return getIdSuggestion(tableCellElement);
+  const tableRow: HTMLTableRowElement = tableCellElement.parentElement as HTMLTableRowElement;
+  return Number.parseInt(tableRow.id);
 }
 function getIdSuggestion(tableCellElement: HTMLTableCellElement): number {
   return Number.parseInt(tableCellElement.id);
