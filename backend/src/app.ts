@@ -120,7 +120,7 @@ app.use(async (req, res, next) => {
   console.log(req.session.__lastAccess);
   console.log("######\n\n");
 */
-  next();  
+  next();
 });
 app.use((req, res, next) => {
     res.locals.user = req.user;
@@ -181,6 +181,8 @@ app.post("/click-double", interactionController.postClickDouble);
 app.post("/sort", interactionController.postSort);
 app.post("/search-partial", interactionController.postSearchPartial);
 app.post("/search-full", interactionController.postSearchFull);
+app.post("/copy-cell", interactionController.postCopyCell);
+app.post("/copy-column", interactionController.postCopyColumn);
 
 // suggestions
 app.get("/suggestions", suggestionController.getSuggestions);

@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import logger from "../util/logger";
 
 /**
  * POST /new-row
@@ -14,6 +13,10 @@ export const postNewRow = (req: Request, res: Response, next: NextFunction) => {
 /**
  * POST /edit
  * Edit
+ *
+ * @param {number} req.body.idUniqueID
+ * @param {number} req.body.idSuggestion
+ * @param {string} req.body.value
  */
 export const postEdit = (req: Request, res: Response, next: NextFunction) => {
   // TODO
@@ -35,7 +38,7 @@ export const postEdit = (req: Request, res: Response, next: NextFunction) => {
  * POST /click
  * Click
  *
- * @param {string} req.body.idSuggestion
+ * @param {number} req.body.idSuggestion
  * @param {Array<string>} req.body.rowValues
  */
 export const postClick = (req: Request, res: Response, next: NextFunction) => {
@@ -45,6 +48,8 @@ export const postClick = (req: Request, res: Response, next: NextFunction) => {
 /**
  * POST /click-double
  * Double click
+ * @param {number} req.body.idSuggestion
+ * @param {Array<string>} req.body.rowValues
  */
 export const postClickDouble = (req: Request, res: Response, next: NextFunction) => {
 
@@ -78,6 +83,31 @@ export const postSearchPartial = (req: Request, res: Response, next: NextFunctio
  * Full search
  */
 export const postSearchFull = (req: Request, res: Response, next: NextFunction) => {
+
+  // TODO
+    return res.sendStatus(200);
+};
+
+
+/**
+ * POST /copy-cell
+ * Copy
+ *
+ * @param {number} req.body.idSuggestion
+*/
+export const postCopyCell = (req: Request, res: Response, next: NextFunction) => {
+
+  // TODO
+    return res.sendStatus(200);
+};
+
+/**
+ * POST /copy-column
+ * Copy entire column
+ *
+ * @param {number} req.body.idSuggestionType
+ */
+export const postCopyColumn = (req: Request, res: Response, next: NextFunction) => {
 
   // TODO
     return res.sendStatus(200);

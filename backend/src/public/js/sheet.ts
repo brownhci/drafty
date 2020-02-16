@@ -330,12 +330,12 @@ function updateTableCellInputFormWidthToFitText(textToFit: string) {
   }
 }
 
-function getIdUniqueID(tableCellElement: HTMLTableCellElement): string {
+function getIdUniqueID(tableCellElement: HTMLTableCellElement): number {
   // TODO differentiate the difference between idSuggestion and uniqueId
-  return "";
+  return getIdSuggestion(tableCellElement);
 }
-function getIdSuggestion(tableCellElement: HTMLTableCellElement) {
-  return tableCellElement.id;
+function getIdSuggestion(tableCellElement: HTMLTableCellElement): number {
+  return Number.parseInt(tableCellElement.id);
 }
 function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
   const idSuggestionType = columnLabel.id;
@@ -388,7 +388,6 @@ function shouldSuggestionsInLocalStorageExpire(storedTimestamp: number) {
  */
 async function fetchSuggestions(columnLabel: HTMLTableCellElement): Promise<Array<Suggestion>> {
   const idSuggestionType: number | null = getIdSuggestionType(columnLabel);
-  console.log(idSuggestionType);
   try {
     const response = await fetch(`/suggestions?idSuggestionType=${idSuggestionType}`);
     if (!response.ok) {
@@ -462,15 +461,6 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
     tableCellInputFormElement.style.left = `${left}px`;
     tableCellInputFormElement.style.top = `${top}px`;
   }
-}
-function recordEdit(tableCellElement: HTMLTableCellElement) {
-  // supply enough fields to update database entry for table cell
-
-  recordInteraction("/edit", {
-    "idUniqueID": getIdUniqueID(tableCellElement),
-    "idSuggestion": getIdSuggestion(tableCellElement),
-    "value": tableCellElement.textContent,
-  });
 }
 function saveTableCellInputForm() {
   const text = tableCellInputFormInputElement.value;
@@ -596,6 +586,7 @@ function activeElementOnRepeatedClick(event: MouseEvent) {
     if (isTableDataLastActivatedRecently()) {
       tableCellInputFormAssignTarget(activeTableCellElement);
       activeTableCellElement.lastActiveTimestamp = null;
+      recordDoubleClickOnCell(activeTableCellElement);
     } else {
       updateActiveTimestamp();
     }
@@ -798,6 +789,7 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: C
       // copy single table cell
       copyElementTextToTextarea(tableCellElement);
       elementToHighlight = tableCellElement;
+      recordCopyCell(tableCellElement);
     }
 
     copyTextareaToClipboard();
@@ -1140,6 +1132,15 @@ function recordInteraction(url: string, data: Record<string, any>) {
 
 }
 
+function recordEdit(tableCellElement: HTMLTableCellElement) {
+  // supply enough fields to update database entry for table cell
+
+  recordInteraction("/edit", {
+    "idUniqueID": getIdUniqueID(tableCellElement),
+    "idSuggestion": getIdSuggestion(tableCellElement),
+    "value": tableCellElement.textContent,
+  });
+}
 function recordClickOnCell(tableCellElement: HTMLTableCellElement) {
   if (isTableData(tableCellElement)) {
     // only record click on table data now
@@ -1149,4 +1150,19 @@ function recordClickOnCell(tableCellElement: HTMLTableCellElement) {
     const idSuggestion = getIdSuggestion(tableCellElement);
     recordInteraction("/click", {idSuggestion, rowValues});
   }
+}
+function recordDoubleClickOnCell(tableCellElement: HTMLTableCellElement) {
+    const tableRow: HTMLTableRowElement = tableCellElement.parentElement as HTMLTableRowElement;
+    const rowValues = getTableRowCellValues(tableRow);
+
+    const idSuggestion = getIdSuggestion(tableCellElement);
+    recordInteraction("/click-double", {idSuggestion, rowValues});
+}
+function recordCopyCell(tableCellElement: HTMLTableCellElement) {
+    const idSuggestion = getIdSuggestion(tableCellElement);
+    recordInteraction("/copy-cell", {idSuggestion});
+}
+function recordCopyColumn(columnLabel: HTMLTableCellElement) {
+    const idSuggestionType = getIdSuggestionType(columnLabel);
+    recordInteraction("/copy-column", {idSuggestionType});
 }
