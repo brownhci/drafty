@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import logger from "../util/logger";
 
 /**
  * POST /new-row
@@ -33,9 +34,11 @@ export const postEdit = (req: Request, res: Response, next: NextFunction) => {
 /**
  * POST /click
  * Click
+ *
+ * @param {string} req.body.idSuggestion
+ * @param {Array<string>} req.body.rowValues
  */
 export const postClick = (req: Request, res: Response, next: NextFunction) => {
-  // TODO
     return res.sendStatus(200);
 };
 

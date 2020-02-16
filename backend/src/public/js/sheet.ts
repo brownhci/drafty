@@ -137,6 +137,9 @@ function getDownTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElem
   const rowIndex = tableRowElement.rowIndex;
   return tableRowElements[rowIndex + 1] as HTMLTableRowElement;
 }
+function getTableRowCellValues(tableRowElement: HTMLTableRowElement): Array<string> {
+  return Array.from(tableRowElement.cells).map(getTableDataText);
+}
 
 function getLeftTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTableCellElement | null {
   return tableCellElement.previousElementSibling as HTMLTableCellElement;
@@ -327,6 +330,13 @@ function updateTableCellInputFormWidthToFitText(textToFit: string) {
   }
 }
 
+function getIdUniqueID(tableCellElement: HTMLTableCellElement): string {
+  // TODO differentiate the difference between idSuggestion and uniqueId
+  return "";
+}
+function getIdSuggestion(tableCellElement: HTMLTableCellElement) {
+  return tableCellElement.id;
+}
 function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
   const idSuggestionType = columnLabel.id;
   if (idSuggestionType) {
@@ -378,8 +388,9 @@ function shouldSuggestionsInLocalStorageExpire(storedTimestamp: number) {
  */
 async function fetchSuggestions(columnLabel: HTMLTableCellElement): Promise<Array<Suggestion>> {
   const idSuggestionType: number | null = getIdSuggestionType(columnLabel);
+  console.log(idSuggestionType);
   try {
-    const response = await fetch(`/suggestions?idSuggestionType=${idSuggestionType ? idSuggestionType : getColumnLabelText(columnLabel)}`);
+    const response = await fetch(`/suggestions?idSuggestionType=${idSuggestionType}`);
     if (!response.ok) {
       return null;
     }
@@ -431,15 +442,15 @@ async function attachSuggestions(columnLabel: HTMLTableCellElement) {
  * Use this function to change the editor associated table cell.
  */
 function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
-  if (!isTableCellEditable(targetHTMLTableCellElement)) {
-    return;
-  }
-
   deactivateTableCellInputForm();
   deactivateTableCellInputFormLocation();
   removeSelect(tableCellInputFormSelectInfo);
 
   if (targetHTMLTableCellElement) {
+    if (!isTableCellEditable(targetHTMLTableCellElement)) {
+      return;
+    }
+
     activateTableCellInputForm(targetHTMLTableCellElement);
     updateTableCellInputFormInput(targetHTMLTableCellElement, input);
     const columnLabel = getColumnLabel(targetHTMLTableCellElement.cellIndex);
@@ -452,32 +463,20 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
     tableCellInputFormElement.style.top = `${top}px`;
   }
 }
-function saveEdit(text: string) {
+function recordEdit(tableCellElement: HTMLTableCellElement) {
   // supply enough fields to update database entry for table cell
-  const data = {
-    "edit": text,
-    "_csrf": tableCellInputFormCSRFInput.value,
-  };
-  fetch("/edit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data),
-    })
-    .then(response => {
-      if (!response.ok) {
-        console.error(`${response.status}: ${response.statusText}`);
-      }
-    })
-    .catch(error => console.error("Network error when posting edit", error));
+
+  recordInteraction("/edit", {
+    "idUniqueID": getIdUniqueID(tableCellElement),
+    "idSuggestion": getIdSuggestion(tableCellElement),
+    "value": tableCellElement.textContent,
+  });
 }
 function saveTableCellInputForm() {
   const text = tableCellInputFormInputElement.value;
   if (tableCellInputFormTargetElement) {
-    tableCellInputFormTargetElement.textContent = text;
     // call backend api to send user submission
-    saveEdit(text);
+    recordEdit(tableCellInputFormTargetElement);
   }
 }
 
@@ -721,6 +720,7 @@ function tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: 
   } else {
     updateActiveTableCellElement(tableCellElement);
   }
+  recordClickOnCell(tableCellElement);
   event.preventDefault();
   event.stopPropagation();
 }
@@ -1119,3 +1119,34 @@ tableCellInputFormInputElement.addEventListener("input", function() {
   const query = tableCellInputFormInputElement.value;
   filterSelectOptions(query, tableCellInputFormSelectInfo);
 });
+
+
+// Record Interaction
+function recordInteraction(url: string, data: Record<string, any>) {
+  data["_csrf"] = tableCellInputFormCSRFInput.value;
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then(response => {
+      if (!response.ok) {
+        console.error(`${response.status}: ${response.statusText}`);
+      }
+    })
+    .catch(error => console.error("Network error when posting edit", error));
+
+}
+
+function recordClickOnCell(tableCellElement: HTMLTableCellElement) {
+  if (isTableData(tableCellElement)) {
+    // only record click on table data now
+    const tableRow: HTMLTableRowElement = tableCellElement.parentElement as HTMLTableRowElement;
+    const rowValues = getTableRowCellValues(tableRow);
+
+    const idSuggestion = getIdSuggestion(tableCellElement);
+    recordInteraction("/click", {idSuggestion, rowValues});
+  }
+}
