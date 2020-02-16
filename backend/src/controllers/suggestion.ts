@@ -7,9 +7,9 @@ import { isValidIdSuggestionType } from "../validation/validators";
  * get suggestions
  */
 export const getSuggestions = async (req: Request, res: Response, next: NextFunction) => {
-    if (await isValidIdSuggestionType(req) === false) {
-      return res.sendStatus(400);
-    }
+  if (await isValidIdSuggestionType(req) === false) {
+    return res.sendStatus(400);
+  }
   const idSuggestionType: string = req.query.idSuggestionType;
   const suggestionType: number = Number.parseInt(idSuggestionType);
 
