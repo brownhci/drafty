@@ -4,7 +4,7 @@ from atomicwrites import atomic_write
 init_num_rows = 5
 table_header = '<table id="table" class="mb-0 sticky-top">'
 table_display = '<div id="scrollArea" class="clusterize-scroll"><table id="drafty-table"><tbody id="contentArea" class="clusterize-content">'
-table_hidden = '<table id="drafty-table-hidden" class="hidden"><tbody>'
+table_hidden = '<template><table id="drafty-table-hidden"><tbody>'
 
 # Open database connection
 db = pymysql.connect("localhost","gensheet","chi2020","profs" )
@@ -89,7 +89,6 @@ idRowPrev = rows[0][2]
 sugg      = rows[0][3]
 row = new_row(idRowPrev) + new_cell(idSugg, sugg, idColPrev)
 
-
 for r in rows:
     idSugg = r[0]
     idCol  = r[1]
@@ -110,7 +109,7 @@ for r in rows:
     idRowPrev = idRow
 
 table_display += '</tbody></table></div>'
-table_hidden  += '</tbody></table>'
+table_hidden  += '</tbody></table></template>'
 #print(table_display)
 
 
