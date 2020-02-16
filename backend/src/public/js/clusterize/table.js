@@ -1,9 +1,9 @@
-var rows = [];
-var search     = document.getElementById('search');
-var searchBar  = document.getElementById('searchBar');
-var searchVals = [];
-var sortIsAsc = false;
-var sortCol   = 0;
+let rows = [];
+const search     = document.getElementById("search");
+const searchBar  = document.getElementById("searchBar");
+const searchVals = [];
+let sortIsAsc = false;
+const sortCol   = 0;
 
 /*
 * Resize headers to match columns: sw not done (prob going to do it statically)
@@ -29,20 +29,20 @@ var fitHeaders = (function() {
 /*
 * Fetch suitable rows
 */
-var filterRows = function(rows) {
-  var results = [];
-  for(var i = 0, ii = rows.length; i < ii; i++) {
-    if(rows[i].active) results.push(rows[i].markup)
+const filterRows = function(rows) {
+  const results = [];
+  for(let i = 0, ii = rows.length; i < ii; i++) {
+    if(rows[i].active) results.push(rows[i].markup);
   }
   return results;
-}
+};
 
 /*
 * Init clusterize.js
 */
-var clusterize = new Clusterize({ //uses existing markup: https://clusterize.js.org/
-  scrollId: 'scrollArea',
-  contentId: 'contentArea'
+let clusterize = new Clusterize({ //uses existing markup: https://clusterize.js.org/
+  scrollId: "scrollArea",
+  contentId: "contentArea"
 });
 
 /*
@@ -51,8 +51,8 @@ var clusterize = new Clusterize({ //uses existing markup: https://clusterize.js.
 function initClusterize() {
   clusterize = new Clusterize({
     rows: filterRows(rows),
-    scrollId: 'scrollArea',
-    contentId: 'contentArea',
+    scrollId: "scrollArea",
+    contentId: "contentArea",
     callbacks: {
       // Update headers width on cluster change
       clusterChanged: function() {
@@ -65,24 +65,24 @@ function initClusterize() {
 /*
 * get data from table to fully seed the rows data structure used by clusterize
 */
-var table = document.getElementById('drafty-table');
-var tableHidden = document.getElementById('drafty-table-hidden');
+const table = document.getElementById("drafty-table");
+const tableHidden = document.getElementById("drafty-table-hidden");
 function getRowData(tbl) {
   for (var i = 0, row; row = tbl.rows[i]; i++) {
     //iterate through rows
     //rows would be accessed using the "row" variable assigned in the for loop
-    vals = []
+    vals = [];
     for (var j = 0, col; col = row.cells[j]; j++) {
       //iterate through columns
       //columns would be accessed using the "col" variable assigned in the for loop
       vals.push(col.innerHTML);
     }
-    
+
     rows.push({
       values: vals,
       markup: row.outerHTML,
       active: true
-    }); 
+    });
   }
 }
 
@@ -96,23 +96,24 @@ initClusterize();
 /*
 * Multi-column search
 */
-var onSearch = function() {
-  for(var i = 0, ii = rows.length; i < ii; i++) {
-    var suitable = false;
-    for(var j = 0, jj = rows[i].values.length; j < jj; j++) {
+const onSearch = function() {
+  for(let i = 0, ii = rows.length; i < ii; i++) {
+    let suitable = false;
+    for(let j = 0, jj = rows[i].values.length; j < jj; j++) {
       if(rows[i].values[j].toString().indexOf(search.value) + 1)
         suitable = true;
     }
     rows[i].active = suitable;
   }
   clusterize.update(filterRows(rows));
-}
-search.oninput = onSearch;
+};
+// TODO create a global search
+// search.oninput = onSearch;
 
 /*
 * Sorting: sw: need to switched a
 */
-var onSort = function(col_sort) {
+const onSort = function(col_sort) {
   log(col_sort);
 
   if(sortIsAsc) {
@@ -124,7 +125,7 @@ var onSort = function(col_sort) {
   }
   sortIsAsc = !sortIsAsc;
   clusterize.update(filterRows(rows)); //sw: filterRows prob not necessary in some cases
-}
+};
 
 /*
 * short hand logging function
