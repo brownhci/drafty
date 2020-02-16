@@ -2,7 +2,7 @@ import { db,logDbErr } from "./mysql";
 import { tableName as sugggestionTableName, idSuggestionType as idSuggestionTypeFieldName, suggestionText as suggestionTextFieldName } from "../models/suggestionTypeValues";
 import { tableName as suggestionTypeTableName, name as nameTableFieldName } from "../models/suggestionType";
 
-
+const stmtSuggestionExist: string = "SELECT count(*) as ct FROM Suggestions WHERE idSuggestion = ?";
 const stmtUpdateSuggestion: string = "UPDATE Suggestions SET confidence = ? WHERE idSuggestion = ?";
 const stmtInsertSuggestion: string = "INSERT INTO Suggestions (idSuggestion, idSuggestionTypeFieldName, idUniqueID, idProfile, suggestion, confidence) VALUES (null, ?, ?, ?, ?, ?)";
 const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)";
