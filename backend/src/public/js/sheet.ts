@@ -710,8 +710,8 @@ function tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: 
     activeElementOnRepeatedClick(event);
   } else {
     updateActiveTableCellElement(tableCellElement);
+    recordClickOnCell(tableCellElement);
   }
-  recordClickOnCell(tableCellElement);
   event.preventDefault();
   event.stopPropagation();
 }
@@ -783,8 +783,10 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: C
     let elementToHighlight;
     if (activeTableColElement) {
       // copy entire column
-      copyTableColumnToTextarea(activeTableCellElement.cellIndex);
+      const columnIndex: number = activeTableCellElement.cellIndex;
+      copyTableColumnToTextarea(columnIndex);
       elementToHighlight = activeTableColElement;
+      recordCopyColumn(getColumnLabel(columnIndex));
     } else if (!(isColumnSearch(tableCellElement))) {
       // copy single table cell
       copyElementTextToTextarea(tableCellElement);
