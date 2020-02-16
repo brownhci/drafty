@@ -66,7 +66,9 @@ export async function insertRowId(callback: CallableFunction) {
  */
 export async function getSuggestionsWithSuggestionType(idSuggestionType: number) {
   try {
-    const [results] = await db.query("select ?? AS suggestion from ?? where ?? = ?", [suggestionTextFieldName, sugggestionTableName, idSuggestionTypeFieldName, idSuggestionType]);
+    // const [results] = await db.query("select ?? AS suggestion from ?? where ?? = ?", [suggestionTextFieldName, sugggestionTableName, idSuggestionTypeFieldName, idSuggestionType]);
+    // only pull by idSuggestionType; add GROUP BY to reduce duplicates, and apply a default sorting
+    const [results] = await db.query("select suggestion from Suggestions where idSuggestionType = ? AND active = 1 group by suggestion order by suggestion asc", [idSuggestionType]);
     return [null, results];
   } catch (error) {
     logDbErr(error, "error during fetching suggestions", "warn");
