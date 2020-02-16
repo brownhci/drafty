@@ -78,6 +78,8 @@ $resize-shadow-width: 5px;
     @extend .table;
     @extend .table-bordered;
     @extend .table-striped;
+    @extend .mb-0;
+    @extend .sticky-top;
     table-layout: fixed;
     border-collapse: collapse;
 

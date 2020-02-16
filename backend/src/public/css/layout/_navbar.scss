@@ -1,5 +1,6 @@
 $nav-icons: ("sheet": ("before": $fa-var-table, "after": $fa-var-caret-down), "credits": ("before": $fa-var-award), "user": ("before": $fa-var-user-circle, "after": $fa-var-caret-down));
-$zindex-nav: $zindex-dropdown - 1;
+$zindex-nav: 2000;
+$zindex-sheet-dropdown: $zindex-nav + 1;
 $navbar-height: 60px;
 
 nav {
@@ -115,6 +116,10 @@ nav {
       @extend .fa-lg;
     }
     #navbar-sheet + .dropdown-menu {
+      z-index: $zindex-sheet-dropdown;
+      .dropdown-item {
+        z-index: $zindex-sheet-dropdown;
+      }
       .selected {
         @extend .disabled;
       }
