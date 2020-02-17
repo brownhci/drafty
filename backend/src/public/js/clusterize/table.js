@@ -88,8 +88,13 @@ function getRowData(tbl) {
 
 // get row data
 //log('start: ' + performance.now())
-getRowData(table);
-getRowData(tableHidden);
+if (table) {
+  getRowData(table);
+}
+
+if (tableHidden) {
+  getRowData(tableHidden);
+}
 initClusterize();
 //log('end: ' + performance.now())
 

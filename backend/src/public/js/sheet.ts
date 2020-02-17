@@ -32,7 +32,8 @@ const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
 /* <tr>s */
 const tableRowElements: HTMLCollection = tableElement.rows;
 /* first table row: column labels */
-const tableColumnLabels: HTMLTableRowElement = tableRowElements[0] as HTMLTableRowElement;
+const columnLabelsRowIndex: number = 0;
+const tableColumnLabels: HTMLTableRowElement = tableRowElements[columnLabelsRowIndex] as HTMLTableRowElement;
 /* first table row: column labels */
 const columnSearchRowIndex = 1;
 const tableColumnSearchs: HTMLTableRowElement = tableRowElements[columnSearchRowIndex] as HTMLTableRowElement;
@@ -1168,3 +1169,304 @@ function recordCopyColumn(columnLabel: HTMLTableCellElement) {
     const idSuggestionType = getIdSuggestionType(columnLabel);
     recordInteraction("/copy-column", {idSuggestionType});
 }
+
+// Dynamic loading of table data
+function uuidv4(): string {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  );
+}
+const tableDataContainer = document.getElementById("table-data");
+const tableDataSections: HTMLCollection = tableDataContainer.children; // live
+
+/* load node from template */
+const sidToTemplate: Map<string, HTMLTemplateElement> = new Map();
+const sidToTemplateIndex: Map<string, number> = new Map();
+function transformDataSectionToNode(template: HTMLTemplateElement, templateIndex: number, sid?: string) {
+  if (!sid) {
+    sid = (<HTMLElement> template.content.firstElementChild).dataset.sid;
+    if (!sid) {
+      sid = uuidv4();
+      sidToTemplate.set(sid, template);
+
+      for (const child of template.content.children) {
+        (<HTMLElement> child).dataset.sid = sid.toString();
+      }
+    }
+  }
+
+  sidToTemplateIndex.set(sid, templateIndex);
+
+  const node = template.content.cloneNode(true);
+  return node;
+}
+function getDataSectionTemplateIndex(dataSection: HTMLElement): number {
+  const dataSectionSid = dataSection.dataset.sid;
+  return sidToTemplateIndex.get(dataSectionSid);
+}
+
+function countMatchedElementsInDataSection(template: HTMLTemplateElement, selector = "tr") {
+  return template.content.querySelectorAll(selector).length;
+}
+
+/**
+ * Counts how many elements match the selector in templates.
+ *
+ * @param {DOMString} [selector = 'tr'] - A DOMString containing one or more selectors to match. This string must be a valid CSS selector string
+ * @param {boolean} [dataSectonHasSameStructure = true] - whether the data sections has the same structure so the number of elements matched for one section applies to the other sections. Specifying this element to true will decrease the computation cost.
+ * @returns {number} How many matched elements are found among all templates.
+ */
+function countMatchedElementsInAllDataSections(selector = "tr", dataSectonHasSameStructure = true): number {
+  const numDataSections = tableDataSections.length;
+  if (!numDataSections) {
+    return 0;
+  }
+
+  if (dataSectonHasSameStructure) {
+    const template: HTMLTemplateElement = tableDataSections[0] as HTMLTemplateElement;
+    return countMatchedElementsInDataSection(template) * numDataSections;
+  }
+
+  // count matched elements in every data section
+  let numMatchedElements = 0;
+  for (const tableDataSection of tableDataSections) {
+    numMatchedElements += countMatchedElementsInDataSection((<HTMLTemplateElement> tableDataSection));
+  }
+  return numMatchedElements;
+}
+
+/* render */
+const tableDataSectionsRendered: HTMLCollection = tableElement.getElementsByTagName("tbody");
+const numDataSectionsToRender: number = Math.min(4, tableDataSections.length);
+function removeRenderedDataSection(idx: number) {
+  const dataSection = tableDataSectionsRendered[idx];
+  if (dataSection) {
+    dataSection.remove();
+  }
+}
+function removeFirstRenderedDataSection() {
+  removeRenderedDataSection(0);
+}
+function removeLastRenderedDataSection() {
+  removeRenderedDataSection(tableDataSections.length - 1);
+}
+function initializeInitialRenderedDataSections() {
+  for (let dataSectionIndex = 0; dataSectionIndex < numDataSectionsToRender; dataSectionIndex++) {
+    const dataSection: HTMLTemplateElement = tableDataSections[dataSectionIndex] as HTMLTemplateElement;
+    const dataSectionNode = transformDataSectionToNode(dataSection, dataSectionIndex);
+    tableElement.insertBefore(dataSectionNode, dataSectionFillerBottom);
+  }
+}
+function replaceRenderedDataSections(newDataSections: Array<Element>) {
+  const numTableDataSectionsRendered = tableDataSectionsRendered.length;
+  for (let whichSection = 0; whichSection < numTableDataSectionsRendered; whichSection++) {
+    const replacedTableDataSection = tableDataSectionsRendered[whichSection];
+    const tableDataSectionToReplace = newDataSections[whichSection];
+    replacedTableDataSection.replaceWith(tableDataSectionToReplace);
+  }
+}
+function saveRenderedDataSection(renderedTableDataSection: Element) {
+    const sid = (<HTMLElement> renderedTableDataSection).dataset.sid;
+    const template = sidToTemplate.get(sid);
+    template.content.replaceChild(renderedTableDataSection.cloneNode(true), template.content.firstElementChild);
+}
+function buildDocumentFragmentWithNextDataSections(numNextSectionsToFetch: number): DocumentFragment {
+  const documentFragment: DocumentFragment = new DocumentFragment();
+  const numTableDataSectionsRendered = tableDataSectionsRendered.length;
+
+  let whichSection: number;
+  let renderedTableSection;
+  for (whichSection = 0; whichSection < numNextSectionsToFetch; whichSection++) {
+    // save state of first several rendered data sections
+    renderedTableSection = tableDataSectionsRendered[whichSection];
+    saveRenderedDataSection(renderedTableSection);
+  }
+
+  for (; whichSection < numTableDataSectionsRendered; whichSection++) {
+    // copy rest of rendered data sections
+    renderedTableSection = tableDataSectionsRendered[whichSection];
+    documentFragment.appendChild(renderedTableSection.cloneNode(true));
+  }
+
+  const nextDataSectionTemplateIndex = getDataSectionTemplateIndex(renderedTableSection as HTMLElement) + 1;
+
+  for (let templateIndex = nextDataSectionTemplateIndex; templateIndex < nextDataSectionTemplateIndex + numNextSectionsToFetch; templateIndex++) {
+    // copying over new nodes
+    const tableSectionToRender = tableDataSections[templateIndex] as HTMLTemplateElement;
+    const dataSectionNode = transformDataSectionToNode(tableSectionToRender, templateIndex);
+    documentFragment.appendChild(dataSectionNode);
+  }
+  return documentFragment;
+}
+function buildDocumentFragmentWithPreviousDataSections(numPreviousSectionsToFetch: number): DocumentFragment {
+  const documentFragment: DocumentFragment = new DocumentFragment();
+  const numTableDataSectionsRendered = tableDataSectionsRendered.length;
+
+  let whichSection: number;
+  let renderedTableSection;
+  for (whichSection = numDataSectionsToRender - 1; whichSection > numDataSectionsToRender - numPreviousSectionsToFetch; whichSection--) {
+    // save state of last several rendered data sections
+    renderedTableSection = tableDataSectionsRendered[whichSection];
+    saveRenderedDataSection(renderedTableSection);
+  }
+
+  for (; whichSection >= 0; whichSection--) {
+    // copy rest of rendered data sections
+    renderedTableSection = tableDataSectionsRendered[whichSection];
+    documentFragment.prepend(renderedTableSection.cloneNode(true));
+  }
+
+  const previousDataSectionTemplateIndex = getDataSectionTemplateIndex(renderedTableSection as HTMLElement) - 1;
+  for (let templateIndex = previousDataSectionTemplateIndex; templateIndex > previousDataSectionTemplateIndex - numPreviousSectionsToFetch; templateIndex--) {
+    // copying over new nodes
+    const tableSectionToRender = tableDataSections[templateIndex] as HTMLTemplateElement;
+    const dataSectionNode = transformDataSectionToNode(tableSectionToRender, templateIndex);
+    documentFragment.prepend(dataSectionNode);
+  }
+
+  return documentFragment;
+}
+
+/* filler */
+let dataSectionFillerTop: HTMLTableRowElement;
+let dataSectionFillerBottom: HTMLTableRowElement;
+const dataSectionFillerClass = "filler-row";
+const dataSectionTopFillerClass = "filler-row-top";
+const dataSectionBottomFillerClass = "filler-row-bottom";
+
+const numDataSectionsWillShift = 2;
+const numTableRowsInDataSection: number = countMatchedElementsInDataSection((<HTMLTemplateElement> tableDataSections[0]));
+let numTableRowsNotDisplayedAbove = 0;
+let numTableRowsNotDisplayedBelow = (tableDataSections.length - numDataSectionsToRender) * numTableRowsInDataSection;
+
+const tableRowHeight = tableColumnLabels.clientHeight;
+function initializeDataSectionFillers() {
+  dataSectionFillerTop = document.createElement("tr");
+  dataSectionFillerTop.classList.add(dataSectionFillerClass, dataSectionTopFillerClass);
+  tableElement.appendChild(dataSectionFillerTop);
+
+  dataSectionFillerBottom = document.createElement("tr");
+  dataSectionFillerBottom.classList.add(dataSectionFillerClass, dataSectionBottomFillerClass);
+  tableElement.appendChild(dataSectionFillerBottom);
+}
+
+function adjustDataSectionFillersHeight(numElementsNotDisplayedAbove: number, numElementsNotDisplayedBelow: number, elementHeight: number) {
+  const fillerAboveHeight = `${numElementsNotDisplayedAbove * elementHeight}px`;
+  dataSectionFillerTop.dataset.numElements = numElementsNotDisplayedAbove.toString();
+  dataSectionFillerTop.style.height = fillerAboveHeight;
+
+  const fillerBelowHeight = `${numElementsNotDisplayedBelow * elementHeight}px`;
+  dataSectionFillerBottom.dataset.numElements = numElementsNotDisplayedBelow.toString();
+  dataSectionFillerBottom.style.height = fillerBelowHeight;
+}
+
+function adjustDataSectionFillersHeightForShifting(numDataSectionsShiftedAbove: number) {
+  // adjust filler height
+  const numTableRowsShiftedAbove = numDataSectionsShiftedAbove * numTableRowsInDataSection;
+  numTableRowsNotDisplayedAbove += numTableRowsShiftedAbove;
+  numTableRowsNotDisplayedBelow -= numTableRowsShiftedAbove;
+  adjustDataSectionFillersHeight(numTableRowsNotDisplayedAbove, numTableRowsNotDisplayedBelow, tableRowHeight);
+}
+
+/* intersection observer */
+let scrollPosition: number = tableScrollContainer.scrollTop;
+let topSentinel: HTMLElement;
+let bottomSentinel: HTMLElement;
+let topSentinelObserver: IntersectionObserver;
+let bottomSentinelObserver: IntersectionObserver;
+function getTopSentinel(renderedDataSections = tableDataSectionsRendered, selector = "tr"): HTMLElement | null {
+  const firstDataSection = renderedDataSections[0];
+  if (!firstDataSection) {
+    return null;
+  }
+
+  const matchedElements = firstDataSection.querySelectorAll(selector);
+  return matchedElements[matchedElements.length - 1] as HTMLElement;
+}
+function getBottomSentinel(renderedDataSections = tableDataSectionsRendered, selector = "tr"): HTMLElement | null {
+  const lastDataSection = renderedDataSections[renderedDataSections.length - 1];
+  if (!lastDataSection) {
+    return null;
+  }
+
+  const matchedElements = lastDataSection.querySelectorAll(selector);
+  return matchedElements[0] as HTMLElement;
+}
+function activateSentinels(newTopSentinel = getTopSentinel(), newBottomSentinel = getBottomSentinel()) {
+  topSentinel = newTopSentinel;
+  bottomSentinel = newBottomSentinel;
+  topSentinelObserver.observe(topSentinel);
+  bottomSentinelObserver.observe(bottomSentinel);
+}
+function deactivateSentinels() {
+  topSentinelObserver.unobserve(topSentinel);
+  bottomSentinelObserver.unobserve(bottomSentinel);
+  topSentinel = null;
+  bottomSentinel = null;
+}
+/**
+ * store current scroll position and report whether the scroll direction is going upward or downward
+ */
+function trackScrollDirection() {
+  const lastScrollPosition = scrollPosition;
+  scrollPosition = tableScrollContainer.scrollTop;
+  return scrollPosition > lastScrollPosition ? "down": "up";
+}
+function shiftDataSections(numDataSectionsShiftedAbove: number) {
+  const isScrollDown: boolean = numDataSectionsShiftedAbove >= 0;
+  const numTableRowsRemainingInScrollDirection = isScrollDown? numTableRowsNotDisplayedBelow: numTableRowsNotDisplayedAbove;
+  if (numTableRowsRemainingInScrollDirection === 0) {
+    return;
+  }
+
+  deactivateSentinels();
+  adjustDataSectionFillersHeightForShifting(numDataSectionsShiftedAbove);
+  const documentFragmentBuilder = isScrollDown? buildDocumentFragmentWithNextDataSections: buildDocumentFragmentWithPreviousDataSections;
+  const documentFragment = documentFragmentBuilder(numDataSectionsWillShift);
+  replaceRenderedDataSections(Array.from(documentFragment.children));
+  activateSentinels();
+}
+
+function topSentinelReachedHandler(entries: Array<IntersectionObserverEntry>, observer: IntersectionObserver) {
+  const scrollDirection = trackScrollDirection();
+
+  entries.forEach(entry => {
+    if (entry.isIntersecting && scrollDirection === "up") {
+      // the last element of the first data section is appearing into view
+      shiftDataSections(-numDataSectionsWillShift);
+    }
+  });
+}
+function bottomSentinelReachedHandler(entries: Array<IntersectionObserverEntry>, observer: IntersectionObserver) {
+  const scrollDirection = trackScrollDirection();
+
+  entries.forEach(entry => {
+    if (entry.isIntersecting && scrollDirection === "down") {
+      // the first element of the last data section is appearing into view
+      shiftDataSections(numDataSectionsWillShift);
+    }
+  });
+}
+function initializeIntersectionObserver(topSentinel: HTMLElement, bottomSentinel: HTMLElement) {
+  topSentinelObserver = new IntersectionObserver(topSentinelReachedHandler, {
+    "root": tableScrollContainer,
+    "threshold": 0,
+  });
+  bottomSentinelObserver = new IntersectionObserver(bottomSentinelReachedHandler, {
+    "root": tableScrollContainer,
+    "threshold": 0
+  });
+  activateSentinels(topSentinel, bottomSentinel);
+}
+function initializeTableDataScrollManager() {
+  // set up filler
+  initializeDataSectionFillers();
+  adjustDataSectionFillersHeight(0, numTableRowsNotDisplayedBelow, tableRowHeight);
+
+  // set up initial data sections
+  initializeInitialRenderedDataSections();
+
+  // set up intersection observer
+  initializeIntersectionObserver(getTopSentinel(), getBottomSentinel());
+}
+initializeTableDataScrollManager();
