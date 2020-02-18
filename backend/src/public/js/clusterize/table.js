@@ -102,15 +102,27 @@ initClusterize();
 * Multi-column search
 */
 const onSearch = function() {
-  for(let i = 0, ii = rows.length; i < ii; i++) {
-    let suitable = false;
-    for(let j = 0, jj = rows[i].values.length; j < jj; j++) {
-      if(rows[i].values[j].toString().indexOf(search.value) + 1)
-        suitable = true;
+  // get current search values
+  searchBar = document.getElementById('searchBar').children
+  for (const key in searchBar) {
+    if (searchBar.hasOwnProperty(key)) {
+      log(searchBar[key].getElementsByTagName("input")[0].value.toLowerCase())
+      searchVals[key] = searchBar[key].getElementsByTagName("input")[0].value.toLowerCase()
     }
-    rows[i].active = suitable;
   }
-  clusterize.update(filterRows(rows));
+
+  for(var i = 0, ii = rows.length; i < ii; i++) {
+    var suitable = true
+    for(const col in searchVals) {
+      if(rows[i].values[col].toString().toLowerCase().indexOf(searchVals[col]) === -1) {
+        suitable = false
+        break
+      }
+    }
+    rows[i].active = suitable
+  }
+
+  clusterize.update(filterRows(rows))
 };
 // TODO create a global search
 // search.oninput = onSearch;

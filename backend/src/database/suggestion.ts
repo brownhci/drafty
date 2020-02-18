@@ -7,6 +7,8 @@ const stmtUpdateSuggestionConfidence: string = "UPDATE Suggestions s INNER JOIN 
 const stmtInsertSuggestion: string = "INSERT INTO Suggestions (idSuggestion, idSuggestionTypeFieldName, idUniqueID, idProfile, suggestion, confidence) VALUES (null, ?, ?, ?, ?, ?)";
 const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)";
 const stmtSelectPrevSuggestions: string = "SELECT * FROM Suggestions WHERE idUniqueID = ? AND idSuggestionTypeFieldName = ? GROUP BY suggestion ORDER BY suggestion";
+const stmtSelectSuggestionTypeValues: string = "SELECT value as suggestion FROM SuggestionTypeValues WHERE idSuggestionType = ? ORDER BY suggestion asc"
+const stmtSelectSuggestionsWithSuggestionType: string = "SELECT suggestion FROM Suggestions WHERE idSuggestionType = ? AND active = 1 group by suggestion ORDER BY suggestion asc"
 
 /**
  * returns 0 or 1 if suggestion exists in DB
@@ -61,14 +63,31 @@ export async function insertRowId(callback: CallableFunction) {
 /**
  * Get suggestions with specified suggestion type.
  *
- * @param {string} idSuggestionType - A numer representing the suggestion type (between {@link ../models/suggestion.ts idSuggestionTypeLowerBound } and {@link ../models/suggestion.ts idSuggestionTypeUpperBound }
+ * @param {string} idSuggestionType - A number representing the suggestion type (between {@link ../models/suggestion.ts idSuggestionTypeLowerBound } and {@link ../models/suggestion.ts idSuggestionTypeUpperBound }
  * @returns {(Error|null, Array<SuggestionRow>)} Either an error when lookup fails or null and an array of SuggestionRow as results.
  */
 export async function getSuggestionsWithSuggestionType(idSuggestionType: number) {
   try {
     // const [results] = await db.query("select ?? AS suggestion from ?? where ?? = ?", [suggestionTextFieldName, sugggestionTableName, idSuggestionTypeFieldName, idSuggestionType]);
     // only pull by idSuggestionType; add GROUP BY to reduce duplicates, and apply a default sorting
-    const [results] = await db.query("select suggestion from Suggestions where idSuggestionType = ? AND active = 1 group by suggestion order by suggestion asc", [idSuggestionType]);
+    const [results] = await db.query(stmtSelectSuggestionsWithSuggestionType, [idSuggestionType]);
+    return [null, results];
+  } catch (error) {
+    logDbErr(error, "error during fetching suggestions", "warn");
+    return [error];
+  }
+}
+
+/**
+ * Get suggestionTypeValues with specified suggestion type.
+ *
+ * @param {string} idSuggestionType - A number representing the suggestion type (between {@link ../models/suggestion.ts idSuggestionTypeLowerBound } and {@link ../models/suggestion.ts idSuggestionTypeUpperBound }
+ * @returns {(Error|null, Array<SuggestionRow>)} Either an error when lookup fails or null and an array of SuggestionRow as results.
+ */
+export async function getSuggestionTypeValues(idSuggestionType: number) {
+  try {
+    // only pull by idSuggestionType; add GROUP BY to reduce duplicates, and apply a default sorting
+    const [results] = await db.query(stmtSelectSuggestionTypeValues, [idSuggestionType]);
     return [null, results];
   } catch (error) {
     logDbErr(error, "error during fetching suggestions", "warn");
