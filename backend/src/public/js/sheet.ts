@@ -238,7 +238,7 @@ let tableCellInputFormLocationActive: boolean = false;
 const tableCellInputFormInputContainer: HTMLElement = tableCellInputFormLocateCellElement.parentElement;
 
 function activateTableCellInputFormLocation() {
-  if (!tableCellInputFormLocationActive) {
+  if (isTableCellInputFormActive() && !tableCellInputFormLocationActive) {
     tableCellInputFormLocateCellElement.classList.add(activeClass);
     tableCellInputFormLocationActive = true;
     // reposition the tableCellInputFormElement
@@ -262,9 +262,10 @@ function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableC
 }
 function restoreTableCellInputFormLocation() {
   if (tableCellInputFormLocationActive && tableCellInputFormTargetElement) {
-    const {left: targetLeft, bottom: targetBottom} = tableCellInputFormTargetElement.getBoundingClientRect();
-    const {left: inputFormLeft, bottom: inputFormBottom} = tableCellInputFormElement.getBoundingClientRect();
-    tableScrollContainer.scrollTop += targetBottom - inputFormBottom;
+    const {left: targetLeft, top: targetTop} = tableCellInputFormTargetElement.getBoundingClientRect();
+    const {left: inputFormLeft, top: inputFormTop} = tableCellInputFormElement.getBoundingClientRect();
+    const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
+    tableScrollContainer.scrollTop += targetTop - inputFormTop - buttonHeight;
     tableScrollContainer.scrollLeft += targetLeft - inputFormLeft;
   }
 }
@@ -1136,11 +1137,28 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
 tableElement.addEventListener("mouseup", tableHeadOnMouseUp);
 
 /* scroll event */
+let scrollTimeoutId: number | null = null;
+let shouldRerenderDataSectionsWhenScrollFinished: boolean = false;
+function whenScrollFinished() {
+  tableCellInputFormLocationOnScroll(event);
+
+  const scrollAmount = tableScrollContainer.scrollTop;
+  if (shouldRerenderDataSectionsWhenScrollFinished && shouldScrollAmountTriggerRerenderDataSections(scrollAmount)) {
+    shouldRerenderDataSectionsWhenScrollFinished = false;
+    scrollToDataRowByScrollAmount(scrollAmount);
+
+    topFillerObserver.observe(dataSectionFillerTop);
+    bottomFillerObserver.observe(dataSectionFillerBottom);
+  }
+}
 function tableCellInputFormLocationOnScroll(event: Event) {
   activateTableCellInputFormLocation();
 }
 tableScrollContainer.addEventListener("scroll", function(event: Event) {
-  tableCellInputFormLocationOnScroll(event);
+  if (scrollTimeoutId) {
+    window.clearTimeout(scrollTimeoutId);
+  }
+  scrollTimeoutId = window.setTimeout(whenScrollFinished, 40);
 }, true);
 
 /* submit event */
@@ -1334,7 +1352,7 @@ function translateFromDataRowIndexToTableRowIndex(dataRowIndex: number): number 
   const firstRenderedDataRowTableRowIndex = dataSectionFillerTop.rowIndex + 1;
   return firstRenderedDataRowTableRowIndex + dataRowIndexDifference;
 }
-function scrollToDataRowIndex(dataRowIndex: number, callback: (tableRow: HTMLTableRowElement) => void) {
+function scrollToDataRowIndex(dataRowIndex: number, scrollIntoView: boolean = false, callback: (tableRow: HTMLTableRowElement) => void = () => undefined) {
   const dataSectionIndex = getDataSectionIndexByDataRowIndex(dataRowIndex);
 
   // determine whether the data section containing the data row is rendered
@@ -1362,11 +1380,22 @@ function scrollToDataRowIndex(dataRowIndex: number, callback: (tableRow: HTMLTab
   // scroll into view
   const rowIndex = translateFromDataRowIndexToTableRowIndex(dataRowIndex);
   const tableRow = tableRowElements[rowIndex] as HTMLTableRowElement;
-  tableRow.scrollIntoView();
+  if (scrollIntoView) {
+    tableRow.scrollIntoView(true);
+  }
 
   if (callback) {
     callback(tableRow);
   }
+}
+
+function scrollToDataRowByScrollAmount(scrollAmount: number) {
+  const firstTableRowOffsetTop = dataSectionFillerTop.offsetTop;
+  // if the scroll amount has not exceeded the first table row element, for example, scroll to very top
+  // consider as if scroll to first table row element
+  const distanceFromFirstTableRow = Math.max(scrollAmount - firstTableRowOffsetTop, 0);
+  const dataRowIndex = Math.floor(distanceFromFirstTableRow / tableRowHeight);
+  scrollToDataRowIndex(dataRowIndex, false);
 }
 
 /* render */
@@ -1496,6 +1525,20 @@ function initializeDataSectionFillers() {
   dataSectionFillerBottom = document.createElement("tr");
   dataSectionFillerBottom.classList.add(dataSectionFillerClass, dataSectionBottomFillerClass);
   tableElement.appendChild(dataSectionFillerBottom);
+
+  // set up intersection observer for fillers
+  topFillerObserver = new IntersectionObserver(fillerReachedHandler, {
+    "root": tableScrollContainer,
+    "rootMargin": "20% 0px",
+    "threshold": 0
+  });
+  topFillerObserver.observe(dataSectionFillerTop);
+  bottomFillerObserver = new IntersectionObserver(fillerReachedHandler, {
+    "root": tableScrollContainer,
+    "rootMargin": "20% 0px",
+    "threshold": 0
+  });
+  bottomFillerObserver.observe(dataSectionFillerBottom);
 }
 
 function adjustDataSectionFillersHeight(numElementsNotDisplayedAbove: number, numElementsNotDisplayedBelow: number, elementHeight: number) {
@@ -1522,6 +1565,8 @@ let topSentinel: HTMLElement;
 let bottomSentinel: HTMLElement;
 let topSentinelObserver: IntersectionObserver;
 let bottomSentinelObserver: IntersectionObserver;
+let topFillerObserver: IntersectionObserver;
+let bottomFillerObserver: IntersectionObserver;
 function getTopSentinel(renderedDataSections = tableDataSectionsRendered, selector = "tr"): HTMLElement | null {
   const firstDataSection = renderedDataSections[0];
   if (!firstDataSection) {
@@ -1582,6 +1627,31 @@ function renderDataSections(numDataSectionsShiftedAbove: number, documentFragmen
   activateSentinels();
 }
 
+/**
+ * Determines whether a re-render of data sections should happen.
+ *
+ * It should happen if
+ *   + the scrollAmount is positive
+ *   + the scrollAmount is zero but there are elements not displayed (inside dataSectionFillerTop)
+ *
+ * @param {number} scrollAmount - a nonnegative number indicating how much the target is scrolled
+ * @returns {boolean} whether a re-render of data sections is necessary
+ */
+function shouldScrollAmountTriggerRerenderDataSections(scrollAmount: number): boolean {
+  return scrollAmount > 0 || numTableRowsNotDisplayedAbove > 0;
+
+}
+
+function fillerReachedHandler(entries: Array<IntersectionObserverEntry>, observer: IntersectionObserver) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const scrollAmount = tableScrollContainer.scrollTop;
+      if (shouldScrollAmountTriggerRerenderDataSections) {
+        shouldRerenderDataSectionsWhenScrollFinished = true;
+      }
+    }
+  });
+}
 function topSentinelReachedHandler(entries: Array<IntersectionObserverEntry>, observer: IntersectionObserver) {
   const scrollDirection = trackScrollDirection();
 
@@ -1642,7 +1712,7 @@ function packDataElements(dataElements: Iterator<HTMLElement>, numDataElementsIn
     let {value: dataElement, done} = dataElements.next();
     for (i = 0; i < numDataElementsInSection && !done;) {
       if (filterFunction(dataElement)) {
-        tableBodyElement.appendChild(dataElement);
+        tableBodyElement.appendChild(dataElement.cloneNode(true));
         i++;
       }
       ({value: dataElement, done} = dataElements.next());
@@ -1660,6 +1730,13 @@ function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLEleme
   sortDataElements(tableDataElements, comparator);
   const dataElementsIterator = tableDataElements[Symbol.iterator]();
   const documentFragment = packDataElements(dataElementsIterator, numTableRowsInDataSection);
+  const dataSections = documentFragment.children;
+  initializeTableDataScrollManager(dataSections, true);
+}
+
+function reinitializeTableDataScrollManagerByFiltering(filterFunction: (element: HTMLElement) => boolean) {
+  const dataElementsIterator = tableDataElements[Symbol.iterator]();
+  const documentFragment = packDataElements(dataElementsIterator, numTableRowsInDataSection, filterFunction);
   const dataSections = documentFragment.children;
   initializeTableDataScrollManager(dataSections, true);
 }
