@@ -8,6 +8,12 @@ $resize-shadow-width: 5px;
     text-overflow: ellipsis;
 }
 
+#clipboard-textarea {
+  @extend .position-absolute;
+  top: -50%;
+  left: -50%;
+}
+
 #text-width-measure {
   @extend .m-0;
   @extend .p-0;
@@ -95,6 +101,12 @@ $resize-shadow-width: 5px;
       }
     }
 
+    tr {
+      &.active {
+        background-color: rgba($primary, 0.1) !important;
+      }
+    }
+
     th, td {
       @extend %cell-overflow;
       @extend .unselectable;
@@ -107,9 +119,39 @@ $resize-shadow-width: 5px;
       @extend .thead-light;
       th {
         border-bottom-width: 1px;
+        .sort-btn {
+          @extend .btn;
+          @extend .btn-sm;
+          @extend .d-none;
+          @extend .float-right;
+          @extend .fas;
+          &.clicked {
+            @extend .d-inline-block;
+          }
+          @extend .fa-sort-alpha-down;
+          &.desc {
+            @extend .fa-sort-alpha-down-alt;
+          }
+        }
+        &.hover {
+          .sort-btn {
+            @extend .d-inline-block;
+            @extend .btn-outline-primary;
+            &.clicked {
+              @extend .btn-primary;
+            }
+          }
+        }
         &.active, &.inputing {
           @extend .bg-primary;
           @extend .text-white;
+          .sort-btn {
+            @extend .d-inline-block;
+            @extend .btn-outline-light;
+            &.clicked {
+              @extend .btn-light;
+            }
+          }
         }
         &.active-accompany {
           @extend .bg-secondary;

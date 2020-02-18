@@ -38,6 +38,8 @@ const tableColumnLabels: HTMLTableRowElement = tableRowElements[columnLabelsRowI
 const columnSearchRowIndex = 1;
 const tableColumnSearchs: HTMLTableRowElement = tableRowElements[columnSearchRowIndex] as HTMLTableRowElement;
 
+const tableRowHeight = tableColumnLabels.clientHeight;
+
 /* <col>s */
 const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
 
@@ -77,6 +79,9 @@ function isTableHead(element: HTMLElement): boolean {
 function isTableCell(element: HTMLElement): boolean {
   const tagName = element.tagName;
   return tagName === "TD" || tagName === "TH";
+}
+function isTableCellSortButton(element: HTMLElement): boolean {
+  return element.classList.contains("sort-btn");
 }
 function isInput(element: HTMLElement): boolean {
   return element.tagName === "INPUT";
@@ -716,10 +721,45 @@ function tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: 
   event.preventDefault();
   event.stopPropagation();
 }
+let lastSortButtonClicked: HTMLButtonElement;
+function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement, event: MouseEvent) {
+  const clickClass = "clicked";
+  const descendingClass = "desc";
+
+  if (lastSortButtonClicked && lastSortButtonClicked !== buttonElement) {
+    lastSortButtonClicked.classList.remove(clickClass, descendingClass);
+  }
+  lastSortButtonClicked = buttonElement;
+
+  const columnIndex = (<HTMLTableCellElement> buttonElement.parentElement).cellIndex;
+  // '' => 'clicked' => 'clicked desc' => 'clicked'
+  if (buttonElement.classList.contains(clickClass)) {
+    if (buttonElement.classList.contains(descendingClass)) {
+      // ascending sort
+      buttonElement.classList.remove(descendingClass);
+      const comparator = constructTableRowComparator(columnIndex, (text1, text2) => text1.localeCompare(text2));
+      reinitializeTableDataScrollManagerBySorting(comparator);
+    } else {
+      // descending sort
+      buttonElement.classList.add(descendingClass);
+      const comparator = constructTableRowComparator(columnIndex, (text1, text2) => text2.localeCompare(text1));
+      reinitializeTableDataScrollManagerBySorting(comparator);
+    }
+  } else {
+    // ascending sort
+    buttonElement.classList.add(clickClass);
+    const comparator = constructTableRowComparator(columnIndex, (text1, text2) => text1.localeCompare(text2));
+    reinitializeTableDataScrollManagerBySorting(comparator);
+  }
+
+  event.stopPropagation();
+}
 tableElement.addEventListener("click", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
     tableCellElementOnClick(target as HTMLTableCellElement, event);
+  } else if (isTableCellSortButton(target)) {
+    tableCellSortButtonOnClick(target as HTMLButtonElement, event);
   }
 }, true);
 
@@ -734,6 +774,7 @@ interface ConsumableKeyboardEvent extends KeyboardEvent {
 }
 /** copy **/
 function initializeClipboardTextarea() {
+  const textareaTemplate = document.createElement("template");
   const textarea = document.createElement("textarea");
   textarea.id = "clipboard-textarea";
   textarea.readOnly = true;
@@ -1176,8 +1217,9 @@ function uuidv4(): string {
     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
   );
 }
-const tableDataContainer = document.getElementById("table-data");
-const tableDataSections: HTMLCollection = tableDataContainer.children; // live
+
+let tableDataSections: Array<HTMLTemplateElement> | HTMLCollection;
+let tableDataElements: Array<HTMLElement>;
 
 /* load node from template */
 const sidToTemplate: Map<string, HTMLTemplateElement> = new Map();
@@ -1187,7 +1229,6 @@ function transformDataSectionToNode(template: HTMLTemplateElement, templateIndex
     sid = (<HTMLElement> template.content.firstElementChild).dataset.sid;
     if (!sid) {
       sid = uuidv4();
-      sidToTemplate.set(sid, template);
 
       for (const child of template.content.children) {
         (<HTMLElement> child).dataset.sid = sid.toString();
@@ -1195,6 +1236,7 @@ function transformDataSectionToNode(template: HTMLTemplateElement, templateIndex
     }
   }
 
+  sidToTemplate.set(sid, template);
   sidToTemplateIndex.set(sid, templateIndex);
 
   const node = template.content.cloneNode(true);
@@ -1207,6 +1249,14 @@ function getDataSectionTemplateIndex(dataSection: HTMLElement): number {
 
 function countMatchedElementsInDataSection(template: HTMLTemplateElement, selector = "tr") {
   return template.content.querySelectorAll(selector).length;
+}
+
+function getDataElementsFromDataSections(dataSections: HTMLCollection | Array<HTMLTemplateElement>, selector="tr"): Array<HTMLElement> {
+  const dataElements = [];
+  for (const dataSection of dataSections) {
+    dataElements.push(...(<HTMLTemplateElement> dataSection).content.querySelectorAll(selector));
+  }
+  return dataElements as Array<HTMLElement>;
 }
 
 /**
@@ -1235,9 +1285,93 @@ function countMatchedElementsInAllDataSections(selector = "tr", dataSectonHasSam
   return numMatchedElements;
 }
 
+function getDataSectionIndexByDataRowIndex(dataRowIndex: number) {
+  return Math.floor(dataRowIndex / numTableRowsInDataSection);
+}
+
+function getSurroundingDataSectionIndexes(targetDataSectionIndex: number): Array<number> {
+  const lastDataSectionIndex = tableDataSections.length - 1;
+  const rightEndCapacity = lastDataSectionIndex - targetDataSectionIndex;
+  const leftEndCapacity = targetDataSectionIndex;
+  const shouldAllocateToLeftEndMore: boolean = leftEndCapacity > rightEndCapacity;
+
+  let numDataSectionsNeeded = numDataSectionsToRender - 1;
+  const numDataSectionsNeededSmallerEnd = Math.floor(numDataSectionsNeeded / 2);
+  const numDataSectionsNeededLargerEnd = numDataSectionsNeeded - numDataSectionsNeededSmallerEnd;
+
+  let leftEndAllocated, rightEndAllocated;
+  if (shouldAllocateToLeftEndMore) {
+    rightEndAllocated = Math.min(numDataSectionsNeededSmallerEnd, rightEndCapacity);
+    numDataSectionsNeeded -= rightEndAllocated;
+    leftEndAllocated = Math.min(numDataSectionsNeeded, leftEndCapacity);
+  } else {
+    leftEndAllocated = Math.min(numDataSectionsNeededSmallerEnd, leftEndCapacity);
+    numDataSectionsNeeded -= leftEndAllocated;
+    rightEndAllocated = Math.min(numDataSectionsNeeded, rightEndCapacity);
+  }
+
+  const leftEndIndex = targetDataSectionIndex - leftEndAllocated;
+  const rightEndIndex = targetDataSectionIndex + rightEndAllocated;
+
+  const sectionIndexes = [];
+  for (let index = leftEndIndex; index <= rightEndIndex; index++) {
+    sectionIndexes.push(index);
+  }
+  return sectionIndexes;
+}
+
+// scroll
+/**
+ * Gets the table row index of a rendered table data row using the first rendered table row as reference.
+ *
+ * @param {number} dataRowIndex - the row index of the table data in all data sections' rows.
+ * @returns The calculated HTML table row index. Only valid if the data row is actually rendered.
+ */
+function translateFromDataRowIndexToTableRowIndex(dataRowIndex: number): number {
+  const firstRenderedDataRowIndex = numTableRowsNotDisplayedAbove;
+  const dataRowIndexDifference = dataRowIndex - firstRenderedDataRowIndex;
+
+  const firstRenderedDataRowTableRowIndex = dataSectionFillerTop.rowIndex + 1;
+  return firstRenderedDataRowTableRowIndex + dataRowIndexDifference;
+}
+function scrollToDataRowIndex(dataRowIndex: number, callback: (tableRow: HTMLTableRowElement) => void) {
+  const dataSectionIndex = getDataSectionIndexByDataRowIndex(dataRowIndex);
+
+  // determine whether the data section containing the data row is rendered
+  let dataSectionRendered = false;
+  let renderedTableDataSectionTemplateIndex;
+  for (const renderedTableDataSection of tableDataSectionsRendered) {
+    renderedTableDataSectionTemplateIndex = getDataSectionTemplateIndex(<HTMLElement> renderedTableDataSection);
+    if (renderedTableDataSectionTemplateIndex === dataSectionIndex) {
+      dataSectionRendered = true;
+    }
+  }
+
+  // put data row in rendered data sections if not already
+  if (!dataSectionRendered) {
+    // replace current rendered data sections
+    const dataSectionIndexesToRender = getSurroundingDataSectionIndexes(dataSectionIndex);
+    const lastDataSectionIndexToRender = dataSectionIndexesToRender[dataSectionIndexesToRender.length - 1];
+    const documentFragment = buildDocumentFragmentWithNonoverlappingDataSections(dataSectionIndexesToRender);
+    // renderedTableDataSectionTemplateIndex will hold the last rendered data section template index
+    // while lastDataSectionIndexToRender will hold the last data section to render
+    const numDataSectionsShiftedAbove = lastDataSectionIndexToRender - renderedTableDataSectionTemplateIndex;
+    renderDataSections(numDataSectionsShiftedAbove, documentFragment);
+  }
+
+  // scroll into view
+  const rowIndex = translateFromDataRowIndexToTableRowIndex(dataRowIndex);
+  const tableRow = tableRowElements[rowIndex] as HTMLTableRowElement;
+  tableRow.scrollIntoView();
+
+  if (callback) {
+    callback(tableRow);
+  }
+}
+
 /* render */
 const tableDataSectionsRendered: HTMLCollection = tableElement.getElementsByTagName("tbody");
-const numDataSectionsToRender: number = Math.min(4, tableDataSections.length);
+let numDataSectionsToRender: number;
 function removeRenderedDataSection(idx: number) {
   const dataSection = tableDataSectionsRendered[idx];
   if (dataSection) {
@@ -1269,6 +1403,21 @@ function saveRenderedDataSection(renderedTableDataSection: Element) {
     const sid = (<HTMLElement> renderedTableDataSection).dataset.sid;
     const template = sidToTemplate.get(sid);
     template.content.replaceChild(renderedTableDataSection.cloneNode(true), template.content.firstElementChild);
+}
+function buildDocumentFragmentWithNonoverlappingDataSections(templateIndexes: Array<number>): DocumentFragment {
+  // save rendered data sections
+  for (const renderedTableSection of tableDataSectionsRendered) {
+    saveRenderedDataSection(renderedTableSection);
+  }
+
+  // building new document fragment using new data sections
+  const documentFragment: DocumentFragment = new DocumentFragment();
+  for (const templateIndex of templateIndexes) {
+    const tableSectionToRender = tableDataSections[templateIndex] as HTMLTemplateElement;
+    const dataSectionNode = transformDataSectionToNode(tableSectionToRender, templateIndex);
+    documentFragment.appendChild(dataSectionNode);
+  }
+  return documentFragment;
 }
 function buildDocumentFragmentWithNextDataSections(numNextSectionsToFetch: number): DocumentFragment {
   const documentFragment: DocumentFragment = new DocumentFragment();
@@ -1335,11 +1484,10 @@ const dataSectionTopFillerClass = "filler-row-top";
 const dataSectionBottomFillerClass = "filler-row-bottom";
 
 const numDataSectionsWillShift = 2;
-const numTableRowsInDataSection: number = countMatchedElementsInDataSection((<HTMLTemplateElement> tableDataSections[0]));
-let numTableRowsNotDisplayedAbove = 0;
-let numTableRowsNotDisplayedBelow = (tableDataSections.length - numDataSectionsToRender) * numTableRowsInDataSection;
+let numTableRowsInDataSection: number;
+let numTableRowsNotDisplayedAbove: number;
+let numTableRowsNotDisplayedBelow: number;
 
-const tableRowHeight = tableColumnLabels.clientHeight;
 function initializeDataSectionFillers() {
   dataSectionFillerTop = document.createElement("tr");
   dataSectionFillerTop.classList.add(dataSectionFillerClass, dataSectionTopFillerClass);
@@ -1369,7 +1517,7 @@ function adjustDataSectionFillersHeightForShifting(numDataSectionsShiftedAbove: 
 }
 
 /* intersection observer */
-let scrollPosition: number = tableScrollContainer.scrollTop;
+let scrollPosition: number;
 let topSentinel: HTMLElement;
 let bottomSentinel: HTMLElement;
 let topSentinelObserver: IntersectionObserver;
@@ -1399,8 +1547,12 @@ function activateSentinels(newTopSentinel = getTopSentinel(), newBottomSentinel 
   bottomSentinelObserver.observe(bottomSentinel);
 }
 function deactivateSentinels() {
-  topSentinelObserver.unobserve(topSentinel);
-  bottomSentinelObserver.unobserve(bottomSentinel);
+  if (topSentinel) {
+    topSentinelObserver.unobserve(topSentinel);
+  }
+  if (bottomSentinel) {
+    bottomSentinelObserver.unobserve(bottomSentinel);
+  }
   topSentinel = null;
   bottomSentinel = null;
 }
@@ -1419,10 +1571,13 @@ function shiftDataSections(numDataSectionsShiftedAbove: number) {
     return;
   }
 
-  deactivateSentinels();
-  adjustDataSectionFillersHeightForShifting(numDataSectionsShiftedAbove);
   const documentFragmentBuilder = isScrollDown? buildDocumentFragmentWithNextDataSections: buildDocumentFragmentWithPreviousDataSections;
   const documentFragment = documentFragmentBuilder(numDataSectionsWillShift);
+  renderDataSections(numDataSectionsShiftedAbove, documentFragment);
+}
+function renderDataSections(numDataSectionsShiftedAbove: number, documentFragment: DocumentFragment) {
+  deactivateSentinels();
+  adjustDataSectionFillersHeightForShifting(numDataSectionsShiftedAbove);
   replaceRenderedDataSections(Array.from(documentFragment.children));
   activateSentinels();
 }
@@ -1450,23 +1605,98 @@ function bottomSentinelReachedHandler(entries: Array<IntersectionObserverEntry>,
 function initializeIntersectionObserver(topSentinel: HTMLElement, bottomSentinel: HTMLElement) {
   topSentinelObserver = new IntersectionObserver(topSentinelReachedHandler, {
     "root": tableScrollContainer,
+    "rootMargin": "20% 0px",
     "threshold": 0,
   });
   bottomSentinelObserver = new IntersectionObserver(bottomSentinelReachedHandler, {
     "root": tableScrollContainer,
+    "rootMargin": "20% 0px",
     "threshold": 0
   });
   activateSentinels(topSentinel, bottomSentinel);
 }
-function initializeTableDataScrollManager() {
+
+/* sorting */
+function constructTableRowComparator(columnIndex: number, cellComparator: (cell1Text: string, cell2Text: string, tableCell1: HTMLTableCellElement, tableCell2: HTMLTableCellElement) => number) {
+  return (tableRow1: HTMLTableRowElement, tableRow2: HTMLTableRowElement) => {
+    const tableCell1 = getCellInTableRow(tableRow1, columnIndex);
+    const tableCell2 = getCellInTableRow(tableRow2, columnIndex);
+    const cell1Text = getTableDataText(tableCell1);
+    const cell2Text = getTableDataText(tableCell2);
+    return cellComparator(cell1Text, cell2Text, tableCell1, tableCell2);
+
+  };
+}
+function sortDataElements(dataElements: Array<HTMLElement>, comparator: (el1: HTMLElement, el2: HTMLElement) => number) {
+  // const dataElements = [];
+  // for (const dataSection of dataSections) {
+  //   dataElements.push((<HTMLTemplateElement> dataSection.cloneNode(true)).content.querySelectorAll(selector));
+  // }
+  dataElements.sort(comparator);
+  return dataElements;
+}
+function packDataElements(dataElements: Array<HTMLElement>, numDataElementsInSection: number): DocumentFragment {
+  const documentFragment = new DocumentFragment();
+  const numDataElements = dataElements.length;
+
+  let i = 0;
+  while (i < numDataElements) {
+    const nextPackStartIndex = Math.min(numDataElements, i + numDataElementsInSection);
+    const templateElement = document.createElement("template");
+    const tableBodyElement = document.createElement("tbody");
+    for (; i < nextPackStartIndex; i++) {
+      tableBodyElement.appendChild(dataElements[i]);
+    }
+    templateElement.content.appendChild(tableBodyElement);
+    documentFragment.append(templateElement);
+  }
+
+  return documentFragment;
+}
+
+function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLElement, el2: HTMLElement) => number) {
+  sortDataElements(tableDataElements, comparator);
+  const documentFragment = packDataElements(tableDataElements, numTableRowsInDataSection);
+  const dataSections = documentFragment.children;
+  initializeTableDataScrollManager(dataSections, true);
+}
+
+function resetTableDataScrollManager(reinitialize=true) {
+  initializeTableDataScrollManager(document.getElementById("table-data").children, reinitialize);
+}
+
+function initializeTableDataScrollManager(dataSections: Array<HTMLTemplateElement> | HTMLCollection, reinitialize=false) {
+  // set up variables
+  tableDataSections = dataSections;
+  tableDataElements = getDataElementsFromDataSections(dataSections);
+  sidToTemplate.clear();
+  sidToTemplateIndex.clear();
+
+  numDataSectionsToRender = Math.min(4, tableDataSections.length);
+
+  numTableRowsInDataSection = countMatchedElementsInDataSection((<HTMLTemplateElement> tableDataSections[0]));
+  numTableRowsNotDisplayedAbove = 0;
+  numTableRowsNotDisplayedBelow = (tableDataSections.length - numDataSectionsToRender) * numTableRowsInDataSection;
+
+  scrollPosition =  tableScrollContainer.scrollTop;
   // set up filler
-  initializeDataSectionFillers();
+  if (!reinitialize) {
+    initializeDataSectionFillers();
+  }
   adjustDataSectionFillersHeight(0, numTableRowsNotDisplayedBelow, tableRowHeight);
 
   // set up initial data sections
+  if (reinitialize) {
+    // remove previous bound table data sections
+    Array.from(tableDataSectionsRendered).forEach(tableDataSectionRendered => tableDataSectionRendered.remove());
+  }
   initializeInitialRenderedDataSections();
 
   // set up intersection observer
+  if (reinitialize) {
+    deactivateSentinels();
+  }
   initializeIntersectionObserver(getTopSentinel(), getBottomSentinel());
 }
-initializeTableDataScrollManager();
+
+resetTableDataScrollManager(false);
