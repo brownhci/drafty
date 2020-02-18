@@ -1628,35 +1628,37 @@ function constructTableRowComparator(columnIndex: number, cellComparator: (cell1
   };
 }
 function sortDataElements(dataElements: Array<HTMLElement>, comparator: (el1: HTMLElement, el2: HTMLElement) => number) {
-  // const dataElements = [];
-  // for (const dataSection of dataSections) {
-  //   dataElements.push((<HTMLTemplateElement> dataSection.cloneNode(true)).content.querySelectorAll(selector));
-  // }
   dataElements.sort(comparator);
   return dataElements;
 }
-function packDataElements(dataElements: Array<HTMLElement>, numDataElementsInSection: number): DocumentFragment {
+function packDataElements(dataElements: Iterator<HTMLElement>, numDataElementsInSection: number): DocumentFragment {
   const documentFragment = new DocumentFragment();
-  const numDataElements = dataElements.length;
+  // const numDataElements = dataElements.length;
 
   let i = 0;
-  while (i < numDataElements) {
-    const nextPackStartIndex = Math.min(numDataElements, i + numDataElementsInSection);
+  while (true) {
+    // const nextPackStartIndex = Math.min(numDataElements, i + numDataElementsInSection);
     const templateElement = document.createElement("template");
     const tableBodyElement = document.createElement("tbody");
-    for (; i < nextPackStartIndex; i++) {
-      tableBodyElement.appendChild(dataElements[i]);
+
+    let {value: dataElement, done} = dataElements.next();
+    for (i = 0; i < numDataElementsInSection && !done; i++) {
+      tableBodyElement.appendChild(dataElement);
+      ({value: dataElement, done} = dataElements.next());
     }
+
     templateElement.content.appendChild(tableBodyElement);
     documentFragment.append(templateElement);
+    if (done) {
+      return documentFragment;
+    }
   }
-
-  return documentFragment;
 }
 
 function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLElement, el2: HTMLElement) => number) {
   sortDataElements(tableDataElements, comparator);
-  const documentFragment = packDataElements(tableDataElements, numTableRowsInDataSection);
+  const dataElementsIterator = tableDataElements[Symbol.iterator]();
+  const documentFragment = packDataElements(dataElementsIterator, numTableRowsInDataSection);
   const dataSections = documentFragment.children;
   initializeTableDataScrollManager(dataSections, true);
 }
