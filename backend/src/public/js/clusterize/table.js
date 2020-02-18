@@ -30,6 +30,7 @@ var fitHeaders = (function() {
 * Fetch suitable rows
 */
 const filterRows = function(rows) {
+  log('Filter Rows Started...')
   const results = [];
   for(let i = 0, ii = rows.length; i < ii; i++) {
     if(rows[i].active) results.push(rows[i].markup);
@@ -66,8 +67,10 @@ function initClusterize() {
 * get data from table to fully seed the rows data structure used by clusterize
 */
 const table = document.getElementById("drafty-table");
-const tableHidden = document.getElementById("drafty-table-hidden");
+//const tableHidden = document.getElementById("drafty-table-hidden");
+const tableHidden = document.getElementById("drafty-template").content.getElementById("drafty-table-hidden");
 function getRowData(tbl) {
+  log('starting...getRowData')
   for (var i = 0, row; row = tbl.rows[i]; i++) {
     //iterate through rows
     //rows would be accessed using the "row" variable assigned in the for loop
@@ -87,20 +90,21 @@ function getRowData(tbl) {
 }
 
 // get row data
-//log('start: ' + performance.now())
+log('start: ' + performance.now())
 getRowData(table);
 getRowData(tableHidden);
 initClusterize();
-//log('end: ' + performance.now())
+log('end: ' + performance.now())
 
 /*
 * Multi-column search
 */
 const onSearch = function() {
+  log('onSearch Started...')
   for(let i = 0, ii = rows.length; i < ii; i++) {
     let suitable = false;
     for(let j = 0, jj = rows[i].values.length; j < jj; j++) {
-      if(rows[i].values[j].toString().indexOf(search.value) + 1)
+      if(rows[i].values[j].toString().indexOf(searchBar.value) + 1)
         suitable = true;
     }
     rows[i].active = suitable;
@@ -108,7 +112,7 @@ const onSearch = function() {
   clusterize.update(filterRows(rows));
 };
 // TODO create a global search
-// search.oninput = onSearch;
+//search.oninput = onSearch;
 
 /*
 * Sorting: sw: need to switched a
