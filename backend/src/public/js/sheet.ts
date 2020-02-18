@@ -1631,19 +1631,20 @@ function sortDataElements(dataElements: Array<HTMLElement>, comparator: (el1: HT
   dataElements.sort(comparator);
   return dataElements;
 }
-function packDataElements(dataElements: Iterator<HTMLElement>, numDataElementsInSection: number): DocumentFragment {
+function packDataElements(dataElements: Iterator<HTMLElement>, numDataElementsInSection: number, filterFunction: (element: HTMLElement) => boolean = () => true): DocumentFragment {
   const documentFragment = new DocumentFragment();
-  // const numDataElements = dataElements.length;
 
   let i = 0;
   while (true) {
-    // const nextPackStartIndex = Math.min(numDataElements, i + numDataElementsInSection);
     const templateElement = document.createElement("template");
     const tableBodyElement = document.createElement("tbody");
 
     let {value: dataElement, done} = dataElements.next();
-    for (i = 0; i < numDataElementsInSection && !done; i++) {
-      tableBodyElement.appendChild(dataElement);
+    for (i = 0; i < numDataElementsInSection && !done;) {
+      if (filterFunction(dataElement)) {
+        tableBodyElement.appendChild(dataElement);
+        i++;
+      }
       ({value: dataElement, done} = dataElements.next());
     }
 
