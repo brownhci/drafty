@@ -7,8 +7,8 @@ const stmtUpdateSuggestionConfidence: string = "UPDATE Suggestions s INNER JOIN 
 const stmtInsertSuggestion: string = "INSERT INTO Suggestions (idSuggestion, idSuggestionTypeFieldName, idUniqueID, idProfile, suggestion, confidence) VALUES (null, ?, ?, ?, ?, ?)";
 const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)";
 const stmtSelectPrevSuggestions: string = "SELECT * FROM Suggestions WHERE idUniqueID = ? AND idSuggestionTypeFieldName = ? GROUP BY suggestion ORDER BY suggestion";
-const stmtSelectSuggestionTypeValues: string = "SELECT value as suggestion FROM SuggestionTypeValues WHERE idSuggestionType = ? ORDER BY suggestion asc"
-const stmtSelectSuggestionsWithSuggestionType: string = "SELECT suggestion FROM Suggestions WHERE idSuggestionType = ? AND active = 1 group by suggestion ORDER BY suggestion asc"
+const stmtSelectSuggestionTypeValues: string = "SELECT value as suggestion FROM SuggestionTypeValues WHERE idSuggestionType = ? ORDER BY suggestion asc";
+const stmtSelectSuggestionsWithSuggestionType: string = "SELECT suggestion FROM Suggestions WHERE idSuggestionType = ? AND active = 1 group by suggestion ORDER BY suggestion asc";
 
 /**
  * returns 0 or 1 if suggestion exists in DB
