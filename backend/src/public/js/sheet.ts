@@ -1239,7 +1239,7 @@ function recordInteraction(url: string, data: Record<string, any>) {
         console.error(`${response.status}: ${response.statusText}`);
       }
     })
-    .catch(error => console.error("Network error when posting edit", error));
+    .catch(error => console.error("Network error when posting interaction", error));
 
 }
 

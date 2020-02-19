@@ -3,6 +3,7 @@ import { insertSuggestion, insertRowId } from  "./suggestion";
 
 const stmtInsertInteraction: string = "INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)";
 const stmtInsertClick: string = "INSERT INTO Click (idInteraction, idSuggestion, rowvalues) VALUES (?, ?, ?);";
+const stmtInsertCopy: string = "INSERT INTO Copy (idInteraction, idSuggestion) VALUES (?, ?);";
 const stmtInsertDoubleClick: string = "INSERT INTO DoubleClick (idInteraction, idSuggestion, rowvalues) VALUES (?, ?, ?);";
 const stmtInsertSort: string  = "INSERT INTO Sort (idInteraction, idSuggestionType) VALUES (?, ?);";
 
@@ -35,6 +36,19 @@ export async function insertClick(idSession: string, idInteractionType: string, 
         await db.query(stmtInsertClick, [idInteraction, idSuggestion, rowvalues]);
     } catch (error) {
         logDbErr(error, "error during insert click", "warn");
+    }
+}
+
+/**
+ * save new copy
+ */
+//DB Code
+export async function insertCopy(idSession: string, idInteractionType: string, idSuggestion: string) {
+    try {
+        const idInteraction = await insertInteraction(idSession, idInteractionType);
+        await db.query(stmtInsertCopy, [idInteraction, idSuggestion]);
+    } catch (error) {
+        logDbErr(error, "error during insert copy", "warn");
     }
 }
 
