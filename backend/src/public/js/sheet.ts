@@ -1,3 +1,7 @@
+// TODO need to restore active state of scrolled element
+// TODO need to apply reposition across scrolling
+// TODO fix resize vue's disappearance
+
 const activeClass = "active";
 const activeAccompanyClass = "active-accompany";
 /* this interface is used to detect double click (two clicks within short interval specified by {@link recentTimeLimit} */
@@ -37,6 +41,14 @@ const tableColumnLabels: HTMLTableRowElement = tableRowElements[columnLabelsRowI
 /* first table row: column labels */
 const columnSearchRowIndex = 1;
 const tableColumnSearchs: HTMLTableRowElement = tableRowElements[columnSearchRowIndex] as HTMLTableRowElement;
+const tableColumnSearchQueries: Map<number, RegExp> = new Map();
+function updateTableColumnSearchQuery(columnIndex: number, query: string) {
+  if (query == "") {
+    tableColumnSearchQueries.delete(columnIndex);
+  } else {
+    tableColumnSearchQueries.set(columnIndex, new RegExp(query, "i"));
+  }
+}
 
 const tableRowHeight = tableColumnLabels.clientHeight;
 
@@ -635,7 +647,7 @@ function updateTableColumnWidth(index: number, newWidth: string) {
 function updateTableColumnWidthToFitText(tableColumnSearchElement: HTMLTableCellElement, tableColumnSearchInputElement: HTMLInputElement) {
   const textLength = measureTextWidth(tableColumnSearchInputElement.value);
   const padding = 24;
-  const slack = 24;
+  const slack = 44;
   const estimatedTextWidth = textLength + slack + padding;
 
   const currentTextWidthCanFit = tableColumnSearchInputElement.offsetWidth;
@@ -853,7 +865,28 @@ function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: 
   }
   event.consumed = true;
 }
-function tableColumnSearchElementOnInput(tableColumnSearchElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+let columnSearchFilteringTimeoutId: number | null = null;
+function tableColumnSearchElementOnInput(tableColumnSearchInputElement: HTMLInputElement, tableColumnSearchElement: HTMLTableCellElement, event: Event) {
+  const query = tableColumnSearchInputElement.value;
+  updateTableColumnSearchQuery(tableColumnSearchElement.cellIndex, query);
+  if (columnSearchFilteringTimeoutId) {
+    window.clearTimeout(columnSearchFilteringTimeoutId);
+  }
+  columnSearchFilteringTimeoutId = window.setTimeout(filterTableDataSectionsByQueries, 100);
+}
+function filterTableDataSectionsByQueries() {
+  if (tableColumnSearchQueries.size === 0) {
+    if (activeComparator) {
+      reinitializeTableDataScrollManagerBySorting(activeComparator);
+    } else {
+      initializeTableDataScrollManager(defaultDataSections, true);
+    }
+  } else {
+    const filterFunction = constructTableRowFilter(tableColumnSearchQueries);
+    reinitializeTableDataScrollManagerByFiltering(filterFunction);
+  }
+}
+function tableColumnSearchElementOnKeyDown(tableColumnSearchElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   // focus on the input
   const columnSearchInput: HTMLInputElement = getColumnSearchInput(tableColumnSearchElement);
   const activeElement = document.activeElement;
@@ -862,6 +895,8 @@ function tableColumnSearchElementOnInput(tableColumnSearchElement: HTMLTableCell
     columnSearchInput.focus();
     // update the text
     columnSearchInput.value = event.key;
+    // update the query regex
+    updateTableColumnSearchQuery(tableColumnSearchElement.cellIndex, columnSearchInput.value);
   }
 
   updateTableColumnWidthToFitText(tableColumnSearchElement, columnSearchInput);
@@ -933,7 +968,7 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
     const columnSearch = target.closest("th.column-search");
     if (columnSearch) {
       const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
-      tableColumnSearchElementOnInput(tableColumnSearchElement, event);
+      tableColumnSearchElementOnKeyDown(tableColumnSearchElement, event);
     }
   }
 }, true);
@@ -957,6 +992,20 @@ tableCellInputFormElement.addEventListener("keydown", function(event: KeyboardEv
     tableCellInputFormOnKeyDown(event);
   }
 }, true);
+
+tableElement.addEventListener("input", function(event: Event) {
+  const target: HTMLElement = event.target as HTMLElement;
+  if (isInput(target)) {
+    // inputing on column search
+    const columnSearch = target.closest("th.column-search");
+    if (columnSearch) {
+      const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
+      tableColumnSearchElementOnInput(target as HTMLInputElement, tableColumnSearchElement, event);
+    }
+  }
+}, true);
+
+
 /* mouse events */
 interface ResizableHTMLTableCellElement extends HTMLTableCellElement {
   atResize?: boolean;
@@ -1401,17 +1450,8 @@ function scrollToDataRowByScrollAmount(scrollAmount: number) {
 /* render */
 const tableDataSectionsRendered: HTMLCollection = tableElement.getElementsByTagName("tbody");
 let numDataSectionsToRender: number;
-function removeRenderedDataSection(idx: number) {
-  const dataSection = tableDataSectionsRendered[idx];
-  if (dataSection) {
-    dataSection.remove();
-  }
-}
-function removeFirstRenderedDataSection() {
-  removeRenderedDataSection(0);
-}
-function removeLastRenderedDataSection() {
-  removeRenderedDataSection(tableDataSections.length - 1);
+function removeTableDataSectionsRendered() {
+    Array.from(tableDataSectionsRendered).forEach(tableDataSectionRendered => tableDataSectionRendered.remove());
 }
 function initializeInitialRenderedDataSections() {
   for (let dataSectionIndex = 0; dataSectionIndex < numDataSectionsToRender; dataSectionIndex++) {
@@ -1687,6 +1727,18 @@ function initializeIntersectionObserver(topSentinel: HTMLElement, bottomSentinel
 }
 
 /* sorting */
+function constructTableRowFilter(searchQueries: Map<number, RegExp>) {
+  return (tableRow: HTMLTableRowElement) => {
+    for (const [columnIndex, queryRegex] of searchQueries) {
+      const tableRowCell: HTMLTableCellElement = getCellInTableRow(tableRow, columnIndex);
+      const cellText: string = getTableDataText(tableRowCell);
+      if (!queryRegex.test(cellText)) {
+        return false;
+      }
+    }
+    return true;
+  };
+}
 function constructTableRowComparator(columnIndex: number, cellComparator: (cell1Text: string, cell2Text: string, tableCell1: HTMLTableCellElement, tableCell2: HTMLTableCellElement) => number) {
   return (tableRow1: HTMLTableRowElement, tableRow2: HTMLTableRowElement) => {
     const tableCell1 = getCellInTableRow(tableRow1, columnIndex);
@@ -1701,7 +1753,7 @@ function sortDataElements(dataElements: Array<HTMLElement>, comparator: (el1: HT
   dataElements.sort(comparator);
   return dataElements;
 }
-function packDataElements(dataElements: Iterator<HTMLElement>, numDataElementsInSection: number, filterFunction: (element: HTMLElement) => boolean = () => true): DocumentFragment {
+function packDataElements(dataElements: Iterator<HTMLElement>, numDataElementsInSection: number, filterFunction: (element: HTMLElement) => boolean = () => true): DocumentFragment | null {
   const documentFragment = new DocumentFragment();
 
   let i = 0;
@@ -1721,62 +1773,80 @@ function packDataElements(dataElements: Iterator<HTMLElement>, numDataElementsIn
     templateElement.content.appendChild(tableBodyElement);
     documentFragment.append(templateElement);
     if (done) {
-      return documentFragment;
+      if (i === 0) {
+        return null;
+      } else {
+        return documentFragment;
+      }
     }
   }
 }
 
-function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLElement, el2: HTMLElement) => number) {
-  sortDataElements(tableDataElements, comparator);
-  const dataElementsIterator = tableDataElements[Symbol.iterator]();
+let activeComparator: (el1: HTMLElement, el2: HTMLElement) => number | null;
+function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLElement, el2: HTMLElement) => number, dataElements: Array<HTMLElement> = tableDataElements) {
+  activeComparator = comparator;
+  sortDataElements(dataElements, comparator);
+  const dataElementsIterator = dataElements[Symbol.iterator]();
   const documentFragment = packDataElements(dataElementsIterator, numTableRowsInDataSection);
-  const dataSections = documentFragment.children;
-  initializeTableDataScrollManager(dataSections, true);
+  if (documentFragment === null) {
+    clearTableDataScrollManager();
+  } else {
+    const dataSections = documentFragment.children;
+    initializeTableDataScrollManager(dataSections, true);
+  }
 }
 
-function reinitializeTableDataScrollManagerByFiltering(filterFunction: (element: HTMLElement) => boolean) {
-  const dataElementsIterator = tableDataElements[Symbol.iterator]();
+function reinitializeTableDataScrollManagerByFiltering(filterFunction: (element: HTMLElement) => boolean, dataElements: Array<HTMLElement> = tableDataElements) {
+  const dataElementsIterator = dataElements[Symbol.iterator]();
   const documentFragment = packDataElements(dataElementsIterator, numTableRowsInDataSection, filterFunction);
-  const dataSections = documentFragment.children;
-  initializeTableDataScrollManager(dataSections, true);
-}
-
-function resetTableDataScrollManager(reinitialize=true) {
-  initializeTableDataScrollManager(document.getElementById("table-data").children, reinitialize);
+  if (documentFragment === null) {
+    clearTableDataScrollManager();
+  } else {
+    const dataSections = documentFragment.children;
+    initializeTableDataScrollManager(dataSections, true);
+  }
 }
 
 function initializeTableDataScrollManager(dataSections: Array<HTMLTemplateElement> | HTMLCollection, reinitialize=false) {
   // set up variables
   tableDataSections = dataSections;
   tableDataElements = getDataElementsFromDataSections(dataSections);
-  sidToTemplate.clear();
-  sidToTemplateIndex.clear();
-
   numDataSectionsToRender = Math.min(4, tableDataSections.length);
+
+  // set up filler
+  if (reinitialize) {
+    clearTableDataScrollManager();
+  } else {
+    initializeDataSectionFillers();
+  }
 
   numTableRowsInDataSection = countMatchedElementsInDataSection((<HTMLTemplateElement> tableDataSections[0]));
   numTableRowsNotDisplayedAbove = 0;
   numTableRowsNotDisplayedBelow = (tableDataSections.length - numDataSectionsToRender) * numTableRowsInDataSection;
 
-  scrollPosition =  tableScrollContainer.scrollTop;
-  // set up filler
-  if (!reinitialize) {
-    initializeDataSectionFillers();
-  }
-  adjustDataSectionFillersHeight(0, numTableRowsNotDisplayedBelow, tableRowHeight);
+  scrollPosition = tableScrollContainer.scrollTop;
+
+  adjustDataSectionFillersHeight(numTableRowsNotDisplayedAbove, numTableRowsNotDisplayedBelow, tableRowHeight);
 
   // set up initial data sections
-  if (reinitialize) {
-    // remove previous bound table data sections
-    Array.from(tableDataSectionsRendered).forEach(tableDataSectionRendered => tableDataSectionRendered.remove());
-  }
   initializeInitialRenderedDataSections();
 
   // set up intersection observer
-  if (reinitialize) {
-    deactivateSentinels();
-  }
   initializeIntersectionObserver(getTopSentinel(), getBottomSentinel());
 }
 
-resetTableDataScrollManager(false);
+function clearTableDataScrollManager() {
+  sidToTemplate.clear();
+  sidToTemplateIndex.clear();
+
+  numTableRowsInDataSection = countMatchedElementsInDataSection((<HTMLTemplateElement> tableDataSections[0]));
+  numTableRowsNotDisplayedAbove = 0;
+  numTableRowsNotDisplayedBelow = tableDataSections.length * numTableRowsInDataSection;
+  adjustDataSectionFillersHeight(numTableRowsNotDisplayedAbove, numTableRowsNotDisplayedBelow, tableRowHeight);
+
+  removeTableDataSectionsRendered();
+  deactivateSentinels();
+}
+
+const defaultDataSections: HTMLCollection = document.getElementById("table-data").children;
+initializeTableDataScrollManager(defaultDataSections, false);
