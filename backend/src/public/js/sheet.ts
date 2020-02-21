@@ -872,7 +872,7 @@ function tableColumnSearchElementOnInput(tableColumnSearchInputElement: HTMLInpu
   if (columnSearchFilteringTimeoutId) {
     window.clearTimeout(columnSearchFilteringTimeoutId);
   }
-  columnSearchFilteringTimeoutId = window.setTimeout(filterTableDataSectionsByQueries, 100);
+  columnSearchFilteringTimeoutId = window.setTimeout(filterTableDataSectionsByQueries, 400); // sw - 400ms is the default value used in old Vaadin 8 version
 }
 function filterTableDataSectionsByQueries() {
   if (tableColumnSearchQueries.size === 0) {
