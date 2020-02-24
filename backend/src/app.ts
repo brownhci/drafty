@@ -1,7 +1,6 @@
 import express from "express";
 import compression from "compression"; // compresses requests
 import session from "express-session";
-import sessionFileStore from "session-file-store";
 import bodyParser from "body-parser";
 import helmet from "helmet";
 import lusca from "lusca";
@@ -13,8 +12,12 @@ import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, SESSION_SECRET } from "./ut
 //user session functions
 import { createAnonUser } from "./controllers/user"; //TODO: create createSession
 
+// Create session file store
+// import sessionFileStore from "session-file-store";
+// const sessionStore = sessionFileStore(session); // FileStore
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-//const MySQLStore = require("express-mysql-session")(session);
+const MySQLStore = require("express-mysql-session")(session); // MySQLStore
+
 
 // Controllers (route handlers)
 import * as helpController from "./controllers/help";
@@ -28,8 +31,6 @@ import * as suggestionController from "./controllers/suggestion";
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
 
-// Create session file store
-const FileStore = sessionFileStore(session);
 
 // Create Express server
 const app = express();
@@ -71,10 +72,18 @@ app.use(session({
         httpOnly: true,
         maxAge: expInMilliseconds
     },
-    store: new FileStore({
+    store: new MySQLStore({
+      host: DB_HOST,
+      user: DB_USER,
+      password: DB_PASSWORD,
+      database: DB_DATABASE,
+    })
+    /*
+    store: new sessionStore({
        path: process.env.NOW ? `sessions` : `.sessions`,
        secret: "testing_please_change"
     })
+    */
 }));
 app.use(passport.initialize());
 app.use(passport.session());
