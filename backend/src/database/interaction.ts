@@ -1,7 +1,9 @@
 import { db,logDbErr } from "./mysql";
 import { insertSuggestion, insertRowId } from  "./suggestion";
 
-const stmtInsertInteraction: string = "INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)";
+// FUNCTION insert_interaction(idSession INT, idInteractionType INT)
+// const stmtInsertInteraction: string = "INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)";
+
 const stmtInsertClick: string = "INSERT INTO Click (idInteraction, idSuggestion, rowvalues) VALUES (?, ?, ?);";
 const stmtInsertCopy: string = "INSERT INTO Copy (idInteraction, idSuggestion) VALUES (?, ?);";
 const stmtInsertDoubleClick: string = "INSERT INTO DoubleClick (idInteraction, idSuggestion, rowvalues) VALUES (?, ?, ?);";
@@ -13,27 +15,13 @@ const stmtSearchMulti: string  = "INSERT INTO SearchMulti (idInteraction, idSugg
 const stmtInsertEdit: string  = "INSERT INTO Edit (idInteraction, idSuggestion, idEntryType, chosen) VALUES (?, ?, ?, ?);";
 
 /**
- * save new interaction id
- */
-//DB Code
-async function insertInteraction(idSession: string, idInteractionType: string) {
-    try {
-        const [results, fields] = await db.query(stmtInsertInteraction, [idSession, idInteractionType]);
-        return results.insertId;
-    } catch (error) {
-        logDbErr(error, "error during insert interaction", "warn");
-        return [error];
-    }
-}
-
-/**
  * save new click
  */
 //DB Code
-export async function insertClick(idSession: string, idInteractionType: string, idSuggestion: string, rowvalues: string) {
+export async function insertClick(idSession: string, idSuggestion: string, rowvalues: string) {
     try {
-        const idInteraction = await insertInteraction(idSession, idInteractionType);
-        await db.query(stmtInsertClick, [idInteraction, idSuggestion, rowvalues]);
+        const idInteractionType: number = 1;
+        await db.query(stmtInsertClick, [idSession, idInteractionType, idSuggestion, rowvalues]);
     } catch (error) {
         logDbErr(error, "error during insert click", "warn");
     }
@@ -43,10 +31,10 @@ export async function insertClick(idSession: string, idInteractionType: string, 
  * save new copy
  */
 //DB Code
-export async function insertCopy(idSession: string, idInteractionType: string, idSuggestion: string) {
+export async function insertCopy(idSession: string, idSuggestion: string) {
     try {
-        const idInteraction = await insertInteraction(idSession, idInteractionType);
-        await db.query(stmtInsertCopy, [idInteraction, idSuggestion]);
+        const idInteractionType: number = 8;
+        await db.query(stmtInsertCopy, [idSession, idInteractionType, idSuggestion]);
     } catch (error) {
         logDbErr(error, "error during insert copy", "warn");
     }
@@ -56,10 +44,10 @@ export async function insertCopy(idSession: string, idInteractionType: string, i
  * save new sort
  */
 //DB Code
-export async function insertSort(idSession: string, idInteractionType: string, idSuggestionType: string) {
+export async function insertSort(idSession: string, idSuggestionType: string) {
     try {
-        const idInteraction = await insertInteraction(idSession, idInteractionType);
-        db.query(stmtInsertSort, [idInteraction, idSuggestionType]);
+        const idInteractionType: number = 4;
+        db.query(stmtInsertSort, [idSession, idInteractionType, idSuggestionType]);
     } catch (error) {
         logDbErr(error, "error during insert sort", "warn");
     }
@@ -69,11 +57,27 @@ export async function insertSort(idSession: string, idInteractionType: string, i
  * save new sort
  */
 //DB Code
-export async function insertEdit(idSession: string, idInteractionType: string, idSuggestion: string, idEntryType: string, chosen: boolean) {
+export async function insertEdit(idSession: string, idSuggestion: string, idEntryType: string, chosen: boolean) {
     try {
-        const idInteraction = await insertInteraction(idSession, idInteractionType);
-        db.query(stmtInsertEdit, [idInteraction, idSuggestion, idEntryType, chosen]);
+        const idInteractionType: int = 6;
+        db.query(stmtInsertEdit, [idSession, idInteractionType, idSuggestion, idEntryType, chosen]);
     } catch (error) {
         logDbErr(error, "error during insert edit", "warn");
     }
 }
+
+/**
+ * save new interaction id
+ */
+//DB Code
+/*
+async function insertInteraction(idSession: string, idInteractionType: string) {
+    try {
+        const [results, fields] = await db.query(stmtInsertInteraction, [idSession, idInteractionType]);
+        return results.insertId;
+    } catch (error) {
+        logDbErr(error, "error during insert interaction", "warn");
+        return [error];
+    }
+}
+*/
