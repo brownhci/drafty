@@ -4,7 +4,7 @@ import moment from "moment";
 import passport from "passport";
 import { Request, Response, NextFunction } from "express";
 import { UserModel, idFieldName, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
-import { findUserByField, createUser, updateUser } from "../database/user";
+import { findUserByField, createUser, updateUser, insertSession } from "../database/user";
 import { emailExists, emailNotTaken, isValidEmail, checkPasswordLength, confirmMatchPassword } from "../validation/validators";
 import { encryptPassword } from "../util/encrypt";
 import { sendMail, userPasswordResetEmailAccount } from "../util/email";
@@ -121,6 +121,14 @@ export async function createAnonUser() {
   };
   
   const [error, results] = await createUser(newUser);
+  return results.insertId;
+}
+
+/**
+ * Function to ceate new Session in our DB (not express-session)
+ */
+export async function createSessionDB(idProfile: number) {
+  const [error, results] = await insertSession(idProfile);
   return results.insertId;
 }
 
