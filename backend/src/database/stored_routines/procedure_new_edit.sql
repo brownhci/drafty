@@ -15,13 +15,14 @@ CREATE PROCEDURE new_suggestion(
     IN idProfile_var INT
 )
 BEGIN
-    START TRANSACTION;
+
     DECLARE sugg_exists INT DEFAULT 0;
     DECLARE alias_exists INT DEFAULT 0;
     DECLARE idSuggestionType_var INT;
     DECLARE idUniqueId_var INT;
     DECLARE confidence_var INT DEFAULT 1;
-    
+
+START TRANSACTION;  
     SELECT idSuggestionType INTO idSuggestionType_var FROM Suggestions WHERE idSuggestion = idSuggestion_var;
     SELECT idUniqueId INTO idUniqueId_var FROM Suggestions WHERE idSuggestion = idSuggestion_var;
     SELECT MAX(confidence) + 1 INTO confidence_var FROM Suggestions WHERE idSuggestionType = idSuggestionType_var AND idUniqueId = idUniqueId_var;
@@ -41,7 +42,7 @@ BEGIN
         INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, idSuggestionType_var, idUniqueId_var, idProfile_var, suggestion_var, confidence_var);
         SET idSuggestion_var = (SELECT LAST_INSERT_ID());
     END IF;
-    COMMIT;
+COMMIT;
 END $$
  
 DELIMITER ;
