@@ -23,10 +23,13 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
 };
 
 /**
- * POST /edits?idSuggestion=val?suggestion=?
+ * POST /suggestions/new?idSuggestion=val&suggestion=?
  * get suggestions
  */
 export const postNewSuggestion = async (req: Request, res: Response, next: NextFunction) => {
+  console.log('\n\n\npostNewSuggestion')
+  console.log(req.query)
+  
   const idSuggestion: number = Number.parseInt(req.query.idSuggestion);
   const suggestion: string = req.query.suggestion;
   const idProfile: number = Number.parseInt(req.session.user.idProfile);

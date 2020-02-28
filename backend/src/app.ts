@@ -123,6 +123,7 @@ app.use(async (req, res, next) => {
   }
   //const idSession = await createSession();
 
+  /*
   console.log("\n\n######");
   console.log(req.session);
   console.log(req.sessionID);
@@ -130,6 +131,7 @@ app.use(async (req, res, next) => {
   console.log(Date.now());
   console.log(req.session.__lastAccess);
   console.log("######\n\n");
+  */
 
   next();
 });
@@ -197,7 +199,7 @@ app.post("/copy-column", interactionController.postCopyColumn);
 
 // suggestions
 app.get("/suggestions", suggestionController.getSuggestions);
-app.get("/suggestions", suggestionController.postNewSuggestion);
+app.get("/suggestions/new", suggestionController.postNewSuggestion);
 
 // sheets
 app.get("/:sheet", sheetController.getSheet);

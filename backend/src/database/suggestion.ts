@@ -3,7 +3,8 @@ import { tableName as sugggestionTableName, idSuggestionType as idSuggestionType
 import { tableName as suggestionTypeTableName, name as nameTableFieldName } from "../models/suggestionType";
 
 //idSuggestion, suggestion, idProfile
-const stmtProcedureEdit: string = "CALL new_suggestion(?,?,?)";
+//const stmtProcedureEdit: string = "CALL new_suggestion(?,?,?)";
+const stmtProcedureEdit: string = "CALL new_edit(?, ?, ?, @id); SELECT @id AS idSuggestion;"
 
 const stmtSuggestionExist: string = "SELECT count(*) as ct FROM Suggestions WHERE idSuggestionType = ? AND idUniqueId = ? AND suggestion = ?";
 const stmtUpdateSuggestionConfidence: string = "UPDATE Suggestions s INNER JOIN  (SELECT MAX(s1.confidence) + 1 as max_conf, s2.idSuggestion as id_sugg_update FROM Suggestions s1 INNER JOIN Suggestions s2 ON s1.idSuggestionType = s2.idSuggestionType AND s1.idUniqueID = s2.idUniqueID WHERE s2.idSuggestion = ?) as s_max ON s_max.id_sugg_update = s.idSuggestion SET s.confidence = s_max.max_conf WHERE s.idSuggestion = ?";
@@ -17,6 +18,8 @@ const stmtSelectSuggestionsWithSuggestionType: string = "SELECT suggestion FROM 
  * returns current or new idSuggestion
  */
 export async function newSuggestion(idSuggestion: number, suggestion: string, idProfile: number) {
+  // TODO bug:
+  // Error: OUT or INOUT argument 1 for routine profs.new_suggestion is not a variable or NEW pseudo-variable in BEFORE trigger
   try {
       const [results, fields] = await db.query(stmtProcedureEdit, [idSuggestion,suggestion,idProfile]);
       console.log("PROCEDURE CALL: ");
