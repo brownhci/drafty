@@ -1,6 +1,6 @@
 // TODO need to restore active state of scrolled element
 // TODO need to apply reposition across scrolling
-// TODO fix resize vue's disappearance
+// TODO clear table row
 
 const activeClass = "active";
 const activeAccompanyClass = "active-accompany";
@@ -99,10 +99,10 @@ function isInput(element: HTMLElement): boolean {
   return element.tagName === "INPUT";
 }
 function isColumnLabel(element: HTMLElement): boolean {
-  return element.classList.contains("column-label");
+  return element.classList.contains("column-label") || getRowIndex(element as HTMLTableCellElement) === columnLabelsRowIndex;
 }
 function isColumnSearch(element: HTMLElement): boolean {
-  return element.classList.contains("column-search");
+  return element.classList.contains("column-search") || getRowIndex(element as HTMLTableCellElement) === columnSearchRowIndex;
 }
 function isColumnSearchInput(element: HTMLElement): boolean {
   return false;
@@ -126,7 +126,19 @@ function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
 function getRowIndex(tableCellElement: HTMLTableCellElement): number {
   // since we have both column label and column search
   const tableRow: HTMLTableRowElement = tableCellElement.parentElement as HTMLTableRowElement;
-  return tableRow.rowIndex - 1;
+  return tableRow.rowIndex;
+}
+function getFirstDataRowIndex() {
+  return dataSectionFillerTop.rowIndex + 1;
+}
+function getRecordIndex(tableCellElement: HTMLTableCellElement): number {
+  const rowIndex = getRowIndex(tableCellElement);
+  const firstRenderedDataRowTableRowIndex = getFirstDataRowIndex();
+  return rowIndex - firstRenderedDataRowTableRowIndex;
+}
+function getRecordIndexFromLocateCellElement() {
+  const displayedIndex: string = tableCellInputFormLocateCellRowElement.textContent;
+  return Number.parseInt(displayedIndex) - 1;
 }
 function getColumnIndex(tableCellElement: HTMLTableCellElement): number {
   // since we do not have row label
@@ -183,6 +195,14 @@ function getDownTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTa
 }
 function getTableDataText(tableCellElement: HTMLTableCellElement) {
   return tableCellElement.textContent;
+}
+function getTableCellInputFormLocateRowIndex(): number | null {
+  const rowIndex: string = tableCellInputFormLocateCellRowElement.textContent;
+  if (rowIndex) {
+    return Number.parseInt(rowIndex);
+  } else {
+    return null;
+  }
 }
 
 /**
@@ -265,8 +285,9 @@ function deactivateTableCellInputFormLocation() {
 }
 function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
   // row index
-  const rowIndex = getRowIndex(targetHTMLTableCellElement);
-  tableCellInputFormLocateCellRowElement.textContent = `${rowIndex}`;
+  /* since recordIndex is 0-based */
+  const recordIndex = getRecordIndex(targetHTMLTableCellElement);
+  tableCellInputFormLocateCellRowElement.textContent = `${recordIndex + 1}`;
   // column index
   const colIndex = getColumnIndex(targetHTMLTableCellElement);
   const columnLabelText = getColumnLabelText(getColumnLabel(colIndex - 1));
@@ -1399,8 +1420,17 @@ function translateFromDataRowIndexToTableRowIndex(dataRowIndex: number): number 
   const firstRenderedDataRowIndex = numTableRowsNotDisplayedAbove;
   const dataRowIndexDifference = dataRowIndex - firstRenderedDataRowIndex;
 
-  const firstRenderedDataRowTableRowIndex = dataSectionFillerTop.rowIndex + 1;
+  const firstRenderedDataRowTableRowIndex = getFirstDataRowIndex();
   return firstRenderedDataRowTableRowIndex + dataRowIndexDifference;
+}
+function translateFromTableRowIndexToDataRowIndex(tableRowIndex: number): number {
+  const firstRenderedDataRowTableRowIndex = getFirstDataRowIndex();
+  const recordIndex = tableRowIndex - firstRenderedDataRowTableRowIndex;
+  return translateFromRenderedRecordIndexToDataRowIndex(recordIndex);
+}
+function translateFromRenderedRecordIndexToDataRowIndex(recordIndex: number): number {
+  const firstRenderedDataRowIndex = numTableRowsNotDisplayedAbove;
+  return firstRenderedDataRowIndex + recordIndex;
 }
 function scrollToDataRowIndex(dataRowIndex: number, scrollIntoView: boolean = false, callback: (tableRow: HTMLTableRowElement) => void = () => undefined) {
   const dataSectionIndex = getDataSectionIndexByDataRowIndex(dataRowIndex);
