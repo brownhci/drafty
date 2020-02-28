@@ -37,6 +37,7 @@ START TRANSACTION;
         /* do nothing */
         SELECT idSuggestion FROM Suggestions LIMIT 1;
     ELSEIF alias_exists > 0 THEN
+        /* sw: whoops need to check if alias_exists ;)  */
         UPDATE Suggestions s SET s.suggestion = suggestion_var WHERE s.idSuggestion = idSuggestion_var; 
         UPDATE Alias a SET count = count + 1 WHERE a.idSuggestion = idSuggestion_var AND a.alias = suggestion_var;
     ELSEIF sugg_exists > 0 THEN
@@ -98,3 +99,20 @@ END $$
  
 DELIMITER ;
 */
+
+/* LOOP THROUGH ROWS https://www.mysqltutorial.org/mysql-cursor/ */
+
+
+/*** INSERT INTERACTION FUNCTION ***/
+DELIMITER //
+CREATE FUNCTION insert_interaction(idSession_var INT, idInteractionType_var INT) RETURNS INT DETERMINISTIC 
+BEGIN
+    DECLARE idInteraction_new INT; 
+    INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, idSession_var, idInteractionType_var); 
+    SET idInteraction_new = (SELECT LAST_INSERT_ID());
+    RETURN idInteraction_new;
+END
+
+//
+
+DELIMITER ;
