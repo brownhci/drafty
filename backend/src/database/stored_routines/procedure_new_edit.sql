@@ -15,6 +15,7 @@ CREATE PROCEDURE new_suggestion(
     IN idProfile_var INT
 )
 BEGIN
+    START TRANSACTION;
     DECLARE sugg_exists INT DEFAULT 0;
     DECLARE alias_exists INT DEFAULT 0;
     DECLARE idSuggestionType_var INT;
@@ -40,6 +41,7 @@ BEGIN
         INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, idSuggestionType_var, idUniqueId_var, idProfile_var, suggestion_var, confidence_var);
         SET idSuggestion_var = (SELECT LAST_INSERT_ID());
     END IF;
+    COMMIT;
 END $$
  
 DELIMITER ;
