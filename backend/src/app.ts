@@ -10,7 +10,7 @@ import passport from "passport";
 import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, SESSION_SECRET } from "./util/secrets";
 
 //user session functions
-import { createAnonUser } from "./controllers/user"; //TODO: create createSession
+import { createAnonUser, createSessionDB } from "./controllers/user"; //TODO: create createSession
 
 // Create session file store
 // import sessionFileStore from "session-file-store";
@@ -111,7 +111,7 @@ const user = {
   isAuth: false,
   isAdmin: false,
   views: 0,
-  lastInteraction: 0,
+  lastInteraction: Date.now(),
   failedLoginAttempts: 0
 };
 app.use(async (req, res, next) => {
@@ -119,13 +119,15 @@ app.use(async (req, res, next) => {
   if(req.session.user === undefined) {
     user.idProfile = await createAnonUser();
     req.session.user = user;
-  } else {
-    // if expired (lastInteraction < heartbeat) or idSession === -1
-    req.session.user.idSession = 999; // TODO await createNewSession();
   }
-  //const idSession = await createSession();
-
-  /*
+  
+  const heartbeat = 60 * 60000; // mins * 60000 milliseconds
+  if(((Date.now() - req.session.user.lastInteraction) > heartbeat) || (req.session.user.idSession === -1)) {
+    // new session
+    req.session.user.idSession = await createSessionDB(req.session.user.idProfile); 
+  }
+  req.session.user.lastInteraction = Date.now();
+/*
   console.log("\n\n######");
   console.log(req.session);
   console.log(req.sessionID);
@@ -133,7 +135,7 @@ app.use(async (req, res, next) => {
   console.log(Date.now());
   console.log(req.session.__lastAccess);
   console.log("######\n\n");
-  */
+*/
 
   next();
 });
