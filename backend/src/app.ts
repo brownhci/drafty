@@ -111,6 +111,7 @@ const user = {
   isAuth: false,
   isAdmin: false,
   views: 0,
+  lastInteraction: 0,
   failedLoginAttempts: 0
 };
 app.use(async (req, res, next) => {
@@ -119,7 +120,8 @@ app.use(async (req, res, next) => {
     user.idProfile = await createAnonUser();
     req.session.user = user;
   } else {
-    req.session.user.idSession = 999;
+    // if expired (lastInteraction < heartbeat) or idSession === -1
+    req.session.user.idSession = 999; // TODO await createNewSession();
   }
   //const idSession = await createSession();
 
