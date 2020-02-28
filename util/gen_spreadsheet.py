@@ -1,7 +1,7 @@
 import pymysql, html, re
 from atomicwrites import atomic_write
 
-init_num_rows = 5
+init_num_rows = 200
 table_header = '<table id="table" class="mb-0 sticky-top">'
 table_display = '<div id="scrollArea" class="clusterize-scroll"><table id="drafty-table"><tbody id="contentArea" class="clusterize-content">'
 table_hidden = '<template><table id="drafty-table-hidden"><tbody>'
