@@ -118,9 +118,11 @@ app.use(async (req, res, next) => {
   if(req.session.user === undefined) {
     user.idProfile = await createAnonUser();
     req.session.user = user;
+  } else {
+    req.session.user.idSession = 999;
   }
   //const idSession = await createSession();
-/*
+
   console.log("\n\n######");
   console.log(req.session);
   console.log(req.sessionID);
@@ -128,7 +130,7 @@ app.use(async (req, res, next) => {
   console.log(Date.now());
   console.log(req.session.__lastAccess);
   console.log("######\n\n");
-*/
+
   next();
 });
 app.use((req, res, next) => {
@@ -195,6 +197,7 @@ app.post("/copy-column", interactionController.postCopyColumn);
 
 // suggestions
 app.get("/suggestions", suggestionController.getSuggestions);
+app.get("/suggestions", suggestionController.postNewSuggestion);
 
 // sheets
 app.get("/:sheet", sheetController.getSheet);
