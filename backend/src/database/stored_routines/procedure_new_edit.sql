@@ -15,7 +15,7 @@ CREATE PROCEDURE new_suggestion(
     IN idProfile_var INT
 )
 BEGIN
-
+    DECLARE sugg_unchanged INT DEFAULT 0;
     DECLARE sugg_exists INT DEFAULT 0;
     DECLARE alias_exists INT DEFAULT 0;
     DECLARE idSuggestionType_var INT;
@@ -27,16 +27,20 @@ START TRANSACTION;
     SELECT idUniqueId INTO idUniqueId_var FROM Suggestions WHERE idSuggestion = idSuggestion_var;
     SELECT MAX(confidence) + 1 INTO confidence_var FROM Suggestions WHERE idSuggestionType = idSuggestionType_var AND idUniqueId = idUniqueId_var;
 
-    SELECT count(*) as ct INTO sugg_exists
-    FROM Suggestions WHERE idSuggestionType = idSuggestionType_var AND idUniqueId = idUniqueId_var AND suggestion = suggestion_var;
+    SELECT count(*) as ct INTO sugg_unchanged
+    FROM Suggestions WHERE idSuggestion = idSuggestion_var AND suggestion = suggestion_var;
 
     SELECT count(*) as ct INTO sugg_exists
     FROM Suggestions WHERE idSuggestionType = idSuggestionType_var AND idUniqueId = idUniqueId_var AND suggestion = suggestion_var;
- 
-    IF alias_exists > 0 THEN
+    
+    IF sugg_unchanged > 0 THEN
+        /* do nothing */
+        SELECT idSuggestion FROM Suggestions LIMIT 1;
+    ELSEIF alias_exists > 0 THEN
         UPDATE Suggestions s SET s.suggestion = suggestion_var WHERE s.idSuggestion = idSuggestion_var; 
         UPDATE Alias a SET count = count + 1 WHERE a.idSuggestion = idSuggestion_var AND a.alias = suggestion_var;
-    ELSEIF sugg_exists > 0 THEN    
+    ELSEIF sugg_exists > 0 THEN
+        SELECT idSuggestion INTO idSuggestion_var FROM Suggestions WHERE idSuggestionType = idSuggestionType_var AND idUniqueId = idUniqueId_var AND suggestion = suggestion_var;    
         UPDATE Suggestions s SET s.confidence = confidence_var WHERE s.idSuggestion = idSuggestion_var;
     ELSE
         INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, idSuggestionType_var, idUniqueId_var, idProfile_var, suggestion_var, confidence_var);
@@ -49,7 +53,7 @@ DELIMITER ;
 
 
 
-
+/*
 DELIMITER $$
 CREATE PROCEDURE new_edit(
     IN  idSuggestion_var INT, 
@@ -58,7 +62,7 @@ CREATE PROCEDURE new_edit(
     OUT  idSuggestion_new INT
 )
 BEGIN
-
+    DECLARE sugg_unchanged INT DEFAULT 0;
     DECLARE sugg_exists INT DEFAULT 0;
     DECLARE alias_exists INT DEFAULT 0;
     DECLARE idSuggestionType_var INT;
@@ -72,17 +76,19 @@ START TRANSACTION;
     SELECT idUniqueId INTO idUniqueId_var FROM Suggestions WHERE idSuggestion = idSuggestion_var;
     SELECT MAX(confidence) + 1 INTO confidence_var FROM Suggestions WHERE idSuggestionType = idSuggestionType_var AND idUniqueId = idUniqueId_var;
 
-    SELECT count(*) as ct INTO sugg_exists
-    FROM Suggestions WHERE idSuggestionType = idSuggestionType_var AND idUniqueId = idUniqueId_var AND suggestion = suggestion_var;
+    SELECT count(*) as ct INTO sugg_unchanged
+    FROM Suggestions WHERE idSuggestion = idSuggestion_var AND suggestion = suggestion_var;
 
-    SELECT count(*) as ct INTO sugg_exists
+    SELECT count(*) as ct INTO sugg_exists, idSuggestion INTO idSuggestion_new
     FROM Suggestions WHERE idSuggestionType = idSuggestionType_var AND idUniqueId = idUniqueId_var AND suggestion = suggestion_var;
- 
-    IF alias_exists > 0 THEN
+    
+    IF sugg_unchanged > 0 THEN
+
+    ELSEIF alias_exists > 0 THEN
         UPDATE Suggestions s SET s.suggestion = suggestion_var WHERE s.idSuggestion = idSuggestion_var; 
         UPDATE Alias a SET count = count + 1 WHERE a.idSuggestion = idSuggestion_var AND a.alias = suggestion_var;
     ELSEIF sugg_exists > 0 THEN    
-        UPDATE Suggestions s SET s.confidence = confidence_var WHERE s.idSuggestion = idSuggestion_var;
+        UPDATE Suggestions s SET s.confidence = confidence_var WHERE s.idSuggestion = idSuggestion_new;
     ELSE
         INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, idSuggestionType_var, idUniqueId_var, idProfile_var, suggestion_var, confidence_var);
         SET idSuggestion_new = (SELECT LAST_INSERT_ID());
@@ -91,3 +97,4 @@ COMMIT;
 END $$
  
 DELIMITER ;
+*/
