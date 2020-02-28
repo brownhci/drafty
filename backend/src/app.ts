@@ -203,7 +203,8 @@ app.post("/copy-column", interactionController.postCopyColumn);
 
 // suggestions
 app.get("/suggestions", suggestionController.getSuggestions);
-app.get("/suggestions/new", suggestionController.postNewSuggestion);
+app.get("/suggestions/foredit", suggestionController.getSuggestionsForEdit);
+app.post("/suggestions/new", suggestionController.postNewSuggestion);
 
 // sheets
 app.get("/:sheet", sheetController.getSheet);

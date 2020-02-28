@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getSuggestionsWithSuggestionType, newSuggestion } from "../database/suggestion";
+import { getSuggestionsWithSuggestionType, newSuggestion, selectSuggestionsForEdit } from "../database/suggestion";
 import { isValidIdSuggestionType } from "../validation/validators";
 
 /**
@@ -15,6 +15,23 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
 
   // valid suggestion type, get suggestions from database
   const [error, results] = await getSuggestionsWithSuggestionType(suggestionType);
+  if (error) {
+    return next(error);
+  }
+
+  return res.status(200).json(results);
+};
+
+
+/**
+ * GET /suggestions?idSuggestionType=...
+ * get suggestions
+ */
+export const getSuggestionsForEdit = async (req: Request, res: Response, next: NextFunction) => {
+  const idSuggestion: number = req.query.idSuggestion;
+
+  // valid suggestion type, get suggestions from database
+  const [error, results] = await selectSuggestionsForEdit(idSuggestion);
   if (error) {
     return next(error);
   }
