@@ -28,6 +28,19 @@ export async function insertClick(idSession: string, idSuggestion: string, rowva
 }
 
 /**
+ * save new double click
+ */
+//DB Code
+export async function insertDoubleClick(idSession: string, idSuggestion: string, rowvalues: string) {
+    try {
+        const idInteractionType: number = 1;
+        await db.query(stmtInsertDoubleClick, [idSession, idInteractionType, idSuggestion, rowvalues]);
+    } catch (error) {
+        logDbErr(error, "error during insert double-click", "warn");
+    }
+}
+
+/**
  * save new copy
  */
 //DB Code
