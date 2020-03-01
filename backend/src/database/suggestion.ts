@@ -4,7 +4,9 @@ import { tableName as suggestionTypeTableName, name as nameTableFieldName } from
 
 //idSuggestion, suggestion, idProfile
 const stmtProcedureEdit: string = "SET @id = ?; CALL new_suggestion(@id,?,?); SELECT @id AS idSuggestion;";
-const stmtProcedureEdit1: string = "CALL new_edit(?, ?, ?, @id); SELECT @id AS idSuggestion;"
+
+//idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
+const stmtProcedureEditSuggestions: string = "CALL insert_edit_suggestions(?, ?, ?, ?, ?, ?);"
 
 const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)";
 
@@ -49,9 +51,14 @@ export async function insertRowId(callback: CallableFunction) {
  * get prev suggestions and all suggestion type values for edit modal
  * @returns results will contain two fields: suggestion and prevSugg. prevSugg is a boolean if suggestion is a previous edit
  */
-export async function selectSuggestionsForEdit(idSuggestion: number) {
+export async function selectSuggestionsForEdit(idSuggestion: number, idSession: number, idInteractionType: number, idEntryType: number, mode: string) {
   try {
       const [results, fields] = await db.query(stmtSelectSuggestionsForEdit, [idSuggestion,idSuggestion,idSuggestion]);
+
+      //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
+      const idSuggestionPrev_var = idSuggestion;
+      const idSuggestionChosen_var = results.idSuggestion;
+      db.query(stmtProcedureEditSuggestions, [idSuggestionPrev_var, idSuggestionChosen_var, idSession, idInteractionType, idEntryType, mode])
       return [null, results];
   } catch (error) {
       logDbErr(error, "error during selectSuggestionsForEdit", "warn");
