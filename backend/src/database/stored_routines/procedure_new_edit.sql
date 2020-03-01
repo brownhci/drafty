@@ -180,8 +180,8 @@ START TRANSACTION;
     
     END LOOP insertEditSugg;
 
-    UPDATE Suggestions SET suggestion = (SELECT username FROM Profile p INNER JOIN Session s ON s.idProfile = p.idProfile WHERE s.idSession = idSession_var) WHERE idSuggestionType = 13 AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var);
-    UPDATE Suggestions SET suggestion = CURRENT_TIME WHERE idSuggestionType = 14 AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var);
+    UPDATE Suggestions SET suggestion = (SELECT username FROM Profile p INNER JOIN Session s ON s.idProfile = p.idProfile WHERE s.idSession = idSession_var) WHERE idDataType = 5 AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var);
+    UPDATE Suggestions SET suggestion = CURRENT_TIME WHERE idDataType = 6 AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var);
 
     CLOSE cursorIdSuggs;
 COMMIT;
