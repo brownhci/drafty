@@ -44,15 +44,28 @@ export async function insertDoubleClick(idSession: string, idSuggestion: string,
 }
 
 /**
- * save new copy
+ * save new copy cell
  */
 //DB Code
-export async function insertCopy(idSession: string, idSuggestion: string) {
+export async function insertCopyCell(idSession: string, idSuggestion: string) {
     try {
         const idInteractionType: number = 8;
         await db.query(stmtInsertCopy, [idSession, idInteractionType, idSuggestion]);
     } catch (error) {
         logDbErr(error, "error during insert copy", "warn");
+    }
+}
+
+/**
+ * save new copy column
+ */
+//DB Code
+export async function insertCopyColumn(idSession: string, idSuggestionType: string) {
+    try {
+        const idInteractionType: number = 14;
+        await db.query(stmtInsertCopy, [idSession, idInteractionType, idSuggestionType]);
+    } catch (error) {
+        logDbErr(error, "error during insert copy column", "warn");
     }
 }
 
