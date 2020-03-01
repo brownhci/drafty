@@ -4,15 +4,15 @@ import { insertSuggestion, insertRowId } from  "./suggestion";
 // FUNCTION insert_interaction(idSession INT, idInteractionType INT)
 // const stmtInsertInteraction: string = "INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)";
 
-const stmtInsertClick: string = "INSERT INTO Click (idInteraction, idSuggestion, rowvalues) VALUES (?, ?, ?);";
-const stmtInsertCopy: string = "INSERT INTO Copy (idInteraction, idSuggestion) VALUES (?, ?);";
-const stmtInsertDoubleClick: string = "INSERT INTO DoubleClick (idInteraction, idSuggestion, rowvalues) VALUES (?, ?, ?);";
-const stmtInsertSort: string  = "INSERT INTO Sort (idInteraction, idSuggestionType) VALUES (?, ?);";
+const stmtInsertClick: string = "INSERT INTO Click (idInteraction, idSuggestion, rowvalues) VALUES (insert_interaction(?,?), ?, ?);";
+const stmtInsertCopy: string = "INSERT INTO Copy (idInteraction, idSuggestion) VALUES (insert_interaction(?,?), ?);";
+const stmtInsertDoubleClick: string = "INSERT INTO DoubleClick (idInteraction, idSuggestion, rowvalues) VALUES (insert_interaction(?,?), ?, ?);";
+const stmtInsertSort: string  = "INSERT INTO Sort (idInteraction, idSuggestionType) VALUES (insert_interaction(?,?), ?);";
 
-const stmtSearch: string  = "INSERT INTO Search (idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-const stmtSearchMulti: string  = "INSERT INTO SearchMulti (idInteraction, idSuggestionType, idSearchType, value) VALUES (?, ?, ?, ?)";
+const stmtSearch: string  = "INSERT INTO Search (idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?, ?, ?)";
+const stmtSearchMulti: string  = "INSERT INTO SearchMulti (idInteraction, idSuggestionType, idSearchType, value) VALUES (insert_interaction(?,?), ?, ?, ?)";
 
-const stmtInsertEdit: string  = "INSERT INTO Edit (idInteraction, idSuggestion, idEntryType, chosen) VALUES (?, ?, ?, ?);";
+//const stmtInsertEdit: string  = "INSERT INTO Edit (idInteraction, idSuggestion, idEntryType, chosen) VALUES (?, ?, ?, ?);";
 
 /**
  * save new click
@@ -50,19 +50,6 @@ export async function insertSort(idSession: string, idSuggestionType: string) {
         db.query(stmtInsertSort, [idSession, idInteractionType, idSuggestionType]);
     } catch (error) {
         logDbErr(error, "error during insert sort", "warn");
-    }
-}
-
-/**
- * save new sort
- */
-//DB Code
-export async function insertEdit(idSession: string, idSuggestion: string, idEntryType: string, chosen: boolean) {
-    try {
-        const idInteractionType: int = 6;
-        db.query(stmtInsertEdit, [idSession, idInteractionType, idSuggestion, idEntryType, chosen]);
-    } catch (error) {
-        logDbErr(error, "error during insert edit", "warn");
     }
 }
 
