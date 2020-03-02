@@ -28,12 +28,12 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
  * get suggestions
  */
 export const getSuggestionsForEdit = async (req: Request, res: Response, next: NextFunction) => {
-  const idSuggestion: number = req.query.idSuggestion;
+  const idSuggestion: number = req.body.idSuggestion;
   const idSession: number = req.session.user.idSession;
 
   const idInteractionType = 6; // 6 = editRecord
   const idEntryType = 2; // 2 = EditOnline
-  const mode = 'normal'; // normal is default
+  const mode = "normal"; // normal is default
 
   // valid suggestion type, get suggestions from database
   const [error, results] = await selectSuggestionsForEdit(idSuggestion, idSession, idInteractionType, idEntryType, mode);
@@ -49,11 +49,8 @@ export const getSuggestionsForEdit = async (req: Request, res: Response, next: N
  * get suggestions
  */
 export const postNewSuggestion = async (req: Request, res: Response, next: NextFunction) => {
-  console.log('\n\n\npostNewSuggestion')
-  console.log(req.query)
-  
-  const idSuggestion: number = Number.parseInt(req.query.idSuggestion);
-  const suggestion: string = req.query.suggestion;
+  const idSuggestion: number = Number.parseInt(req.body.idSuggestion);
+  const suggestion: string = req.body.suggestion;
   const idProfile: number = Number.parseInt(req.session.user.idProfile);
 
   // will get new/old idSuggestion for the edited cell
