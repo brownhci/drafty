@@ -6,7 +6,7 @@ import { tableName as suggestionTypeTableName, name as nameTableFieldName } from
 const stmtProcedureEdit: string = "SET @id = ?; CALL new_suggestion(@id,?,?); SELECT @id AS idSuggestion;";
 
 //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
-const stmtProcedureEditSuggestions: string = "CALL insert_edit_suggestions(?, ?, ?, ?, ?, ?);"
+const stmtProcedureEditSuggestions: string = "CALL insert_edit_suggestions(?, ?, ?, ?, ?, ?);";
 
 const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)";
 
@@ -14,7 +14,7 @@ const stmtSelectSuggestionsWithSuggestionType: string = "SELECT suggestion FROM 
 const stmtSelectSuggestionsForEdit: string = "SELECT suggestion, 1 as prevSugg FROM Suggestions  WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = ?) "
                                           + " UNION "
                                           + " SELECT value as suggestion, 0 as prevSugg FROM SuggestionTypeValues WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) "
-                                          + " ORDER BY prevSugg DESC, suggestion ASC "
+                                          + " ORDER BY prevSugg DESC, suggestion ASC ";
 
 /**
  * returns current or new idSuggestion
@@ -56,9 +56,9 @@ export async function selectSuggestionsForEdit(idSuggestion: number, idSession: 
       const [results, fields] = await db.query(stmtSelectSuggestionsForEdit, [idSuggestion,idSuggestion,idSuggestion]);
 
       //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
-      const idSuggestionPrev_var = idSuggestion;
-      const idSuggestionChosen_var = results.idSuggestion;
-      db.query(stmtProcedureEditSuggestions, [idSuggestionPrev_var, idSuggestionChosen_var, idSession, idInteractionType, idEntryType, mode])
+      const idSuggestionPrev = idSuggestion;
+      const idSuggestionChosen = results.idSuggestion;
+      db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode]);
       return [null, results];
   } catch (error) {
       logDbErr(error, "error during selectSuggestionsForEdit", "warn");

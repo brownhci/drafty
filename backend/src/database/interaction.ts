@@ -1,5 +1,4 @@
 import { db,logDbErr } from "./mysql";
-import { insertSuggestion, insertRowId } from  "./suggestion";
 
 // FUNCTION insert_interaction(idSession INT, idInteractionType INT)
 const stmtInsertInteraction: string = "INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)";
@@ -84,6 +83,42 @@ export async function insertSort(idSession: string, idSuggestionType: number|str
 }
 
 /**
+ * save new interaction id
+ */
+//DB Code
+async function insertInteraction(idSession: string, idInteractionType: number|string) {
+    try {
+        const [results, fields] = await db.query(stmtInsertInteraction, [idSession, idInteractionType]);
+        return results.insertId;
+    } catch (error) {
+        logDbErr(error, "error during insert interaction", "warn");
+        return [error];
+    }
+}
+
+/**
+ * save new sort
+ */
+//DB Code
+export function insertSearchMulti(idInteraction: number, multiSearchValues: string) {
+    try {
+        const idInteractionType: number = 11;
+        
+        const msVals: Array<string> = multiSearchValues.split("||");
+        for (let i = 0; i < msVals.length; i++) {
+            const valsToInsert: Array<string> = msVals[i].split("|");
+
+            const idSuggestionType: number|string = valsToInsert[0];
+            const idSearchType: string = valsToInsert[1];
+            const value: string = valsToInsert[2];
+            db.query(stmtSearchMulti, [idInteraction, idSuggestionType, idSearchType, value]);
+        }
+    } catch (error) {
+        logDbErr(error, "error during insert insertSearchMulti", "warn");
+    }
+}
+
+/**
  * save new sort
  */
 //DB Code
@@ -102,41 +137,5 @@ export async function insertSearch(idSession: string, idSuggestionType: number|s
         db.query(stmtSearch, [idSession, idInteractionType, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues]);
     } catch (error) {
         logDbErr(error, "error during insert insertSearch", "warn");
-    }
-}
-
-/**
- * save new sort
- */
-//DB Code
-export function insertSearchMulti(idInteraction: number, multiSearchValues: string) {
-    try {
-        const idInteractionType: number = 11;
-        
-        var msVals: Array<string> = multiSearchValues.split('||');
-        for (var i = 0; i < msVals.length; i++) {
-            var valsToInsert: Array<string> = msVals[i].split('|');
-
-            const idSuggestionType: number|string = valsToInsert[0];
-            const idSearchType: string = valsToInsert[1];
-            const value: string = valsToInsert[2];
-            db.query(stmtSearchMulti, [idInteraction, idSuggestionType, idSearchType, value]);
-        }
-    } catch (error) {
-        logDbErr(error, "error during insert insertSearchMulti", "warn");
-    }
-}
-
-/**
- * save new interaction id
- */
-//DB Code
-async function insertInteraction(idSession: string, idInteractionType: number|string) {
-    try {
-        const [results, fields] = await db.query(stmtInsertInteraction, [idSession, idInteractionType]);
-        return results.insertId;
-    } catch (error) {
-        logDbErr(error, "error during insert interaction", "warn");
-        return [error];
     }
 }
