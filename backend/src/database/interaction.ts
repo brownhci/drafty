@@ -13,6 +13,7 @@ const stmtInsertDoubleClick: string = "INSERT INTO DoubleClick (idInteraction, i
 const stmtInsertSort: string  = "INSERT INTO Sort (idInteraction, idSuggestionType, isAsc, isTrigger, isMulti) VALUES (insert_interaction(?,?), ?, ?, ?, ?);";
 
 const stmtSearch: string  = "INSERT INTO Search (idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?, ?, ?)";
+
 const stmtSearchMulti: string  = "INSERT INTO SearchMulti (idInteraction, idSuggestionType, idSearchType, value) VALUES (insert_interaction(?,?), ?, ?, ?)";
 
 //const stmtInsertEdit: string  = "INSERT INTO Edit (idInteraction, idSuggestion, idEntryType, chosen) VALUES (?, ?, ?, ?);";
@@ -47,7 +48,7 @@ export async function insertDoubleClick(idSession: string, idSuggestion: string,
  * save new copy cell
  */
 //DB Code
-export async function insertCopyCell(idSession: string, idSuggestion: string) {
+export async function insertCopyCell(idSession: string, idSuggestion: number|string) {
     try {
         const idInteractionType: number = 8;
         await db.query(stmtInsertCopy, [idSession, idInteractionType, idSuggestion]);
@@ -60,7 +61,7 @@ export async function insertCopyCell(idSession: string, idSuggestion: string) {
  * save new copy column
  */
 //DB Code
-export async function insertCopyColumn(idSession: string, idSuggestionType: string) {
+export async function insertCopyColumn(idSession: string, idSuggestionType: number|string) {
     try {
         const idInteractionType: number = 14;
         await db.query(stmtInsertCopy, [idSession, idInteractionType, idSuggestionType]);
@@ -86,14 +87,19 @@ export async function insertSort(idSession: string, idSuggestionType: number|str
  * save new sort
  */
 //DB Code
-export async function insertSearch(idSession: string, idSuggestionType: number|string, isPartial: number, isMulti: number, isFromUrl: number, value: string, matchedValues: string) {
+export async function insertSearch(idSession: string, idSuggestionType: number|string, isPartial: number, isMulti: number, isFromUrl: number, value: string, matchedValues: string, multiSearchValues: string) {
     try {
         const idInteractionType: number = 7;
         const idInteraction = await insertInteraction(idSession, idInteractionType);
         const idSearchType: number = 1; // default 1 = equals
 
+
+        if(isMulti === 1) {
+            insertSearchMulti(idInteraction, multiSearchValues);
+        }
+
         // idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues
-        db.query(stmtSearch, [idSession, idInteractionType, idSuggestionType]);
+        db.query(stmtSearch, [idSession, idInteractionType, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues]);
     } catch (error) {
         logDbErr(error, "error during insert insertSearch", "warn");
     }
@@ -103,10 +109,19 @@ export async function insertSearch(idSession: string, idSuggestionType: number|s
  * save new sort
  */
 //DB Code
-export async function insertSearchMulti(idInteraction: number, idSuggestionType: number|number, idSearchType: number, value: string) {
+export function insertSearchMulti(idInteraction: number, multiSearchValues: string) {
     try {
         const idInteractionType: number = 11;
-        db.query(stmtSearchMulti, [idInteraction, idSuggestionType, idSearchType, value]);
+        
+        var msVals: Array<string> = multiSearchValues.split('||');
+        for (var i = 0; i < msVals.length; i++) {
+            var valsToInsert: Array<string> = msVals[i].split('|');
+
+            const idSuggestionType: number|string = valsToInsert[0];
+            const idSearchType: string = valsToInsert[1];
+            const value: string = valsToInsert[2];
+            db.query(stmtSearchMulti, [idInteraction, idSuggestionType, idSearchType, value]);
+        }
     } catch (error) {
         logDbErr(error, "error during insert insertSearchMulti", "warn");
     }
