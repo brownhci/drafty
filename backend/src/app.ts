@@ -191,8 +191,6 @@ app.post("/account/profile", passportConfig.isAuthenticated, userController.post
 app.post("/account/password", passportConfig.isAuthenticated, userController.postUpdatePassword);
 
 // interactions
-app.post("/new-row", interactionController.postNewRow);
-app.post("/edit", interactionController.postEdit);
 app.post("/click", interactionController.postClick);
 app.post("/click-double", interactionController.postClickDouble);
 app.post("/sort", interactionController.postSort);
