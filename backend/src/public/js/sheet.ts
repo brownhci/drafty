@@ -1475,7 +1475,7 @@ function scrollToDataRowByScrollAmount(scrollAmount: number) {
   // consider as if scroll to first table row element
   const distanceFromFirstTableRow = Math.max(scrollAmount - firstTableRowOffsetTop, 0);
   const dataRowIndex = Math.floor(distanceFromFirstTableRow / tableRowHeight);
-  scrollToDataRowIndex(dataRowIndex, false);
+  scrollToDataRowIndex(dataRowIndex, true);
 }
 
 /* render */
