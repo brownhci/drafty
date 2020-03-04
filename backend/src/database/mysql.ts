@@ -19,6 +19,7 @@ const pool = mysql.createPool({
    host: DB_HOST,
    database: DB_DATABASE,
    connectionLimit: 1000, // Maximum number of connection in pool.
+   multipleStatements: true
 });
 
 // promisePool: MySQL2 exposes a .promise() function on Connections, 

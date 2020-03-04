@@ -5,6 +5,7 @@ import { tableName, validFieldNamesForLookup, UserModel } from "../models/user";
 const stmtSelUser: string    = "SELECT * FROM ?? WHERE ?? = ?";
 const stmtInsertUser: string = "INSERT INTO ?? SET ?";
 const stmtUpdateUser: string = "UPDATE ?? SET ? WHERE ?";
+const stmtInsertSession: string = "INSERT INTO Session (idProfile) VALUES (?);";
 
 // Result type of findUserByField
 export type findUserByFieldResultType = UserModel | null | undefined;
@@ -79,6 +80,27 @@ export async function updateUser(updates: Partial<UserModel>, constraints: Parti
     return [null, results, fields];
   } catch (error) {
     logDbErr(error, "error during updating existing user", "warn");
+    return [error];
+  }
+}
+
+// Result type of insertSession
+/**
+ * Save a new session in database
+ *
+ * Args:
+ *    user: An object containing row fields to field values.
+ * Returns:
+ *    [error, results, fields]
+ *      - receive [error] if the insertion fails
+ *      - receive [null, results, fields] if the insertion succeeds
+ */
+export async function insertSession(idProfile: number) {
+  try {
+    const [results, fields] = await db.query(stmtInsertSession, [idProfile]);
+    return [null, results, fields];
+  } catch (error) {
+    logDbErr(error, "error during creating user", "warn");
     return [error];
   }
 }

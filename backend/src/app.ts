@@ -1,7 +1,6 @@
 import express from "express";
 import compression from "compression"; // compresses requests
 import session from "express-session";
-import sessionFileStore from "session-file-store";
 import bodyParser from "body-parser";
 import helmet from "helmet";
 import lusca from "lusca";
@@ -11,10 +10,14 @@ import passport from "passport";
 import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, SESSION_SECRET } from "./util/secrets";
 
 //user session functions
-import { createAnonUser } from "./controllers/user"; //TODO: create createSession
+import { createAnonUser, createSessionDB } from "./controllers/user"; //TODO: create createSession
 
+// Create session file store
+// import sessionFileStore from "session-file-store";
+// const sessionStore = sessionFileStore(session); // FileStore
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-//const MySQLStore = require("express-mysql-session")(session);
+const MySQLStore = require("express-mysql-session")(session); // MySQLStore
+
 
 // Controllers (route handlers)
 import * as helpController from "./controllers/help";
@@ -28,8 +31,6 @@ import * as suggestionController from "./controllers/suggestion";
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
 
-// Create session file store
-const FileStore = sessionFileStore(session);
 
 // Create Express server
 const app = express();
@@ -71,10 +72,18 @@ app.use(session({
         httpOnly: true,
         maxAge: expInMilliseconds
     },
-    store: new FileStore({
+    store: new MySQLStore({
+      host: DB_HOST,
+      user: DB_USER,
+      password: DB_PASSWORD,
+      database: DB_DATABASE,
+    })
+    /*
+    store: new sessionStore({
        path: process.env.NOW ? `sessions` : `.sessions`,
        secret: "testing_please_change"
     })
+    */
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -102,6 +111,7 @@ const user = {
   isAuth: false,
   isAdmin: false,
   views: 0,
+  lastInteraction: Date.now(),
   failedLoginAttempts: 0
 };
 app.use(async (req, res, next) => {
@@ -110,7 +120,13 @@ app.use(async (req, res, next) => {
     user.idProfile = await createAnonUser();
     req.session.user = user;
   }
-  //const idSession = await createSession();
+  
+  const heartbeat = 60 * 60000; // mins * 60000 milliseconds
+  if(((Date.now() - req.session.user.lastInteraction) > heartbeat) || (req.session.user.idSession === -1)) {
+    // new session
+    req.session.user.idSession = await createSessionDB(req.session.user.idProfile); 
+  }
+  req.session.user.lastInteraction = Date.now();
 /*
   console.log("\n\n######");
   console.log(req.session);
@@ -120,6 +136,7 @@ app.use(async (req, res, next) => {
   console.log(req.session.__lastAccess);
   console.log("######\n\n");
 */
+
   next();
 });
 app.use((req, res, next) => {
@@ -174,8 +191,6 @@ app.post("/account/profile", passportConfig.isAuthenticated, userController.post
 app.post("/account/password", passportConfig.isAuthenticated, userController.postUpdatePassword);
 
 // interactions
-app.post("/new-row", interactionController.postNewRow);
-app.post("/edit", interactionController.postEdit);
 app.post("/click", interactionController.postClick);
 app.post("/click-double", interactionController.postClickDouble);
 app.post("/sort", interactionController.postSort);
@@ -186,6 +201,8 @@ app.post("/copy-column", interactionController.postCopyColumn);
 
 // suggestions
 app.get("/suggestions", suggestionController.getSuggestions);
+app.get("/suggestions/foredit", suggestionController.getSuggestionsForEdit);
+app.post("/suggestions/new", suggestionController.postNewSuggestion);
 
 // sheets
 app.get("/:sheet", sheetController.getSheet);
