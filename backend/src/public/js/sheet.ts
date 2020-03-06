@@ -506,6 +506,7 @@ function saveTableCellInputForm() {
   const text = tableCellInputFormInputElement.value;
   if (tableCellInputFormTargetElement) {
     // call backend api to send user submission
+    tableCellInputFormTargetElement.textContent = text;
     recordEdit(tableCellInputFormTargetElement);
   }
 }
@@ -1267,10 +1268,10 @@ function recordInteraction(url: string, data: Record<string, any>) {
 function recordEdit(tableCellElement: HTMLTableCellElement) {
   // supply enough fields to update database entry for table cell
 
-  recordInteraction("/edit", {
+  recordInteraction("/suggestions/new", {
     "idUniqueID": getIdUniqueID(tableCellElement),
     "idSuggestion": getIdSuggestion(tableCellElement),
-    "value": tableCellElement.textContent,
+    "suggestion": tableCellElement.textContent,
   });
 }
 function recordClickOnCell(tableCellElement: HTMLTableCellElement) {
@@ -1762,6 +1763,9 @@ function constructTableRowFilter(searchQueries: Map<number, RegExp>) {
   return (tableRow: HTMLTableRowElement) => {
     for (const [columnIndex, queryRegex] of searchQueries) {
       const tableRowCell: HTMLTableCellElement = getCellInTableRow(tableRow, columnIndex);
+      if (tableRowCell === undefined) {
+        return false;
+      }
       const cellText: string = getTableDataText(tableRowCell);
       if (!queryRegex.test(cellText)) {
         return false;
