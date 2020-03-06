@@ -90,8 +90,9 @@ def build_table_data_sections(cursor):
 SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder
             FROM Suggestions s
             INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType
-            WHERE s.active = 1 AND st.isActive = 1 AND idUniqueID > 0
-            ORDER BY idUniqueID, st.columnOrder, confidence desc
+            INNER JOIN UniqueId u ON u.idUniqueID = s.idUniqueID
+            WHERE s.active = 1 AND st.isActive = 1 AND s.idUniqueID > 0
+            ORDER BY s.idUniqueID, st.columnOrder, confidence desc
           '''
     cursor.execute(sql)
     rows = cursor.fetchall()
