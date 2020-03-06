@@ -43,7 +43,7 @@ export const postEdit = (req: Request, res: Response, next: NextFunction) => {
  * @param {Array<string>} req.body.rowValues
  */
 export const postClick = (req: Request, res: Response, next: NextFunction) => {
-  const idSession = req.session.user.idSession; 
+  const idSession = req.session.user.idSession;
   const idSuggestion = req.body.idSuggestion;
   const rowvalues = req.body.rowValues;
   insertClick(idSession, idSuggestion, rowvalues);
@@ -57,7 +57,7 @@ export const postClick = (req: Request, res: Response, next: NextFunction) => {
  * @param {Array<string>} req.body.rowValues
  */
 export const postClickDouble = (req: Request, res: Response, next: NextFunction) => {
-  const idSession = req.session.user.idSession; 
+  const idSession = req.session.user.idSession;
   const idSuggestion = req.body.idSuggestion;
   const rowvalues = req.body.rowValues;
   insertDoubleClick(idSession, idSuggestion, rowvalues);
@@ -73,7 +73,7 @@ export const postClickDouble = (req: Request, res: Response, next: NextFunction)
  * @param {number} req.body.isMulti
  */
 export const postSort = (req: Request, res: Response, next: NextFunction) => {
-  const idSession = req.session.user.idSession; 
+  const idSession = req.session.user.idSession;
   const idSuggestionType: number|string = req.body.idSuggestionType;
   const isAsc: number = req.body.isAsc;
   // sw - multi column sorting is not implemented yet
@@ -90,7 +90,7 @@ export const postSort = (req: Request, res: Response, next: NextFunction) => {
  * @param {number} req.body.isMulti
  * @param {string} req.body.value
  * @param {string} req.body.matchedValues
- * 
+ *
  * (pipe delimited)-> idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
  * @param {string} req.body.multiSearchValues
  */
@@ -117,7 +117,7 @@ export const postSearchPartial = (req: Request, res: Response, next: NextFunctio
  * @param {number} req.body.isMulti
  * @param {string} req.body.value
  * @param {string} req.body.matchedValues
- * 
+ *
  * (pipe delimited)-> idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
  * @param {string} req.body.multiSearchValues
  */

@@ -21,10 +21,10 @@ const stmtSearchMulti: string  = "INSERT INTO SearchMulti (idInteraction, idSugg
  * save new click
  */
 //DB Code
-export async function insertClick(idSession: string, idSuggestion: string, rowvalues: string) {
+export async function insertClick(idSession: string, idSuggestion: string, rowvalues: Array<string>) {
     try {
         const idInteractionType: number = 1;
-        await db.query(stmtInsertClick, [idSession, idInteractionType, idSuggestion, rowvalues]);
+        await db.query(stmtInsertClick, [idSession, idInteractionType, idSuggestion, rowvalues.join(",")]);
     } catch (error) {
         logDbErr(error, "error during insert click", "warn");
     }
@@ -34,10 +34,10 @@ export async function insertClick(idSession: string, idSuggestion: string, rowva
  * save new double click
  */
 //DB Code
-export async function insertDoubleClick(idSession: string, idSuggestion: string, rowvalues: string) {
+export async function insertDoubleClick(idSession: string, idSuggestion: string, rowvalues: Array<string>) {
     try {
         const idInteractionType: number = 1;
-        await db.query(stmtInsertDoubleClick, [idSession, idInteractionType, idSuggestion, rowvalues]);
+        await db.query(stmtInsertDoubleClick, [idSession, idInteractionType, idSuggestion, rowvalues.join(",")]);
     } catch (error) {
         logDbErr(error, "error during insert double-click", "warn");
     }
@@ -103,7 +103,7 @@ async function insertInteraction(idSession: string, idInteractionType: number|st
 export function insertSearchMulti(idInteraction: number, multiSearchValues: string) {
     try {
         const idInteractionType: number = 11;
-        
+
         const msVals: Array<string> = multiSearchValues.split("||");
         for (let i = 0; i < msVals.length; i++) {
             const valsToInsert: Array<string> = msVals[i].split("|");
