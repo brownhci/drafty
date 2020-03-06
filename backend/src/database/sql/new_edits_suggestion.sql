@@ -1,4 +1,5 @@
 SET FOREIGN_KEY_CHECKS = 0;
+
 RENAME TABLE Edit to Edit_Old;
 
 --
