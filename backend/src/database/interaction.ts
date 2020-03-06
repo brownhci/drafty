@@ -1,5 +1,7 @@
 import { db,logDbErr } from "./mysql";
 
+const pipeDelim: string = "|";
+
 // FUNCTION insert_interaction(idSession INT, idInteractionType INT)
 const stmtInsertInteraction: string = "INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)";
 
@@ -24,7 +26,7 @@ const stmtSearchMulti: string  = "INSERT INTO SearchMulti (idInteraction, idSugg
 export async function insertClick(idSession: string, idSuggestion: string, rowvalues: Array<string>) {
     try {
         const idInteractionType: number = 1;
-        await db.query(stmtInsertClick, [idSession, idInteractionType, idSuggestion, rowvalues.join(",")]);
+        await db.query(stmtInsertClick, [idSession, idInteractionType, idSuggestion, rowvalues.join(pipeDelim)]);
     } catch (error) {
         logDbErr(error, "error during insert click", "warn");
     }
@@ -37,7 +39,7 @@ export async function insertClick(idSession: string, idSuggestion: string, rowva
 export async function insertDoubleClick(idSession: string, idSuggestion: string, rowvalues: Array<string>) {
     try {
         const idInteractionType: number = 1;
-        await db.query(stmtInsertDoubleClick, [idSession, idInteractionType, idSuggestion, rowvalues.join(",")]);
+        await db.query(stmtInsertDoubleClick, [idSession, idInteractionType, idSuggestion, rowvalues.join(pipeDelim)]);
     } catch (error) {
         logDbErr(error, "error during insert double-click", "warn");
     }
