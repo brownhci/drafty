@@ -1,3 +1,6 @@
+SET FOREIGN_KEY_CHECKS = 0;
+RENAME TABLE Edit to Edit_Old;
+
 --
 -- Table structure for table Edit
 --
@@ -69,3 +72,5 @@ ALTER TABLE Edit_Suggestion
 ALTER TABLE Edit_Suggestion
   ADD CONSTRAINT _fk_idEdit_from_Edit_Sugg_asdkl123 FOREIGN KEY (idEdit) REFERENCES Edit (idEdit),
   ADD CONSTRAINT _fk_idSuggestion_from_Edit_Sugg_asdkl123 FOREIGN KEY (idSuggestion) REFERENCES Suggestions (idSuggestion);
+
+SET FOREIGN_KEY_CHECKS = 1;
