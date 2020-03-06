@@ -90,10 +90,10 @@ def build_table_row(rows_iter):
 NROWS_IN_SECTION = 1000
 
 
-def build_table_data_section(rows_iter, nrows_in_section=NROWS_IN_SECTION):
+def build_table_data_section(rows_iter):
     data_rows = []
     try:
-        for _ in range(nrows_in_section):
+        for _ in range(NROWS_IN_SECTION):
             data_row, rows_iter = build_table_row(rows_iter)
             data_rows.append(data_row)
     except StopIteration:
@@ -103,10 +103,10 @@ def build_table_data_section(rows_iter, nrows_in_section=NROWS_IN_SECTION):
 
 def build_table_data_sections(cursor):
     sql = '''
-            SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder 
-            FROM Suggestions s 
-            INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType 
-            INNER JOIN UniqueId u ON u.idUniqueID = s.idUniqueID 
+            SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder
+            FROM Suggestions s
+            INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType
+            INNER JOIN UniqueId u ON u.idUniqueID = s.idUniqueID
             WHERE s.active = 1 AND st.isActive = 1 AND u.active = 1
             ORDER BY idUniqueID, st.columnOrder, confidence desc
           '''
