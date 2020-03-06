@@ -63,11 +63,27 @@ def build_table_datarow_cell(row):
 
 
 def build_table_row(rows_iter):
-    first_tablecell = next(rows_iter)
+    # TODO  optimize with manual loop
+    rows_iter1, rows_iter2 = itertools.tee(rows_iter)
+    first_tablecell = next(rows_iter1)
     id_unique_id = first_tablecell['idUniqueID']
+    first_id_suggetion_type = first_tablecell['idSuggestionType']
+    id_suggestion_types = set([first_id_suggetion_type])
+
+    def best_in_type(row):
+        """
+        Gets the first cell with new idSuggestionType field
+        (most confident one)
+        """
+        if row['idSuggestionType'] not in id_suggestion_types:
+            id_suggestion_types.add(row['idSuggestionType'])
+            return True
+        return False
+
     same_row = lambda row: row['idUniqueID'] == id_unique_id
-    tablecell_rows_iter = itertools.chain([first_tablecell], itertools.takewhile(same_row, rows_iter))
-    rest_rows_iter = itertools.dropwhile(same_row, rows_iter)
+    tablecell_rows_iter = itertools.chain([first_tablecell],
+                                          filter(best_in_type, itertools.takewhile(same_row, rows_iter1)))
+    rest_rows_iter = itertools.dropwhile(same_row, rows_iter2)
     return f'<tr id="{id_unique_id}">{"".join(map(build_table_datarow_cell, tablecell_rows_iter))}</tr>', rest_rows_iter
 
 
@@ -87,12 +103,21 @@ def build_table_data_section(rows_iter, nrows_in_section=NROWS_IN_SECTION):
 
 def build_table_data_sections(cursor):
     sql = '''
+<<<<<<< HEAD
             SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder 
             FROM Suggestions s 
             INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType 
             INNER JOIN UniqueId u ON u.idUniqueID = s.idUniqueID 
             WHERE s.active = 1 AND st.isActive = 1 AND u.active = 1
             ORDER BY idUniqueID, st.columnOrder, confidence desc
+=======
+SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder
+            FROM Suggestions s
+            INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType
+            INNER JOIN UniqueId u ON u.idUniqueID = s.idUniqueID
+            WHERE s.active = 1 AND st.isActive = 1 AND s.idUniqueID > 0
+            ORDER BY s.idUniqueID, st.columnOrder, confidence desc
+>>>>>>> ed2c05aa97be5902f07763bd8194ca31f2eaa480
           '''
     cursor.execute(sql)
     rows = cursor.fetchall()
