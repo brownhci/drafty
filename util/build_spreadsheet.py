@@ -63,11 +63,27 @@ def build_table_datarow_cell(row):
 
 
 def build_table_row(rows_iter):
-    first_tablecell = next(rows_iter)
+    # TODO  optimize with manual loop
+    rows_iter1, rows_iter2 = itertools.tee(rows_iter)
+    first_tablecell = next(rows_iter1)
     id_unique_id = first_tablecell['idUniqueID']
+    first_id_suggetion_type = first_tablecell['idSuggestionType']
+    id_suggestion_types = set([first_id_suggetion_type])
+
+    def best_in_type(row):
+        """
+        Gets the first cell with new idSuggestionType field
+        (most confident one)
+        """
+        if row['idSuggestionType'] not in id_suggestion_types:
+            id_suggestion_types.add(row['idSuggestionType'])
+            return True
+        return False
+
     same_row = lambda row: row['idUniqueID'] == id_unique_id
-    tablecell_rows_iter = itertools.chain([first_tablecell], itertools.takewhile(same_row, rows_iter))
-    rest_rows_iter = itertools.dropwhile(same_row, rows_iter)
+    tablecell_rows_iter = itertools.chain([first_tablecell],
+                                          filter(best_in_type, itertools.takewhile(same_row, rows_iter1)))
+    rest_rows_iter = itertools.dropwhile(same_row, rows_iter2)
     return f'<tr id="{id_unique_id}">{"".join(map(build_table_datarow_cell, tablecell_rows_iter))}</tr>', rest_rows_iter
 
 
