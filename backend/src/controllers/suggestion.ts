@@ -45,8 +45,12 @@ export const getSuggestionsForEdit = async (req: Request, res: Response, next: N
 };
 
 /**
- * POST /suggestions/new?idSuggestion=val&suggestion=?
- * get suggestions
+ * POST /suggestions/new
+ * save suggestion (edit)
+ *
+ * @param {number} req.body.idUniqueID
+ * @param {number} req.body.idSuggestion
+ * @param {string} req.body.value
  */
 export const postNewSuggestion = async (req: Request, res: Response, next: NextFunction) => {
   const idSuggestion: number = Number.parseInt(req.body.idSuggestion);
