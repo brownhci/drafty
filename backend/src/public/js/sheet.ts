@@ -773,18 +773,18 @@ function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement, event: Mou
       // ascending sort
       buttonElement.classList.remove(descendingClass);
       const comparator = constructTableRowComparator(columnIndex, (text1, text2) => text1.localeCompare(text2));
-      reinitializeTableDataScrollManagerBySorting(comparator);
+      reinitializeTableDataScrollManagerBySorting(comparator, tableDataElements);
     } else {
       // descending sort
       buttonElement.classList.add(descendingClass);
       const comparator = constructTableRowComparator(columnIndex, (text1, text2) => text2.localeCompare(text1));
-      reinitializeTableDataScrollManagerBySorting(comparator);
+      reinitializeTableDataScrollManagerBySorting(comparator, tableDataElements);
     }
   } else {
     // ascending sort
     buttonElement.classList.add(clickClass);
     const comparator = constructTableRowComparator(columnIndex, (text1, text2) => text1.localeCompare(text2));
-    reinitializeTableDataScrollManagerBySorting(comparator);
+    reinitializeTableDataScrollManagerBySorting(comparator, tableDataElements);
   }
 
   event.stopPropagation();
@@ -899,13 +899,13 @@ function tableColumnSearchElementOnInput(tableColumnSearchInputElement: HTMLInpu
 function filterTableDataSectionsByQueries() {
   if (tableColumnSearchQueries.size === 0) {
     if (activeComparator) {
-      reinitializeTableDataScrollManagerBySorting(activeComparator);
+      reinitializeTableDataScrollManagerBySorting(activeComparator, tableDataElements);
     } else {
-      initializeTableDataScrollManager(defaultDataSections, true);
+      initializeTableDataScrollManager(defaultDataSections, true, false);
     }
   } else {
     const filterFunction = constructTableRowFilter(tableColumnSearchQueries);
-    reinitializeTableDataScrollManagerByFiltering(filterFunction);
+    reinitializeTableDataScrollManagerByFiltering(filterFunction, tableDataElements);
   }
 }
 function tableColumnSearchElementOnKeyDown(tableColumnSearchElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
@@ -1788,64 +1788,70 @@ function sortDataElements(dataElements: Array<HTMLElement>, comparator: (el1: HT
   dataElements.sort(comparator);
   return dataElements;
 }
-function packDataElements(dataElements: Iterator<HTMLElement>, numDataElementsInSection: number, filterFunction: (element: HTMLElement) => boolean = () => true): DocumentFragment | null {
+function packDataElements(dataElements: Array<HTMLElement>, numDataElementsInSection: number, filterFunction: (element: HTMLElement) => boolean = () => true): DocumentFragment | null {
+  let numDataElementsIncluded = 0;
   const documentFragment = new DocumentFragment();
-
-  let i = 0;
-  while (true) {
-    const templateElement = document.createElement("template");
-    const tableBodyElement = document.createElement("tbody");
-
-    let {value: dataElement, done} = dataElements.next();
-    for (i = 0; i < numDataElementsInSection && !done;) {
-      if (filterFunction(dataElement)) {
-        tableBodyElement.appendChild(dataElement.cloneNode(true));
-        i++;
-      }
-      ({value: dataElement, done} = dataElements.next());
+  let templateElement = document.createElement("template");
+  let tableBodyElement = document.createElement("tbody");
+  for (const dataElement of dataElements) {
+    if (!filterFunction(dataElement)) {
+      continue;
     }
+    numDataElementsIncluded++;
+    tableBodyElement.appendChild(dataElement.cloneNode(true));
+    if (numDataElementsIncluded % numDataElementsInSection === 0) {
+      // save current section
+      templateElement.content.appendChild(tableBodyElement);
+      documentFragment.append(templateElement);
+      // use another data section
+      templateElement = document.createElement("template");
+      tableBodyElement = document.createElement("tbody");
+    }
+  }
 
+  if (tableBodyElement.children.length > 0) {
+    // save current section
     templateElement.content.appendChild(tableBodyElement);
     documentFragment.append(templateElement);
-    if (done) {
-      if (i === 0) {
-        return null;
-      } else {
-        return documentFragment;
-      }
-    }
+  }
+
+  if (numDataElementsIncluded === 0) {
+    return null;
+  } else {
+    return documentFragment;
   }
 }
 
 let activeComparator: (el1: HTMLElement, el2: HTMLElement) => number | null;
-function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLElement, el2: HTMLElement) => number, dataElements: Array<HTMLElement> = tableDataElements) {
+function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLElement, el2: HTMLElement) => number, dataElements: Array<HTMLElement>) {
   activeComparator = comparator;
   sortDataElements(dataElements, comparator);
-  const dataElementsIterator = dataElements[Symbol.iterator]();
-  const documentFragment = packDataElements(dataElementsIterator, numTableRowsInDataSection);
+  const documentFragment = packDataElements(dataElements, numTableRowsInDataSection);
   if (documentFragment === null) {
     clearTableDataScrollManager();
   } else {
     const dataSections = documentFragment.children;
-    initializeTableDataScrollManager(dataSections, true);
+    initializeTableDataScrollManager(dataSections, true, false);
   }
 }
 
-function reinitializeTableDataScrollManagerByFiltering(filterFunction: (element: HTMLElement) => boolean, dataElements: Array<HTMLElement> = tableDataElements) {
-  const dataElementsIterator = dataElements[Symbol.iterator]();
-  const documentFragment = packDataElements(dataElementsIterator, numTableRowsInDataSection, filterFunction);
+function reinitializeTableDataScrollManagerByFiltering(filterFunction: (element: HTMLElement) => boolean, dataElements: Array<HTMLElement>) {
+  const documentFragment = packDataElements(dataElements, numTableRowsInDataSection, filterFunction);
+  console.log(documentFragment);
   if (documentFragment === null) {
     clearTableDataScrollManager();
   } else {
     const dataSections = documentFragment.children;
-    initializeTableDataScrollManager(dataSections, true);
+    initializeTableDataScrollManager(dataSections, true, false);
   }
 }
 
-function initializeTableDataScrollManager(dataSections: Array<HTMLTemplateElement> | HTMLCollection, reinitialize=false) {
+function initializeTableDataScrollManager(dataSections: Array<HTMLTemplateElement> | HTMLCollection, reinitialize=false, regenerateTableDataElements=true) {
   // set up variables
   tableDataSections = dataSections;
-  tableDataElements = getDataElementsFromDataSections(dataSections);
+  if (regenerateTableDataElements) {
+    tableDataElements = getDataElementsFromDataSections(dataSections);
+  }
   numDataSectionsToRender = Math.min(4, tableDataSections.length);
 
   // set up filler
