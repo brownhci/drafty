@@ -98,6 +98,12 @@ function isTableCellSortButton(element: HTMLElement): boolean {
 function isInput(element: HTMLElement): boolean {
   return element.tagName === "INPUT";
 }
+function isTableBody(element: HTMLElement): boolean {
+  return element.tagName === "TBODY";
+}
+function isTemplate(element: HTMLElement): boolean {
+  return element.tagName === "TEMPLATE";
+}
 function isColumnLabel(element: HTMLElement): boolean {
   return element.classList.contains("column-label") || getRowIndex(element as HTMLTableCellElement) === columnLabelsRowIndex;
 }
@@ -130,6 +136,14 @@ function getRowIndex(tableCellElement: HTMLTableCellElement): number {
 }
 function getFirstDataRowIndex() {
   return dataSectionFillerTop.rowIndex + 1;
+}
+function getDataElementsFromDataSection(dataSection: HTMLTemplateElement | HTMLTableSectionElement) {
+  if (isTableBody(dataSection)) {
+    return dataSection.getElementsByTagName("tr");
+  } else if (isTemplate(dataSection)) {
+    return (<HTMLTemplateElement> dataSection).content.querySelectorAll("tr");
+  }
+  throw new Error("unrecognized HTMLelement passed to getDataRowsFromDataSection, expecting <template> or <tbody>");
 }
 function getRecordIndex(tableCellElement: HTMLTableCellElement): number {
   const rowIndex = getRowIndex(tableCellElement);
@@ -768,23 +782,26 @@ function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement, event: Mou
 
   const columnIndex = (<HTMLTableCellElement> buttonElement.parentElement).cellIndex;
   // '' => 'clicked' => 'clicked desc' => 'clicked'
+  // since we are sorting on the current displayed data elements, we need to collect
+  // data elements from rendered table data sections
+  const dataElements = getDataElementsFromDataSections(tableDataSectionsRendered);
   if (buttonElement.classList.contains(clickClass)) {
     if (buttonElement.classList.contains(descendingClass)) {
       // ascending sort
       buttonElement.classList.remove(descendingClass);
       const comparator = constructTableRowComparator(columnIndex, (text1, text2) => text1.localeCompare(text2));
-      reinitializeTableDataScrollManagerBySorting(comparator, tableDataElements);
+      reinitializeTableDataScrollManagerBySorting(comparator, dataElements);
     } else {
       // descending sort
       buttonElement.classList.add(descendingClass);
       const comparator = constructTableRowComparator(columnIndex, (text1, text2) => text2.localeCompare(text1));
-      reinitializeTableDataScrollManagerBySorting(comparator, tableDataElements);
+      reinitializeTableDataScrollManagerBySorting(comparator, dataElements);
     }
   } else {
     // ascending sort
     buttonElement.classList.add(clickClass);
     const comparator = constructTableRowComparator(columnIndex, (text1, text2) => text1.localeCompare(text2));
-    reinitializeTableDataScrollManagerBySorting(comparator, tableDataElements);
+    reinitializeTableDataScrollManagerBySorting(comparator, dataElements);
   }
 
   event.stopPropagation();
@@ -898,6 +915,7 @@ function tableColumnSearchElementOnInput(tableColumnSearchInputElement: HTMLInpu
 }
 function filterTableDataSectionsByQueries() {
   if (tableColumnSearchQueries.size === 0) {
+    // restore to all data elements
     if (activeComparator) {
       reinitializeTableDataScrollManagerBySorting(activeComparator, tableDataElements);
     } else {
@@ -1337,14 +1355,14 @@ function getDataSectionTemplateIndex(dataSection: HTMLElement): number {
   return sidToTemplateIndex.get(dataSectionSid);
 }
 
-function countMatchedElementsInDataSection(template: HTMLTemplateElement, selector = "tr") {
-  return template.content.querySelectorAll(selector).length;
+function countMatchedElementsInDataSection(template: HTMLTemplateElement) {
+  return getDataElementsFromDataSection(template).length;
 }
 
 function getDataElementsFromDataSections(dataSections: HTMLCollection | Array<HTMLTemplateElement>, selector="tr"): Array<HTMLElement> {
   const dataElements = [];
   for (const dataSection of dataSections) {
-    dataElements.push(...(<HTMLTemplateElement> dataSection).content.querySelectorAll(selector));
+    dataElements.push(...getDataElementsFromDataSection(<HTMLTemplateElement> dataSection));
   }
   return dataElements as Array<HTMLElement>;
 }
@@ -1353,16 +1371,16 @@ function getDataElementsFromDataSections(dataSections: HTMLCollection | Array<HT
  * Counts how many elements match the selector in templates.
  *
  * @param {DOMString} [selector = 'tr'] - A DOMString containing one or more selectors to match. This string must be a valid CSS selector string
- * @param {boolean} [dataSectonHasSameStructure = true] - whether the data sections has the same structure so the number of elements matched for one section applies to the other sections. Specifying this element to true will decrease the computation cost.
+ * @param {boolean} [dataSectionHasSameStructure = true] - whether the data sections has the same structure so the number of elements matched for one section applies to the other sections. Specifying this element to true will decrease the computation cost.
  * @returns {number} How many matched elements are found among all templates.
  */
-function countMatchedElementsInAllDataSections(selector = "tr", dataSectonHasSameStructure = true): number {
+function countMatchedElementsInAllDataSections(selector = "tr", dataSectionHasSameStructure = true): number {
   const numDataSections = tableDataSections.length;
   if (!numDataSections) {
     return 0;
   }
 
-  if (dataSectonHasSameStructure) {
+  if (dataSectionHasSameStructure) {
     const template: HTMLTemplateElement = tableDataSections[0] as HTMLTemplateElement;
     return countMatchedElementsInDataSection(template) * numDataSections;
   }
@@ -1639,22 +1657,22 @@ let topSentinelObserver: IntersectionObserver;
 let bottomSentinelObserver: IntersectionObserver;
 let topFillerObserver: IntersectionObserver;
 let bottomFillerObserver: IntersectionObserver;
-function getTopSentinel(renderedDataSections = tableDataSectionsRendered, selector = "tr"): HTMLElement | null {
+function getTopSentinel(renderedDataSections = tableDataSectionsRendered): HTMLElement | null {
   const firstDataSection = renderedDataSections[0];
   if (!firstDataSection) {
     return null;
   }
 
-  const matchedElements = firstDataSection.querySelectorAll(selector);
+  const matchedElements = getDataElementsFromDataSection(firstDataSection as HTMLTableSectionElement);
   return matchedElements[matchedElements.length - 1] as HTMLElement;
 }
-function getBottomSentinel(renderedDataSections = tableDataSectionsRendered, selector = "tr"): HTMLElement | null {
+function getBottomSentinel(renderedDataSections = tableDataSectionsRendered): HTMLElement | null {
   const lastDataSection = renderedDataSections[renderedDataSections.length - 1];
   if (!lastDataSection) {
     return null;
   }
 
-  const matchedElements = lastDataSection.querySelectorAll(selector);
+  const matchedElements = getDataElementsFromDataSection(lastDataSection as HTMLTableSectionElement);
   return matchedElements[0] as HTMLElement;
 }
 function activateSentinels(newTopSentinel = getTopSentinel(), newBottomSentinel = getBottomSentinel()) {
