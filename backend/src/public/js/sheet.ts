@@ -1,3 +1,5 @@
+// ARROW KEY not functioning when scrolling off screen
+
 const activeClass = "active";
 const activeAccompanyClass = "active-accompany";
 /* this interface is used to detect double click (two clicks within short interval specified by {@link recentTimeLimit} */
@@ -127,6 +129,11 @@ function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
   return true;
 }
 
+function isTableCellInRenderedDataSections(tableCellElement: HTMLTableCellElement): boolean {
+  // rendered table cell will have a <table> ancestor
+  return tableCellElement.closest("table") !== null;
+}
+
 // getters
 function getTableRow(tableCellElement: HTMLTableCellElement): HTMLTableRowElement {
   return tableCellElement.parentElement as HTMLTableRowElement;
@@ -179,12 +186,10 @@ function getColumnSearchInput(columnSearch: HTMLTableCellElement): HTMLInputElem
   return columnSearch.querySelector("input");
 }
 function getTopTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | undefined {
-  const rowIndex = tableRowElement.rowIndex;
-  return tableRowElements[rowIndex - 1] as HTMLTableRowElement;
+  return tableRowElement.previousElementSibling as HTMLTableRowElement;
 }
 function getDownTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | undefined {
-  const rowIndex = tableRowElement.rowIndex;
-  return tableRowElements[rowIndex + 1] as HTMLTableRowElement;
+  return tableRowElement.nextElementSibling as HTMLTableRowElement;
 }
 function getTableRowCellValues(tableRowElement: HTMLTableRowElement): Array<string> {
   return Array.from(tableRowElement.cells).map(getTableDataText);
@@ -613,6 +618,7 @@ function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | n
     // remove input form
     deactivateTableCellInputForm();
   }
+
   activateTableCellElement(tableCellElement);
 }
 
