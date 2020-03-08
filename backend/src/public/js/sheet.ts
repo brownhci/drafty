@@ -129,10 +129,15 @@ function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
 }
 
 // getters
+function getTableRow(tableCellElement: HTMLTableCellElement): HTMLTableRowElement {
+  return tableCellElement.parentElement as HTMLTableRowElement;
+}
 function getRowIndex(tableCellElement: HTMLTableCellElement): number {
-  // since we have both column label and column search
-  const tableRow: HTMLTableRowElement = tableCellElement.parentElement as HTMLTableRowElement;
-  return tableRow.rowIndex;
+  return getTableRow(tableCellElement).rowIndex;
+}
+function getDataRowIndex(tableRowElement: HTMLTableRowElement): number {
+  const rowIndex = tableRowElement.rowIndex;
+  return translateFromTableRowIndexToDataRowIndex(rowIndex);
 }
 function getFirstDataRowIndex() {
   return dataSectionFillerTop.rowIndex + 1;
@@ -193,7 +198,7 @@ function getRightTableCellElement(tableCellElement: HTMLTableCellElement): HTMLT
 }
 function getUpTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTableCellElement | null {
   const cellIndex = tableCellElement.cellIndex;
-  const topTableRow = getTopTableRow(tableCellElement.parentElement as HTMLTableRowElement);
+  const topTableRow = getTopTableRow(getTableRow(tableCellElement));
   if (!topTableRow) {
     return null;
   }
@@ -201,7 +206,7 @@ function getUpTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTabl
 }
 function getDownTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTableCellElement | null {
   const cellIndex = tableCellElement.cellIndex;
-  const downTableRow = getDownTableRow(tableCellElement.parentElement as HTMLTableRowElement);
+  const downTableRow = getDownTableRow(getTableRow(tableCellElement));
   if (!downTableRow) {
     return null;
   }
@@ -309,11 +314,15 @@ function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableC
 }
 function restoreTableCellInputFormLocation() {
   if (tableCellInputFormLocationActive && tableCellInputFormTargetElement) {
-    const {left: targetLeft, top: targetTop} = tableCellInputFormTargetElement.getBoundingClientRect();
-    const {left: inputFormLeft, top: inputFormTop} = tableCellInputFormElement.getBoundingClientRect();
-    const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
-    tableScrollContainer.scrollTop += targetTop - inputFormTop - buttonHeight;
-    tableScrollContainer.scrollLeft += targetLeft - inputFormLeft;
+    const targetElementTableRow: HTMLTableRowElement = getTableRow(tableCellInputFormTargetElement);
+    const dataRowIndex = getDataRowIndex(targetElementTableRow);
+    scrollToDataRowIndex(dataRowIndex, true, () => {
+      const {left: targetLeft, top: targetTop} = tableCellInputFormTargetElement.getBoundingClientRect();
+      const {left: inputFormLeft, top: inputFormTop} = tableCellInputFormElement.getBoundingClientRect();
+      const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
+      tableScrollContainer.scrollTop += targetTop - inputFormTop - buttonHeight;
+      tableScrollContainer.scrollLeft += targetLeft - inputFormLeft;
+    });
   }
 }
 tableCellInputFormLocateCellElement.addEventListener("click", function(event: MouseEvent) {
@@ -385,8 +394,7 @@ function updateTableCellInputFormWidthToFitText(textToFit: string) {
 }
 
 function getIdUniqueID(tableCellElement: HTMLTableCellElement): number {
-  const tableRow: HTMLTableRowElement = tableCellElement.parentElement as HTMLTableRowElement;
-  return Number.parseInt(tableRow.id);
+  return Number.parseInt(getTableRow(tableCellElement).id);
 }
 function getIdSuggestion(tableCellElement: HTMLTableCellElement): number {
   return Number.parseInt(tableCellElement.id);
@@ -1295,7 +1303,7 @@ function recordEdit(tableCellElement: HTMLTableCellElement) {
 function recordClickOnCell(tableCellElement: HTMLTableCellElement) {
   if (isTableData(tableCellElement)) {
     // only record click on table data now
-    const tableRow: HTMLTableRowElement = tableCellElement.parentElement as HTMLTableRowElement;
+    const tableRow: HTMLTableRowElement = getTableRow(tableCellElement);
     const rowValues = getTableRowCellValues(tableRow);
 
     const idSuggestion = getIdSuggestion(tableCellElement);
@@ -1303,7 +1311,7 @@ function recordClickOnCell(tableCellElement: HTMLTableCellElement) {
   }
 }
 function recordDoubleClickOnCell(tableCellElement: HTMLTableCellElement) {
-    const tableRow: HTMLTableRowElement = tableCellElement.parentElement as HTMLTableRowElement;
+    const tableRow: HTMLTableRowElement = getTableRow(tableCellElement);
     const rowValues = getTableRowCellValues(tableRow);
 
     const idSuggestion = getIdSuggestion(tableCellElement);
@@ -1864,13 +1872,24 @@ function reinitializeTableDataScrollManagerByFiltering(filterFunction: (element:
   }
 }
 
+
+const numDataSectionsToEnableDataScrollManager: number = 4;
+let isDataScrollManagerEnabled: boolean;
 function initializeTableDataScrollManager(dataSections: Array<HTMLTemplateElement> | HTMLCollection, reinitialize=false, regenerateTableDataElements=true) {
   // set up variables
   tableDataSections = dataSections;
   if (regenerateTableDataElements) {
     tableDataElements = getDataElementsFromDataSections(dataSections);
   }
-  numDataSectionsToRender = Math.min(4, tableDataSections.length);
+
+  if (tableDataSections.length > numDataSectionsToEnableDataScrollManager) {
+    // there are enough data sections to enable scrolling
+    numDataSectionsToRender = numDataSectionsToEnableDataScrollManager;
+    isDataScrollManagerEnabled = true;
+  } else {
+    numDataSectionsToRender = tableDataSections.length;
+    isDataScrollManagerEnabled = false;
+  }
 
   // set up filler
   if (reinitialize) {
@@ -1890,8 +1909,10 @@ function initializeTableDataScrollManager(dataSections: Array<HTMLTemplateElemen
   // set up initial data sections
   initializeInitialRenderedDataSections();
 
-  // set up intersection observer
-  initializeIntersectionObserver(getTopSentinel(), getBottomSentinel());
+  if (isDataScrollManagerEnabled) {
+    // set up intersection observer only when needed (enough data sections to scroll)
+    initializeIntersectionObserver(getTopSentinel(), getBottomSentinel());
+  }
 }
 
 function clearTableDataScrollManager() {
