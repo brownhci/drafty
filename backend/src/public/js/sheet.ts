@@ -1,5 +1,4 @@
 // TODO need to restore active state of scrolled element
-// TODO need to apply reposition across scrolling
 // TODO clear table row
 
 const activeClass = "active";
@@ -25,7 +24,7 @@ let activeTableColElement: null | HTMLTableColElement = null;
 // copying
 const copiedClass = "copied";
 /* which table cell element (either a table head or a table data) was copied */
-let lastCopiedTableCellElement: null | HTMLTableCellElement | HTMLTableColElement = null;
+let copyTarget: null | HTMLTableCellElement | HTMLTableColElement = null;
 
 // DOM Elements
 const tableElement: HTMLTableElement = document.getElementById("table") as HTMLTableElement;
@@ -135,9 +134,8 @@ function getTableRow(tableCellElement: HTMLTableCellElement): HTMLTableRowElemen
 function getRowIndex(tableCellElement: HTMLTableCellElement): number {
   return getTableRow(tableCellElement).rowIndex;
 }
-function getDataRowIndex(tableRowElement: HTMLTableRowElement): number {
-  const rowIndex = tableRowElement.rowIndex;
-  return translateFromTableRowIndexToDataRowIndex(rowIndex);
+function getRowIndexInSection(tableRowElement: HTMLTableRowElement): number {
+  return tableRowElement.sectionRowIndex;
 }
 function getFirstDataRowIndex() {
   return dataSectionFillerTop.rowIndex + 1;
@@ -151,9 +149,11 @@ function getDataElementsFromDataSection(dataSection: HTMLTemplateElement | HTMLT
   throw new Error("unrecognized HTMLelement passed to getDataRowsFromDataSection, expecting <template> or <tbody>");
 }
 function getRecordIndex(tableCellElement: HTMLTableCellElement): number {
-  const rowIndex = getRowIndex(tableCellElement);
-  const firstRenderedDataRowTableRowIndex = getFirstDataRowIndex();
-  return rowIndex - firstRenderedDataRowTableRowIndex;
+  const dataSection = getDataSection(tableCellElement);
+  const templateIndex = getDataSectionTemplateIndex(dataSection);
+  const numDataElementsInPreviousDataSections = templateIndex * numTableRowsInDataSection;
+  const sectionIndex = getRowIndexInSection(getTableRow(tableCellElement));
+  return sectionIndex + numDataElementsInPreviousDataSections;
 }
 function getRecordIndexFromLocateCellElement() {
   const displayedIndex: string = tableCellInputFormLocateCellRowElement.textContent;
@@ -222,6 +222,9 @@ function getTableCellInputFormLocateRowIndex(): number | null {
   } else {
     return null;
   }
+}
+function getDataSection(dataSectionElement: HTMLTableRowElement | HTMLTableCellElement): HTMLTableSectionElement {
+  return dataSectionElement.closest("tbody");
 }
 
 /**
@@ -315,7 +318,7 @@ function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableC
 function restoreTableCellInputFormLocation() {
   if (tableCellInputFormLocationActive && tableCellInputFormTargetElement) {
     const targetElementTableRow: HTMLTableRowElement = getTableRow(tableCellInputFormTargetElement);
-    const dataRowIndex = getDataRowIndex(targetElementTableRow);
+    const dataRowIndex = getRecordIndex(tableCellInputFormTargetElement);
     scrollToDataRowIndex(dataRowIndex, true, () => {
       const {left: targetLeft, top: targetTop} = tableCellInputFormTargetElement.getBoundingClientRect();
       const {left: inputFormLeft, top: inputFormTop} = tableCellInputFormElement.getBoundingClientRect();
@@ -851,14 +854,14 @@ function copyTextareaToClipboard() {
 function clearClipboardTextarea() {
   clipboardTextarea.value = "";
 }
-function unhighlightCopiedElement() {
-  if (lastCopiedTableCellElement) {
-    lastCopiedTableCellElement.classList.remove(copiedClass);
-    lastCopiedTableCellElement = null;
+function removeCurrentCopyTarget() {
+  if (copyTarget) {
+    copyTarget.classList.remove(copiedClass);
+    copyTarget = null;
   }
 }
-function highlightCopiedElement(element: HTMLTableCellElement | HTMLTableColElement) {
-  lastCopiedTableCellElement = element;
+function makeElementCopyTarget(element: HTMLTableCellElement | HTMLTableColElement) {
+  copyTarget = element;
   element.classList.add(copiedClass);
 }
 function hasCopyModifier(event: KeyboardEvent) {
@@ -879,7 +882,7 @@ function copyTableColumnToTextarea(index: number) {
 }
 function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   if (hasCopyModifier(event)) {
-    unhighlightCopiedElement();
+    removeCurrentCopyTarget();
     clearClipboardTextarea();
 
     let elementToHighlight;
@@ -897,7 +900,7 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: C
     }
 
     copyTextareaToClipboard();
-    highlightCopiedElement(elementToHighlight);
+    makeElementCopyTarget(elementToHighlight);
     event.consumed = true;
   }
   // ignore when only C is pressed
@@ -1500,8 +1503,10 @@ function scrollToDataRowByScrollAmount(scrollAmount: number) {
   const firstTableRowOffsetTop = dataSectionFillerTop.offsetTop;
   // if the scroll amount has not exceeded the first table row element, for example, scroll to very top
   // consider as if scroll to first table row element
+  console.log(scrollAmount);
   const distanceFromFirstTableRow = Math.max(scrollAmount - firstTableRowOffsetTop, 0);
-  const dataRowIndex = Math.floor(distanceFromFirstTableRow / tableRowHeight);
+  let dataRowIndex = Math.floor(distanceFromFirstTableRow / tableRowHeight);
+  dataRowIndex = Math.min(dataRowIndex, tableDataElements.length - 1);
   scrollToDataRowIndex(dataRowIndex, true);
 }
 
@@ -1721,8 +1726,15 @@ function shiftDataSections(numDataSectionsShiftedAbove: number) {
 function renderDataSections(numDataSectionsShiftedAbove: number, documentFragment: DocumentFragment) {
   deactivateSentinels();
   adjustDataSectionFillersHeightForShifting(numDataSectionsShiftedAbove);
+  // freeze active states
   replaceRenderedDataSections(Array.from(documentFragment.children));
+  // restore active states
   activateSentinels();
+}
+function removeDataSectionsStates() {
+  removeCurrentCopyTarget();
+}
+function restoreDataSectionsStates() {
 }
 
 /**
