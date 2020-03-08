@@ -36,6 +36,7 @@ const tableRowElements: HTMLCollection = tableElement.rows;
 /* first table row: column labels */
 const columnLabelsRowIndex: number = 0;
 const tableColumnLabels: HTMLTableRowElement = tableRowElements[columnLabelsRowIndex] as HTMLTableRowElement;
+
 /* first table row: column labels */
 const columnSearchRowIndex = 1;
 const tableColumnSearchs: HTMLTableRowElement = tableRowElements[columnSearchRowIndex] as HTMLTableRowElement;
@@ -52,6 +53,8 @@ const tableRowHeight = tableColumnLabels.clientHeight;
 
 /* <col>s */
 const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
+
+const numTableColumns: number = tableColElements.length;
 
 // measure text width
 /* the element used to measure text width */
@@ -121,7 +124,7 @@ function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
   }
   const columnLabel = getColumnLabel(tableCellElement.cellIndex);
   const columnLabelText = getColumnLabelText(columnLabel);
-  if (columnLabelText === "Last_Updated_By" || columnLabelText === "Last_Updated") {
+  if (columnLabelText === "Last Updated By" || columnLabelText === "Last Updated") {
     tableCellElement.contentEditable = "false";
     return false;
   }
