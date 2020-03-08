@@ -42,6 +42,7 @@ $resize-shadow-width: 5px;
       top: 0;
       left: 0;
       &.active {
+        z-index: $zindex-popover;
         @extend .d-block;
       }
     }
