@@ -82,35 +82,38 @@ const onMac: boolean = isMac();
 
 // Get HTML Element type
 function isTableData(element: HTMLElement): boolean {
-  return element.tagName === "TD";
+  return element && element.tagName === "TD";
 }
 function isTableHead(element: HTMLElement): boolean {
-  return element.tagName === "TH";
+  return element && element.tagName === "TH";
 }
 function isTableCell(element: HTMLElement): boolean {
+  if (!element) {
+    return false;
+  }
   const tagName = element.tagName;
   return tagName === "TD" || tagName === "TH";
 }
 function isTableCellSortButton(element: HTMLElement): boolean {
-  return element.classList.contains("sort-btn");
+  return element && element.classList.contains("sort-btn");
 }
 function isInput(element: HTMLElement): boolean {
-  return element.tagName === "INPUT";
+  return element && element.tagName === "INPUT";
 }
 function isTableBody(element: HTMLElement): boolean {
-  return element.tagName === "TBODY";
+  return element && element.tagName === "TBODY";
 }
 function isTemplate(element: HTMLElement): boolean {
-  return element.tagName === "TEMPLATE";
+  return element && element.tagName === "TEMPLATE";
 }
 function isColumnLabel(element: HTMLElement): boolean {
-  return element.classList.contains("column-label") || getRowIndex(element as HTMLTableCellElement) === columnLabelsRowIndex;
+  return element && element.classList.contains("column-label");
 }
 function isColumnSearch(element: HTMLElement): boolean {
-  return element.classList.contains("column-search") || getRowIndex(element as HTMLTableCellElement) === columnSearchRowIndex;
+  return  element && element.classList.contains("column-search");
 }
 function isColumnSearchInput(element: HTMLElement): boolean {
-  return false;
+  return element && isColumnSearch(element.parentElement);
 }
 
 function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
@@ -1503,7 +1506,6 @@ function scrollToDataRowByScrollAmount(scrollAmount: number) {
   const firstTableRowOffsetTop = dataSectionFillerTop.offsetTop;
   // if the scroll amount has not exceeded the first table row element, for example, scroll to very top
   // consider as if scroll to first table row element
-  console.log(scrollAmount);
   const distanceFromFirstTableRow = Math.max(scrollAmount - firstTableRowOffsetTop, 0);
   let dataRowIndex = Math.floor(distanceFromFirstTableRow / tableRowHeight);
   dataRowIndex = Math.min(dataRowIndex, tableDataElements.length - 1);
@@ -1726,15 +1728,38 @@ function shiftDataSections(numDataSectionsShiftedAbove: number) {
 function renderDataSections(numDataSectionsShiftedAbove: number, documentFragment: DocumentFragment) {
   deactivateSentinels();
   adjustDataSectionFillersHeightForShifting(numDataSectionsShiftedAbove);
-  // freeze active states
+  // remove previous states for hidden data sections
+  removeDataSectionsStates();
+
+  // new data sections rendered
   replaceRenderedDataSections(Array.from(documentFragment.children));
-  // restore active states
+
+  // restore active states for new data sections
+  restoreDataSectionsStates();
+
   activateSentinels();
 }
 function removeDataSectionsStates() {
-  removeCurrentCopyTarget();
+  tableCellInputFormAssignTarget(null);
 }
 function restoreDataSectionsStates() {
+  const recoveredCopyTarget = tableElement.querySelector(`.${copiedClass}`) as HTMLTableCellElement;
+  if (recoveredCopyTarget && copyTarget && (recoveredCopyTarget.id !== copyTarget.id)) {
+    // the recovered copt target is outdated, a new copy target has been chosen when scrolling away
+    recoveredCopyTarget.classList.remove(copiedClass);
+  }
+
+  for (const recoveredActiveElement of tableElement.querySelectorAll(`.${activeClass}`)) {
+    if (isTableData(recoveredActiveElement as HTMLElement) && recoveredActiveElement !== activeTableCellElement) {
+      updateActiveTableCellElement(recoveredActiveElement as HTMLTableCellElement);
+      break;
+    }
+  }
+
+  const recoveredTableCellInputFormTargetElement = tableElement.querySelector(`.${inputingClass}`);
+  if (recoveredCopyTarget) {
+    tableCellInputFormAssignTarget(recoveredTableCellInputFormTargetElement as HTMLTableCellElement);
+  }
 }
 
 /**
