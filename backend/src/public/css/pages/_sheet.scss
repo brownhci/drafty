@@ -114,6 +114,9 @@ $resize-shadow-width: 5px;
       &:focus {
         outline: none;
       }
+      &:last-of-type, &:nth-last-of-type(2) {
+        @extend .text-muted;
+      }
     }
 
     thead {
