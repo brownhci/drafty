@@ -28,7 +28,7 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
  * get suggestions
  */
 export const getSuggestionsForEdit = async (req: Request, res: Response, next: NextFunction) => {
-  const idSuggestion: number = req.body.idSuggestion;
+  const idSuggestion: number = req.query.idSuggestion;
   const idSession: number = req.session.user.idSession;
 
   const idInteractionType = 6; // 6 = editRecord
