@@ -143,7 +143,7 @@ $resize-shadow-width: 5px;
             }
           }
         }
-        &.active, &.inputing {
+        &.active, &.inputting {
           @extend .bg-primary;
           @extend .text-white;
           .sort-btn {

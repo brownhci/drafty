@@ -1,6 +1,3 @@
-// TODO need to restore active state of scrolled element
-// TODO clear table row
-
 const activeClass = "active";
 const activeAccompanyClass = "active-accompany";
 /* this interface is used to detect double click (two clicks within short interval specified by {@link recentTimeLimit} */
@@ -267,7 +264,7 @@ function em2px(em: number, fontSize = 16, element: HTMLElement | null = null) {
 }
 
 // input editor
-const inputingClass = "inputing";
+const inputtingClass = "inputting";
 /* input editor element */
 const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
 const tableCellInputFormCSRFInput: HTMLInputElement = tableCellInputFormElement.querySelector("input[name='_csrf']");
@@ -345,11 +342,11 @@ function deactivateTableCellInputForm() {
     const cellIndex = tableCellInputFormTargetElement.cellIndex;
     const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
     if (columnLabel) {
-      columnLabel.classList.remove(inputingClass);
+      columnLabel.classList.remove(inputtingClass);
     }
 
     // unhighlight the target cell
-    tableCellInputFormTargetElement.classList.remove(inputingClass);
+    tableCellInputFormTargetElement.classList.remove(inputtingClass);
     tableCellInputFormTargetElement = null;
   }
 }
@@ -364,12 +361,12 @@ function activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellEle
   const cellIndex = targetHTMLTableCellElement.cellIndex;
   const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
   if (columnLabel) {
-    columnLabel.classList.add(inputingClass);
+    columnLabel.classList.add(inputtingClass);
   }
 
   // highlight the target cell
   tableCellInputFormTargetElement = targetHTMLTableCellElement;
-  tableCellInputFormTargetElement.classList.add(inputingClass);
+  tableCellInputFormTargetElement.classList.add(inputtingClass);
 }
 /**
  * Updates the text inside the input element inside the input editor and resizes the input eidtor properly.
@@ -1728,8 +1725,6 @@ function shiftDataSections(numDataSectionsShiftedAbove: number) {
 function renderDataSections(numDataSectionsShiftedAbove: number, documentFragment: DocumentFragment) {
   deactivateSentinels();
   adjustDataSectionFillersHeightForShifting(numDataSectionsShiftedAbove);
-  // remove previous states for hidden data sections
-  removeDataSectionsStates();
 
   // new data sections rendered
   replaceRenderedDataSections(Array.from(documentFragment.children));
@@ -1739,26 +1734,41 @@ function renderDataSections(numDataSectionsShiftedAbove: number, documentFragmen
 
   activateSentinels();
 }
-function removeDataSectionsStates() {
-  tableCellInputFormAssignTarget(null);
-}
 function restoreDataSectionsStates() {
   const recoveredCopyTarget = tableElement.querySelector(`.${copiedClass}`) as HTMLTableCellElement;
-  if (recoveredCopyTarget && copyTarget && (recoveredCopyTarget.id !== copyTarget.id)) {
-    // the recovered copt target is outdated, a new copy target has been chosen when scrolling away
-    recoveredCopyTarget.classList.remove(copiedClass);
+  if (recoveredCopyTarget && copyTarget) {
+     if (recoveredCopyTarget.id === copyTarget.id) {
+      // the recovered copy target is still the copy target (now a clone of it)
+       makeElementCopyTarget(recoveredCopyTarget);
+     } else {
+       // the recovered copy target is outdated, a new copy target has been chosen when scrolling away
+       recoveredCopyTarget.classList.remove(copiedClass);
+     }
   }
 
   for (const recoveredActiveElement of tableElement.querySelectorAll(`.${activeClass}`)) {
-    if (isTableData(recoveredActiveElement as HTMLElement) && recoveredActiveElement !== activeTableCellElement) {
-      updateActiveTableCellElement(recoveredActiveElement as HTMLTableCellElement);
+    if (!isTableData(recoveredActiveElement as HTMLElement)) {
+      continue;
+    }
+    if (recoveredActiveElement.id === activeTableCellElement.id) {
+      // the recovered active element is still the active element (now a clone of it)
+      activateTableCellElement(recoveredActiveElement as HTMLTableCellElement);
       break;
+    } else {
+       // the recovered active element is outdated, a new active element has been chosen when scrolling away
+      recoveredActiveElement.classList.remove(activeClass);
     }
   }
 
-  const recoveredTableCellInputFormTargetElement = tableElement.querySelector(`.${inputingClass}`);
-  if (recoveredCopyTarget) {
-    tableCellInputFormAssignTarget(recoveredTableCellInputFormTargetElement as HTMLTableCellElement);
+  const recoveredTableCellInputFormTargetElement = tableElement.querySelector(`.${inputtingClass}`);
+  if (recoveredTableCellInputFormTargetElement && tableCellInputFormTargetElement) {
+    if (recoveredTableCellInputFormTargetElement.id === tableCellInputFormTargetElement.id) {
+      // the recovered inputting cell element is still the inputting cell element (now a clone of it)
+      tableCellInputFormTargetElement = recoveredTableCellInputFormTargetElement as HTMLTableCellElement;
+    } else {
+       // the recovered inputting cell element is outdated, a new inputting cell element has been chosen when scrolling away
+       recoveredTableCellInputFormTargetElement.classList.remove(inputtingClass);
+    }
   }
 }
 
@@ -1900,7 +1910,6 @@ function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLEleme
 
 function reinitializeTableDataScrollManagerByFiltering(filterFunction: (element: HTMLElement) => boolean, dataElements: Array<HTMLElement>) {
   const documentFragment = packDataElements(dataElements, numTableRowsInDataSection, filterFunction);
-  console.log(documentFragment);
   if (documentFragment === null) {
     clearTableDataScrollManager();
   } else {
