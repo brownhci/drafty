@@ -232,6 +232,10 @@ function getDataSection(dataSectionElement: HTMLTableRowElement | HTMLTableCellE
   return dataSectionElement.closest("tbody");
 }
 
+function getAutocompleteSuggestionsContainer(): HTMLElement {
+  return tableCellInputFormElement.querySelector(`.${optionContainerClass}`);
+}
+
 /**
  * Gets the <col> element for the specified column index.
  */
@@ -418,6 +422,7 @@ function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
 interface Suggestion {
   suggestion: string;
   confidence: number;
+  prevSugg: number;
 }
 /**
  * Stores current time in local storage with specified key.
@@ -457,9 +462,8 @@ function shouldSuggestionsInLocalStorageExpire(storedTimestamp: number) {
  * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Suggestion objects.
  */
 async function fetchSuggestions(columnLabel: HTMLTableCellElement): Promise<Array<Suggestion>> {
-  const idSuggestionType: number | null = getIdSuggestionType(columnLabel);
   try {
-    const response = await fetch(`/suggestions?idSuggestionType=${idSuggestionType}`);
+    const response = await fetch(`/suggestions/foredit?idSuggestion=${getIdSuggestion(tableCellInputFormTargetElement)}`);
     if (!response.ok) {
       return null;
     }
@@ -501,9 +505,13 @@ async function attachSuggestions(columnLabel: HTMLTableCellElement) {
   const columnLabelText = getColumnLabelText(columnLabel);
   const suggestions = await getSuggestions(columnLabel);
   if (suggestions) {
-    tableCellInputFormSelectInfo = createSelect(columnLabelText, tableCellInputFormInputElement, tableCellInputFormInputContainer, suggestions, userConfig);
-    // resize form editor
-    updateTableCellInputFormWidthToFitText(tableCellInputFormSelectInfo.longestText);
+    // TODO use last applied suggestions
+    const autocompleteSuggestions = suggestions.filter(suggestion => suggestion.prevSugg == 0);
+    if (autocompleteSuggestions.length > 0) {
+      tableCellInputFormSelectInfo = createSelect(columnLabelText, tableCellInputFormInputElement, tableCellInputFormInputContainer, autocompleteSuggestions, userConfig);
+      // resize form editor
+      updateTableCellInputFormWidthToFitText(tableCellInputFormSelectInfo.longestText);
+    }
   }
 }
 
