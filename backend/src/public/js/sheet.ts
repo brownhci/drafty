@@ -192,7 +192,7 @@ function getElementFromDataSectionsByID(id: string, dataSections: HTMLCollection
 function getRecordIndex(tableCellElement: HTMLTableCellElement): number {
   const dataSection = getDataSection(tableCellElement);
   const templateIndex = getDataSectionTemplateIndex(dataSection);
-  const numDataElementsInPreviousDataSections = templateIndex * numTableRowsInDataSection;
+  const numDataElementsInPreviousDataSections = templateIndex * numDesiredTableRowsInDataSection;
   const sectionIndex = getRowIndexInSection(getTableRow(tableCellElement));
   return sectionIndex + numDataElementsInPreviousDataSections;
 }
@@ -1527,27 +1527,27 @@ function countMatchedElementsInDataSection(template: HTMLTemplateElement) {
  * @param {boolean} [dataSectionHasSameStructure = true] - whether the data sections has the same structure so the number of elements matched for one section applies to the other sections. Specifying this element to true will decrease the computation cost.
  * @returns {number} How many matched elements are found among all templates.
  */
-function countMatchedElementsInAllDataSections(selector = "tr", dataSectionHasSameStructure = true): number {
-  const numDataSections = tableDataSections.length;
+function countMatchedElementsInAllDataSections(dataSections: HTMLCollection | Array<HTMLTemplateElement>, dataSectionHasSameStructure = true): number {
+  const numDataSections = dataSections.length;
   if (!numDataSections) {
     return 0;
   }
 
   if (dataSectionHasSameStructure) {
-    const template: HTMLTemplateElement = tableDataSections[0] as HTMLTemplateElement;
+    const template: HTMLTemplateElement = dataSections[0] as HTMLTemplateElement;
     return countMatchedElementsInDataSection(template) * numDataSections;
   }
 
   // count matched elements in every data section
   let numMatchedElements = 0;
-  for (const tableDataSection of tableDataSections) {
-    numMatchedElements += countMatchedElementsInDataSection((tableDataSection as HTMLTemplateElement));
+  for (const dataSection of dataSections) {
+    numMatchedElements += countMatchedElementsInDataSection((dataSection as HTMLTemplateElement));
   }
   return numMatchedElements;
 }
 
 function getDataSectionIndexByDataRowIndex(dataRowIndex: number) {
-  return Math.floor(dataRowIndex / numTableRowsInDataSection);
+  return Math.floor(dataRowIndex / numDesiredTableRowsInDataSection);
 }
 
 function getSurroundingDataSectionIndexes(targetDataSectionIndex: number): Array<number> {
@@ -1757,9 +1757,12 @@ const dataSectionTopFillerClass = "filler-row-top";
 const dataSectionBottomFillerClass = "filler-row-bottom";
 
 const numDataSectionsWillShift = 2;
+let numDesiredTableRowsInDataSection: number;
 let numTableRowsInDataSection: number;
 let numTableRowsNotDisplayedAbove: number;
 let numTableRowsNotDisplayedBelow: number;
+let numTableRowsInTotal: number;
+let numTableRowsRendered: number;
 
 function initializeDataSectionFillers() {
   dataSectionFillerTop = document.createElement("tr");
@@ -1797,7 +1800,7 @@ function adjustDataSectionFillersHeight(numElementsNotDisplayedAbove: number, nu
 
 function adjustDataSectionFillersHeightForShifting(numDataSectionsShiftedAbove: number) {
   // adjust filler height
-  const numTableRowsShiftedAbove = numDataSectionsShiftedAbove * numTableRowsInDataSection;
+  const numTableRowsShiftedAbove = numDataSectionsShiftedAbove * numDesiredTableRowsInDataSection;
   numTableRowsNotDisplayedAbove += numTableRowsShiftedAbove;
   numTableRowsNotDisplayedBelow -= numTableRowsShiftedAbove;
   adjustDataSectionFillersHeight(numTableRowsNotDisplayedAbove, numTableRowsNotDisplayedBelow, tableRowHeight);
@@ -2101,16 +2104,24 @@ function initializeTableDataScrollManager(dataSections: Array<HTMLTemplateElemen
     initializeDataSectionFillers();
   }
 
-  numTableRowsInDataSection = countMatchedElementsInDataSection((tableDataSections[0] as HTMLTemplateElement));
+  // set up initial data sections
+  initializeInitialRenderedDataSections();
+
   numTableRowsNotDisplayedAbove = 0;
-  numTableRowsNotDisplayedBelow = (tableDataSections.length - numDataSectionsToRender) * numTableRowsInDataSection;
+  if (reinitialize) {
+    numTableRowsInDataSection = countMatchedElementsInDataSection((tableDataSections[0] as HTMLTemplateElement));
+    numTableRowsInTotal = countMatchedElementsInAllDataSections(tableDataSections, false);
+    numTableRowsRendered = countMatchedElementsInAllDataSections(tableDataSectionsRendered, false);
+  } else {
+    numDesiredTableRowsInDataSection = numTableRowsInDataSection = countMatchedElementsInDataSection((tableDataSections[0] as HTMLTemplateElement));
+    numTableRowsInTotal = tableDataElements.length;
+    numTableRowsRendered = countMatchedElementsInAllDataSections(tableDataSectionsRendered, false);
+  }
+  numTableRowsNotDisplayedBelow = numTableRowsInTotal - numTableRowsRendered;
 
   scrollPosition = tableScrollContainer.scrollTop;
 
   adjustDataSectionFillersHeight(numTableRowsNotDisplayedAbove, numTableRowsNotDisplayedBelow, tableRowHeight);
-
-  // set up initial data sections
-  initializeInitialRenderedDataSections();
 
   if (isDataScrollManagerEnabled) {
     // set up intersection observer only when needed (enough data sections to scroll)
@@ -2122,7 +2133,7 @@ let activeComparator: (el1: HTMLElement, el2: HTMLElement) => number | null;
 function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLElement, el2: HTMLElement) => number, dataElements: Array<HTMLElement>) {
   activeComparator = comparator;
   sortDataElements(dataElements, comparator);
-  const documentFragment = packDataElements(dataElements, numTableRowsInDataSection);
+  const documentFragment = packDataElements(dataElements, numDesiredTableRowsInDataSection);
   if (documentFragment === null) {
     initializeTableDataScrollManager([], true, false);
   } else {
@@ -2132,7 +2143,7 @@ function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLEleme
 }
 
 function reinitializeTableDataScrollManagerByFiltering(filterFunction: (element: HTMLElement) => boolean, dataElements: Array<HTMLElement>) {
-  const documentFragment = packDataElements(dataElements, numTableRowsInDataSection, filterFunction);
+  const documentFragment = packDataElements(dataElements, numDesiredTableRowsInDataSection, filterFunction);
   if (documentFragment === null) {
     initializeTableDataScrollManager([], true, false);
   } else {
