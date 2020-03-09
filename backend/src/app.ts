@@ -125,7 +125,7 @@ app.use(async (req, res, next) => {
     req.session.user = user;
   }
   
-  const heartbeat = 60 * 60000; // mins * 60000 milliseconds
+  const heartbeat = 20 * 60000; // mins * 60000 milliseconds
   if(((Date.now() - req.session.user.lastInteraction) > heartbeat) || (req.session.user.idSession === -1)) {
     // new session
     req.session.user.idSession = await createSessionDB(req.session.user.idProfile); 
