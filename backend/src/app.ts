@@ -143,10 +143,12 @@ app.use(async (req, res, next) => {
 
   next();
 });
+/* sw - commenting out for now since we are not using the FileStore sessions
 app.use((req, res, next) => {
     res.locals.user = req.user;
     next();
 });
+*/
 app.use((req, res, next) => {
     // After successful login, redirect back to the intended page
     if (!req.user &&
