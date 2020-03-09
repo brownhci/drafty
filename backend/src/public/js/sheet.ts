@@ -1857,17 +1857,25 @@ function restoreTableCellInputFormTargetElement() {
     tableCellInputFormAssignTarget(null);
   }
 }
-function restoreDataSectionsStates() {
-  const recoveredCopyTarget = tableElement.querySelector(`.${copiedClass}`) as HTMLTableCellElement;
-  if (recoveredCopyTarget && copyTarget) {
-     if (recoveredCopyTarget.id === copyTarget.id) {
-      // the recovered copy target is still the copy target (now a clone of it)
-       makeElementCopyTarget(recoveredCopyTarget);
-     } else {
-       // the recovered copy target is outdated, a new copy target has been chosen when scrolling away
-       recoveredCopyTarget.classList.remove(copiedClass);
-     }
+function restoreCopyTarget() {
+  if (!copyTarget) {
+    return;
   }
+
+  let recoveredCopyTarget = getElementFromDataSectionsByID(copyTarget.id, tableDataSectionsRendered);
+  if (recoveredCopyTarget) {
+    // form target is in view: tableDataSectionRendered
+       makeElementCopyTarget(recoveredCopyTarget as HTMLTableCellElement);
+    return;
+  }
+
+  recoveredCopyTarget = getElementFromDataSectionsByID(copyTarget.id, tableDataSections);
+  if (recoveredCopyTarget) {
+    // form target is in potential view: tableDataSections
+     makeElementCopyTarget(recoveredCopyTarget as HTMLTableCellElement);
+  }
+}
+function restoreDataSectionsStates() {
 
   for (const recoveredActiveElement of tableElement.querySelectorAll(`.${activeClass}`)) {
     if (!isTableData(recoveredActiveElement as HTMLElement)) {
@@ -1883,6 +1891,7 @@ function restoreDataSectionsStates() {
     }
   }
 
+  restoreCopyTarget();
   restoreTableCellInputFormTargetElement();
 }
 
