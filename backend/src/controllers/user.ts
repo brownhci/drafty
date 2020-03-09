@@ -44,6 +44,8 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
         }
         req.login(user, (err) => {
           if (err) { return next(err); }
+          req.session.isAuth = true;
+          req.session.user.isAuth = true;
           res.redirect(req.session.returnTo || "/");
         });
     })(req, res, next);
@@ -54,8 +56,10 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
  * Log out.
  */
 export const logout = (req: Request, res: Response) => {
-    req.logout();
-    res.redirect(req.session.returnTo || "/");
+  // sw: what happens to the express-session here?
+  req.logout();
+  req.session.user.isAuth = false;
+  res.redirect(req.session.returnTo || "/");
 };
 
 /**
@@ -104,6 +108,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
     if (err) {
       return next(err);
     }
+    req.session.user.isAuth = true;
     res.redirect(req.session.returnTo || "/");
   });
 };
