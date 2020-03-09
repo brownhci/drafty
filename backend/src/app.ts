@@ -117,7 +117,8 @@ const user = {
 app.use(async (req, res, next) => {
   //check if new session (req.sessionID)
   if(req.session.user === undefined) {
-    user.idProfile = await createAnonUser();
+    // sw: this is the only place a new idProfile is created
+    user.idProfile = await createAnonUser(); 
     req.session.user = user;
   }
   
