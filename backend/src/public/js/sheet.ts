@@ -29,8 +29,6 @@ let copyTarget: null | HTMLTableCellElement | HTMLTableColElement = null;
 const tableElement: HTMLTableElement = document.getElementById("table") as HTMLTableElement;
 const tableScrollContainer: HTMLElement = tableElement.parentElement;
 
-/* <thead> */
-const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
 /* <tr>s */
 const tableRowElements: HTMLCollection = tableElement.rows;
 /* first table row: column labels */
@@ -53,8 +51,6 @@ const tableRowHeight = tableColumnLabels.clientHeight;
 
 /* <col>s */
 const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
-
-const numTableColumns: number = tableColElements.length;
 
 // measure text width
 /* the element used to measure text width */
@@ -124,11 +120,12 @@ function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
   }
   const columnLabel = getColumnLabel(tableCellElement.cellIndex);
   const columnLabelText = getColumnLabelText(columnLabel);
-  if (columnLabelText === "Last Updated By" || columnLabelText === "Last Updated") {
+  if (!isTableData(tableCellElement) && columnLabelText === "Last Updated By" || columnLabelText === "Last Updated") {
     tableCellElement.contentEditable = "false";
     return false;
   }
 
+  tableCellElement.contentEditable = "true";
   return true;
 }
 
@@ -154,10 +151,25 @@ function getDataElementsFromDataSection(dataSection: HTMLTemplateElement | HTMLT
   if (isTableBody(dataSection)) {
     return dataSection.getElementsByTagName("tr");
   } else if (isTemplate(dataSection)) {
-    return (<HTMLTemplateElement> dataSection).content.querySelectorAll("tr");
+    return (dataSection as HTMLTemplateElement).content.querySelectorAll("tr");
   }
   throw new Error("unrecognized HTMLelement passed to getDataRowsFromDataSection, expecting <template> or <tbody>");
 }
+function getDataSection(dataSectionElement: HTMLTableRowElement | HTMLTableCellElement): HTMLTableSectionElement {
+  return dataSectionElement.closest("tbody");
+}
+function getDataSectionTemplateIndex(dataSection: HTMLElement): number {
+  const dataSectionSid = dataSection.dataset.sid;
+  return sidToTemplateIndex.get(dataSectionSid);
+}
+function getDataElementsFromDataSections(dataSections: HTMLCollection | Array<HTMLTemplateElement>, selector="tr"): Array<HTMLElement> {
+  const dataElements = [];
+  for (const dataSection of dataSections) {
+    dataElements.push(...getDataElementsFromDataSection(dataSection as HTMLTemplateElement));
+  }
+  return dataElements as Array<HTMLElement>;
+}
+
 function getRecordIndex(tableCellElement: HTMLTableCellElement): number {
   const dataSection = getDataSection(tableCellElement);
   const templateIndex = getDataSectionTemplateIndex(dataSection);
@@ -231,9 +243,6 @@ function getTableCellInputFormLocateRowIndex(): number | null {
     return null;
   }
 }
-function getDataSection(dataSectionElement: HTMLTableRowElement | HTMLTableCellElement): HTMLTableSectionElement {
-  return dataSectionElement.closest("tbody");
-}
 
 function getAutocompleteSuggestionsContainer(): HTMLElement {
   return tableCellInputFormElement.querySelector(`.${optionContainerClass}`);
@@ -262,6 +271,84 @@ function* getTableCellElementsInColumn(index: number, skipColumnSearch = false) 
     yield getCellInTableRow(tableRow, index);
   }
 }
+
+function getIdUniqueID(tableCellElement: HTMLTableCellElement): number {
+  return Number.parseInt(getTableRow(tableCellElement).id);
+}
+function getIdSuggestion(tableCellElement: HTMLTableCellElement): number {
+  return Number.parseInt(tableCellElement.id);
+}
+function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
+  const idSuggestionType = columnLabel.id;
+  if (idSuggestionType) {
+    return Number.parseInt(idSuggestionType);
+  }
+  return null;
+}
+
+
+// Record Interaction
+function recordInteraction(url: string, data: Record<string, any>) {
+  data["_csrf"] = tableCellInputFormCSRFInput.value;
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then(response => {
+      if (!response.ok) {
+        console.error(`${response.status}: ${response.statusText}`);
+      }
+    })
+    .catch(error => console.error("Network error when posting interaction", error));
+
+}
+
+function recordEdit(tableCellElement: HTMLTableCellElement) {
+  // supply enough fields to update database entry for table cell
+
+  recordInteraction("/suggestions/new", {
+    "idUniqueID": getIdUniqueID(tableCellElement),
+    "idSuggestion": getIdSuggestion(tableCellElement),
+    "suggestion": tableCellElement.textContent,
+  });
+}
+function recordClickOnCell(tableCellElement: HTMLTableCellElement) {
+  if (isTableData(tableCellElement)) {
+    // only record click on table data now
+    const tableRow: HTMLTableRowElement = getTableRow(tableCellElement);
+    const rowValues = getTableRowCellValues(tableRow);
+
+    const idSuggestion = getIdSuggestion(tableCellElement);
+    recordInteraction("/click", {idSuggestion, rowValues});
+  }
+}
+function recordDoubleClickOnCell(tableCellElement: HTMLTableCellElement) {
+    const tableRow: HTMLTableRowElement = getTableRow(tableCellElement);
+    const rowValues = getTableRowCellValues(tableRow);
+
+    const idSuggestion = getIdSuggestion(tableCellElement);
+    recordInteraction("/click-double", {idSuggestion, rowValues});
+}
+function recordCopyCell(tableCellElement: HTMLTableCellElement) {
+    const idSuggestion = getIdSuggestion(tableCellElement);
+    recordInteraction("/copy-cell", {idSuggestion});
+}
+function recordCopyColumn(columnLabel: HTMLTableCellElement) {
+    const idSuggestionType = getIdSuggestionType(columnLabel);
+    recordInteraction("/copy-column", {idSuggestionType});
+}
+
+// unique identifier generation
+function uuidv4(): string {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c == "x" ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 
 // width conversion
 function vw2px(vw: number) {
@@ -330,7 +417,6 @@ function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableC
 }
 function restoreTableCellInputFormLocation() {
   if (tableCellInputFormLocationActive && tableCellInputFormTargetElement) {
-    const targetElementTableRow: HTMLTableRowElement = getTableRow(tableCellInputFormTargetElement);
     const dataRowIndex = getRecordIndex(tableCellInputFormTargetElement);
     scrollToDataRowIndex(dataRowIndex, true, () => {
       const {left: targetLeft, top: targetTop} = tableCellInputFormTargetElement.getBoundingClientRect();
@@ -409,19 +495,6 @@ function updateTableCellInputFormWidthToFitText(textToFit: string) {
   }
 }
 
-function getIdUniqueID(tableCellElement: HTMLTableCellElement): number {
-  return Number.parseInt(getTableRow(tableCellElement).id);
-}
-function getIdSuggestion(tableCellElement: HTMLTableCellElement): number {
-  return Number.parseInt(tableCellElement.id);
-}
-function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
-  const idSuggestionType = columnLabel.id;
-  if (idSuggestionType) {
-    return Number.parseInt(idSuggestionType);
-  }
-  return null;
-}
 // input form suggestions
 interface Suggestion {
   suggestion: string;
@@ -675,6 +748,8 @@ function activateTableCellElement(tableCellElement: HTMLTableCellElement) {
   activeTableCellElement = tableCellElement;
   if (isTableData(tableCellElement)) {
     activateTableData();
+    // record whether this table cell is editable
+    isTableCellEditable(tableCellElement);
   } else if (isTableHead(tableCellElement)) {
     activateTableHead();
   }
@@ -871,7 +946,7 @@ function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement, event: Mou
   }
   lastSortButtonClicked = buttonElement;
 
-  const columnIndex = (<HTMLTableCellElement> buttonElement.parentElement).cellIndex;
+  const columnIndex = (buttonElement.parentElement as HTMLTableDataCellElement).cellIndex;
   // '' => 'clicked' => 'clicked desc' => 'clicked'
   // since we are sorting on the current displayed data elements, we need to collect
   // data elements from rendered table data sections
@@ -917,7 +992,6 @@ interface ConsumableKeyboardEvent extends KeyboardEvent {
 }
 /** copy **/
 function initializeClipboardTextarea() {
-  const textareaTemplate = document.createElement("template");
   const textarea = document.createElement("textarea");
   textarea.id = "clipboard-textarea";
   textarea.readOnly = true;
@@ -1355,68 +1429,7 @@ tableCellInputFormInputElement.addEventListener("input", function() {
 });
 
 
-// Record Interaction
-function recordInteraction(url: string, data: Record<string, any>) {
-  data["_csrf"] = tableCellInputFormCSRFInput.value;
-
-  fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  }).then(response => {
-      if (!response.ok) {
-        console.error(`${response.status}: ${response.statusText}`);
-      }
-    })
-    .catch(error => console.error("Network error when posting interaction", error));
-
-}
-
-function recordEdit(tableCellElement: HTMLTableCellElement) {
-  // supply enough fields to update database entry for table cell
-
-  recordInteraction("/suggestions/new", {
-    "idUniqueID": getIdUniqueID(tableCellElement),
-    "idSuggestion": getIdSuggestion(tableCellElement),
-    "suggestion": tableCellElement.textContent,
-  });
-}
-function recordClickOnCell(tableCellElement: HTMLTableCellElement) {
-  if (isTableData(tableCellElement)) {
-    // only record click on table data now
-    const tableRow: HTMLTableRowElement = getTableRow(tableCellElement);
-    const rowValues = getTableRowCellValues(tableRow);
-
-    const idSuggestion = getIdSuggestion(tableCellElement);
-    recordInteraction("/click", {idSuggestion, rowValues});
-  }
-}
-function recordDoubleClickOnCell(tableCellElement: HTMLTableCellElement) {
-    const tableRow: HTMLTableRowElement = getTableRow(tableCellElement);
-    const rowValues = getTableRowCellValues(tableRow);
-
-    const idSuggestion = getIdSuggestion(tableCellElement);
-    recordInteraction("/click-double", {idSuggestion, rowValues});
-}
-function recordCopyCell(tableCellElement: HTMLTableCellElement) {
-    const idSuggestion = getIdSuggestion(tableCellElement);
-    recordInteraction("/copy-cell", {idSuggestion});
-}
-function recordCopyColumn(columnLabel: HTMLTableCellElement) {
-    const idSuggestionType = getIdSuggestionType(columnLabel);
-    recordInteraction("/copy-column", {idSuggestionType});
-}
-
 // Dynamic loading of table data
-function uuidv4(): string {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0, v = c == "x" ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
-
 let tableDataSections: Array<HTMLTemplateElement> | HTMLCollection;
 let tableDataElements: Array<HTMLElement>;
 
@@ -1425,12 +1438,12 @@ const sidToTemplate: Map<string, HTMLTemplateElement> = new Map();
 const sidToTemplateIndex: Map<string, number> = new Map();
 function transformDataSectionToNode(template: HTMLTemplateElement, templateIndex: number, sid?: string) {
   if (!sid) {
-    sid = (<HTMLElement> template.content.firstElementChild).dataset.sid;
+    sid = (template.content.firstElementChild as HTMLElement).dataset.sid;
     if (!sid) {
       sid = uuidv4();
 
       for (const child of template.content.children) {
-        (<HTMLElement> child).dataset.sid = sid.toString();
+        (child as HTMLElement).dataset.sid = sid.toString();
       }
     }
   }
@@ -1441,21 +1454,9 @@ function transformDataSectionToNode(template: HTMLTemplateElement, templateIndex
   const node = template.content.cloneNode(true);
   return node;
 }
-function getDataSectionTemplateIndex(dataSection: HTMLElement): number {
-  const dataSectionSid = dataSection.dataset.sid;
-  return sidToTemplateIndex.get(dataSectionSid);
-}
 
 function countMatchedElementsInDataSection(template: HTMLTemplateElement) {
   return getDataElementsFromDataSection(template).length;
-}
-
-function getDataElementsFromDataSections(dataSections: HTMLCollection | Array<HTMLTemplateElement>, selector="tr"): Array<HTMLElement> {
-  const dataElements = [];
-  for (const dataSection of dataSections) {
-    dataElements.push(...getDataElementsFromDataSection(<HTMLTemplateElement> dataSection));
-  }
-  return dataElements as Array<HTMLElement>;
 }
 
 /**
@@ -1479,7 +1480,7 @@ function countMatchedElementsInAllDataSections(selector = "tr", dataSectionHasSa
   // count matched elements in every data section
   let numMatchedElements = 0;
   for (const tableDataSection of tableDataSections) {
-    numMatchedElements += countMatchedElementsInDataSection((<HTMLTemplateElement> tableDataSection));
+    numMatchedElements += countMatchedElementsInDataSection((tableDataSection as HTMLTemplateElement));
   }
   return numMatchedElements;
 }
@@ -1611,7 +1612,7 @@ function replaceRenderedDataSections(newDataSections: Array<Element>) {
   }
 }
 function saveRenderedDataSection(renderedTableDataSection: Element) {
-    const sid = (<HTMLElement> renderedTableDataSection).dataset.sid;
+    const sid = (renderedTableDataSection as HTMLElement).dataset.sid;
     const template = sidToTemplate.get(sid);
     template.content.replaceChild(renderedTableDataSection.cloneNode(true), template.content.firstElementChild);
 }
@@ -1660,7 +1661,6 @@ function buildDocumentFragmentWithNextDataSections(numNextSectionsToFetch: numbe
 }
 function buildDocumentFragmentWithPreviousDataSections(numPreviousSectionsToFetch: number): DocumentFragment {
   const documentFragment: DocumentFragment = new DocumentFragment();
-  const numTableDataSectionsRendered = tableDataSectionsRendered.length;
 
   let whichSection: number;
   let renderedTableSection;
@@ -1867,17 +1867,16 @@ function shouldScrollAmountTriggerRerenderDataSections(scrollAmount: number): bo
 
 }
 
-function fillerReachedHandler(entries: Array<IntersectionObserverEntry>, observer: IntersectionObserver) {
+function fillerReachedHandler(entries: Array<IntersectionObserverEntry>) {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      const scrollAmount = tableScrollContainer.scrollTop;
       if (shouldScrollAmountTriggerRerenderDataSections) {
         shouldRerenderDataSectionsWhenScrollFinished = true;
       }
     }
   });
 }
-function topSentinelReachedHandler(entries: Array<IntersectionObserverEntry>, observer: IntersectionObserver) {
+function topSentinelReachedHandler(entries: Array<IntersectionObserverEntry>) {
   const scrollDirection = trackScrollDirection();
 
   entries.forEach(entry => {
@@ -1887,7 +1886,7 @@ function topSentinelReachedHandler(entries: Array<IntersectionObserverEntry>, ob
     }
   });
 }
-function bottomSentinelReachedHandler(entries: Array<IntersectionObserverEntry>, observer: IntersectionObserver) {
+function bottomSentinelReachedHandler(entries: Array<IntersectionObserverEntry>) {
   const scrollDirection = trackScrollDirection();
 
   entries.forEach(entry => {
@@ -1975,30 +1974,19 @@ function packDataElements(dataElements: Array<HTMLElement>, numDataElementsInSec
   }
 }
 
-let activeComparator: (el1: HTMLElement, el2: HTMLElement) => number | null;
-function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLElement, el2: HTMLElement) => number, dataElements: Array<HTMLElement>) {
-  activeComparator = comparator;
-  sortDataElements(dataElements, comparator);
-  const documentFragment = packDataElements(dataElements, numTableRowsInDataSection);
-  if (documentFragment === null) {
-    clearTableDataScrollManager();
-  } else {
-    const dataSections = documentFragment.children;
-    initializeTableDataScrollManager(dataSections, true, false);
-  }
+
+function clearTableDataScrollManager() {
+  sidToTemplate.clear();
+  sidToTemplateIndex.clear();
+
+  numTableRowsInDataSection = countMatchedElementsInDataSection((tableDataSections[0]) as HTMLTemplateElement);
+  numTableRowsNotDisplayedAbove = 0;
+  numTableRowsNotDisplayedBelow = tableDataSections.length * numTableRowsInDataSection;
+  adjustDataSectionFillersHeight(numTableRowsNotDisplayedAbove, numTableRowsNotDisplayedBelow, tableRowHeight);
+
+  removeTableDataSectionsRendered();
+  deactivateSentinels();
 }
-
-function reinitializeTableDataScrollManagerByFiltering(filterFunction: (element: HTMLElement) => boolean, dataElements: Array<HTMLElement>) {
-  const documentFragment = packDataElements(dataElements, numTableRowsInDataSection, filterFunction);
-  if (documentFragment === null) {
-    clearTableDataScrollManager();
-  } else {
-    const dataSections = documentFragment.children;
-    initializeTableDataScrollManager(dataSections, true, false);
-  }
-}
-
-
 const numDataSectionsToEnableDataScrollManager: number = 4;
 let isDataScrollManagerEnabled: boolean;
 function initializeTableDataScrollManager(dataSections: Array<HTMLTemplateElement> | HTMLCollection, reinitialize=false, regenerateTableDataElements=true) {
@@ -2024,7 +2012,7 @@ function initializeTableDataScrollManager(dataSections: Array<HTMLTemplateElemen
     initializeDataSectionFillers();
   }
 
-  numTableRowsInDataSection = countMatchedElementsInDataSection((<HTMLTemplateElement> tableDataSections[0]));
+  numTableRowsInDataSection = countMatchedElementsInDataSection((tableDataSections[0] as HTMLTemplateElement));
   numTableRowsNotDisplayedAbove = 0;
   numTableRowsNotDisplayedBelow = (tableDataSections.length - numDataSectionsToRender) * numTableRowsInDataSection;
 
@@ -2041,18 +2029,30 @@ function initializeTableDataScrollManager(dataSections: Array<HTMLTemplateElemen
   }
 }
 
-function clearTableDataScrollManager() {
-  sidToTemplate.clear();
-  sidToTemplateIndex.clear();
-
-  numTableRowsInDataSection = countMatchedElementsInDataSection((<HTMLTemplateElement> tableDataSections[0]));
-  numTableRowsNotDisplayedAbove = 0;
-  numTableRowsNotDisplayedBelow = tableDataSections.length * numTableRowsInDataSection;
-  adjustDataSectionFillersHeight(numTableRowsNotDisplayedAbove, numTableRowsNotDisplayedBelow, tableRowHeight);
-
-  removeTableDataSectionsRendered();
-  deactivateSentinels();
+let activeComparator: (el1: HTMLElement, el2: HTMLElement) => number | null;
+function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLElement, el2: HTMLElement) => number, dataElements: Array<HTMLElement>) {
+  activeComparator = comparator;
+  sortDataElements(dataElements, comparator);
+  const documentFragment = packDataElements(dataElements, numTableRowsInDataSection);
+  if (documentFragment === null) {
+    clearTableDataScrollManager();
+  } else {
+    const dataSections = documentFragment.children;
+    initializeTableDataScrollManager(dataSections, true, false);
+  }
 }
+
+function reinitializeTableDataScrollManagerByFiltering(filterFunction: (element: HTMLElement) => boolean, dataElements: Array<HTMLElement>) {
+  const documentFragment = packDataElements(dataElements, numTableRowsInDataSection, filterFunction);
+  if (documentFragment === null) {
+    clearTableDataScrollManager();
+  } else {
+    const dataSections = documentFragment.children;
+    initializeTableDataScrollManager(dataSections, true, false);
+  }
+}
+
+
 
 const defaultDataSections: HTMLCollection = document.getElementById("table-data").children;
 initializeTableDataScrollManager(defaultDataSections, false);
