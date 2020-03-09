@@ -42,6 +42,7 @@ $resize-shadow-width: 5px;
       top: 0;
       left: 0;
       &.active {
+        z-index: $zindex-popover;
         @extend .d-block;
       }
     }
@@ -113,6 +114,9 @@ $resize-shadow-width: 5px;
       &:focus {
         outline: none;
       }
+      &:last-of-type, &:nth-last-of-type(2) {
+        @extend .text-muted;
+      }
     }
 
     thead {
@@ -142,7 +146,7 @@ $resize-shadow-width: 5px;
             }
           }
         }
-        &.active, &.inputing {
+        &.active, &.inputting {
           @extend .bg-primary;
           @extend .text-white;
           .sort-btn {
