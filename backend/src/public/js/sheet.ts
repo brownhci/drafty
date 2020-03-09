@@ -113,6 +113,9 @@ function isColumnSearch(element: HTMLElement): boolean {
 function isColumnSearchInput(element: HTMLElement): boolean {
   return element && isColumnSearch(element.parentElement);
 }
+function isColumnSearchInputFocus(): boolean {
+  return isColumnSearchInput(document.activeElement as HTMLElement);
+}
 
 function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
   if (tableCellElement.contentEditable === "false") {
@@ -736,12 +739,16 @@ function deactivateTableCellElement() {
 }
 
 /* activate */
-function activateTableData() {
+function activateTableData(shouldUpdateTimestamp=true, shouldGetFocus=true) {
   activeTableCellElement.classList.add(activeClass);
-  updateActiveTimestamp();
-  activeTableCellElement.focus();
+  if (shouldUpdateTimestamp) {
+    updateActiveTimestamp();
+  }
+  if (shouldGetFocus) {
+    activeTableCellElement.focus({preventScroll: true});
+  }
 }
-function activateTableHead() {
+function activateTableHead(shouldGetFocus=true) {
   const index = activeTableCellElement.cellIndex;
   if (isColumnLabel(activeTableCellElement)) {
     const columnSearch = getColumnSearch(index);
@@ -751,7 +758,9 @@ function activateTableHead() {
     columnLabel.classList.add(activeAccompanyClass);
   }
   activeTableCellElement.classList.add(activeClass);
-  activeTableCellElement.focus();
+  if (shouldGetFocus) {
+    activeTableCellElement.focus({preventScroll: true});
+  }
 }
 function activateTableCol() {
   const index = activeTableCellElement.cellIndex;
@@ -761,14 +770,14 @@ function activateTableCol() {
     activeTableColElement.classList.add(activeClass);
   }
 }
-function activateTableCellElement(tableCellElement: HTMLTableCellElement) {
+function activateTableCellElement(tableCellElement: HTMLTableCellElement, shouldUpdateTimestamp=true, shouldGetFocus=true) {
   activeTableCellElement = tableCellElement;
   if (isTableData(tableCellElement)) {
-    activateTableData();
+    activateTableData(shouldUpdateTimestamp, shouldGetFocus);
     // record whether this table cell is editable
     isTableCellEditable(tableCellElement);
   } else if (isTableHead(tableCellElement)) {
-    activateTableHead();
+    activateTableHead(shouldGetFocus);
   }
 }
 /**
@@ -1841,7 +1850,7 @@ function restoreTableCellInputFormTargetElement() {
   }
 
   let recoveredTableCellInputFormTargetElement = getElementFromDataSectionsByID(tableCellInputFormTargetElement.id, tableDataSectionsRendered);
-  const getFocus: boolean = !isColumnSearchInput(document.activeElement as HTMLElement);
+  const getFocus: boolean = !isColumnSearchInputFocus();
   if (recoveredTableCellInputFormTargetElement) {
     // form target is in view: tableDataSectionRendered
     activateTableCellInputForm(recoveredTableCellInputFormTargetElement as HTMLTableCellElement, getFocus);
@@ -1864,33 +1873,38 @@ function restoreCopyTarget() {
 
   let recoveredCopyTarget = getElementFromDataSectionsByID(copyTarget.id, tableDataSectionsRendered);
   if (recoveredCopyTarget) {
-    // form target is in view: tableDataSectionRendered
-       makeElementCopyTarget(recoveredCopyTarget as HTMLTableCellElement);
+    // copy target is in view: tableDataSectionRendered
+    makeElementCopyTarget(recoveredCopyTarget as HTMLTableCellElement);
     return;
   }
 
   recoveredCopyTarget = getElementFromDataSectionsByID(copyTarget.id, tableDataSections);
   if (recoveredCopyTarget) {
-    // form target is in potential view: tableDataSections
-     makeElementCopyTarget(recoveredCopyTarget as HTMLTableCellElement);
+    // copy target is in potential view: tableDataSections
+    makeElementCopyTarget(recoveredCopyTarget as HTMLTableCellElement);
+  }
+}
+function restoreActiveTableCellElement() {
+  if (!activeTableCellElement) {
+    return;
+  }
+
+  const shouldGetFocus: boolean = !isColumnSearchInputFocus();
+  let recoveredActiveTableCellElement = getElementFromDataSectionsByID(activeTableCellElement.id, tableDataSectionsRendered);
+  if (recoveredActiveTableCellElement) {
+    // active element is in view: tableDataSectionRendered
+    activateTableCellElement(recoveredActiveTableCellElement as HTMLTableCellElement, false, shouldGetFocus);
+    return;
+  }
+
+  recoveredActiveTableCellElement = getElementFromDataSectionsByID(activeTableCellElement.id, tableDataSections);
+  if (recoveredActiveTableCellElement) {
+    // active element is in potential view: tableDataSections
+    activateTableCellElement(recoveredActiveTableCellElement as HTMLTableCellElement, false, shouldGetFocus);
   }
 }
 function restoreDataSectionsStates() {
-
-  for (const recoveredActiveElement of tableElement.querySelectorAll(`.${activeClass}`)) {
-    if (!isTableData(recoveredActiveElement as HTMLElement)) {
-      continue;
-    }
-    if (recoveredActiveElement.id === activeTableCellElement.id) {
-      // the recovered active element is still the active element (now a clone of it)
-      activateTableCellElement(recoveredActiveElement as HTMLTableCellElement);
-      break;
-    } else {
-       // the recovered active element is outdated, a new active element has been chosen when scrolling away
-      recoveredActiveElement.classList.remove(activeClass);
-    }
-  }
-
+  restoreActiveTableCellElement();
   restoreCopyTarget();
   restoreTableCellInputFormTargetElement();
 }
