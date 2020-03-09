@@ -1,4 +1,5 @@
-// ARROW KEY not functioning when scrolling off screen
+// TODO ARROW KEY not functioning when scrolling off screen
+// TODO paste event handling
 
 const activeClass = "active";
 const activeAccompanyClass = "active-accompany";
@@ -448,7 +449,7 @@ function restoreTableCellInputFormLocation() {
 tableCellInputFormLocateCellElement.addEventListener("click", function(event: MouseEvent) {
   restoreTableCellInputFormLocation();
   event.stopPropagation();
-}, true);
+});
 
 function deactivateTableCellInputForm() {
   if (tableCellInputFormTargetElement) {
@@ -1008,8 +1009,10 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
 }, true);
 
 
-tableCellInputFormInputSaveButtonElement.addEventListener("click", function() {
+tableCellInputFormInputSaveButtonElement.addEventListener("click", function(event) {
    quitTableCellInputForm(true);
+   event.preventDefault();
+   event.stopPropagation();
 });
 
 /* keyboard event */
@@ -1085,6 +1088,21 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: C
   }
   // ignore when only C is pressed
 }
+// function tableCellElementOnPaste(event: ClipboardEvent) {
+//   console.log("here2");
+//   const pasteContent = (event.clipboardData || window.clipboardData).getData("text");
+//   console.log(pasteContent);
+//   event.preventDefault();
+// }
+// [> paste event <]
+// tableElement.addEventListener("paste", function (event: ClipboardEvent) {
+//   const target: HTMLElement = event.target as HTMLElement;
+//   if (isTableData(target) && isTableCellEditable(target as HTMLTableCellElement)) {
+//     tableCellElementOnPaste(event);
+//   }
+//   event.stopPropagation();
+// }, true);
+
 
 function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   const input = event.key;
@@ -1096,7 +1114,7 @@ function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: 
   event.consumed = true;
 }
 let columnSearchFilteringTimeoutId: number | null = null;
-function tableColumnSearchElementOnInput(tableColumnSearchInputElement: HTMLInputElement, tableColumnSearchElement: HTMLTableCellElement, event: Event) {
+function tableColumnSearchElementOnInput(tableColumnSearchInputElement: HTMLInputElement, tableColumnSearchElement: HTMLTableCellElement) {
   const query = tableColumnSearchInputElement.value;
   updateTableColumnSearchQuery(tableColumnSearchElement.cellIndex, query);
   if (columnSearchFilteringTimeoutId) {
@@ -1167,6 +1185,13 @@ function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event
     case "c": // handle potential CTRL+c or CMD+c
       tableCellElementOnCopy(tableCellElement, event);
       break;
+    case "v":
+      if (hasCopyModifier(event)) {
+        // handle potential CTRL+v or CMD+v
+        console.log("here");
+        event.consumed = true;
+      }
+      break;
     case "Alt":
     case "AltLock":
     case "CapsLock":
@@ -1186,22 +1211,20 @@ function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event
   if (!event.consumed) {
     tableCellElementOnInput(event);
   }
-
-  event.preventDefault();
-  event.stopPropagation();
 }
 tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
     tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
   } else if (isInput(target)) {
-    // inputing on column search
+    // inputting on column search
     const columnSearch = target.closest("th.column-search");
     if (columnSearch) {
       const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
       tableColumnSearchElementOnKeyDown(tableColumnSearchElement, event);
     }
   }
+  event.stopPropagation();
 }, true);
 
 function tableCellInputFormOnKeyDown(event: KeyboardEvent) {
@@ -1222,18 +1245,19 @@ tableCellInputFormElement.addEventListener("keydown", function(event: KeyboardEv
   if (isTableCellInputFormActive()) {
     tableCellInputFormOnKeyDown(event);
   }
-}, true);
+});
 
 tableElement.addEventListener("input", function(event: Event) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isInput(target)) {
-    // inputing on column search
+    // inputting on column search
     const columnSearch = target.closest("th.column-search");
     if (columnSearch) {
       const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
-      tableColumnSearchElementOnInput(target as HTMLInputElement, tableColumnSearchElement, event);
+      tableColumnSearchElementOnInput(target as HTMLInputElement, tableColumnSearchElement);
     }
   }
+  event.stopPropagation();
 }, true);
 
 
@@ -1395,7 +1419,8 @@ tableElement.addEventListener("mousedown", function(event: MouseEvent) {
   if (isTableHead(target)) {
     tableHeadOnMouseDown(target as HTMLTableCellElement, event);
   }
-});
+  event.stopPropagation();
+}, {passive: true, capture: true});
 tableElement.addEventListener("mousemove", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableHead(target)) {
@@ -1413,14 +1438,21 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
       removeNearBorderStatus(tableCellElementUnderMouse);
     }
   }
-});
-tableElement.addEventListener("mouseup", tableHeadOnMouseUp);
+  event.stopPropagation();
+}, {passive: true, capture: true});
+tableElement.addEventListener("mouseup", function(event: MouseEvent) {
+  tableHeadOnMouseUp(event);
+}, {passive: true, capture: true});
+
 
 /* scroll event */
 let scrollTimeoutId: number | null = null;
 let shouldRerenderDataSectionsWhenScrollFinished: boolean = false;
+function tableCellInputFormLocationOnScroll() {
+  activateTableCellInputFormLocation();
+}
 function whenScrollFinished() {
-  tableCellInputFormLocationOnScroll(event);
+  tableCellInputFormLocationOnScroll();
 
   const scrollAmount = tableScrollContainer.scrollTop;
   if (shouldRerenderDataSectionsWhenScrollFinished && shouldScrollAmountTriggerRerenderDataSections(scrollAmount)) {
@@ -1431,28 +1463,28 @@ function whenScrollFinished() {
     bottomFillerObserver.observe(dataSectionFillerBottom);
   }
 }
-function tableCellInputFormLocationOnScroll(event: Event) {
-  activateTableCellInputFormLocation();
-}
 tableScrollContainer.addEventListener("scroll", function(event: Event) {
   if (scrollTimeoutId) {
     window.clearTimeout(scrollTimeoutId);
   }
   scrollTimeoutId = window.setTimeout(whenScrollFinished, 40);
-}, true);
+  event.stopPropagation();
+}, {passive: true, capture: true});
 
 /* submit event */
 tableCellInputFormElement.addEventListener("submit", function(event: Event) {
   // disable submitting
+  event.stopPropagation();
   event.preventDefault();
   return false;
-});
+}, true);
 
 /* input event */
-tableCellInputFormInputElement.addEventListener("input", function() {
+tableCellInputFormInputElement.addEventListener("input", function(event) {
   const query = tableCellInputFormInputElement.value;
   filterSelectOptions(query, tableCellInputFormAutocompleteSuggestionsSelectInfo);
-});
+  event.stopPropagation();
+}, { passive: true});
 
 
 // Dynamic loading of table data
