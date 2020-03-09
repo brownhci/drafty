@@ -65,6 +65,11 @@ $resize-shadow-width: 5px;
         @extend .btn-primary;
         @extend .btn-sm;
         @extend .d-none;
+        @extend .w-100;
+        #locate-cell-icon {
+          @extend .fas;
+          @extend .fa-map-marker-alt;
+        }
         #locate-cell-row-col {
           @extend .font-size-small;
           #locate-cell-associated-row, #locate-cell-associated-col {

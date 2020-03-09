@@ -464,12 +464,14 @@ function deactivateTableCellInputForm() {
     tableCellInputFormTargetElement = null;
   }
 }
-function activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement) {
+function activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement, getFocus: boolean = true) {
   // show the form
   tableCellInputFormElement.classList.add(activeClass);
 
   // focus the input
-  tableCellInputFormInputElement.focus({preventScroll: true});
+  if (getFocus) {
+    tableCellInputFormInputElement.focus({preventScroll: true});
+  }
 
   // highlight the table head
   const cellIndex = targetHTMLTableCellElement.cellIndex;
@@ -672,7 +674,7 @@ function createEditSuggestionsContainer(editSuggestions: Array<Suggestion>, targ
 /**
  * Use this function to change the editor associated table cell.
  */
-function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
+function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string, getFocus: boolean = true) {
   deactivateTableCellInputForm();
   deactivateTableCellInputFormLocation();
   removeSelect(tableCellInputFormAutocompleteSuggestionsSelectInfo);
@@ -683,7 +685,7 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
       return;
     }
 
-    activateTableCellInputForm(targetHTMLTableCellElement);
+    activateTableCellInputForm(targetHTMLTableCellElement, getFocus);
     updateTableCellInputFormInput(targetHTMLTableCellElement, input);
     attachSuggestions(targetHTMLTableCellElement);
 
@@ -1471,6 +1473,9 @@ function transformDataSectionToNode(template: HTMLTemplateElement, templateIndex
 }
 
 function countMatchedElementsInDataSection(template: HTMLTemplateElement) {
+  if (!template) {
+    return 0;
+  }
   return getDataElementsFromDataSection(template).length;
 }
 
@@ -1617,6 +1622,7 @@ function initializeInitialRenderedDataSections() {
     const dataSectionNode = transformDataSectionToNode(dataSection, dataSectionIndex);
     tableElement.insertBefore(dataSectionNode, dataSectionFillerBottom);
   }
+  restoreDataSectionsStates();
 }
 function replaceRenderedDataSections(newDataSections: Array<Element>) {
   const numTableDataSectionsRendered = tableDataSectionsRendered.length;
@@ -1835,16 +1841,17 @@ function restoreTableCellInputFormTargetElement() {
   }
 
   let recoveredTableCellInputFormTargetElement = getElementFromDataSectionsByID(tableCellInputFormTargetElement.id, tableDataSectionsRendered);
+  const getFocus: boolean = !isColumnSearchInput(document.activeElement as HTMLElement);
   if (recoveredTableCellInputFormTargetElement) {
     // form target is in view: tableDataSectionRendered
-    activateTableCellInputForm(recoveredTableCellInputFormTargetElement as HTMLTableCellElement);
+    activateTableCellInputForm(recoveredTableCellInputFormTargetElement as HTMLTableCellElement, getFocus);
     return;
   }
 
   recoveredTableCellInputFormTargetElement = getElementFromDataSectionsByID(tableCellInputFormTargetElement.id, tableDataSections);
   if (recoveredTableCellInputFormTargetElement) {
     // form target is in potential view: tableDataSections
-    activateTableCellInputForm(recoveredTableCellInputFormTargetElement as HTMLTableCellElement);
+    activateTableCellInputForm(recoveredTableCellInputFormTargetElement as HTMLTableCellElement, getFocus);
   } else {
     // form target not in potential view, remove input form
     tableCellInputFormAssignTarget(null);
@@ -2062,7 +2069,7 @@ function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLEleme
   sortDataElements(dataElements, comparator);
   const documentFragment = packDataElements(dataElements, numTableRowsInDataSection);
   if (documentFragment === null) {
-    clearTableDataScrollManager();
+    initializeTableDataScrollManager([], true, false);
   } else {
     const dataSections = documentFragment.children;
     initializeTableDataScrollManager(dataSections, true, false);
@@ -2072,7 +2079,7 @@ function reinitializeTableDataScrollManagerBySorting(comparator: (el1: HTMLEleme
 function reinitializeTableDataScrollManagerByFiltering(filterFunction: (element: HTMLElement) => boolean, dataElements: Array<HTMLElement>) {
   const documentFragment = packDataElements(dataElements, numTableRowsInDataSection, filterFunction);
   if (documentFragment === null) {
-    clearTableDataScrollManager();
+    initializeTableDataScrollManager([], true, false);
   } else {
     const dataSections = documentFragment.children;
     initializeTableDataScrollManager(dataSections, true, false);
