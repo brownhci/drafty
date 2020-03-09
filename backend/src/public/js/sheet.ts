@@ -289,7 +289,8 @@ const tableCellInputFormInputSaveButtonElement: HTMLButtonElement = document.get
 /* the target element the input editor is associated with */
 let tableCellInputFormTargetElement: HTMLTableCellElement | null = null;
 
-let tableCellInputFormSelectInfo: SelectInfo | null = null;
+let tableCellInputFormAutocompleteSuggestionsSelectInfo: SelectInfo | null = null;
+let tableCellInputFormEditSuggestionsSelectInfo: SelectInfo | null = null;
 
 // input editor location
 /* the location element */
@@ -427,6 +428,9 @@ interface Suggestion {
   confidence: number;
   prevSugg: number;
 }
+const previousEditsKeyName: string = "previousEdit";
+const autocompleteSuggestionsKeyName: string = "autocompleteSuggestions";
+
 /**
  * Stores current time in local storage with specified key.
  */
@@ -440,10 +444,10 @@ function restoreTimestampFromLocalStorage(key: string): number | null {
   }
   return Number.parseInt(storedTimestamp);
 }
-function storeSuggestionInLocalStorage(columnLabelText: string, suggestions: Array<Suggestion>) {
+function storeAutocompleteSuggestionsInLocalStorage(columnLabelText: string, suggestions: Array<Suggestion>) {
   window.localStorage.setItem(columnLabelText, JSON.stringify(suggestions));
 }
-function restoreSuggestionsFromLocalStorage(columnLabelText: string): Array<Suggestion> {
+function restoreAutocompleteSuggestionsFromLocalStorage(columnLabelText: string): Array<Suggestion> {
   const suggestions: string | null = window.localStorage.getItem(columnLabelText);
   if (suggestions === null) {
     return [];
@@ -464,9 +468,9 @@ function shouldSuggestionsInLocalStorageExpire(storedTimestamp: number) {
  * @param {HTMLTableCellElement} columnLabel - The column label of the table cell we are fetching suggestions for.
  * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Suggestion objects.
  */
-async function fetchSuggestions(columnLabel: HTMLTableCellElement): Promise<Array<Suggestion>> {
+async function fetchSuggestions(targetHTMLTableCellElement: HTMLTableCellElement): Promise<Array<Suggestion>> {
   try {
-    const response = await fetch(`/suggestions/foredit?idSuggestion=${getIdSuggestion(tableCellInputFormTargetElement)}`);
+    const response = await fetch(`/suggestions/foredit?idSuggestion=${getIdSuggestion(targetHTMLTableCellElement)}`);
     if (!response.ok) {
       return null;
     }
@@ -475,6 +479,28 @@ async function fetchSuggestions(columnLabel: HTMLTableCellElement): Promise<Arra
     console.error("Network error when fetching suggestions", error);
   }
 }
+
+/**
+ * The suggestions returned from server including
+ *   + previous edits (prevSugg === 1)
+ *   + autocomplete suggestions (prevSugg === 0)
+ * which are identified by the prevSugg value
+ *
+ * @param {Array<Suggestion>} suggestions - An array of suggestions returned from the server
+ * @returns {Record<string, Array<Suggestion>>} An object containing where previous edits and autocomplete suggestions are separated
+ */
+function parseSuggestions(suggestions: Array<Suggestion>): Record<string, Array<Suggestion>> {
+  const parsedSuggestions: Record<string, Array<Suggestion>> = {
+    [previousEditsKeyName]: [],
+    [autocompleteSuggestionsKeyName]: []
+  };
+
+  for (const suggestion of suggestions) {
+    (suggestion.prevSugg === 1 ? parsedSuggestions[previousEditsKeyName] : parsedSuggestions[autocompleteSuggestionsKeyName]).push(suggestion);
+  }
+  return parsedSuggestions;
+}
+
 /**
  * If last fetched suggestions are still valid, gets suggestions from local storage.
  * Otherwise, fetch suggestions from database and store the fetched suggestions in local storage.
@@ -484,39 +510,76 @@ async function fetchSuggestions(columnLabel: HTMLTableCellElement): Promise<Arra
  * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Suggestion objects.
 
  */
-async function getSuggestions(columnLabel: HTMLTableCellElement): Promise<Array<Suggestion>> {
+function attachSuggestions(targetHTMLTableCellElement: HTMLTableCellElement) {
+  // recover timestamp for stored autocomplete suggestions (sugggestions for a specific column)
+  const columnLabel = getColumnLabel(targetHTMLTableCellElement.cellIndex);
   const columnLabelText = getColumnLabelText(columnLabel);
   const timestampKey: string = getSuggestionTimestampKey(columnLabelText);
   const storedTimestamp: number | null = restoreTimestampFromLocalStorage(timestampKey);
+
   if (storedTimestamp === null || shouldSuggestionsInLocalStorageExpire(storedTimestamp)) {
     // fetch new suggestions
-    const suggestions: Array<Suggestion> = await fetchSuggestions(columnLabel);
+    fetchSuggestions(targetHTMLTableCellElement).then(suggestions => {
+      const {[previousEditsKeyName]: previousEditSuggestions, [autocompleteSuggestionsKeyName]: autocompleteSuggestions} = parseSuggestions(suggestions);
 
-    storeTimestampInLocalStorage(timestampKey);
-    storeSuggestionInLocalStorage(columnLabelText, suggestions);
-    return suggestions;
+      // store column suggestions
+      storeTimestampInLocalStorage(timestampKey);
+      storeAutocompleteSuggestionsInLocalStorage(columnLabelText, autocompleteSuggestions);
+
+      createAutocompleteSuggestionsContainer(autocompleteSuggestions, targetHTMLTableCellElement, columnLabelText);
+      createEditSuggestionsContainer(previousEditSuggestions, targetHTMLTableCellElement);
+    });
   } else {
     // reuse suggestions in local storage
-    return restoreSuggestionsFromLocalStorage(columnLabelText);
+    const autocompleteSuggestions = restoreAutocompleteSuggestionsFromLocalStorage(columnLabelText);
+    createAutocompleteSuggestionsContainer(autocompleteSuggestions, targetHTMLTableCellElement, columnLabelText);
+
+    fetchSuggestions(targetHTMLTableCellElement).then(suggestions => {
+      const {[previousEditsKeyName]: previousEditSuggestions, [autocompleteSuggestionsKeyName]: autocompleteSuggestions} = parseSuggestions(suggestions);
+
+      // store column suggestions
+      storeTimestampInLocalStorage(timestampKey);
+      storeAutocompleteSuggestionsInLocalStorage(columnLabelText, autocompleteSuggestions);
+
+      createEditSuggestionsContainer(previousEditSuggestions, targetHTMLTableCellElement);
+    });
   }
 }
-async function attachSuggestions(columnLabel: HTMLTableCellElement) {
+function createAutocompleteSuggestionsContainer(autocompleteSuggestions: Array<Suggestion>, targetHTMLTableCellElement: HTMLTableCellElement, columnLabelText: string) {
+  if (!autocompleteSuggestions || autocompleteSuggestions.length === 0) {
+    return;
+  }
+
   const userConfig = {
     nameKey: "suggestion",
+    optionContainerClasses: ["autocomplete-suggestions"],
+    targetInputElement: tableCellInputFormInputElement,
+    mountMethod: (element: HTMLElement) => tableCellInputFormInputContainer.appendChild(element),
+    optionContainerTitle: "Completions",
+  };
+  tableCellInputFormAutocompleteSuggestionsSelectInfo = createSelect(columnLabelText, autocompleteSuggestions, userConfig);
+  // resize form editor
+  updateTableCellInputFormWidthToFitText(tableCellInputFormAutocompleteSuggestionsSelectInfo.longestText);
+}
+function createEditSuggestionsContainer(editSuggestions: Array<Suggestion>, targetHTMLTableCellElement: HTMLTableCellElement) {
+  if (!editSuggestions || editSuggestions.length === 0) {
+    return;
+  }
+  const userConfig = {
+    nameKey: "suggestion",
+    optionContainerClasses: ["previous-edits"],
+    targetInputElement: tableCellInputFormInputElement,
+    mountMethod: (element: HTMLElement) => tableCellInputFormInputContainer.appendChild(element),
+    optionContainerTitle: "Previous Edits",
   };
 
-  const columnLabelText = getColumnLabelText(columnLabel);
-  const suggestions = await getSuggestions(columnLabel);
-  if (suggestions) {
-    // TODO use last applied suggestions
-    const autocompleteSuggestions = suggestions.filter(suggestion => suggestion.prevSugg == 0);
-    if (autocompleteSuggestions.length > 0) {
-      tableCellInputFormSelectInfo = createSelect(columnLabelText, tableCellInputFormInputElement, tableCellInputFormInputContainer, autocompleteSuggestions, userConfig);
-      // resize form editor
-      updateTableCellInputFormWidthToFitText(tableCellInputFormSelectInfo.longestText);
-    }
-  }
+  const identifier = `${getIdSuggestion(targetHTMLTableCellElement)}`;
+  tableCellInputFormEditSuggestionsSelectInfo = createSelect(identifier, editSuggestions, userConfig);
+  // resize form editor
+  updateTableCellInputFormWidthToFitText(tableCellInputFormEditSuggestionsSelectInfo.longestText);
+  tableCellInputFormEditSuggestionsSelectInfo.optionContainer.classList.add("previous-edits");
 }
+
 
 /**
  * Use this function to change the editor associated table cell.
@@ -524,7 +587,8 @@ async function attachSuggestions(columnLabel: HTMLTableCellElement) {
 function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
   deactivateTableCellInputForm();
   deactivateTableCellInputFormLocation();
-  removeSelect(tableCellInputFormSelectInfo);
+  removeSelect(tableCellInputFormAutocompleteSuggestionsSelectInfo);
+  removeSelect(tableCellInputFormEditSuggestionsSelectInfo);
 
   if (targetHTMLTableCellElement) {
     if (!isTableCellEditable(targetHTMLTableCellElement)) {
@@ -533,8 +597,7 @@ function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCel
 
     activateTableCellInputForm(targetHTMLTableCellElement);
     updateTableCellInputFormInput(targetHTMLTableCellElement, input);
-    const columnLabel = getColumnLabel(targetHTMLTableCellElement.cellIndex);
-    attachSuggestions(columnLabel);
+    attachSuggestions(targetHTMLTableCellElement);
 
     updateTableCellInputFormLocation(targetHTMLTableCellElement);
     // set position
@@ -1288,7 +1351,7 @@ tableCellInputFormElement.addEventListener("submit", function(event: Event) {
 /* input event */
 tableCellInputFormInputElement.addEventListener("input", function() {
   const query = tableCellInputFormInputElement.value;
-  filterSelectOptions(query, tableCellInputFormSelectInfo);
+  filterSelectOptions(query, tableCellInputFormAutocompleteSuggestionsSelectInfo);
 });
 
 

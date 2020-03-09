@@ -1,6 +1,8 @@
 const originalIndexKey = "original-index";
 
 const optionContainerClass = "fp-select-options";
+const optionContainerWrapperClass = "fp-select-options-wrapper";
+const optionContainerTitleClass = "fp-select-options-title";
 const optionClass = "fp-select-option";
 const optionPriorityClass = "fp-select-option-priority";
 const optionTextClass = "fp-select-option-text";
@@ -12,6 +14,10 @@ interface SelectConfig {
   nameKey?: string;
   priorityKey?: string;
   fuseOptions?: Fuse.FuseOptions<Option>;
+  optionContainerClasses?: Array<string>;
+  optionContainerTitle?: string;
+  targetInputElement?: HTMLInputElement;
+  mountMethod? (optionContainer: HTMLElement): void;
 }
 type Option = Record<string, any>;
 interface SelectInfo {
@@ -19,9 +25,8 @@ interface SelectInfo {
 
   selectConfig: SelectConfig;
 
-  targetInputElement: HTMLInputElement;
-
   optionContainer: HTMLElement;
+  optionContainerWrapper: HTMLElement;
   optionElements: Array<HTMLElement>;
 
   options: Array<Option>;
@@ -41,8 +46,8 @@ function initializeSelectInfo(): SelectInfo {
   return {
     identifier: null,
     selectConfig: null,
-    targetInputElement: null,
     optionContainer: null,
+    optionContainerWrapper: null,
     optionElements: [],
     options: [],
     numOptions: null,
@@ -58,6 +63,8 @@ function initializeSelectInfo(): SelectInfo {
 
 const defaultConfig: SelectConfig = {
   numOptionShown: 10,
+  optionContainerClasses: [],
+  optionContainerTitle: null,
   nameKey: "name",
   priorityKey: "priority",
   fuseOptions: {
@@ -71,7 +78,10 @@ const defaultConfig: SelectConfig = {
     keys: [
       "name"
     ]
-  }
+  },
+  /* required configuration */
+  mountMethod: null,
+  targetInputElement: null,
 };
 function fillDefaultsToUserConfig(userConfig: SelectConfig) {
   const selectConfig = Object.assign({}, defaultConfig, userConfig);
@@ -113,7 +123,7 @@ function setOptionPriorityElementStyle(priority: number, optionPriorityElement: 
 function optionElementOnClick(optionElement: HTMLElement, selectInfo: SelectInfo) {
   const optionTextElement = optionElement.querySelector(`.${optionTextClass}`);
   const text = optionTextElement.textContent;
-  const targetInputElement = selectInfo.targetInputElement;
+  const targetInputElement = selectInfo.selectConfig.targetInputElement;
   targetInputElement.value = text;
   targetInputElement.dispatchEvent(new Event("input"));
   targetInputElement.focus();
@@ -122,9 +132,10 @@ function createOptionContainer(options: Array<Option>, selectInfo: SelectInfo) {
   const selectConfig = selectInfo.selectConfig;
   const optionContainer = document.createElement("div");
   optionContainer.classList.add(optionContainerClass);
+  optionContainer.classList.add(...selectConfig.optionContainerClasses);
   selectInfo.optionContainer = optionContainer;
   optionContainer.addEventListener("click", function(event: MouseEvent) {
-    const target: HTMLElement= event.target as HTMLElement;
+    const target: HTMLElement = event.target as HTMLElement;
     const optionElement: HTMLElement = target.closest(`.${optionClass}`) as HTMLElement;
     if (optionElement) {
       optionElementOnClick(optionElement, selectInfo);
@@ -176,7 +187,7 @@ function sortOptionsByPriority(selectInfo: SelectInfo) {
   const priorityKey = selectInfo.selectConfig.priorityKey;
   selectInfo.options.sort((option1, option2) => option2[priorityKey] - option1[priorityKey]);
 }
-function createSelect(identifier: string, targetInputElement: HTMLInputElement, appendTo: HTMLElement, options: Array<Option>, userConfig = {}) {
+function createSelect(identifier: string, options: Array<Option>, userConfig = {}) {
   let selectInfo: SelectInfo = identifierToSelectInfo.get(identifier);
   if (!selectInfo) {
     // initialize new select info
@@ -201,15 +212,23 @@ function createSelect(identifier: string, targetInputElement: HTMLInputElement, 
     identifierToSelectInfo.set(identifier, selectInfo);
   }
 
-  // append select info after input element
-  selectInfo.targetInputElement = targetInputElement;
+  selectInfo.optionContainerWrapper = document.createElement("div");
+  selectInfo.optionContainerWrapper.classList.add(optionContainerWrapperClass, ...selectInfo.selectConfig.optionContainerClasses);
+  // create option container title
+  if (selectInfo.selectConfig.optionContainerTitle) {
+    const optionContainerTitle = document.createElement("span");
+    optionContainerTitle.textContent = selectInfo.selectConfig.optionContainerTitle;
+    optionContainerTitle.classList.add(optionContainerTitleClass);
+    selectInfo.optionContainerWrapper.appendChild(optionContainerTitle);
+  }
+  selectInfo.optionContainerWrapper.appendChild(selectInfo.optionContainer);
 
-  appendTo.appendChild(selectInfo.optionContainer);
+  selectInfo.selectConfig.mountMethod(selectInfo.optionContainerWrapper);
   return selectInfo;
 }
 function removeSelect(selectInfo: SelectInfo) {
   if (selectInfo) {
-    selectInfo.optionContainer.remove();
+    selectInfo.optionContainerWrapper.remove();
   }
 }
 
@@ -234,7 +253,7 @@ function filterSelectOptions(query: string, selectInfo: SelectInfo, updateOption
 
   if (updateOptionContainer) {
     // removing previous option elements
-    while (selectInfo.optionContainer.lastChild) {
+    while (selectInfo.optionContainer.lastChild !== null) {
       selectInfo.optionContainer.removeChild(selectInfo.optionContainer.lastChild);
     }
     // adding back option element in sorted orders
