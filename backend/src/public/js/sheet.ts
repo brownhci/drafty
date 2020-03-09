@@ -169,6 +169,21 @@ function getDataElementsFromDataSections(dataSections: HTMLCollection | Array<HT
   }
   return dataElements as Array<HTMLElement>;
 }
+function getElementFromDataSectionsByID(id: string, dataSections: HTMLCollection | Array<HTMLTemplateElement>): HTMLElement {
+  const idSelector = `#${CSS.escape(id)}`;
+  for (const dataSection of dataSections) {
+    let candidate;
+    if (isTableBody(dataSection as HTMLElement)) {
+      candidate = dataSection.querySelector(idSelector);
+    } else if (isTemplate(dataSection as HTMLElement)) {
+      candidate = (dataSection as HTMLTemplateElement).content.querySelector(idSelector);
+    }
+    if (candidate) {
+      return candidate as HTMLElement;
+    }
+  }
+  return null;
+}
 
 function getRecordIndex(tableCellElement: HTMLTableCellElement): number {
   const dataSection = getDataSection(tableCellElement);
@@ -206,6 +221,9 @@ function getTopTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowEleme
 function getDownTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElement | undefined {
   return tableRowElement.nextElementSibling as HTMLTableRowElement;
 }
+function getTableDataText(tableCellElement: HTMLTableCellElement) {
+  return tableCellElement.textContent;
+}
 function getTableRowCellValues(tableRowElement: HTMLTableRowElement): Array<string> {
   return Array.from(tableRowElement.cells).map(getTableDataText);
 }
@@ -231,9 +249,6 @@ function getDownTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTa
     return null;
   }
   return getCellInTableRow(downTableRow, cellIndex);
-}
-function getTableDataText(tableCellElement: HTMLTableCellElement) {
-  return tableCellElement.textContent;
 }
 function getTableCellInputFormLocateRowIndex(): number | null {
   const rowIndex: string = tableCellInputFormLocateCellRowElement.textContent;
@@ -1814,6 +1829,27 @@ function renderDataSections(numDataSectionsShiftedAbove: number, documentFragmen
 
   activateSentinels();
 }
+function restoreTableCellInputFormTargetElement() {
+  if (!tableCellInputFormTargetElement) {
+    return;
+  }
+
+  let recoveredTableCellInputFormTargetElement = getElementFromDataSectionsByID(tableCellInputFormTargetElement.id, tableDataSectionsRendered);
+  if (recoveredTableCellInputFormTargetElement) {
+    // form target is in view: tableDataSectionRendered
+    activateTableCellInputForm(recoveredTableCellInputFormTargetElement as HTMLTableCellElement);
+    return;
+  }
+
+  recoveredTableCellInputFormTargetElement = getElementFromDataSectionsByID(tableCellInputFormTargetElement.id, tableDataSections);
+  if (recoveredTableCellInputFormTargetElement) {
+    // form target is in potential view: tableDataSections
+    activateTableCellInputForm(recoveredTableCellInputFormTargetElement as HTMLTableCellElement);
+  } else {
+    // form target not in potential view, remove input form
+    tableCellInputFormAssignTarget(null);
+  }
+}
 function restoreDataSectionsStates() {
   const recoveredCopyTarget = tableElement.querySelector(`.${copiedClass}`) as HTMLTableCellElement;
   if (recoveredCopyTarget && copyTarget) {
@@ -1840,16 +1876,7 @@ function restoreDataSectionsStates() {
     }
   }
 
-  const recoveredTableCellInputFormTargetElement = tableElement.querySelector(`.${inputtingClass}`);
-  if (recoveredTableCellInputFormTargetElement && tableCellInputFormTargetElement) {
-    if (recoveredTableCellInputFormTargetElement.id === tableCellInputFormTargetElement.id) {
-      // the recovered inputting cell element is still the inputting cell element (now a clone of it)
-      tableCellInputFormTargetElement = recoveredTableCellInputFormTargetElement as HTMLTableCellElement;
-    } else {
-       // the recovered inputting cell element is outdated, a new inputting cell element has been chosen when scrolling away
-       recoveredTableCellInputFormTargetElement.classList.remove(inputtingClass);
-    }
-  }
+  restoreTableCellInputFormTargetElement();
 }
 
 /**
@@ -2051,7 +2078,6 @@ function reinitializeTableDataScrollManagerByFiltering(filterFunction: (element:
     initializeTableDataScrollManager(dataSections, true, false);
   }
 }
-
 
 
 const defaultDataSections: HTMLCollection = document.getElementById("table-data").children;
