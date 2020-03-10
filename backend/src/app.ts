@@ -121,7 +121,7 @@ app.use(async (req, res, next) => {
   //check if new session (req.sessionID)
   if(req.session.user === undefined) {
     // sw: this is the only place a new idProfile is created
-    user.idProfile = await createAnonUser(); 
+    user.idProfile = await createAnonUser();
     req.session.user = user;
   }
   
