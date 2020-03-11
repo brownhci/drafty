@@ -98,7 +98,7 @@ export async function updateUser(updates: Partial<UserModel>, constraints: Parti
 export async function insertSession(idProfile: number) {
   try {
     const [results, fields] = await db.query(stmtInsertSession, [idProfile]);
-    return [null, results, fields];
+    return results.insertId;
   } catch (error) {
     logDbErr(error, "error during creating user", "warn");
     return [error];

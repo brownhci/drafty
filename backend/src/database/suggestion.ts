@@ -20,12 +20,10 @@ const stmtSelectSuggestionsForEdit: string = "SELECT suggestion, 1 as prevSugg F
  * returns current or new idSuggestion
  */
 export async function newSuggestion(idSuggestion: number, suggestion: string, idProfile: number) {
-  // TODO bug:
-  // Error: OUT or INOUT argument 1 for routine profs.new_suggestion is not a variable or NEW pseudo-variable in BEFORE trigger
   try {
       const [results, fields] = await db.query(stmtProcedureEdit, [idSuggestion,suggestion,idProfile]);
-      console.log("PROCEDURE CALL: ");
-      console.log(results);
+      //console.log("PROCEDURE CALL: ");
+      //console.log(results);
       return [null, results];
   } catch (error) {
     logDbErr(error, "error during newSuggestion procedure", "warn");
