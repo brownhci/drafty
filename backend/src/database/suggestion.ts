@@ -24,6 +24,10 @@ export async function newSuggestion(idSuggestion: number, suggestion: string, id
       const [results, fields] = await db.query(stmtProcedureEdit, [idSuggestion,suggestion,idProfile]);
       //console.log("PROCEDURE CALL: ");
       //console.log(results);
+      //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
+      const idSuggestionPrev = idSuggestion;
+      const idSuggestionChosen = results.idSuggestion;
+      db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode]);
       return [null, results];
   } catch (error) {
     logDbErr(error, "error during newSuggestion procedure", "warn");
@@ -52,11 +56,6 @@ export async function insertRowId(callback: CallableFunction) {
 export async function selectSuggestionsForEdit(idSuggestion: number, idSession: number, idInteractionType: number, idEntryType: number, mode: string) {
   try {
       const [results, fields] = await db.query(stmtSelectSuggestionsForEdit, [idSuggestion,idSuggestion,idSuggestion]);
-
-      //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
-      const idSuggestionPrev = idSuggestion;
-      const idSuggestionChosen = results.idSuggestion;
-      db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode]);
       return [null, results];
   } catch (error) {
       logDbErr(error, "error during selectSuggestionsForEdit", "warn");
