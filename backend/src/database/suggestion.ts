@@ -19,13 +19,15 @@ const stmtSelectSuggestionsForEdit: string = "SELECT suggestion, 1 as prevSugg F
 /**
  * returns current or new idSuggestion
  */
-export async function newSuggestion(idSuggestion: number, suggestion: string, idProfile: number) {
-  // TODO bug:
-  // Error: OUT or INOUT argument 1 for routine profs.new_suggestion is not a variable or NEW pseudo-variable in BEFORE trigger
+export async function newSuggestion(idSuggestion: number, suggestion: string, idProfile: number, idSession: number, idInteractionType: number, idEntryType: number, mode: string) {
   try {
       const [results, fields] = await db.query(stmtProcedureEdit, [idSuggestion,suggestion,idProfile]);
-      console.log("PROCEDURE CALL: ");
-      console.log(results);
+      
+      //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
+      const idSuggestionPrev = idSuggestion;
+      const idSuggestionChosen = results[2][0]['idSuggestion']; // sw: this is bc of how procedures return data
+      db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode]);
+      
       return [null, results];
   } catch (error) {
     logDbErr(error, "error during newSuggestion procedure", "warn");
@@ -51,14 +53,9 @@ export async function insertRowId(callback: CallableFunction) {
  * get prev suggestions and all suggestion type values for edit modal
  * @returns results will contain two fields: suggestion and prevSugg. prevSugg is a boolean if suggestion is a previous edit
  */
-export async function selectSuggestionsForEdit(idSuggestion: number, idSession: number, idInteractionType: number, idEntryType: number, mode: string) {
+export async function selectSuggestionsForEdit(idSuggestion: number) {
   try {
       const [results, fields] = await db.query(stmtSelectSuggestionsForEdit, [idSuggestion,idSuggestion,idSuggestion]);
-
-      //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
-      const idSuggestionPrev = idSuggestion;
-      const idSuggestionChosen = results.idSuggestion;
-      db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode]);
       return [null, results];
   } catch (error) {
       logDbErr(error, "error during selectSuggestionsForEdit", "warn");

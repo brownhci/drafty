@@ -19,7 +19,7 @@ const pool = mysql.createPool({
    host: DB_HOST,
    database: DB_DATABASE,
    connectionLimit: 1000, // Maximum number of connection in pool.
-   debug: true,
+   //debug: true,
    multipleStatements: true
 });
 

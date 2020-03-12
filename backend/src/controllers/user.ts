@@ -133,8 +133,8 @@ export async function createAnonUser() {
  * Function to ceate new Session in our DB (not express-session)
  */
 export async function createSessionDB(idProfile: number) {
-  const [error, results] = await insertSession(idProfile);
-  return results.insertId;
+  const idSession = await insertSession(idProfile);
+  return idSession;
 }
 
 /**
