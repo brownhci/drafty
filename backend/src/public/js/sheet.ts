@@ -1,5 +1,9 @@
 // TODO ARROW KEY not functioning when scrolling off screen
 // TODO paste event handling
+// TODO add new row
+// TODO optimize sorting and filtering speed
+// TODO multiple active columns (multiple sorting)
+// TODO page goes blank sopmetimes
 
 const activeClass = "active";
 const activeAccompanyClass = "active-accompany";
