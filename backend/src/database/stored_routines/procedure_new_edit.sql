@@ -135,7 +135,7 @@ BEGIN
     -- declare cursor for suggestions
     DEClARE cursorIdSuggs 
         CURSOR FOR 
-            SELECT idSuggestion FROM Suggestions WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = idSuggestion_var) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestion_var);
+            SELECT idSuggestion FROM Suggestions WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var);
  
     -- declare NOT FOUND handler
     DECLARE CONTINUE HANDLER 
@@ -176,7 +176,7 @@ START TRANSACTION;
         END IF;
 
         -- insert new edit edit_suggestion
-        INSERT INTO Edit_Suggestion (idEdit,idSuggestion,isPrevSugg,isNew,isChosen) VALUES (idEdit_var,idSugg_var,isPrevSugg_var,isNewSugg_var,isChosen_var);
+        INSERT INTO Edit_Suggestion (idEdit,idSuggestion,isPrevSuggestion,isNew,isChosen) VALUES (idEdit_var,idSugg_var,isPrevSugg_var,isNewSugg_var,isChosen_var);
     
     END LOOP insertEditSugg;
 
