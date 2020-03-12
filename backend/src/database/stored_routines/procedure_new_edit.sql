@@ -131,6 +131,8 @@ BEGIN
     DECLARE isPrevSugg_var INTEGER DEFAULT 0;
     DECLARE isNewSugg_var INTEGER DEFAULT 0;
     DECLARE isChosen_var INTEGER DEFAULT 0;
+    DECLARE idSuggestion_username INTEGER;
+    DECLARE idSuggestion_lastupdated INTEGER;
 
     -- declare cursor for suggestions
     DEClARE cursorIdSuggs 
@@ -143,7 +145,7 @@ BEGIN
 
 START TRANSACTION; 
     -- insert data into Edit and Edit_Suggestion
-    INSERT INTO Edit (IdInteraction, idEntryType, mode) VALUES (insert_interaction(idSession_var,idInteractionType_var), idEntryType_var, mode_var);
+    INSERT INTO Edit (idInteraction, idEntryType, mode) VALUES (insert_interaction(idSession_var,idInteractionType_var), idEntryType_var, mode_var);
     SET idEdit_var = (SELECT LAST_INSERT_ID());
 
     SELECT count(*) as ct INTO isNewSugg_var FROM Edit_Suggestion WHERE idSuggestion = idSuggestionChosen_var;
@@ -180,8 +182,11 @@ START TRANSACTION;
     
     END LOOP insertEditSugg;
 
-    UPDATE Suggestions SET suggestion = (SELECT username FROM Profile p INNER JOIN Session s ON s.idProfile = p.idProfile WHERE s.idSession = idSession_var) WHERE idDataType = 5 AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var);
-    UPDATE Suggestions SET suggestion = CURRENT_TIME WHERE idDataType = 6 AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var);
+    SELECT S.idSuggestion INTO idSuggestion_username FROM Suggestions s INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType WHERE s.idSuggestionType = (SELECT idSuggestionType FROM SuggestionType WHERE idDatatype = 5) AND s.idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen);
+    SELECT S.idSuggestion INTO idSuggestion_lastupdated FROM Suggestions s INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType WHERE s.idSuggestionType = (SELECT idSuggestionType FROM SuggestionType WHERE idDatatype = 6) AND s.idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen);
+
+    UPDATE Suggestions SET suggestion = (SELECT username FROM Profile p INNER JOIN Session s ON s.idProfile = p.idProfile WHERE s.idSession = idSession_var) WHERE idSuggestion = idSuggestion_username;
+    UPDATE Suggestions SET suggestion = CURRENT_TIME WHERE  idSuggestion = idSuggestion_lastupdated;
 
     CLOSE cursorIdSuggs;
 COMMIT;
