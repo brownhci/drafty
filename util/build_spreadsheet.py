@@ -4,9 +4,9 @@ import itertools
 import pymysql
 from atomicwrites import atomic_write
 
-NROWS_IN_SECTION = 600 # sw90: number of rows per <template>
+NROWS_IN_SECTION = 50 # sw90: number of rows per <template>; the lower the number the better the performance
 
-sql_col_widths = "SELECT idSuggestionType, (ROUND(AVG(LENGTH(suggestion))) * 6) + 100 as avg_length FROM Suggestions GROUP BY idSuggestionType"
+sql_col_widths = "SELECT idSuggestionType, (ROUND(AVG(LENGTH(suggestion))) * 6.6) + 100 as avg_length FROM Suggestions GROUP BY idSuggestionType"
 sql_col_order = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.columnOrder"
 sql_suggestions = '''
             SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder
