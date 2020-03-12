@@ -4,54 +4,62 @@ import itertools
 import pymysql
 from atomicwrites import atomic_write
 
+NROWS_IN_SECTION = 600 # sw90: number of rows per <template>
 
-def build_colgroup(nrows):
-    """
-    >>> build_colgroup(2)
-    '<colgroup><col><col></colgroup>'
-    """
-    return f'<colgroup>{"".join(itertools.repeat("<col>", nrows))}</colgroup>'
+sql_col_widths = "SELECT idSuggestionType, (ROUND(AVG(LENGTH(suggestion))) * 6) + 100 as avg_length FROM Suggestions GROUP BY idSuggestionType"
+sql_col_order = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.columnOrder"
+sql_suggestions = '''
+            SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder
+            FROM Suggestions s
+            INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType
+            INNER JOIN UniqueId u ON u.idUniqueID = s.idUniqueID
+            WHERE s.active = 1 AND st.isActive = 1 AND u.active = 1
+            ORDER BY idUniqueID, st.columnOrder, confidence desc
+          '''
+
+def build_column_width(row, column_widths):
+    width = column_widths[row['idSuggestionType']]
+    return f'<col style="width:{width}px" >\n'
+
+
+def build_colgroup(column_widths):
+    cursor.execute(sql_col_order)
+    rows = cursor.fetchall()
+    return f'<colgroup>{"".join(build_column_width(row, column_widths) for row in rows)}</colgroup>\n'
 
 
 def get_column_widths(cursor):
-    sql = "SELECT idSuggestionType, (ROUND(AVG(LENGTH(suggestion))) * 6) + 100 as avg_length FROM Suggestions GROUP BY idSuggestionType"
-    cursor.execute(sql)
+    cursor.execute(sql_col_widths)
     rows = cursor.fetchall()
     return {row['idSuggestionType']: row['avg_length'] for row in rows}
 
 
-def build_column_label_cell(row, column_widths):
+def build_column_label_cell(row):
     id_suggestion_type = row['idSuggestionType']
     colname = row['name']
-    width = column_widths[id_suggestion_type]
-    return f'<th style="width:{width}px" id="{id_suggestion_type}" class="column-label">{colname}<button class="sort-btn"></button></th>'
+    return f'<th id="{id_suggestion_type}" class="column-label">{colname}<button class="sort-btn"></button></th>\n'
 
 
-def build_column_labels_row(cursor, column_widths):
-    sql = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.columnOrder"
-    cursor.execute(sql)
+def build_column_labels_row(cursor):
+    cursor.execute(sql_col_order)
     rows = cursor.fetchall()
-    return f'<tr id="column-label-row">{"".join(build_column_label_cell(row, column_widths) for row in rows)}</tr>'
-
+    return f'<tr id="column-label-row">{"".join(build_column_label_cell(row) for row in rows)}</tr>'
 
 def build_column_search_row():
-    return '''
-<tr id="column-search-row">
-  {{#times 14}}
-      {{> sheets/column-search }}
-  {{/times}}
-</tr>
-           '''
+    # &#xF002; is the looking glass icon to use as a palceholder
+    search_input = '''<th class="column-search" scope="col" tabindex="-1"> <input type="search" class="search-placeholder" placeholder="&#xF002;"></th>'''
+    cursor.execute(sql_col_order)
+    rows = cursor.fetchall()
+    return f'\n<tr id="column-search-row">\n{"".join(search_input for row in rows)}</tr>\n'
 
 
 def build_table_head(cursor, column_widths):
-    return f'<thead>{build_column_labels_row(cursor, column_widths)}{build_column_search_row()}</thead>'
+    return f'<thead>{build_column_labels_row(cursor)}{build_column_search_row()}</thead>\n'
 
 
 def build_placeholder_table(cursor):
     column_widths = get_column_widths(cursor)
-    nrows = len(column_widths)
-    return f'<table id="table">{build_colgroup(nrows)}{build_table_head(cursor, column_widths)}</table>'
+    return f'<table id="table">{build_colgroup(column_widths)}{build_table_head(cursor, column_widths)}</table>\n'
 
 
 def build_table_datarow_cell(row):
@@ -86,10 +94,6 @@ def build_table_row(rows_iter):
     rest_rows_iter = itertools.dropwhile(same_row, rows_iter2)
     return f'<tr id="{id_unique_id}">{"".join(map(build_table_datarow_cell, tablecell_rows_iter))}</tr>', rest_rows_iter
 
-
-NROWS_IN_SECTION = 1000
-
-
 def build_table_data_section(rows_iter):
     data_rows = []
     try:
@@ -102,15 +106,7 @@ def build_table_data_section(rows_iter):
 
 
 def build_table_data_sections(cursor):
-    sql = '''
-            SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder
-            FROM Suggestions s
-            INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType
-            INNER JOIN UniqueId u ON u.idUniqueID = s.idUniqueID
-            WHERE s.active = 1 AND st.isActive = 1 AND u.active = 1
-            ORDER BY idUniqueID, st.columnOrder, confidence desc
-          '''
-    cursor.execute(sql)
+    cursor.execute(sql_suggestions)
     rows = cursor.fetchall()
     rows_iter = iter(rows)
     data_sections = []
@@ -144,7 +140,7 @@ if __name__ == '__main__':
                         help='The password of the MySQL database')
     parser.add_argument('--database', default='profs',
                         help='The database to be outputtted')
-    parser.add_argument('--nrows', default=1000, type=int,
+    parser.add_argument('--nrows', default=NROWS_IN_SECTION, type=int,
                         dest='nrows_in_section',
                         help='how many data row in each section')
     parser.add_argument('outfile',
@@ -158,6 +154,7 @@ if __name__ == '__main__':
                              cursorclass=pymysql.cursors.DictCursor)
         with db.cursor() as cursor:
             NROWS_IN_SECTION = args.nrows_in_section
-            save_to_file(args.outfile, cursor)
+            filepath = '../backend/views/partials/sheets/' + args.outfile
+            save_to_file(filepath, cursor)
     finally:
         db.close()
