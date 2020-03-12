@@ -142,11 +142,11 @@ BEGIN
         FOR NOT FOUND SET finished = 1;
 
 START TRANSACTION; 
-    -- insert data into Edit and Edit_Suggestions
+    -- insert data into Edit and Edit_Suggestion
     INSERT INTO Edit (IdInteraction, idEntryType, mode) VALUES (insert_interaction(idSession_var,idInteractionType_var), idEntryType_var, mode_var);
     SET idEdit_var = (SELECT LAST_INSERT_ID());
 
-    SELECT count(*) as ct INTO isNewSugg_var FROM Edit_Suggestions WHERE idSuggestion = idSuggestionChosen_var;
+    SELECT count(*) as ct INTO isNewSugg_var FROM Edit_Suggestion WHERE idSuggestion = idSuggestionChosen_var;
 
     -- open previous cursor to loop results
     OPEN cursorIdSuggs;
