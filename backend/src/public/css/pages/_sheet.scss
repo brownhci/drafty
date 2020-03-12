@@ -198,3 +198,7 @@ $resize-shadow-width: 5px;
     }
   }
 }
+
+input.search-placeholder:placeholder-shown {
+  font-family: FontAwesome;
+}
