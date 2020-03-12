@@ -63,7 +63,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //const hours = .1;
 //const expInMilliseconds = hours * 3600000;
 //const expInMilliseconds = 1200000 // this is 20 minutes (1 min = 60000 ms)
-const days = 90000; // we will manually manage sessions
+const days = 10800; // we will manually manage sessions
 const age = days * 24 * 60 * 60 * 1000; // days * hours * minutes * seconds * milliseconds
 console.log(age);
 app.use(session({
