@@ -172,6 +172,8 @@ START TRANSACTION;
             -- check if this was the first time this idSuggested has been edited
             IF isNewSugg_var > 0 THEN
                 SET isNewSugg_var = 1;
+            ELSE
+                SET isNewSugg_var = 0;
             END IF;
         ELSE
             SET isChosen_var = 0;
