@@ -30,7 +30,7 @@
     "dependencies": {
         "@types/helmet": "0.0.45",
         "@types/session-file-store": "^1.2.1",
-        "acorn": "^7.1.0",
+        "acorn": "^7.1.1",
         "async": "^3.1.1",
         "axios": "^0.19.2",
         "bcrypt": "^3.0.8",
