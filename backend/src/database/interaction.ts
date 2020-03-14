@@ -38,7 +38,7 @@ export async function insertClick(idSession: string, idSuggestion: string, rowva
 //DB Code
 export async function insertDoubleClick(idSession: string, idSuggestion: string, rowvalues: Array<string>) {
     try {
-        const idInteractionType: number = 1;
+        const idInteractionType: number = 10;
         await db.query(stmtInsertDoubleClick, [idSession, idInteractionType, idSuggestion, rowvalues.join(pipeDelim)]);
     } catch (error) {
         logDbErr(error, "error during insert double-click", "warn");
