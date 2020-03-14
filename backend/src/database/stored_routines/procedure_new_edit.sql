@@ -150,8 +150,8 @@ START TRANSACTION;
     SELECT s.idSuggestion INTO idSuggestion_username FROM Suggestions s INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType WHERE s.idSuggestionType = (SELECT idSuggestionType FROM SuggestionType WHERE idDatatype = 5) AND s.idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var) ORDER BY confidence DESC LIMIT 1;
     SELECT s.idSuggestion INTO idSuggestion_lastupdated FROM Suggestions s INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType WHERE s.idSuggestionType = (SELECT idSuggestionType FROM SuggestionType WHERE idDatatype = 6) AND s.idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var) ORDER BY confidence DESC LIMIT 1;
 
-    UPDATE Suggestions SET suggestion = (SELECT username FROM Profile p INNER JOIN Session s ON s.idProfile = p.idProfile WHERE s.idSession = idSession_var) WHERE idSuggestion = idSuggestion_username;
-    UPDATE Suggestions SET suggestion = CURRENT_TIME WHERE  idSuggestion = idSuggestion_lastupdated;
+    UPDATE Suggestions SET suggestion = (SELECT s.idProfile FROM Session s WHERE s.idSession = idSession_var) WHERE idSuggestion = idSuggestion_username;
+    UPDATE Suggestions SET suggestion = CURRENT_TIMESTAMP WHERE  idSuggestion = idSuggestion_lastupdated;
 
     CLOSE cursorIdSuggs;
 COMMIT;
@@ -173,7 +173,8 @@ DELIMITER $$
 CREATE PROCEDURE new_suggestion(
     INOUT  idSuggestion_var INT, 
     IN  suggestion_var VARCHAR(1000),
-    IN idProfile_var INT
+    IN idProfile_var INT,
+    OUT isNewSuggestion INT
 )
 BEGIN
     DECLARE sugg_unchanged INT DEFAULT 0;
@@ -206,6 +207,7 @@ START TRANSACTION;
     ELSE
         INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, idSuggestionType_var, idUniqueId_var, idProfile_var, suggestion_var, confidence_var);
         SET idSuggestion_var = (SELECT LAST_INSERT_ID());
+        SET isNewSuggestion = 1;
     END IF;
 COMMIT;
 END$$
