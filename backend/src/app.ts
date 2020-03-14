@@ -1,7 +1,6 @@
 import express from "express";
 import compression from "compression"; // compresses requests
 import session from "express-session";
-import sessionFileStore from "session-file-store";
 import bodyParser from "body-parser";
 import helmet from "helmet";
 import lusca from "lusca";
@@ -11,10 +10,14 @@ import passport from "passport";
 import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, SESSION_SECRET } from "./util/secrets";
 
 //user session functions
-import { createAnonUser } from "./controllers/user"; //TODO: create createSession
+import { createAnonUser, createSessionDB } from "./controllers/user"; //TODO: create createSession
 
+// Create session file store
+// import sessionFileStore from "session-file-store";
+// const sessionStore = sessionFileStore(session); // FileStore
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-//const MySQLStore = require("express-mysql-session")(session);
+const MySQLStore = require("express-mysql-session")(session); // MySQLStore
+
 
 // Controllers (route handlers)
 import * as helpController from "./controllers/help";
@@ -28,8 +31,6 @@ import * as suggestionController from "./controllers/suggestion";
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
 
-// Create session file store
-const FileStore = sessionFileStore(session);
 
 // Create Express server
 const app = express();
@@ -59,8 +60,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Session
-const hours = .1;
-const expInMilliseconds = hours * 3600000;
+//const hours = .1;
+//const expInMilliseconds = hours * 3600000;
+//const expInMilliseconds = 1200000 // this is 20 minutes (1 min = 60000 ms)
+const days = 10800; // we will manually manage sessions
+const age = days * 24 * 60 * 60 * 1000; // days * hours * minutes * seconds * milliseconds
+console.log(age);
 app.use(session({
     secret: SESSION_SECRET,
     name: "zomg_this_enhances_security",
@@ -69,12 +74,20 @@ app.use(session({
     cookie: {
         secure: false, // sw after a change to session config not flipping this var true->false->true will result in multple sessionIDs
         httpOnly: true,
-        maxAge: expInMilliseconds
+        maxAge: age
     },
-    store: new FileStore({
+    store: new MySQLStore({
+      host: DB_HOST,
+      user: DB_USER,
+      password: DB_PASSWORD,
+      database: DB_DATABASE,
+    })
+    /*
+    store: new sessionStore({
        path: process.env.NOW ? `sessions` : `.sessions`,
        secret: "testing_please_change"
     })
+    */
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -102,15 +115,23 @@ const user = {
   isAuth: false,
   isAdmin: false,
   views: 0,
+  lastInteraction: Date.now(),
   failedLoginAttempts: 0
 };
 app.use(async (req, res, next) => {
   //check if new session (req.sessionID)
   if(req.session.user === undefined) {
+    // sw: this is the only place a new idProfile is created
     user.idProfile = await createAnonUser();
     req.session.user = user;
   }
-  //const idSession = await createSession();
+  
+  const heartbeat = 20 * 60000; // mins * 60000 milliseconds
+  if(((Date.now() - req.session.user.lastInteraction) > heartbeat) || (req.session.user.idSession === -1)) {
+    // new session
+    req.session.user.idSession = await createSessionDB(req.session.user.idProfile); 
+  }
+  req.session.user.lastInteraction = Date.now();
 /*
   console.log("\n\n######");
   console.log(req.session);
@@ -120,12 +141,15 @@ app.use(async (req, res, next) => {
   console.log(req.session.__lastAccess);
   console.log("######\n\n");
 */
+
   next();
 });
+/* sw - commenting out for now since we are not using the FileStore sessions
 app.use((req, res, next) => {
     res.locals.user = req.user;
     next();
 });
+*/
 app.use((req, res, next) => {
     // After successful login, redirect back to the intended page
     if (!req.user &&
@@ -174,8 +198,6 @@ app.post("/account/profile", passportConfig.isAuthenticated, userController.post
 app.post("/account/password", passportConfig.isAuthenticated, userController.postUpdatePassword);
 
 // interactions
-app.post("/new-row", interactionController.postNewRow);
-app.post("/edit", interactionController.postEdit);
 app.post("/click", interactionController.postClick);
 app.post("/click-double", interactionController.postClickDouble);
 app.post("/sort", interactionController.postSort);
@@ -186,6 +208,8 @@ app.post("/copy-column", interactionController.postCopyColumn);
 
 // suggestions
 app.get("/suggestions", suggestionController.getSuggestions);
+app.get("/suggestions/foredit", suggestionController.getSuggestionsForEdit);
+app.post("/suggestions/new", suggestionController.postNewSuggestion);
 
 // sheets
 app.get("/:sheet", sheetController.getSheet);
