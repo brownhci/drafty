@@ -8,51 +8,14 @@
   * FINALLY: record the edit happened and return the idSuggestion if #1
   */
 
-/*
-DELIMITER $$
-CREATE PROCEDURE new_edit(
-    IN  idSuggestion_var INT, 
-    IN  suggestion_var VARCHAR(1000),
-    IN idProfile_var INT,
-    OUT  idSuggestion_new INT
-)
-BEGIN
-    DECLARE sugg_unchanged INT DEFAULT 0;
-    DECLARE sugg_exists INT DEFAULT 0;
-    DECLARE alias_exists INT DEFAULT 0;
-    DECLARE idSuggestionType_var INT;
-    DECLARE idUniqueId_var INT;
-    DECLARE confidence_var INT DEFAULT 1;
+/* Delete existing procedures if they exist */
+DROP PROCEDURE IF EXISTS new_edit;
+DROP PROCEDURE IF EXISTS new_suggestion;
+DROP PROCEDURE IF EXISTS insert_edit_suggestions;
 
-START TRANSACTION;
-    SET idSuggestion_new = idSuggestion_var;
-
-    SELECT idSuggestionType INTO idSuggestionType_var FROM Suggestions WHERE idSuggestion = idSuggestion_var;
-    SELECT idUniqueId INTO idUniqueId_var FROM Suggestions WHERE idSuggestion = idSuggestion_var;
-    SELECT MAX(confidence) + 1 INTO confidence_var FROM Suggestions WHERE idSuggestionType = idSuggestionType_var AND idUniqueId = idUniqueId_var;
-
-    SELECT count(*) as ct INTO sugg_unchanged
-    FROM Suggestions WHERE idSuggestion = idSuggestion_var AND suggestion = suggestion_var;
-
-    SELECT count(*) as ct INTO sugg_exists, idSuggestion INTO idSuggestion_new
-    FROM Suggestions WHERE idSuggestionType = idSuggestionType_var AND idUniqueId = idUniqueId_var AND suggestion = suggestion_var;
-    
-    IF sugg_unchanged > 0 THEN
-
-    ELSEIF alias_exists > 0 THEN
-        UPDATE Suggestions s SET s.suggestion = suggestion_var WHERE s.idSuggestion = idSuggestion_var; 
-        UPDATE Alias a SET count = count + 1 WHERE a.idSuggestion = idSuggestion_var AND a.alias = suggestion_var;
-    ELSEIF sugg_exists > 0 THEN    
-        UPDATE Suggestions s SET s.confidence = confidence_var WHERE s.idSuggestion = idSuggestion_new;
-    ELSE
-        INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, idSuggestionType_var, idUniqueId_var, idProfile_var, suggestion_var, confidence_var);
-        SET idSuggestion_new = (SELECT LAST_INSERT_ID());
-    END IF;
-COMMIT;
-END $$
- 
-DELIMITER ;
-*/
+DROP FUNCTION IF EXISTS get_idSuggestionType;
+DROP FUNCTION IF EXISTS get_idUniqueID;
+DROP FUNCTION IF EXISTS insert_interaction;
 
 /* LOOP THROUGH ROWS https://www.mysqltutorial.org/mysql-cursor/ */
 
