@@ -22,16 +22,12 @@ const stmtSelectSuggestionsForEdit: string = "SELECT suggestion, 1 as prevSugg F
 export async function newSuggestion(idSuggestion: number, suggestion: string, idProfile: number, idSession: number, idInteractionType: number, idEntryType: number, mode: string) {
   try {
       const [results, fields] = await db.query(stmtProcedureEdit, [idSuggestion,suggestion,idProfile]);
-      
-      /*
-      console.log(results)
-      console.log('\n\n')
-      console.log(results[2])
-      */
 
       //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
       const idSuggestionPrev = idSuggestion;
       const idSuggestionChosen = results[2][0]["idSuggestion"]; // sw: this is bc of how procedures return data
+      //console.log('\n\n',idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode,'\n\n')
+      // getting error that COLUMN suggestion cannot be null
       db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode]);
       
       return [null, results];
