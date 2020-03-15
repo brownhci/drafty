@@ -185,6 +185,10 @@ $resize-shadow-width: 5px;
           input {
             @extend .w-100;
             @extend .form-control;
+            &:placeholder-shown {
+              font-family: 'Font Awesome 5 Free';
+              font-weight: 900;
+            }
           }
         }
       }
@@ -199,9 +203,6 @@ $resize-shadow-width: 5px;
   }
 }
 
-input.search-placeholder:placeholder-shown {
-  font-family: FontAwesome;
-}
 
 /* sw for sticky header */
 thead tr:first-child th {

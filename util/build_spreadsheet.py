@@ -17,6 +17,7 @@ sql_suggestions = '''
             ORDER BY idUniqueID, st.columnOrder, confidence desc
           '''
 
+
 def build_column_width(row, column_widths):
     width = column_widths[row['idSuggestionType']]
     return f'<col style="width:{width}px" >\n'
@@ -45,9 +46,10 @@ def build_column_labels_row(cursor):
     rows = cursor.fetchall()
     return f'<tr id="column-label-row">{"".join(build_column_label_cell(row) for row in rows)}</tr>'
 
+
 def build_column_search_row():
     # &#xF002; is the looking glass icon to use as a palceholder
-    search_input = '''<th class="column-search" scope="col" tabindex="-1"> <input type="search" class="search-placeholder" placeholder="&#xF002;"></th>'''
+    search_input = '''<th class="column-search" scope="col" tabindex="-1"><input type="search" placeholder="&#xF002;"></th>'''
     cursor.execute(sql_col_order)
     rows = cursor.fetchall()
     return f'\n<tr id="column-search-row">\n{"".join(search_input for row in rows)}</tr>\n'
@@ -65,7 +67,7 @@ def build_placeholder_table(cursor):
 def build_table_datarow_cell(row):
     id_suggestion = row['idSuggestion']
     suggestion = row['suggestion']
-    id_suggestion_type = row['idSuggestionType']
+    #  id_suggestion_type = row['idSuggestionType']
     suggestion = ''.join(chr(c) for c in suggestion.encode('ascii', 'xmlcharrefreplace') if c != 0)
     return f'<td id="{id_suggestion}" tabindex="-1">{suggestion}</td>'
 
@@ -93,6 +95,7 @@ def build_table_row(rows_iter):
                                           filter(best_in_type, itertools.takewhile(same_row, rows_iter1)))
     rest_rows_iter = itertools.dropwhile(same_row, rows_iter2)
     return f'<tr id="{id_unique_id}">{"".join(map(build_table_datarow_cell, tablecell_rows_iter))}</tr>', rest_rows_iter
+
 
 def build_table_data_section(rows_iter):
     data_rows = []
@@ -154,7 +157,7 @@ if __name__ == '__main__':
                              cursorclass=pymysql.cursors.DictCursor)
         with db.cursor() as cursor:
             NROWS_IN_SECTION = args.nrows_in_section
-            filepath = '../backend/views/partials/sheets/' + args.outfile
+            filepath = f'../backend/views/partials/sheets/{args.outfile}'
             save_to_file(filepath, cursor)
     finally:
         db.close()
