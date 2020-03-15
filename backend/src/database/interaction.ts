@@ -90,8 +90,8 @@ export async function insertSort(idSession: string, idSuggestionType: number|str
 //DB Code
 async function insertInteraction(idSession: string, idInteractionType: number|string) {
     try {
-        const [results, fields] = await db.query(stmtInsertInteraction, [idSession, idInteractionType]);
-        return results.insertId;
+        const [results] = await db.query(stmtInsertInteraction, [idSession, idInteractionType]);
+        return (results as any).insertId;
     } catch (error) {
         logDbErr(error, "error during insert interaction", "warn");
         return [error];

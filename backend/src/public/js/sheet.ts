@@ -1,3 +1,5 @@
+/* eslint no-use-before-define: 0 */  // --> OFF
+
 // TODO ARROW KEY not functioning when scrolling off screen
 // TODO paste event handling
 // TODO add new row
@@ -1615,7 +1617,7 @@ function scrollToDataRowIndex(dataRowIndex: number, scrollIntoView: boolean = fa
   let dataSectionRendered = false;
   let renderedTableDataSectionTemplateIndex;
   for (const renderedTableDataSection of tableDataSectionsRendered) {
-    renderedTableDataSectionTemplateIndex = getDataSectionTemplateIndex(<HTMLElement> renderedTableDataSection);
+    renderedTableDataSectionTemplateIndex = getDataSectionTemplateIndex(renderedTableDataSection as HTMLElement);
     if (renderedTableDataSectionTemplateIndex === dataSectionIndex) {
       dataSectionRendered = true;
     }
