@@ -492,7 +492,8 @@ CREATE TABLE `Suggestions` (
   `idProfile` int(11) NOT NULL DEFAULT '2',
   `suggestion` varchar(1500) NOT NULL DEFAULT '',
   `active` tinyint(1) NOT NULL DEFAULT '1',
-  `confidence` bigint(255) DEFAULT NULL
+  `confidence` bigint(255) DEFAULT NULL,
+  `last_updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

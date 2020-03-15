@@ -1,6 +1,6 @@
 import { db,logDbErr } from "./mysql";
-import { tableName as sugggestionTableName, idSuggestionType as idSuggestionTypeFieldName, suggestionText as suggestionTextFieldName } from "../models/suggestionTypeValues";
-import { tableName as suggestionTypeTableName, name as nameTableFieldName } from "../models/suggestionType";
+//import { tableName as sugggestionTableName, idSuggestionType as idSuggestionTypeFieldName, suggestionText as suggestionTextFieldName } from "../models/suggestionTypeValues";
+//import { tableName as suggestionTypeTableName, name as nameTableFieldName } from "../models/suggestionType";
 
 //idSuggestion, suggestion, idProfile
 const stmtProcedureEdit: string = "SET @id = ?; CALL new_suggestion(@id,?,?); SELECT @id AS idSuggestion;";
@@ -23,9 +23,15 @@ export async function newSuggestion(idSuggestion: number, suggestion: string, id
   try {
       const [results, fields] = await db.query(stmtProcedureEdit, [idSuggestion,suggestion,idProfile]);
       
+      /*
+      console.log(results)
+      console.log('\n\n')
+      console.log(results[2])
+      */
+
       //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
       const idSuggestionPrev = idSuggestion;
-      const idSuggestionChosen = results[2][0]['idSuggestion']; // sw: this is bc of how procedures return data
+      const idSuggestionChosen = results[2][0]["idSuggestion"]; // sw: this is bc of how procedures return data
       db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode]);
       
       return [null, results];
