@@ -4,8 +4,7 @@
 // TODO paste event handling
 // TODO add new row
 // TODO optimize sorting and filtering speed
-// TODO multiple active columns (multiple sorting)
-// TODO page goes blank sopmetimes
+// TODO page goes blank sometimes
 
 const activeClass = "active";
 const activeAccompanyClass = "active-accompany";
@@ -1927,6 +1926,11 @@ function restoreCopyTarget() {
 }
 function restoreActiveTableCellElement() {
   if (!activeTableCellElement) {
+    return;
+  }
+
+  if (isTableHead(activeTableCellElement)) {
+    // no need to recover active element since table header is the active element (will not disappear because of scrolling)
     return;
   }
 
