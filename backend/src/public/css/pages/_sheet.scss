@@ -204,13 +204,12 @@ $resize-shadow-width: 5px;
 }
 
 
-/* sw for sticky header */
-thead tr:first-child th {
-  position: sticky;
-  top: 0;
-}
-
-thead tr:nth-child(2) th  {
-  position: sticky;
-  top: 3em;
-}
+// thead tr:first-child th {
+//   position: sticky;
+//   top: 0;
+// }
+//
+// thead tr:nth-child(2) th  {
+//   position: sticky;
+//   top: 3em;
+// }

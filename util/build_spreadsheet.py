@@ -29,9 +29,14 @@ def build_colgroup(column_widths):
     return f'<colgroup>{"".join(build_column_width(row, column_widths) for row in rows)}</colgroup>\n'
 
 
+num_columns = None
+
+
 def get_column_widths(cursor):
     cursor.execute(sql_col_widths)
     rows = cursor.fetchall()
+    global num_columns
+    num_columns = len(rows)
     return {row['idSuggestionType']: row['avg_length'] for row in rows}
 
 
@@ -72,6 +77,11 @@ def build_table_datarow_cell(row):
     return f'<td id="{id_suggestion}" tabindex="-1">{suggestion}</td>'
 
 
+def pad_iterator(orig_iter, filler, target_len):
+    padded_iter = itertools.chain(orig_iter, itertools.repeat(filler))
+    return itertools.islice(padded_iter, target_len)
+
+
 def build_table_row(rows_iter):
     # TODO  optimize with manual loop
     rows_iter1, rows_iter2 = itertools.tee(rows_iter)
@@ -94,7 +104,11 @@ def build_table_row(rows_iter):
     tablecell_rows_iter = itertools.chain([first_tablecell],
                                           filter(best_in_type, itertools.takewhile(same_row, rows_iter1)))
     rest_rows_iter = itertools.dropwhile(same_row, rows_iter2)
-    return f'<tr id="{id_unique_id}">{"".join(map(build_table_datarow_cell, tablecell_rows_iter))}</tr>', rest_rows_iter
+    datarow_cell_iter = pad_iterator(
+        map(build_table_datarow_cell, tablecell_rows_iter),
+        '<td></td>',
+        num_columns)
+    return f'<tr data-id="{id_unique_id}">{"".join(datarow_cell_iter)}</tr>', rest_rows_iter
 
 
 def build_table_data_section(rows_iter):

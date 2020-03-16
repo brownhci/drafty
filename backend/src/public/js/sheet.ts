@@ -1,10 +1,9 @@
-/* eslint no-use-before-define: 0 */  // --> OFF
-
 // TODO ARROW KEY not functioning when scrolling off screen
 // TODO paste event handling
 // TODO add new row
 // TODO optimize sorting and filtering speed
 // TODO page goes blank sometimes
+// TODO record number out of sync after sorting
 
 const activeClass = "active";
 const activeAccompanyClass = "active-accompany";
@@ -41,9 +40,11 @@ const tableRowElements: HTMLCollection = tableElement.rows;
 const columnLabelsRowIndex: number = 0;
 const tableColumnLabels: HTMLTableRowElement = tableRowElements[columnLabelsRowIndex] as HTMLTableRowElement;
 
+const numTableColumns: number = tableColumnLabels.children.length;
+
 /* first table row: column labels */
 const columnSearchRowIndex = 1;
-const tableColumnSearchs: HTMLTableRowElement = tableRowElements[columnSearchRowIndex] as HTMLTableRowElement;
+const tableColumnSearches: HTMLTableRowElement = tableRowElements[columnSearchRowIndex] as HTMLTableRowElement;
 const tableColumnSearchQueries: Map<number, RegExp> = new Map();
 function updateTableColumnSearchQuery(columnIndex: number, query: string) {
   if (query == "") {
@@ -168,8 +169,7 @@ function getDataSection(dataSectionElement: HTMLTableRowElement | HTMLTableCellE
   return dataSectionElement.closest("tbody");
 }
 function getDataSectionTemplateIndex(dataSection: HTMLElement): number {
-  const dataSectionSid = dataSection.dataset.sid;
-  return sidToTemplateIndex.get(dataSectionSid);
+  return sidToTemplateIndex.get(getDataSectionID(dataSection));
 }
 function getDataElementsFromDataSections(dataSections: HTMLCollection | Array<HTMLTemplateElement>, selector="tr"): Array<HTMLElement> {
   const dataElements = [];
@@ -219,7 +219,7 @@ function getColumnLabelText(columnLabel: HTMLTableCellElement): string {
   return columnLabel.textContent;
 }
 function getColumnSearch(index: number): HTMLTableCellElement {
-  return getCellInTableRow(tableColumnSearchs, index);
+  return getCellInTableRow(tableColumnSearches, index);
 }
 function getColumnSearchInput(columnSearch: HTMLTableCellElement): HTMLInputElement {
   return columnSearch.querySelector("input");
@@ -232,6 +232,9 @@ function getDownTableRow(tableRowElement: HTMLTableRowElement): HTMLTableRowElem
 }
 function getTableDataText(tableCellElement: HTMLTableCellElement) {
   return tableCellElement.textContent;
+}
+function setTableDataText(tableCellElement: HTMLTableCellElement, text: string) {
+  return tableCellElement.textContent = text;
 }
 function getTableRowCellValues(tableRowElement: HTMLTableRowElement): Array<string> {
   return Array.from(tableRowElement.cells).map(getTableDataText);
@@ -272,6 +275,13 @@ function getAutocompleteSuggestionsContainer(): HTMLElement {
   return tableCellInputFormElement.querySelector(`.${optionContainerClass}`);
 }
 
+function getDataSectionID(dataSection: HTMLElement) {
+  return dataSection.dataset.sid;
+}
+function setDataSectionID(dataSection: HTMLElement, sid: string) {
+  dataSection.dataset.sid = sid;
+}
+
 /**
  * Gets the <col> element for the specified column index.
  */
@@ -297,7 +307,7 @@ function* getTableCellElementsInColumn(index: number, skipColumnSearch = false) 
 }
 
 function getIdUniqueID(tableCellElement: HTMLTableCellElement): number {
-  return Number.parseInt(getTableRow(tableCellElement).id);
+  return Number.parseInt(getTableRow(tableCellElement).dataset.id);
 }
 function getIdSuggestion(tableCellElement: HTMLTableCellElement): number {
   return Number.parseInt(tableCellElement.id);
@@ -310,6 +320,11 @@ function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
   return null;
 }
 
+function removeElement(element: Element) {
+  if (element) {
+    element.remove();
+  }
+}
 
 // Record Interaction
 function recordInteraction(url: string, data: Record<string, any>) {
@@ -1501,12 +1516,12 @@ const sidToTemplate: Map<string, HTMLTemplateElement> = new Map();
 const sidToTemplateIndex: Map<string, number> = new Map();
 function transformDataSectionToNode(template: HTMLTemplateElement, templateIndex: number, sid?: string) {
   if (!sid) {
-    sid = (template.content.firstElementChild as HTMLElement).dataset.sid;
+    sid = getDataSectionID(template.content.firstElementChild as HTMLElement);
     if (!sid) {
       sid = uuidv4();
 
       for (const child of template.content.children) {
-        (child as HTMLElement).dataset.sid = sid.toString();
+        setDataSectionID(child as HTMLElement, sid.toString());
       }
     }
   }
@@ -1514,7 +1529,7 @@ function transformDataSectionToNode(template: HTMLTemplateElement, templateIndex
   sidToTemplate.set(sid, template);
   sidToTemplateIndex.set(sid, templateIndex);
 
-  const node = template.content.cloneNode(true);
+  const node = template.content.firstElementChild.cloneNode(true);
   return node;
 }
 
@@ -1529,18 +1544,21 @@ function countMatchedElementsInDataSection(template: HTMLTemplateElement) {
  * Counts how many elements match the selector in templates.
  *
  * @param {DOMString} [selector = 'tr'] - A DOMString containing one or more selectors to match. This string must be a valid CSS selector string
- * @param {boolean} [dataSectionHasSameStructure = true] - whether the data sections has the same structure so the number of elements matched for one section applies to the other sections. Specifying this element to true will decrease the computation cost.
+ * @param {boolean} [useHeuristics = true] - whether the data sections has the same structure so the number of elements matched for one section applies to the other sections. Specifying this element to true will decrease the computation cost.
  * @returns {number} How many matched elements are found among all templates.
  */
-function countMatchedElementsInAllDataSections(dataSections: HTMLCollection | Array<HTMLTemplateElement>, dataSectionHasSameStructure = true): number {
+function countMatchedElementsInAllDataSections(dataSections: HTMLCollection | Array<HTMLTemplateElement>, useHeuristics = true): number {
   const numDataSections = dataSections.length;
-  if (!numDataSections) {
+  if (numDataSections === 0) {
     return 0;
   }
 
-  if (dataSectionHasSameStructure) {
-    const template: HTMLTemplateElement = dataSections[0] as HTMLTemplateElement;
-    return countMatchedElementsInDataSection(template) * numDataSections;
+  if (useHeuristics) {
+    // assume all bust last data section are filled
+    const template: HTMLTemplateElement = dataSections[numDataSections - 1] as HTMLTemplateElement;
+    const numTableRowsInLastDataSection = countMatchedElementsInDataSection(template);
+    const numTableRowsInOtherDataSections = numDesiredTableRowsInDataSection * (numDataSections - 1);
+    return numTableRowsInOtherDataSections + numTableRowsInLastDataSection;
   }
 
   // count matched elements in every data section
@@ -1659,27 +1677,87 @@ function scrollToDataRowByScrollAmount(scrollAmount: number) {
 /* render */
 const tableDataSectionsRendered: HTMLCollection = tableElement.getElementsByTagName("tbody");
 let numDataSectionsToRender: number;
-function removeTableDataSectionsRendered() {
-    Array.from(tableDataSectionsRendered).forEach(tableDataSectionRendered => tableDataSectionRendered.remove());
+function addRenderedDataSection(dataSection: HTMLTableSectionElement) {
+  tableElement.insertBefore(dataSection, dataSectionFillerBottom);
 }
-function initializeInitialRenderedDataSections() {
-  for (let dataSectionIndex = 0; dataSectionIndex < numDataSectionsToRender; dataSectionIndex++) {
-    const dataSection: HTMLTemplateElement = tableDataSections[dataSectionIndex] as HTMLTemplateElement;
-    const dataSectionNode = transformDataSectionToNode(dataSection, dataSectionIndex);
-    tableElement.insertBefore(dataSectionNode, dataSectionFillerBottom);
+function replaceRenderedDataCell(dataCellToRender: HTMLTableCellElement, dataCellToReplace: HTMLTableCellElement) {
+  if (dataCellToReplace.className) {
+    dataCellToReplace.className = "";
   }
-  restoreDataSectionsStates();
+  dataCellToReplace.id = dataCellToRender.id;
+  setTableDataText(dataCellToReplace, getTableDataText(dataCellToRender));
+}
+function replaceRenderedDataRow(dataRowToRender: HTMLTableRowElement, dataRowToReplace: HTMLTableRowElement) {
+  dataRowToReplace.id = dataRowToRender.id;
+  const dataCellsToRender = dataRowToRender.cells;
+  const dataCellsToReplace = dataRowToReplace.cells;
+
+  if (dataCellsToRender.length !== numTableColumns || dataCellsToReplace.length !== numTableColumns) {
+    dataRowToReplace.replaceWith(dataRowToRender.cloneNode(true));
+    return;
+  }
+
+  for (let cellIndex = 0; cellIndex < numTableColumns; cellIndex++) {
+    replaceRenderedDataCell(dataCellsToRender[cellIndex], dataCellsToReplace[cellIndex]);
+  }
+}
+function replaceRenderedDataSection(dataSectionToRender: HTMLTableSectionElement, dataSectionToReplace: HTMLTableSectionElement) {
+  const dataRowsToRender = dataSectionToRender.children;
+  const numDataRowsToRender = dataRowsToRender.length;
+  const dataRowsToReplace = dataSectionToReplace.children;
+  const numDataRowsToReplace = dataRowsToReplace.length;
+
+  setDataSectionID(dataSectionToReplace, getDataSectionID(dataSectionToRender));
+
+  let dataRowIndex = 0;
+  for (; dataRowIndex < numDataRowsToRender; dataRowIndex++) {
+    const dataRowToRender = dataRowsToRender[dataRowIndex] as HTMLTableRowElement;
+    if (dataRowIndex < numDataRowsToReplace) {
+      const dataRowToReplace = dataRowsToReplace[dataRowIndex] as HTMLTableRowElement;
+      replaceRenderedDataRow(dataRowToRender, dataRowToReplace);
+    } else {
+      dataSectionToReplace.appendChild(dataRowToRender);
+    }
+  }
+
+  for (; dataRowIndex < numDataRowsToReplace; dataRowIndex++) {
+    removeElement(dataRowsToReplace[dataRowIndex]);
+  }
 }
 function replaceRenderedDataSections(newDataSections: Array<Element>) {
   const numTableDataSectionsRendered = tableDataSectionsRendered.length;
   for (let whichSection = 0; whichSection < numTableDataSectionsRendered; whichSection++) {
-    const replacedTableDataSection = tableDataSectionsRendered[whichSection];
-    const tableDataSectionToReplace = newDataSections[whichSection];
-    replacedTableDataSection.replaceWith(tableDataSectionToReplace);
+    const dataSectionToReplace = tableDataSectionsRendered[whichSection] as HTMLTableSectionElement;
+    const dataSectionToRender = newDataSections[whichSection] as HTMLTableSectionElement;
+    replaceRenderedDataSection(dataSectionToRender, dataSectionToReplace);
   }
 }
+function initializeInitialRenderedDataSections() {
+  // tableDataSectionsRendered contains the existing data sections to be replaced
+  // tableDataSections contains the new data sections to render
+  const numTableDataSectionsRendered = tableDataSectionsRendered.length;
+
+  let dataSectionIndex = 0;
+  for (; dataSectionIndex < numDataSectionsToRender; dataSectionIndex++) {
+    const dataSection: HTMLTemplateElement = tableDataSections[dataSectionIndex] as HTMLTemplateElement;
+    const dataSectionNode = transformDataSectionToNode(dataSection, dataSectionIndex) as HTMLTableSectionElement;
+
+    if (dataSectionIndex < numTableDataSectionsRendered) {
+      replaceRenderedDataSection(dataSectionNode, tableDataSectionsRendered[dataSectionIndex] as HTMLTableSectionElement);
+    } else {
+      console.log("add section");
+      addRenderedDataSection(dataSectionNode);
+    }
+  }
+
+  for (; dataSectionIndex < numTableDataSectionsRendered; dataSectionIndex++) {
+    removeElement(tableDataSectionsRendered[dataSectionIndex]);
+  }
+
+  restoreDataSectionsStates();
+}
 function saveRenderedDataSection(renderedTableDataSection: Element) {
-    const sid = (renderedTableDataSection as HTMLElement).dataset.sid;
+    const sid = getDataSectionID(renderedTableDataSection as HTMLElement);
     const template = sidToTemplate.get(sid);
     template.content.replaceChild(renderedTableDataSection.cloneNode(true), template.content.firstElementChild);
 }
@@ -1763,7 +1841,6 @@ const dataSectionBottomFillerClass = "filler-row-bottom";
 
 const numDataSectionsWillShift = 2;
 let numDesiredTableRowsInDataSection: number;
-let numTableRowsInDataSection: number;
 let numTableRowsNotDisplayedAbove: number;
 let numTableRowsNotDisplayedBelow: number;
 let numTableRowsInTotal: number;
@@ -1812,7 +1889,7 @@ function adjustDataSectionFillersHeightForShifting(numDataSectionsShiftedAbove: 
 }
 
 /* intersection observer */
-let scrollPosition: number;
+let scrollPosition: number = 0;
 let topSentinel: HTMLElement;
 let bottomSentinel: HTMLElement;
 let topSentinelObserver: IntersectionObserver;
@@ -2081,12 +2158,6 @@ function clearTableDataScrollManager() {
   sidToTemplate.clear();
   sidToTemplateIndex.clear();
 
-  numTableRowsInDataSection = countMatchedElementsInDataSection((tableDataSections[0]) as HTMLTemplateElement);
-  numTableRowsNotDisplayedAbove = 0;
-  numTableRowsNotDisplayedBelow = tableDataSections.length * numTableRowsInDataSection;
-  adjustDataSectionFillersHeight(numTableRowsNotDisplayedAbove, numTableRowsNotDisplayedBelow, tableRowHeight);
-
-  removeTableDataSectionsRendered();
   deactivateSentinels();
 }
 const numDataSectionsToEnableDataScrollManager: number = 4;
@@ -2119,17 +2190,14 @@ function initializeTableDataScrollManager(dataSections: Array<HTMLTemplateElemen
 
   numTableRowsNotDisplayedAbove = 0;
   if (reinitialize) {
-    numTableRowsInDataSection = countMatchedElementsInDataSection((tableDataSections[0] as HTMLTemplateElement));
-    numTableRowsInTotal = countMatchedElementsInAllDataSections(tableDataSections, false);
-    numTableRowsRendered = countMatchedElementsInAllDataSections(tableDataSectionsRendered, false);
+    numTableRowsInTotal = countMatchedElementsInAllDataSections(tableDataSections);
+    numTableRowsRendered = countMatchedElementsInAllDataSections(tableDataSectionsRendered);
   } else {
-    numDesiredTableRowsInDataSection = numTableRowsInDataSection = countMatchedElementsInDataSection((tableDataSections[0] as HTMLTemplateElement));
+    numDesiredTableRowsInDataSection = countMatchedElementsInDataSection((tableDataSections[0] as HTMLTemplateElement));
     numTableRowsInTotal = tableDataElements.length;
-    numTableRowsRendered = countMatchedElementsInAllDataSections(tableDataSectionsRendered, false);
+    numTableRowsRendered = countMatchedElementsInAllDataSections(tableDataSectionsRendered);
   }
   numTableRowsNotDisplayedBelow = numTableRowsInTotal - numTableRowsRendered;
-
-  scrollPosition = tableScrollContainer.scrollTop;
 
   adjustDataSectionFillersHeight(numTableRowsNotDisplayedAbove, numTableRowsNotDisplayedBelow, tableRowHeight);
 
