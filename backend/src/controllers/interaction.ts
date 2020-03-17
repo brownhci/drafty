@@ -6,9 +6,13 @@ import { insertClick, insertDoubleClick, insertCopyCell, insertCopyColumn, inser
  * Add new row
  */
 export const postNewRow = (req: Request, res: Response, next: NextFunction) => {
-    //check for errors
-    // TODO
+  // check for errors
+  // TODO
+  try {
     return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
 };
 
 /**
@@ -22,8 +26,12 @@ export const postClick = (req: Request, res: Response, next: NextFunction) => {
   const idSession = req.session.user.idSession;
   const idSuggestion = req.body.idSuggestion;
   const rowvalues = req.body.rowValues;
-  insertClick(idSession, idSuggestion, rowvalues);
+  try {  
+    insertClick(idSession, idSuggestion, rowvalues);
   return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
 };
 
 /**
@@ -36,8 +44,13 @@ export const postClickDouble = (req: Request, res: Response, next: NextFunction)
   const idSession = req.session.user.idSession;
   const idSuggestion = req.body.idSuggestion;
   const rowvalues = req.body.rowValues;
-  insertDoubleClick(idSession, idSuggestion, rowvalues);
-  return res.sendStatus(200);
+
+  try {
+    insertDoubleClick(idSession, idSuggestion, rowvalues);
+    return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
 };
 
 /**
@@ -55,8 +68,12 @@ export const postSort = (req: Request, res: Response, next: NextFunction) => {
   // sw - multi column sorting is not implemented yet
   const isTrigger: number = 1;
   const isMulti: number = 0;
-  insertSort(idSession, idSuggestionType, isAsc, isTrigger, isMulti);
-  return res.sendStatus(200);
+  try {
+    insertSort(idSession, idSuggestionType, isAsc, isTrigger, isMulti);
+    return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
 };
 
 /**
@@ -82,8 +99,12 @@ export const postSearchPartial = (req: Request, res: Response, next: NextFunctio
 
   const multiSearchValues: string = req.body.multiSearchValues;
 
-  insertSearch(idSession, idSuggestionType, isPartial, isMulti, isFromUrl, value, matchedValues, multiSearchValues);
-  return res.sendStatus(200);
+  try {
+    insertSearch(idSession, idSuggestionType, isPartial, isMulti, isFromUrl, value, matchedValues, multiSearchValues);
+    return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
 };
 
 /**
@@ -109,8 +130,12 @@ export const postSearchFull = (req: Request, res: Response, next: NextFunction) 
 
   const multiSearchValues: string = req.body.multiSearchValues;
 
-  insertSearch(idSession, idSuggestionType, isPartial, isMulti, isFromUrl, value, matchedValues, multiSearchValues);
+  try {
+    insertSearch(idSession, idSuggestionType, isPartial, isMulti, isFromUrl, value, matchedValues, multiSearchValues);
   return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
 };
 
 
@@ -123,8 +148,12 @@ export const postSearchFull = (req: Request, res: Response, next: NextFunction) 
 export const postCopyCell = (req: Request, res: Response, next: NextFunction) => {
   const idSession = req.session.user.idSession;
   const idSuggestion: number|string = req.body.idSuggestion;
-  insertCopyCell(idSession,idSuggestion);
-  return res.sendStatus(200);
+  try {
+    insertCopyCell(idSession,idSuggestion);
+    return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
 };
 
 /**
@@ -136,6 +165,11 @@ export const postCopyCell = (req: Request, res: Response, next: NextFunction) =>
 export const postCopyColumn = (req: Request, res: Response, next: NextFunction) => {
   const idSession = req.session.user.idSession;
   const idSuggestionType: number|string = req.body.idSuggestionType;
-  insertCopyColumn(idSession,idSuggestionType);
+  
+  try {
+    insertCopyColumn(idSession,idSuggestionType);
   return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
 };
