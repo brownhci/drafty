@@ -12,6 +12,18 @@
     <meta name="csrf-token" content={{_csrf}} />
     <link rel="stylesheet" href="/css/main.css" />
     <link rel="shortcut icon" href="/images/favicon.png" />
+
+    <!-- Google Analytics Tracking -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+    if(window.location.href.includes('drafty.cs.brown.edu')) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-0NCX6W82W8');
+    }
+    </script>
 </head>
 <body>
     {{#unless ignoreHeader}}
