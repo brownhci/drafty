@@ -394,5 +394,5 @@ export const getSeenWelcome = (req: Request, res: Response) => {
  * POST /seenwelcome
  */
 export const postSeenWelcome = (req: Request, res: Response) => {
-  req.session.user.seenWelcome = req.body.seenWelcome;
+  req.session.user.seenWelcome = req.body.seenWelcome; // should be 0 or 1
 };
