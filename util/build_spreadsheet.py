@@ -18,15 +18,15 @@ sql_suggestions = '''
           '''
 
 
-def build_column_width(row, column_widths):
+def build_column_width(row, column_index, column_widths):
     width = column_widths[row['idSuggestionType']]
-    return f'<col style="width:{width}px" >\n'
+    return f'<col id="col{column_index}" style="width:{width}px" >\n'
 
 
 def build_colgroup(column_widths):
     cursor.execute(sql_col_order)
     rows = cursor.fetchall()
-    return f'<colgroup>{"".join(build_column_width(row, column_widths) for row in rows)}</colgroup>\n'
+    return f'<colgroup>{"".join(build_column_width(row, i, column_widths) for i, row in enumerate(rows))}</colgroup>\n'
 
 
 num_columns = None
@@ -40,24 +40,24 @@ def get_column_widths(cursor):
     return {row['idSuggestionType']: row['avg_length'] for row in rows}
 
 
-def build_column_label_cell(row):
+def build_column_label_cell(row, column_index):
     id_suggestion_type = row['idSuggestionType']
     colname = row['name']
-    return f'<th id="{id_suggestion_type}" class="column-label">{colname}<button class="sort-btn"></button></th>\n'
+    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" class="column-label">{colname}<button class="sort-btn"></button></th>\n'
 
 
 def build_column_labels_row(cursor):
     cursor.execute(sql_col_order)
     rows = cursor.fetchall()
-    return f'<tr id="column-label-row">{"".join(build_column_label_cell(row) for row in rows)}</tr>'
+    return f'<tr id="column-label-row">{"".join(build_column_label_cell(row, i) for i, row in enumerate(rows))}</tr>'
 
 
 def build_column_search_row():
     # &#xF002; is the looking glass icon to use as a palceholder
-    search_input = '''<th class="column-search" scope="col" tabindex="-1"><input type="search" placeholder="&#xF002;"></th>'''
+    search_input = '''<th id="column-search{column_search_index}" class="column-search" scope="col" tabindex="-1"><input type="search" placeholder="&#xF002;"></th>'''
     cursor.execute(sql_col_order)
     rows = cursor.fetchall()
-    return f'\n<tr id="column-search-row">\n{"".join(search_input for row in rows)}</tr>\n'
+    return f'\n<tr id="column-search-row">\n{"".join(search_input.format(column_search_index=i) for i, row in enumerate(rows))}</tr>\n'
 
 
 def build_table_head(cursor, column_widths):
