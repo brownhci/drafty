@@ -115,6 +115,7 @@ const user = {
   isAuth: false,
   isAdmin: false,
   views: 0,
+  seenWelcome: 0,
   lastInteraction: Date.now(),
   failedLoginAttempts: 0
 };
@@ -132,15 +133,6 @@ app.use(async (req, res, next) => {
     req.session.user.idSession = await createSessionDB(req.session.user.idProfile); 
   }
   req.session.user.lastInteraction = Date.now();
-/*
-  console.log("\n\n######");
-  console.log(req.session);
-  console.log(req.sessionID);
-  console.log("\n");
-  console.log(Date.now());
-  console.log(req.session.__lastAccess);
-  console.log("######\n\n");
-*/
 
   next();
 });
@@ -185,6 +177,8 @@ app.get("/reset/:token", userController.getReset);
 app.post("/reset/:token", userController.postReset);
 app.get("/signup", userController.getSignup);
 app.post("/signup", userController.postSignup);
+app.get("/seenwelcome", userController.getSeenWelcome);
+app.get("/updatewelcome", userController.postSeenWelcome);
 
 // getting help
 app.get("/help", helpController.getHelp);

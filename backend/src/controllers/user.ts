@@ -382,3 +382,17 @@ export const postForget = async (req: Request, res: Response, next: NextFunction
       res.redirect("/forget");
   });
 };
+
+/**
+ * GET /seenwelcome
+ */
+export const getSeenWelcome = (req: Request, res: Response) => {
+  return res.status(200).json(req.session.user.seenWelcome);
+};
+
+/**
+ * POST /seenwelcome
+ */
+export const postSeenWelcome = (req: Request, res: Response) => {
+  req.session.user.seenWelcome = req.body.seenWelcome;
+};
