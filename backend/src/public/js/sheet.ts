@@ -3,30 +3,9 @@
 // TODO add new row
 // TODO record number out of sync after sorting
 
-const activeClass = "active";
-const activeAccompanyClass = "active-accompany";
-/* this interface is used to detect double click (two clicks within short interval specified by {@link recentTimeLimit} */
-interface ActiveHTMLTableCellElement extends HTMLTableCellElement {
-  lastActiveTimestamp?: number;
-}
-const recentTimeLimit = 1000;
-
-/* which table cell (either a table head or a table data) element is currently active */
-let activeTableCellElement: null | ActiveHTMLTableCellElement = null;
-/**
- * renew the timestamp on the active table cell element.
- */
-function updateActiveTimestamp() {
-  activeTableCellElement.lastActiveTimestamp = Date.now();
-}
 
 /* which table column is active: a table column is activated when associated head is clicked */
 let activeTableColElement: null | HTMLTableColElement = null;
-
-// copying
-const copiedClass = "copied";
-/* which table cell element (either a table head or a table data) was copied */
-let copyTarget: null | HTMLTableCellElement | HTMLTableColElement = null;
 
 // DOM Elements
 const tableElement: HTMLTableElement = document.getElementById("table") as HTMLTableElement;
@@ -116,6 +95,9 @@ function isColumnSearchInputFocus(): boolean {
 function isTableCellTextSelected(tableCellElement: HTMLTableCellElement): boolean {
    const selection = window.getSelection();
    if (!selection) {
+     return false;
+   }
+   if (selection.toString() === "") {
      return false;
    }
    const range = selection.getRangeAt(0);
@@ -259,7 +241,7 @@ function getIdSuggestion(tableCellElement: HTMLTableCellElement): number {
   return Number.parseInt(tableCellElement.id);
 }
 function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
-  const idSuggestionType = columnLabel.id;
+  const idSuggestionType = columnLabel.dataset.idSuggestionType;
   if (idSuggestionType) {
     return Number.parseInt(idSuggestionType);
   }
@@ -325,7 +307,7 @@ function recordCopyColumn(columnLabel: HTMLTableCellElement) {
 
 function recordSearchPartial() {
   const isPartial: number = 1;
-  /* sw - will need
+  /* TODO sw - will need
     const idSuggestionType: number|string
     const isMulti: number
     const isFromUrl: number // sw feature not implemented yet
@@ -337,7 +319,7 @@ function recordSearchPartial() {
 }
 
 function recordSearchFull() {
-  /* sw - will need
+  /* TODO sw - will need
     const idSuggestionType: number|string
     const isMulti: number
     const isFromUrl: number // sw feature not implemented yet
@@ -362,18 +344,16 @@ function em2px(em: number, fontSize = 16, element: HTMLElement | null = null) {
 }
 
 // input editor
-const inputtingClass = "inputting";
 /* input editor element */
 const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
 const tableCellInputFormCSRFInput: HTMLInputElement = tableCellInputFormElement.querySelector("input[name='_csrf']");
 function isTableCellInputFormActive() {
-  return tableCellInputFormElement.classList.contains(activeClass);
+  return tableCellInputFormElement.classList.contains(TableStatusManager.activeClass);
 }
 /* the input element in the input editor */
 const tableCellInputFormInputElement: HTMLInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
 const tableCellInputFormInputSaveButtonElement: HTMLButtonElement = document.getElementById("table-cell-input-save") as HTMLButtonElement;
 /* the target element the input editor is associated with */
-let tableCellInputFormTargetElement: HTMLTableCellElement | null = null;
 
 let tableCellInputFormAutocompleteSuggestionsSelectInfo: SelectInfo | null = null;
 let tableCellInputFormEditSuggestionsSelectInfo: SelectInfo | null = null;
@@ -391,87 +371,6 @@ let tableCellInputFormLocationActive: boolean = false;
 
 const tableCellInputFormInputContainer: HTMLElement = tableCellInputFormLocateCellElement.parentElement;
 
-function activateTableCellInputFormLocation() {
-  if (isTableCellInputFormActive() && !tableCellInputFormLocationActive) {
-    tableCellInputFormLocateCellElement.classList.add(activeClass);
-    tableCellInputFormLocationActive = true;
-    // reposition the tableCellInputFormElement
-    const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
-    const formTop = parseFloat(tableCellInputFormElement.style.top);
-    tableCellInputFormElement.style.top = `${formTop - buttonHeight}px`;
-  }
-}
-function deactivateTableCellInputFormLocation() {
-  tableCellInputFormLocateCellElement.classList.remove(activeClass);
-  tableCellInputFormLocationActive = false;
-  delete tableCellInputFormLocateCellIcon.dataset.id;
-}
-function updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
-  // row index
-  /* since recordIndex is 0-based */
-  const recordIndex = getDataElementIndex(targetHTMLTableCellElement);
-  tableCellInputFormLocateCellRowElement.textContent = `${recordIndex + 1}`;
-  // column index
-  const colIndex = getColumnIndex(targetHTMLTableCellElement);
-  const columnLabelText = getColumnLabelText(getColumnLabel(colIndex - 1));
-  tableCellInputFormLocateCellColElement.textContent = columnLabelText;
-  // row data id
-  tableCellInputFormLocateCellIcon.dataset.id = getTableRow(tableCellInputFormTargetElement).dataset.id;
-}
-function restoreTableCellInputFormLocation() {
-  if (tableCellInputFormLocationActive && tableCellInputFormTargetElement) {
-    const dataid: string = tableCellInputFormLocateCellIcon.dataset.id;
-    if (tableDataManager.putElementInRenderingViewByDataId(dataid)) {
-      const {left: targetLeft, top: targetTop} = tableCellInputFormTargetElement.getBoundingClientRect();
-      const {left: inputFormLeft, top: inputFormTop} = tableCellInputFormElement.getBoundingClientRect();
-      const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
-      tableScrollContainer.scrollTop += targetTop - inputFormTop - buttonHeight;
-      tableScrollContainer.scrollLeft += targetLeft - inputFormLeft;
-    }
-  }
-}
-tableCellInputFormLocateCellElement.addEventListener("click", function(event: MouseEvent) {
-  restoreTableCellInputFormLocation();
-  event.stopPropagation();
-});
-
-function deactivateTableCellInputForm() {
-  if (tableCellInputFormTargetElement) {
-    // hide the form
-    tableCellInputFormElement.classList.remove(activeClass);
-
-    // unhighlight the table head
-    const cellIndex = tableCellInputFormTargetElement.cellIndex;
-    const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
-    if (columnLabel) {
-      columnLabel.classList.remove(inputtingClass);
-    }
-
-    // unhighlight the target cell
-    tableCellInputFormTargetElement.classList.remove(inputtingClass);
-    tableCellInputFormTargetElement = null;
-  }
-}
-function activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement, getFocus: boolean = true) {
-  // show the form
-  tableCellInputFormElement.classList.add(activeClass);
-
-  // focus the input
-  if (getFocus) {
-    tableCellInputFormInputElement.focus({preventScroll: true});
-  }
-
-  // highlight the table head
-  const cellIndex = targetHTMLTableCellElement.cellIndex;
-  const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
-  if (columnLabel) {
-    columnLabel.classList.add(inputtingClass);
-  }
-
-  // highlight the target cell
-  tableCellInputFormTargetElement = targetHTMLTableCellElement;
-  tableCellInputFormTargetElement.classList.add(inputtingClass);
-}
 /**
  * Updates the text inside the input element inside the input editor and resizes the input eidtor properly.
  *
@@ -659,174 +558,6 @@ function attachSuggestions(targetHTMLTableCellElement: HTMLTableCellElement) {
   }
 }
 
-/**
- * Use this function to change the editor associated table cell.
- */
-function tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string, getFocus: boolean = true) {
-  deactivateTableCellInputForm();
-  deactivateTableCellInputFormLocation();
-  removeSelect(tableCellInputFormAutocompleteSuggestionsSelectInfo);
-  removeSelect(tableCellInputFormEditSuggestionsSelectInfo);
-
-  if (targetHTMLTableCellElement) {
-    if (!isTableCellEditable(targetHTMLTableCellElement)) {
-      return;
-    }
-
-    activateTableCellInputForm(targetHTMLTableCellElement, getFocus);
-    updateTableCellInputFormInput(targetHTMLTableCellElement, input);
-    attachSuggestions(targetHTMLTableCellElement);
-
-    updateTableCellInputFormLocation(targetHTMLTableCellElement);
-    // set position
-    const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
-    tableCellInputFormElement.style.left = `${left}px`;
-    tableCellInputFormElement.style.top = `${top}px`;
-  }
-}
-function saveTableCellInputForm() {
-  const text = tableCellInputFormInputElement.value;
-  if (tableCellInputFormTargetElement) {
-    // call backend api to send user submission
-    tableCellInputFormTargetElement.textContent = text;
-    recordEdit(tableCellInputFormTargetElement);
-  }
-}
-
-/* deactivate */
-function deactivateTableData() {
-  activeTableCellElement.classList.remove(activeClass);
-  activeTableCellElement.lastActiveTimestamp = null;
-}
-function deactivateTableHead() {
-  const index = activeTableCellElement.cellIndex;
-  const columnLabel = getColumnLabel(index);
-  const columnSearch = getColumnSearch(index);
-  columnLabel.classList.remove(activeClass);
-  columnSearch.classList.remove(activeClass);
-  columnLabel.classList.remove(activeAccompanyClass);
-  columnSearch.classList.remove(activeAccompanyClass);
-}
-function deactivateTableCol() {
-  if (activeTableColElement) {
-    activeTableColElement.classList.remove(activeClass);
-    activeTableColElement = null;
-  }
-}
-function deactivateTableCellElement() {
-  if (isTableData(activeTableCellElement)) {
-    deactivateTableData();
-  } else if (isTableHead(activeTableCellElement)) {
-    deactivateTableHead();
-    deactivateTableCol();
-  }
-  activeTableCellElement = null;
-}
-
-/* activate */
-function activateTableData(shouldUpdateTimestamp=true, shouldGetFocus=true) {
-  activeTableCellElement.classList.add(activeClass);
-  if (shouldUpdateTimestamp) {
-    updateActiveTimestamp();
-  }
-  if (shouldGetFocus) {
-    activeTableCellElement.focus({preventScroll: true});
-  }
-}
-function activateTableHead(shouldGetFocus=true) {
-  const index = activeTableCellElement.cellIndex;
-  if (isColumnLabel(activeTableCellElement)) {
-    const columnSearch = getColumnSearch(index);
-    columnSearch.classList.add(activeAccompanyClass);
-  } else if (isColumnSearch(activeTableCellElement)) {
-    const columnLabel = getColumnLabel(index);
-    columnLabel.classList.add(activeAccompanyClass);
-  }
-  activeTableCellElement.classList.add(activeClass);
-  if (shouldGetFocus) {
-    activeTableCellElement.focus({preventScroll: true});
-  }
-}
-function activateTableCol() {
-  const index = activeTableCellElement.cellIndex;
-  const tableColElement = getTableColElement(index);
-  if (tableColElement) {
-    activeTableColElement = tableColElement;
-    activeTableColElement.classList.add(activeClass);
-  }
-}
-function activateTableCellElement(tableCellElement: HTMLTableCellElement, shouldUpdateTimestamp=true, shouldGetFocus=true) {
-  activeTableCellElement = tableCellElement;
-  if (isTableData(tableCellElement)) {
-    activateTableData(shouldUpdateTimestamp, shouldGetFocus);
-    // record whether this table cell is editable
-    isTableCellEditable(tableCellElement);
-  } else if (isTableHead(tableCellElement)) {
-    activateTableHead(shouldGetFocus);
-  }
-}
-/**
- * Use this function to change table cell element to ensure previous active element is properly deactivated
- */
-function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null) {
-  if (!tableCellElement) {
-    return;
-  }
-
-  if (activeTableCellElement) {
-    deactivateTableCellElement();
-    // remove input form
-    deactivateTableCellInputForm();
-  }
-
-  activateTableCellElement(tableCellElement);
-}
-
-/**
- * Whether the table data is activated recently.
- */
-function isTableDataLastActivatedRecently() {
-  if (activeTableCellElement === null) {
-    return false;
-  }
-
-  if (activeTableCellElement.lastActiveTimestamp === null) {
-    return false;
-  }
-
-  return Date.now() - activeTableCellElement.lastActiveTimestamp <= recentTimeLimit;
-}
-
-function clickOnActiveElement(tableCellElement: HTMLTableCellElement) {
-  return tableCellElement === activeTableCellElement;
-}
-
-function activeTableHeadOnRepeatedClick(event: MouseEvent) {
-  if (activeTableColElement) {
-    // table column is active, deactivate column and focus only on table head
-    deactivateTableCol();
-  } else {
-    // only activate table column at repeated click (after even number of clicks)
-    activateTableCol();
-  }
-}
-function activeElementOnRepeatedClick(event: MouseEvent) {
-  if (!activeTableCellElement) {
-    return;
-  }
-  if (isTableData(activeTableCellElement)) {
-    if (isTableDataLastActivatedRecently()) {
-      tableCellInputFormAssignTarget(activeTableCellElement);
-      activeTableCellElement.lastActiveTimestamp = null;
-      recordDoubleClickOnCell(activeTableCellElement);
-    } else {
-      updateActiveTimestamp();
-    }
-  } else if (isTableHead(activeTableCellElement)) {
-    activeTableHeadOnRepeatedClick(event);
-  }
-}
-
 // store resized width in local storage
 function getStoredColumnWidthKey(index: number) {
   return `columnWidth${index}`;
@@ -910,42 +641,13 @@ function updateResizeVisualCuePosition(referencedTableCellElement: HTMLTableCell
   repositionResizeVisualCue(newXPos < minX ? minX : newXPos);
 }
 function activateResizeVisualCue() {
-  resizeVisualCue.classList.add(activeClass);
+  resizeVisualCue.classList.add(TableStatusManager.activeClass);
 }
 function deactivateResizeVisualCue() {
-  resizeVisualCue.classList.remove(activeClass);
+  resizeVisualCue.classList.remove(TableStatusManager.activeClass);
 }
 
-// input editor exit
-function quitTableCellInputForm(saveContent = false) {
-  if (saveContent) {
-    saveTableCellInputForm();
-    // move to next cell to allow continuous edit
-    if (activeTableCellElement) {
-      const nextCell = getRightTableCellElement(activeTableCellElement);
-      if (nextCell) {
-        updateActiveTableCellElement(nextCell);
-      }
-    }
-  }
-
-  tableCellInputFormAssignTarget(null);
-  if (activeTableCellElement) {
-    activeTableCellElement.focus({preventScroll: true});
-  }
-}
 // events
-/* click event */
-function tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
-  if (clickOnActiveElement(tableCellElement)) {
-    // handle repeated click differently
-    activeElementOnRepeatedClick(event);
-  } else {
-    updateActiveTableCellElement(tableCellElement);
-    recordClickOnCell(tableCellElement);
-  }
-  event.preventDefault();
-}
 let lastSortButtonClicked: HTMLButtonElement;
 
 type TextSortingFunction = (s1: string, s2: string) => number;
@@ -996,7 +698,7 @@ function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement) {
 tableElement.addEventListener("click", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
-    tableCellElementOnClick(target as HTMLTableCellElement, event);
+    tableStatusManager.tableCellElementOnClick(target as HTMLTableCellElement, event);
   } else if (isTableCellSortButton(target)) {
     tableCellSortButtonOnClick(target as HTMLButtonElement);
   }
@@ -1005,7 +707,7 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
 
 
 tableCellInputFormInputSaveButtonElement.addEventListener("click", function(event) {
-   quitTableCellInputForm(true);
+   tableStatusManager.quitTableCellInputForm(true);
    event.preventDefault();
    event.stopPropagation();
 });
@@ -1032,16 +734,6 @@ function copyTextareaToClipboard() {
 function clearClipboardTextarea() {
   clipboardTextarea.value = "";
 }
-function removeCurrentCopyTarget() {
-  if (copyTarget) {
-    copyTarget.classList.remove(copiedClass);
-    copyTarget = null;
-  }
-}
-function makeElementCopyTarget(element: HTMLTableCellElement | HTMLTableColElement) {
-  copyTarget = element;
-  element.classList.add(copiedClass);
-}
 function hasCopyModifier(event: KeyboardEvent) {
   if (onMac) {
     return event.metaKey;
@@ -1061,36 +753,6 @@ function copyTableColumnToTextarea(index: number) {
   }
   clipboardTextarea.value = clipboardTextarea.value.trimRight();
 }
-function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  if (hasCopyModifier(event)) {
-    removeCurrentCopyTarget();
-    clearClipboardTextarea();
-
-    let elementToHighlight;
-    if (activeTableColElement) {
-      // copy entire column
-      const columnIndex: number = activeTableCellElement.cellIndex;
-      copyTableColumnToTextarea(columnIndex);
-      elementToHighlight = activeTableColElement;
-      recordCopyColumn(getColumnLabel(columnIndex));
-    } else if (!(isColumnSearch(tableCellElement))) {
-      if (isTableCellTextSelected) {
-        // copy selected part
-        copyTextToTextarea(window.getSelection().toString());
-      } else {
-        // copy single table cell
-        copyElementTextToTextarea(tableCellElement);
-      }
-      elementToHighlight = tableCellElement;
-      recordCopyCell(tableCellElement);
-    }
-
-    copyTextareaToClipboard();
-    makeElementCopyTarget(elementToHighlight);
-    event.consumed = true;
-  }
-  // ignore when only C is pressed
-}
 // function tableCellElementOnPaste(event: ClipboardEvent) {
 //   console.log("here2");
 //   const pasteContent = (event.clipboardData || window.clipboardData).getData("text");
@@ -1105,17 +767,6 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: C
 //   }
 //   event.stopPropagation();
 // }, true);
-
-
-function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  const input = event.key;
-  if (input.length === 1) {
-    tableCellInputFormAssignTarget(tableDataElement, input);
-  } else {
-    tableCellInputFormAssignTarget(tableDataElement);
-  }
-  event.consumed = true;
-}
 
 type FilterFunction = (s: string) => boolean;
 function constructTableRowFilter(query: string): FilterFunction {
@@ -1158,66 +809,13 @@ function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
   const tableCellElement: HTMLTableCellElement = event.target as HTMLTableCellElement;
   // ignore if input on table head
   if (isTableData(tableCellElement)) {
-    tableDataElementOnInput(tableCellElement, event);
-  }
-}
-function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  event.consumed = false;
-  switch (event.key) {
-    case "Down": // IE/Edge specific value
-    case "ArrowDown":
-      updateActiveTableCellElement(getDownTableCellElement(tableCellElement));
-      event.consumed = true;
-      break;
-    case "Up": // IE/Edge specific value
-    case "ArrowUp":
-      updateActiveTableCellElement(getUpTableCellElement(tableCellElement));
-      event.consumed = true;
-      break;
-    case "Left": // IE/Edge specific value
-    case "ArrowLeft":
-      updateActiveTableCellElement(getLeftTableCellElement(tableCellElement));
-      event.consumed = true;
-      break;
-    case "Right": // IE/Edge specific value
-    case "ArrowRight":
-    case "Tab": // handle Tab as a pressing Right arrow
-      updateActiveTableCellElement(getRightTableCellElement(tableCellElement));
-      event.consumed = true;
-      break;
-    case "c": // handle potential CTRL+c or CMD+c
-      tableCellElementOnCopy(tableCellElement, event);
-      break;
-    case "v":
-      if (hasCopyModifier(event)) {
-        // handle potential CTRL+v or CMD+v
-        event.consumed = true;
-      }
-      break;
-    case "Alt":
-    case "AltLock":
-    case "CapsLock":
-    case "Control":
-    case "Fn":
-    case "FnLock":
-    case "Hyper":
-    case "Meta":
-    case "NumLock":
-    case "ScrollLock":
-    case "Shift":
-    case "Super":
-    case "Symbol":
-    case "SymbolLock":
-      event.consumed = true;
-  }
-  if (!event.consumed) {
-    tableCellElementOnInput(event);
+    tableStatusManager.tableDataElementOnInput(tableCellElement, event);
   }
 }
 tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
-    tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
+    tableStatusManager.tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
   } else if (isInput(target)) {
     // inputting on column search
     const columnSearch = target.closest("th.column-search");
@@ -1229,23 +827,10 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   event.stopPropagation();
 }, true);
 
-function tableCellInputFormOnKeyDown(event: KeyboardEvent) {
-  switch (event.key) {
-    case "Esc": // IE/Edge specific value
-    case "Escape":
-      quitTableCellInputForm(false);
-      break;
-    case "Enter":
-      quitTableCellInputForm(true);
-      break;
-
-  }
-  event.stopPropagation();
-}
 
 tableCellInputFormElement.addEventListener("keydown", function(event: KeyboardEvent) {
   if (isTableCellInputFormActive()) {
-    tableCellInputFormOnKeyDown(event);
+    tableStatusManager.tableCellInputFormOnKeyDown(event);
   }
 });
 
@@ -1450,11 +1035,8 @@ tableElement.addEventListener("mouseup", function(event: MouseEvent) {
 // scroll
 /* scroll event */
 let scrollTimeoutId: number | null = null;
-function tableCellInputFormLocationOnScroll() {
-  activateTableCellInputFormLocation();
-}
 function whenScrollFinished() {
-  tableCellInputFormLocationOnScroll();
+  tableStatusManager.tableCellInputFormLocationOnScroll();
   // detect out of sync and rerendering
   if (tableDataManager.refreshRenderingViewIfNeeded()) {
     console.log("successfully restored sync");
@@ -1482,77 +1064,6 @@ tableCellInputFormInputElement.addEventListener("input", function(event) {
   filterSelectOptions(query, tableCellInputFormAutocompleteSuggestionsSelectInfo);
   event.stopPropagation();
 }, { passive: true});
-
-
-// function restoreTableCellInputFormTargetElement() {
-//   if (!tableCellInputFormTargetElement) {
-//     return;
-//   }
-//
-//   let recoveredTableCellInputFormTargetElement = getElementFromDataSectionsByID(tableCellInputFormTargetElement.id, tableDataSectionsRendered);
-//   const getFocus: boolean = !isColumnSearchInputFocus();
-//   if (recoveredTableCellInputFormTargetElement) {
-//     // form target is in view: tableDataSectionRendered
-//     activateTableCellInputForm(recoveredTableCellInputFormTargetElement as HTMLTableCellElement, getFocus);
-//     return;
-//   }
-//
-//   recoveredTableCellInputFormTargetElement = getElementFromDataSectionsByID(tableCellInputFormTargetElement.id, tableDataSections);
-//   if (recoveredTableCellInputFormTargetElement) {
-//     // form target is in potential view: tableDataSections
-//     activateTableCellInputForm(recoveredTableCellInputFormTargetElement as HTMLTableCellElement, getFocus);
-//   } else {
-//     // form target not in potential view, remove input form
-//     tableCellInputFormAssignTarget(null);
-//   }
-// }
-// function restoreCopyTarget() {
-//   if (!copyTarget) {
-//     return;
-//   }
-//
-//   let recoveredCopyTarget = getElementFromDataSectionsByID(copyTarget.id, tableDataSectionsRendered);
-//   if (recoveredCopyTarget) {
-//     // copy target is in view: tableDataSectionRendered
-//     makeElementCopyTarget(recoveredCopyTarget as HTMLTableCellElement);
-//     return;
-//   }
-//
-//   recoveredCopyTarget = getElementFromDataSectionsByID(copyTarget.id, tableDataSections);
-//   if (recoveredCopyTarget) {
-//     // copy target is in potential view: tableDataSections
-//     makeElementCopyTarget(recoveredCopyTarget as HTMLTableCellElement);
-//   }
-// }
-// function restoreActiveTableCellElement() {
-//   if (!activeTableCellElement) {
-//     return;
-//   }
-//
-//   if (isTableHead(activeTableCellElement)) {
-//     // no need to recover active element since table header is the active element (will not disappear because of scrolling)
-//     return;
-//   }
-//
-//   const shouldGetFocus: boolean = !isColumnSearchInputFocus();
-//   let recoveredActiveTableCellElement = getElementFromDataSectionsByID(activeTableCellElement.id, tableDataSectionsRendered);
-//   if (recoveredActiveTableCellElement) {
-//     // active element is in view: tableDataSectionRendered
-//     activateTableCellElement(recoveredActiveTableCellElement as HTMLTableCellElement, false, shouldGetFocus);
-//     return;
-//   }
-//
-//   recoveredActiveTableCellElement = getElementFromDataSectionsByID(activeTableCellElement.id, tableDataSections);
-//   if (recoveredActiveTableCellElement) {
-//     // active element is in potential view: tableDataSections
-//     activateTableCellElement(recoveredActiveTableCellElement as HTMLTableCellElement, false, shouldGetFocus);
-//   }
-// }
-// function restoreDataSectionsStates() {
-//   restoreActiveTableCellElement();
-//   restoreCopyTarget();
-//   restoreTableCellInputFormTargetElement();
-// }
 
 
 // HTML
@@ -1713,6 +1224,8 @@ class DataCollection {
 
   /** store of underlying data elements */
   store: Array<Data>
+  /** from datum id (cell id) to datum */
+  datumIdToDatum: Map<string, Datum>;
   /** indexes of data element of current children view */
   childrenIndex: Array<number>;
   /** current children view */
@@ -1742,6 +1255,11 @@ class DataCollection {
 
   set children(children: Array<Data>) {
     this.store = children;
+    this.datumIdToDatum = new Map(function *() {
+      for (const data of children) {
+        yield* data.datumIdToDatum;
+      }
+    }());
     this.shouldRegenrateView = true;
   }
 
@@ -1887,6 +1405,10 @@ class DataCollection {
    return this.dataIdToChildIndex.get(dataid);
   }
 
+  getDatumById(id: string): Datum {
+    return this.datumIdToDatum.get(id);
+  }
+
   slice(begin: number = undefined, end: number = undefined) {
     return this.children.slice(begin, end);
   }
@@ -1995,10 +1517,12 @@ class DataElement implements DataLike {
 class Data implements DataLike {
   id: string;
   datums: Array<Datum>;
+  datumIdToDatum: Map<string, Datum> = new Map();
 
   constructor(id: string, datums: Array<Datum>) {
     this.id = id;
     this.datums = datums;
+    datums.forEach((datum) => this.datumIdToDatum.set(datum.id, datum));
   }
 
   get length(): number {
@@ -2081,6 +1605,7 @@ class DataCellElement implements DatumLike {
       this.element = element;
     } else {
       this.element = document.createElement("td");
+      this.element.tabIndex = -1;
     }
   }
 
@@ -2131,11 +1656,19 @@ enum Direction {
     Stay
 }
 
+type ViewChangeHandler = () => void;
+
 class TableDataManager {
   tableElement: HTMLTableElement;
 
   dataCollection: DataCollection;
   dataSectionElement: DataSectionElement;
+
+  /* callback */
+  /** a callback executed when old view is about to leave */
+  beforeViewUpdate: ViewChangeHandler;
+  /** a callback executed when new view finished rendering */
+  afterViewUpdate: ViewChangeHandler;
 
   /* filler */
   static fillerClass = "filler-row";
@@ -2307,7 +1840,9 @@ class TableDataManager {
    * Triggers rerendering
    */
   set viewToRender(dataCollection: DataCollectionLike) {
+    this.beforeViewUpdate();
     this.dataSectionElement.patch(dataCollection);
+    this.afterViewUpdate();
   }
 
   setViewToRender(dataCollection: DataCollectionLike = this.defaultView, numElementNotRenderedAbove: number = 0, numElementNotRenderedBelow: number = undefined) {
@@ -2316,7 +1851,16 @@ class TableDataManager {
     this.numElementNotRenderedBelow = numElementNotRenderedBelow;
   }
 
-  constructor(tableElement: HTMLTableElement, dataSource: HTMLElement | DataCollections | DataCollection | DataSectionElement | DataSectionElements, scrollTarget: HTMLElement, elementHeight: number) {
+  constructor(
+    tableElement: HTMLTableElement,
+    dataSource: HTMLElement | DataCollections | DataCollection | DataSectionElement | DataSectionElements,
+    scrollTarget: HTMLElement,
+    elementHeight: number,
+    beforeViewUpdate: ViewChangeHandler = () => undefined,
+    afterViewUpdate: ViewChangeHandler = () => undefined) {
+    this.beforeViewUpdate = beforeViewUpdate;
+    this.afterViewUpdate = afterViewUpdate;
+
     this.tableElement = tableElement;
     this.elementHeight = elementHeight;
 
@@ -2591,4 +2135,549 @@ class TableDataManager {
   }
 }
 
-const tableDataManager = new TableDataManager(tableElement, document.getElementById("table-data"), tableScrollContainer, tableRowHeight);
+
+/* this interface is used to detect double click (two clicks within short interval specified by {@link recentTimeLimit} */
+interface ActiveHTMLTableCellElement extends HTMLTableCellElement {
+  lastActiveTimestamp?: number;
+}
+type CopyTarget = HTMLTableColElement | HTMLTableCellElement;
+
+class TableStatusManager {
+  static activeClass = "active";
+  static activeAccompanyClass = "active-accompany";
+  static recentTimeLimit = 1000;
+
+  // copying
+  static copiedClass = "copied";
+
+  constructor() {
+    tableCellInputFormLocateCellElement.addEventListener("click", (event: MouseEvent) => {
+      this.restoreTableCellInputFormLocation();
+      event.stopPropagation();
+    });
+
+  }
+
+  /** which table cell (either a table head or a table data) element is currently active */
+  activeTableCellElementId: string = null;
+  /** which table cell element (either a table head or a table data) was copied */
+  copyTargetId: string = null;
+
+  get copyTarget(): CopyTarget {
+    if (!this.copyTargetId) {
+      return null;
+    }
+    return document.getElementById(this.copyTargetId) as CopyTarget;
+  }
+
+  set copyTarget(copyTarget: CopyTarget) {
+    if (copyTarget) {
+      this.copyTargetId = copyTarget.id;
+    } else {
+      this.copyTargetId = null;
+    }
+  }
+
+  removeCurrentCopyTarget() {
+    const copyTarget: CopyTarget = this.copyTarget;
+    if (copyTarget) {
+      copyTarget.classList.remove(TableStatusManager.copiedClass);
+      this.copyTarget = null;
+    }
+  }
+
+  makeElementCopyTarget(element: HTMLTableCellElement | HTMLTableColElement) {
+    this.copyTarget = element;
+    element.classList.add(TableStatusManager.copiedClass);
+  }
+
+  tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+    if (hasCopyModifier(event)) {
+      this.removeCurrentCopyTarget();
+      clearClipboardTextarea();
+
+      let elementToHighlight;
+      if (activeTableColElement) {
+        // copy entire column
+        const columnIndex: number = this.activeTableCellElement.cellIndex;
+        copyTableColumnToTextarea(columnIndex);
+        elementToHighlight = activeTableColElement;
+        recordCopyColumn(getColumnLabel(columnIndex));
+      } else if (!(isColumnSearch(tableCellElement))) {
+        if (isTableCellTextSelected(tableCellElement)) {
+          // copy selected part
+          copyTextToTextarea(window.getSelection().toString());
+        } else {
+          // copy single table cell
+          copyElementTextToTextarea(tableCellElement);
+        }
+        elementToHighlight = tableCellElement;
+        recordCopyCell(tableCellElement);
+      }
+
+      copyTextareaToClipboard();
+      this.makeElementCopyTarget(elementToHighlight);
+      event.consumed = true;
+    }
+    // ignore when only C is pressed
+  }
+
+  get activeTableCellElement(): ActiveHTMLTableCellElement {
+    if (!this.activeTableCellElementId) {
+      return null;
+    }
+    return document.getElementById(this.activeTableCellElementId) as ActiveHTMLTableCellElement;
+  }
+
+  set activeTableCellElement(tableCellElement: ActiveHTMLTableCellElement) {
+    if (tableCellElement) {
+      this.activeTableCellElementId = tableCellElement.id;
+    } else {
+      this.activeTableCellElementId = null;
+    }
+  }
+
+  /**
+   * renew the timestamp on the active table cell element.
+   */
+  updateActiveTimestamp() {
+    this.activeTableCellElement.lastActiveTimestamp = Date.now();
+  }
+
+  /**
+   * Whether the table data is activated recently.
+   */
+  isTableDataLastActivatedRecently() {
+    const activeTableCellElement = this.activeTableCellElement;
+    if (activeTableCellElement === null) {
+      return false;
+    }
+
+    if (activeTableCellElement.lastActiveTimestamp === null) {
+      return false;
+    }
+
+    return Date.now() - activeTableCellElement.lastActiveTimestamp <= TableStatusManager.recentTimeLimit;
+  }
+
+  isClickOnActiveElement(tableCellElement: HTMLTableCellElement) {
+    return tableCellElement === this.activeTableCellElement;
+  }
+
+  activeElementOnRepeatedClick(event: MouseEvent) {
+    const activeTableCellElement = this.activeTableCellElement;
+    if (!activeTableCellElement) {
+      return;
+    }
+    if (isTableData(activeTableCellElement)) {
+      if (this.isTableDataLastActivatedRecently()) {
+        this.tableCellInputFormAssignTarget(activeTableCellElement);
+        activeTableCellElement.lastActiveTimestamp = null;
+        recordDoubleClickOnCell(activeTableCellElement);
+      } else {
+        this.updateActiveTimestamp();
+      }
+    } else if (isTableHead(activeTableCellElement)) {
+      this.activeTableHeadOnRepeatedClick(event);
+    }
+  }
+
+  activeTableHeadOnRepeatedClick(event: MouseEvent) {
+    if (activeTableColElement) {
+      // table column is active, deactivate column and focus only on table head
+      this.deactivateTableCol();
+    } else {
+      // only activate table column at repeated click (after even number of clicks)
+      this.activateTableCol();
+    }
+  }
+  /* activate */
+  activateTableData(shouldUpdateTimestamp=true, shouldGetFocus=true) {
+    const activeTableCellElement = this.activeTableCellElement;
+    activeTableCellElement.classList.add(TableStatusManager.activeClass);
+    if (shouldUpdateTimestamp) {
+      this.updateActiveTimestamp();
+    }
+    if (shouldGetFocus) {
+      activeTableCellElement.focus({preventScroll: true});
+    }
+  }
+  activateTableHead(shouldGetFocus=true) {
+    const activeTableCellElement = this.activeTableCellElement;
+    const index = activeTableCellElement.cellIndex;
+    if (isColumnLabel(activeTableCellElement)) {
+      const columnSearch = getColumnSearch(index);
+      columnSearch.classList.add(TableStatusManager.activeAccompanyClass);
+    } else if (isColumnSearch(activeTableCellElement)) {
+      const columnLabel = getColumnLabel(index);
+      columnLabel.classList.add(TableStatusManager.activeAccompanyClass);
+    }
+    activeTableCellElement.classList.add(TableStatusManager.activeClass);
+    if (shouldGetFocus) {
+      activeTableCellElement.focus({preventScroll: true});
+    }
+  }
+  activateTableCol() {
+    const index = this.activeTableCellElement.cellIndex;
+    const tableColElement = getTableColElement(index);
+    if (tableColElement) {
+      activeTableColElement = tableColElement;
+      activeTableColElement.classList.add(TableStatusManager.activeClass);
+    }
+  }
+  activateTableCellElement(tableCellElement: HTMLTableCellElement, shouldUpdateTimestamp=true, shouldGetFocus=true) {
+    this.activeTableCellElement = tableCellElement;
+    if (isTableData(tableCellElement)) {
+      this.activateTableData(shouldUpdateTimestamp, shouldGetFocus);
+      // record whether this table cell is editable
+      isTableCellEditable(tableCellElement);
+    } else if (isTableHead(tableCellElement)) {
+      this.activateTableHead(shouldGetFocus);
+    }
+  }
+
+  /* deactivate */
+  deactivateTableData() {
+    const activeTableCellElement = this.activeTableCellElement;
+    activeTableCellElement.classList.remove(TableStatusManager.activeClass);
+    activeTableCellElement.lastActiveTimestamp = null;
+  }
+  deactivateTableHead() {
+    const index = this.activeTableCellElement.cellIndex;
+    const columnLabel = getColumnLabel(index);
+    const columnSearch = getColumnSearch(index);
+    columnLabel.classList.remove(TableStatusManager.activeClass);
+    columnSearch.classList.remove(TableStatusManager.activeClass);
+    columnLabel.classList.remove(TableStatusManager.activeAccompanyClass);
+    columnSearch.classList.remove(TableStatusManager.activeAccompanyClass);
+  }
+  deactivateTableCol() {
+    if (activeTableColElement) {
+      activeTableColElement.classList.remove(TableStatusManager.activeClass);
+      activeTableColElement = null;
+    }
+  }
+  deactivateTableCellElement() {
+    const activeTableCellElement = this.activeTableCellElement;
+    if (isTableData(activeTableCellElement)) {
+      this.deactivateTableData();
+    } else if (isTableHead(activeTableCellElement)) {
+      this.deactivateTableHead();
+      this.deactivateTableCol();
+    }
+    this.activeTableCellElement = null;
+  }
+
+  /**
+   * @public
+   * Use this function to change table cell element to ensure previous active element is properly deactivated
+   */
+  updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null) {
+    if (!tableCellElement) {
+      return;
+    }
+
+    if (this.activeTableCellElement) {
+      this.deactivateTableCellElement();
+      // remove input form
+      this.deactivateTableCellInputForm();
+    }
+
+    this.activateTableCellElement(tableCellElement);
+  }
+
+  // input editor exit
+  quitTableCellInputForm(saveContent = false) {
+    const activeTableCellElement = this.activeTableCellElement;
+    if (saveContent) {
+      this.saveTableCellInputForm();
+      // move to next cell to allow continuous edit
+      if (activeTableCellElement) {
+        const nextCell = getRightTableCellElement(activeTableCellElement);
+        if (nextCell) {
+          this.updateActiveTableCellElement(nextCell);
+        }
+      }
+    }
+
+    this.tableCellInputFormAssignTarget(null);
+    if (activeTableCellElement) {
+      activeTableCellElement.focus({preventScroll: true});
+    }
+  }
+
+  /* click event */
+  tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
+    if (this.isClickOnActiveElement(tableCellElement)) {
+      // handle repeated click differently
+      this.activeElementOnRepeatedClick(event);
+    } else {
+      this.updateActiveTableCellElement(tableCellElement);
+      recordClickOnCell(tableCellElement);
+    }
+    event.preventDefault();
+  }
+
+  tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+    event.consumed = false;
+    switch (event.key) {
+      case "Down": // IE/Edge specific value
+      case "ArrowDown":
+        this.updateActiveTableCellElement(getDownTableCellElement(tableCellElement));
+        event.consumed = true;
+        break;
+      case "Up": // IE/Edge specific value
+      case "ArrowUp":
+        this.updateActiveTableCellElement(getUpTableCellElement(tableCellElement));
+        event.consumed = true;
+        break;
+      case "Left": // IE/Edge specific value
+      case "ArrowLeft":
+        this.updateActiveTableCellElement(getLeftTableCellElement(tableCellElement));
+        event.consumed = true;
+        break;
+      case "Right": // IE/Edge specific value
+      case "ArrowRight":
+      case "Tab": // handle Tab as a pressing Right arrow
+        this.updateActiveTableCellElement(getRightTableCellElement(tableCellElement));
+        event.consumed = true;
+        break;
+      case "c": // handle potential CTRL+c or CMD+c
+        this.tableCellElementOnCopy(tableCellElement, event);
+        break;
+      case "v":
+        if (hasCopyModifier(event)) {
+          // handle potential CTRL+v or CMD+v
+          event.consumed = true;
+        }
+        break;
+      case "Alt":
+      case "AltLock":
+      case "CapsLock":
+      case "Control":
+      case "Fn":
+      case "FnLock":
+      case "Hyper":
+      case "Meta":
+      case "NumLock":
+      case "ScrollLock":
+      case "Shift":
+      case "Super":
+      case "Symbol":
+      case "SymbolLock":
+        event.consumed = true;
+    }
+    if (!event.consumed) {
+      tableCellElementOnInput(event);
+    }
+  }
+
+  tableCellInputFormOnKeyDown(event: KeyboardEvent) {
+    switch (event.key) {
+      case "Esc": // IE/Edge specific value
+      case "Escape":
+        this.quitTableCellInputForm(false);
+        break;
+      case "Enter":
+        this.quitTableCellInputForm(true);
+        break;
+
+    }
+    event.stopPropagation();
+  }
+
+  /* restore */
+  restoreActiveTableCellElement() {
+    const activeTableCellElement = this.activeTableCellElement;
+    if (!activeTableCellElement) {
+      return;
+    }
+
+    if (isTableHead(activeTableCellElement)) {
+      // no need to recover active element since table header is the active element (will not disappear because of scrolling)
+      return;
+    }
+
+    const shouldGetFocus: boolean = !isColumnSearchInputFocus();
+    // active element is in view: tableDataSectionRendered
+    this.activateTableCellElement(activeTableCellElement, false, shouldGetFocus);
+  }
+
+  restoreCopyTarget() {
+    const recoveredCopyTarget = this.copyTarget;
+    if (recoveredCopyTarget) {
+      // copy target is in view
+      this.makeElementCopyTarget(recoveredCopyTarget as HTMLTableCellElement);
+      return;
+    }
+  }
+
+  static inputtingClass = "inputting";
+  tableCellInputFormTargetElementId: string = null;
+
+  get tableCellInputFormTargetElement(): HTMLTableCellElement {
+    if (!this.tableCellInputFormTargetElementId) {
+      return null;
+    }
+    return document.getElementById(this.tableCellInputFormTargetElementId) as HTMLTableCellElement;
+  }
+
+  set tableCellInputFormTargetElement(tableCellElement: HTMLTableCellElement) {
+    if (tableCellElement) {
+      this.tableCellInputFormTargetElementId = tableCellElement.id;
+    } else {
+      this.tableCellInputFormTargetElementId = null;
+    }
+  }
+
+
+  activateTableCellInputFormLocation() {
+    if (isTableCellInputFormActive() && !tableCellInputFormLocationActive) {
+      tableCellInputFormLocateCellElement.classList.add(TableStatusManager.activeClass);
+      tableCellInputFormLocationActive = true;
+      // reposition the tableCellInputFormElement
+      const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
+      const formTop = parseFloat(tableCellInputFormElement.style.top);
+      tableCellInputFormElement.style.top = `${formTop - buttonHeight}px`;
+    }
+  }
+  deactivateTableCellInputFormLocation() {
+    tableCellInputFormLocateCellElement.classList.remove(TableStatusManager.activeClass);
+    tableCellInputFormLocationActive = false;
+    delete tableCellInputFormLocateCellIcon.dataset.id;
+  }
+  updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
+    // row index
+    /* since recordIndex is 0-based */
+    const recordIndex = getDataElementIndex(targetHTMLTableCellElement);
+    tableCellInputFormLocateCellRowElement.textContent = `${recordIndex + 1}`;
+    // column index
+    const colIndex = getColumnIndex(targetHTMLTableCellElement);
+    const columnLabelText = getColumnLabelText(getColumnLabel(colIndex - 1));
+    tableCellInputFormLocateCellColElement.textContent = columnLabelText;
+    // row data id
+    tableCellInputFormLocateCellIcon.dataset.id = getTableRow(this.tableCellInputFormTargetElement).dataset.id;
+  }
+  restoreTableCellInputFormLocation() {
+    if (tableCellInputFormLocationActive) {
+      const dataid: string = tableCellInputFormLocateCellIcon.dataset.id;
+      if (tableDataManager.putElementInRenderingViewByDataId(dataid)) {
+        const {left: targetLeft, top: targetTop} = this.tableCellInputFormTargetElement.getBoundingClientRect();
+        const {left: inputFormLeft, top: inputFormTop} = tableCellInputFormElement.getBoundingClientRect();
+        const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
+        tableScrollContainer.scrollTop += targetTop - inputFormTop - buttonHeight;
+        tableScrollContainer.scrollLeft += targetLeft - inputFormLeft;
+      }
+    }
+  }
+
+  activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement, getFocus: boolean = true) {
+    // show the form
+    tableCellInputFormElement.classList.add(TableStatusManager.activeClass);
+
+    // focus the input
+    if (getFocus) {
+      tableCellInputFormInputElement.focus({preventScroll: true});
+    }
+
+    // highlight the table head
+    const cellIndex = targetHTMLTableCellElement.cellIndex;
+    const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
+    if (columnLabel) {
+      columnLabel.classList.add(TableStatusManager.inputtingClass);
+    }
+
+    // highlight the target cell
+    targetHTMLTableCellElement.classList.add(TableStatusManager.inputtingClass);
+    this.tableCellInputFormTargetElement = targetHTMLTableCellElement;
+  }
+
+  /**
+   * @public
+   * Use this function to change the editor associated table cell.
+   */
+  tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string, getFocus: boolean = true) {
+    this.deactivateTableCellInputForm();
+    this.deactivateTableCellInputFormLocation();
+    removeSelect(tableCellInputFormAutocompleteSuggestionsSelectInfo);
+    removeSelect(tableCellInputFormEditSuggestionsSelectInfo);
+
+    if (targetHTMLTableCellElement) {
+      if (!isTableCellEditable(targetHTMLTableCellElement)) {
+        return;
+      }
+
+      this.activateTableCellInputForm(targetHTMLTableCellElement, getFocus);
+      updateTableCellInputFormInput(targetHTMLTableCellElement, input);
+      attachSuggestions(targetHTMLTableCellElement);
+
+      this.updateTableCellInputFormLocation(targetHTMLTableCellElement);
+      // set position
+      const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
+      tableCellInputFormElement.style.left = `${left}px`;
+      tableCellInputFormElement.style.top = `${top}px`;
+    }
+  }
+
+  saveTableCellInputForm() {
+    const tableCellInputFormTargetElement = this.tableCellInputFormTargetElement;
+    const text = tableCellInputFormInputElement.value;
+    if (tableCellInputFormTargetElement) {
+      // call backend api to send user submission
+      tableCellInputFormTargetElement.textContent = text;
+      recordEdit(tableCellInputFormTargetElement);
+    }
+  }
+
+  tableCellInputFormLocationOnScroll() {
+    this.activateTableCellInputFormLocation();
+  }
+
+  deactivateTableCellInputForm() {
+    const tableCellInputFormTargetElement = this.tableCellInputFormTargetElement;
+    if (tableCellInputFormTargetElement) {
+      // hide the form
+      tableCellInputFormElement.classList.remove(TableStatusManager.activeClass);
+
+      // unhighlight the table head
+      const cellIndex = tableCellInputFormTargetElement.cellIndex;
+      const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
+      if (columnLabel) {
+        columnLabel.classList.remove(TableStatusManager.inputtingClass);
+      }
+
+      // unhighlight the target cell
+      tableCellInputFormTargetElement.classList.remove(TableStatusManager.inputtingClass);
+      this.tableCellInputFormTargetElement = null;
+    }
+  }
+
+  tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+    const input = event.key;
+    if (input.length === 1) {
+      this.tableCellInputFormAssignTarget(tableDataElement, input);
+    } else {
+      this.tableCellInputFormAssignTarget(tableDataElement);
+    }
+    event.consumed = true;
+  }
+
+  restoreTableCellInputFormTargetElement() {
+    const tableCellInputFormTargetElement = this.tableCellInputFormTargetElement;
+    if (!tableCellInputFormTargetElement) {
+      return;
+    }
+
+    const getFocus: boolean = !isColumnSearchInputFocus();
+    // form target is in view
+    this.activateTableCellInputForm(tableCellInputFormTargetElement, getFocus);
+  }
+
+  restoreStatus() {
+    this.restoreActiveTableCellElement();
+    this.restoreCopyTarget();
+    this.restoreTableCellInputFormTargetElement();
+  }
+}
+const tableStatusManager: TableStatusManager = new TableStatusManager();
+const tableDataManager = new TableDataManager(tableElement, document.getElementById("table-data"), tableScrollContainer, tableRowHeight, undefined, () => tableStatusManager.restoreStatus());
