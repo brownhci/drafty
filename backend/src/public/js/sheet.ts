@@ -281,8 +281,7 @@ function recordInteraction(url: string, data: Record<string, any>) {
         console.error(`${response.status}: ${response.statusText}`);
       }
     })
-    .catch(error => console.error("Network error when posting interaction", error));
-
+    .catch(error => console.error("Network error when posting interaction: ", error));
 }
 
 function recordEdit(tableCellElement: HTMLTableCellElement) {
@@ -294,6 +293,7 @@ function recordEdit(tableCellElement: HTMLTableCellElement) {
     "suggestion": tableCellElement.textContent,
   });
 }
+
 function recordClickOnCell(tableCellElement: HTMLTableCellElement) {
   if (isTableData(tableCellElement)) {
     // only record click on table data now
@@ -304,20 +304,48 @@ function recordClickOnCell(tableCellElement: HTMLTableCellElement) {
     recordInteraction("/click", {idSuggestion, rowValues});
   }
 }
-function recordDoubleClickOnCell(tableCellElement: HTMLTableCellElement) {
-    const tableRow: HTMLTableRowElement = getTableRow(tableCellElement);
-    const rowValues = getTableRowCellValues(tableRow);
 
-    const idSuggestion = getIdSuggestion(tableCellElement);
-    recordInteraction("/click-double", {idSuggestion, rowValues});
+function recordDoubleClickOnCell(tableCellElement: HTMLTableCellElement) {
+  const tableRow: HTMLTableRowElement = getTableRow(tableCellElement);
+  const rowValues = getTableRowCellValues(tableRow);
+
+  const idSuggestion = getIdSuggestion(tableCellElement);
+  recordInteraction("/click-double", {idSuggestion, rowValues});
 }
+
 function recordCopyCell(tableCellElement: HTMLTableCellElement) {
-    const idSuggestion = getIdSuggestion(tableCellElement);
-    recordInteraction("/copy-cell", {idSuggestion});
+  const idSuggestion = getIdSuggestion(tableCellElement);
+  recordInteraction("/copy-cell", {idSuggestion});
 }
+
 function recordCopyColumn(columnLabel: HTMLTableCellElement) {
-    const idSuggestionType = getIdSuggestionType(columnLabel);
-    recordInteraction("/copy-column", {idSuggestionType});
+  const idSuggestionType = getIdSuggestionType(columnLabel);
+  recordInteraction("/copy-column", {idSuggestionType});
+}
+
+function recordSearchPartial() {
+  const isPartial: number = 1;
+  /* sw - will need
+    const idSuggestionType: number|string
+    const isMulti: number
+    const isFromUrl: number // sw feature not implemented yet
+    const value: string
+    const matchedValues: string
+    const multiSearchValues: string
+  */
+  recordInteraction("/search-partial", {});
+}
+
+function recordSearchFull() {
+  /* sw - will need
+    const idSuggestionType: number|string
+    const isMulti: number
+    const isFromUrl: number // sw feature not implemented yet
+    const value: string
+    const matchedValues: string
+    const multiSearchValues: string
+  */
+  recordInteraction("/search-full", {});
 }
 
 
