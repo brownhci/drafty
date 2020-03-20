@@ -113,6 +113,22 @@ function isColumnSearchInput(element: HTMLElement): boolean {
 function isColumnSearchInputFocus(): boolean {
   return isColumnSearchInput(document.activeElement as HTMLElement);
 }
+function isTableCellTextSelected(tableCellElement: HTMLTableCellElement): boolean {
+   const selection = window.getSelection();
+   if (!selection) {
+     return false;
+   }
+   const range = selection.getRangeAt(0);
+   if (!range) {
+     return false;
+   }
+  const textNode = range.commonAncestorContainer;
+  if (!textNode) {
+    return false;
+  }
+
+  return textNode.parentElement === tableCellElement;
+}
 
 function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
   if (tableCellElement.contentEditable === "false") {
@@ -1005,8 +1021,11 @@ function hasCopyModifier(event: KeyboardEvent) {
     return event.ctrlKey;
   }
 }
+function copyTextToTextarea(text: string) {
+  clipboardTextarea.value = text;
+}
 function copyElementTextToTextarea(tableCellElement: HTMLTableCellElement) {
-  clipboardTextarea.value = tableCellElement.textContent;
+  copyTextToTextarea(tableCellElement.textContent);
 }
 function copyTableColumnToTextarea(index: number) {
   for (const tableCellElement of getTableCellElementsInColumn(index, true)) {
@@ -1027,8 +1046,13 @@ function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: C
       elementToHighlight = activeTableColElement;
       recordCopyColumn(getColumnLabel(columnIndex));
     } else if (!(isColumnSearch(tableCellElement))) {
-      // copy single table cell
-      copyElementTextToTextarea(tableCellElement);
+      if (isTableCellTextSelected) {
+        // copy selected part
+        copyTextToTextarea(window.getSelection().toString());
+      } else {
+        // copy single table cell
+        copyElementTextToTextarea(tableCellElement);
+      }
       elementToHighlight = tableCellElement;
       recordCopyCell(tableCellElement);
     }
