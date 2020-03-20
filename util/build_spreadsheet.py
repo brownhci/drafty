@@ -106,7 +106,7 @@ def build_table_row(rows_iter):
     rest_rows_iter = itertools.dropwhile(same_row, rows_iter2)
     datarow_cell_iter = pad_iterator(
         map(build_table_datarow_cell, tablecell_rows_iter),
-        '<td></td>',
+        '<td tabindex="-1"></td>',
         num_columns)
     return f'<tr data-id="{id_unique_id}">{"".join(datarow_cell_iter)}</tr>', rest_rows_iter
 
