@@ -1224,8 +1224,6 @@ class DataCollection {
 
   /** store of underlying data elements */
   store: Array<Data>
-  /** from datum id (cell id) to datum */
-  datumIdToDatum: Map<string, Datum>;
   /** indexes of data element of current children view */
   childrenIndex: Array<number>;
   /** current children view */
@@ -1233,6 +1231,8 @@ class DataCollection {
   /** whether current children view needs to be regenrated */
   shouldRegenrateView: boolean = true;
 
+  /** from datum id (cell id) to datum (only for datum in view) */
+  datumIdToDatum: Map<string, Datum> = new Map();
   dataIdToChildIndex: Map<string, number> = new Map();
 
   cellIndexToSorter: Map<number, OrderedTextSorter> = new Map();
@@ -1255,11 +1255,6 @@ class DataCollection {
 
   set children(children: Array<Data>) {
     this.store = children;
-    this.datumIdToDatum = new Map(function *() {
-      for (const data of children) {
-        yield* data.datumIdToDatum;
-      }
-    }());
     this.shouldRegenrateView = true;
   }
 
@@ -1385,12 +1380,16 @@ class DataCollection {
       childrenIndex.sort(sorter);
     }
 
+    this.datumIdToDatum.clear();
     this.dataIdToChildIndex.clear();
 
     this.childrenIndex = childrenIndex;
     this.childrenView = this.childrenIndex.map((dataIndex, childIndex) => {
       const data: Data = this.store[dataIndex];
       const dataid: string = data.id;
+      for (const [datumid, datum] of data.datumIdToDatum) {
+        this.datumIdToDatum.set(datumid, datum);
+      }
       this.dataIdToChildIndex.set(dataid, childIndex);
       return data;
     });
@@ -2056,6 +2055,13 @@ class TableDataManager {
     return elementIndex >= this.renderedFirstElementIndex && elementIndex <= this.renderedLastElementIndex;
   }
 
+  isCellInRenderingView(cellid: string): boolean {
+    if (!cellid) {
+      return false;
+    }
+    return Boolean(this.dataCollection.getDatumById(cellid));
+  }
+
   /**
    * @arg {number} elementIndex - the element index of a data element currently inside rendeirng view.
    * @returns The desired node if it is inside rendering view. `undefined` otherwise.
@@ -2635,20 +2641,20 @@ class TableStatusManager {
 
   deactivateTableCellInputForm() {
     const tableCellInputFormTargetElement = this.tableCellInputFormTargetElement;
-    if (tableCellInputFormTargetElement) {
+    if (isTableCellInputFormActive()) {
       // hide the form
       tableCellInputFormElement.classList.remove(TableStatusManager.activeClass);
 
       // unhighlight the table head
-      const cellIndex = tableCellInputFormTargetElement.cellIndex;
-      const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
+      const columnLabel: HTMLTableCellElement = tableColumnLabels.querySelector(`.${TableStatusManager.inputtingClass}`);
       if (columnLabel) {
         columnLabel.classList.remove(TableStatusManager.inputtingClass);
       }
 
       // unhighlight the target cell
-      tableCellInputFormTargetElement.classList.remove(TableStatusManager.inputtingClass);
-      this.tableCellInputFormTargetElement = null;
+      if (tableCellInputFormTargetElement) {
+        this.tableCellInputFormTargetElement = null;
+      }
     }
   }
 
@@ -2665,12 +2671,16 @@ class TableStatusManager {
   restoreTableCellInputFormTargetElement() {
     const tableCellInputFormTargetElement = this.tableCellInputFormTargetElement;
     if (!tableCellInputFormTargetElement) {
+      if (isTableCellInputFormActive() && !tableDataManager.isCellInRenderingView(this.tableCellInputFormTargetElementId)) {
+        // the target element has moved out of view
+        this.tableCellInputFormAssignTarget(null);
+      }
       return;
     }
 
     const getFocus: boolean = !isColumnSearchInputFocus();
     // form target is in view
-    this.activateTableCellInputForm(tableCellInputFormTargetElement, getFocus);
+    this.tableCellInputFormAssignTarget(tableCellInputFormTargetElement, undefined, getFocus);
   }
 
   restoreStatus() {
