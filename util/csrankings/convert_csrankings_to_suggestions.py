@@ -53,7 +53,7 @@ for k,v in profs.items():
             val = '2020-03-01 10:00:00'
             isActive = '0'
 
-        row_vals = [str(idSuggestion),idCol,str(idRow),'2',val,isActive,'0']
+        row_vals = [str(idSuggestion),idCol,str(idRow),'2',val,isActive,'0','2020-03-21 00:00:00']
         suggs_file.write(insertSuggestion(row_vals))
 
         idSuggestion += 1
