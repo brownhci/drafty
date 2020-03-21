@@ -1,8 +1,6 @@
 // TODO ARROW KEY not functioning when scrolling off screen
 // TODO paste event handling
 // TODO add new row
-// TODO record number out of sync after sorting
-
 
 /* which table column is active: a table column is activated when associated head is clicked */
 let activeTableColElement: null | HTMLTableColElement = null;
@@ -1208,6 +1206,10 @@ interface OrderedTextSorter {
 }
 type DataIndexSortingFunction = (d1: number, d2: number) => number;
 type DataIndexFilterFunction = (d: number) => boolean;
+interface IndexedDatum {
+  childIndex: number;
+  datum: Datum;
+}
 
 class DataCollection {
   /**
@@ -1232,7 +1234,7 @@ class DataCollection {
   shouldRegenrateView: boolean = true;
 
   /** from datum id (cell id) to datum (only for datum in view) */
-  datumIdToDatum: Map<string, Datum> = new Map();
+  datumIdToDatum: Map<string, IndexedDatum> = new Map();
   dataIdToChildIndex: Map<string, number> = new Map();
 
   cellIndexToSorter: Map<number, OrderedTextSorter> = new Map();
@@ -1388,7 +1390,7 @@ class DataCollection {
       const data: Data = this.store[dataIndex];
       const dataid: string = data.id;
       for (const [datumid, datum] of data.datumIdToDatum) {
-        this.datumIdToDatum.set(datumid, datum);
+        this.datumIdToDatum.set(datumid, {datum, childIndex});
       }
       this.dataIdToChildIndex.set(dataid, childIndex);
       return data;
@@ -1404,8 +1406,22 @@ class DataCollection {
    return this.dataIdToChildIndex.get(dataid);
   }
 
-  getDatumById(id: string): Datum {
-    return this.datumIdToDatum.get(id);
+  getDatumByDatumId(datumid: string): Datum {
+    const indexedDatum: IndexedDatum = this.datumIdToDatum.get(datumid);
+    if (indexedDatum) {
+      return indexedDatum.datum;
+    } else {
+      return null;
+    }
+  }
+
+  getChildIndexByDatumId(datumid: string): number {
+    const indexedDatum: IndexedDatum = this.datumIdToDatum.get(datumid);
+    if (indexedDatum) {
+      return indexedDatum.childIndex;
+    } else {
+      return null;
+    }
   }
 
   slice(begin: number = undefined, end: number = undefined) {
@@ -1656,7 +1672,6 @@ enum Direction {
 }
 
 type ViewChangeHandler = () => void;
-
 class TableDataManager {
   tableElement: HTMLTableElement;
 
@@ -2059,7 +2074,11 @@ class TableDataManager {
     if (!cellid) {
       return false;
     }
-    return Boolean(this.dataCollection.getDatumById(cellid));
+    return Boolean(this.dataCollection.getDatumByDatumId(cellid));
+  }
+
+  getElementIndexByCellId(cellid: string): number {
+    return this.dataCollection.getChildIndexByDatumId(cellid);
   }
 
   /**
@@ -2077,7 +2096,7 @@ class TableDataManager {
    * @arg {number} indexInRenderingView - the desired offset from the first element in rendering view. For example, if `indexInRenderingView` is 5, the specified element index will be the fifth element in rendering view. Should not exceed `this.numElementRendered`.
    * @arg {boolean = true} scrollIntoView - whether scroll the pag so that the eleement will be aligned to the top of the visible area of the scrollable container. Should set to true when element is not in rendering view already or otherwise the filler observe will cause the original position to be restored.
    */
-  putElementInRenderingView(elementIndex: number, indexInRenderingView: number = this.numElementRendered / 2, scrollIntoView: boolean = true) {
+  putElementInRenderingView(elementIndex: number, indexInRenderingView: number = this.numElementRendered / 2, scrollIntoViewOptions: ScrollIntoViewOptions = { block: "center", inline: "start"}) {
     this.deactivateObservers();
     let dataElement = this.getElementInRenderingView(elementIndex) as HTMLElement;
 
@@ -2088,14 +2107,14 @@ class TableDataManager {
       dataElement = this.getElementInRenderingView(elementIndex) as HTMLElement;
     }
 
-    if (scrollIntoView) {
-      dataElement.scrollIntoView();
+    if (scrollIntoViewOptions) {
+      dataElement.scrollIntoView(scrollIntoViewOptions);
     }
 
     this.activateObservers();
   }
 
-  putElementInRenderingViewByDataId(dataid: string) {
+  putElementInRenderingViewByDataId(dataid: string): boolean {
     const childIndex: number = this.dataCollection.getChildIndexByDataId(dataid);
     if (childIndex === undefined) {
       // data element not in data collection, scroll failed
@@ -2105,13 +2124,14 @@ class TableDataManager {
     return true;
   }
 
-  updateRenderingView(startIndex: number) {
-    this.deactivateObservers();
-    const end: number = startIndex + this.numElementToRender;
-    this.setViewToRender({
-      children: this.dataCollection.slice(startIndex, end)
-    }, startIndex);
-    this.activateObservers();
+  putElementInRenderingViewByCellId(cellid: string): boolean {
+    const elementIndex: number = this.getElementIndexByCellId(cellid);
+    if (elementIndex === undefined) {
+      // data element not in data collection, scroll failed
+      return false;
+    }
+    this.putElementInRenderingView(elementIndex);
+    return true;
   }
 
   refreshRenderingViewIfNeeded(): boolean {
@@ -2122,6 +2142,15 @@ class TableDataManager {
       return true;
     }
     return false;
+  }
+
+  updateRenderingView(startIndex: number) {
+    this.deactivateObservers();
+    const end: number = startIndex + this.numElementToRender;
+    this.setViewToRender({
+      children: this.dataCollection.slice(startIndex, end)
+    }, startIndex);
+    this.activateObservers();
   }
 
 
@@ -2550,29 +2579,23 @@ class TableStatusManager {
   deactivateTableCellInputFormLocation() {
     tableCellInputFormLocateCellElement.classList.remove(TableStatusManager.activeClass);
     tableCellInputFormLocationActive = false;
-    delete tableCellInputFormLocateCellIcon.dataset.id;
   }
+
   updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
     // row index
     /* since recordIndex is 0-based */
-    const recordIndex = getDataElementIndex(targetHTMLTableCellElement);
-    tableCellInputFormLocateCellRowElement.textContent = `${recordIndex + 1}`;
+      const elementIndex = tableDataManager.getElementIndexByCellId(targetHTMLTableCellElement.id);
+    tableCellInputFormLocateCellRowElement.textContent = `${elementIndex + 1}`;
     // column index
     const colIndex = getColumnIndex(targetHTMLTableCellElement);
     const columnLabelText = getColumnLabelText(getColumnLabel(colIndex - 1));
     tableCellInputFormLocateCellColElement.textContent = columnLabelText;
-    // row data id
-    tableCellInputFormLocateCellIcon.dataset.id = getTableRow(this.tableCellInputFormTargetElement).dataset.id;
   }
+
   restoreTableCellInputFormLocation() {
     if (tableCellInputFormLocationActive) {
-      const dataid: string = tableCellInputFormLocateCellIcon.dataset.id;
-      if (tableDataManager.putElementInRenderingViewByDataId(dataid)) {
-        const {left: targetLeft, top: targetTop} = this.tableCellInputFormTargetElement.getBoundingClientRect();
-        const {left: inputFormLeft, top: inputFormTop} = tableCellInputFormElement.getBoundingClientRect();
-        const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
-        tableScrollContainer.scrollTop += targetTop - inputFormTop - buttonHeight;
-        tableScrollContainer.scrollLeft += targetLeft - inputFormLeft;
+      if (tableDataManager.putElementInRenderingViewByCellId(this.tableCellInputFormTargetElementId)) {
+        this.alignTableCellInputForm(this.tableCellInputFormTargetElement);
       }
     }
   }
@@ -2618,11 +2641,16 @@ class TableStatusManager {
       attachSuggestions(targetHTMLTableCellElement);
 
       this.updateTableCellInputFormLocation(targetHTMLTableCellElement);
-      // set position
-      const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
-      tableCellInputFormElement.style.left = `${left}px`;
-      tableCellInputFormElement.style.top = `${top}px`;
+      this.alignTableCellInputForm(targetHTMLTableCellElement);
     }
+  }
+
+  alignTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement) {
+    // set position
+    const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
+    const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
+    tableCellInputFormElement.style.left = `${left}px`;
+    tableCellInputFormElement.style.top = `${top - buttonHeight}px`;
   }
 
   saveTableCellInputForm() {
@@ -2670,17 +2698,24 @@ class TableStatusManager {
 
   restoreTableCellInputFormTargetElement() {
     const tableCellInputFormTargetElement = this.tableCellInputFormTargetElement;
-    if (!tableCellInputFormTargetElement) {
-      if (isTableCellInputFormActive() && !tableDataManager.isCellInRenderingView(this.tableCellInputFormTargetElementId)) {
+    if (tableCellInputFormTargetElement) {
+      const getFocus: boolean = !isColumnSearchInputFocus();
+      // form target is in view
+      this.tableCellInputFormAssignTarget(tableCellInputFormTargetElement, undefined, getFocus);
+    } else {
+      if (!isTableCellInputFormActive()) {
+        return;
+      }
+
+      if (tableDataManager.isCellInRenderingView(this.tableCellInputFormTargetElementId)) {
+        // row index
+        const elementIndex = tableDataManager.getElementIndexByCellId(this.tableCellInputFormTargetElementId);
+        tableCellInputFormLocateCellRowElement.textContent = `${elementIndex + 1}`;
+      } else {
         // the target element has moved out of view
         this.tableCellInputFormAssignTarget(null);
       }
-      return;
     }
-
-    const getFocus: boolean = !isColumnSearchInputFocus();
-    // form target is in view
-    this.tableCellInputFormAssignTarget(tableCellInputFormTargetElement, undefined, getFocus);
   }
 
   restoreStatus() {
