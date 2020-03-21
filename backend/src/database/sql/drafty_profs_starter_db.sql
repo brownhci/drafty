@@ -168,19 +168,28 @@ END$$
 --
 -- Functions
 --
-CREATE DEFINER=`root`@`localhost` FUNCTION `get_idSuggestionType` (`idSuggestion_var` INT) RETURNS INT(11) BEGIN
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_idSuggestionType` (`idSuggestion_var` INT) 
+RETURNS INT(11) 
+READS SQL DATA
+BEGIN
   DECLARE idSuggestionType_rt INT DEFAULT 0;
   SELECT idSuggestionType INTO idSuggestionType_rt FROM Suggestions WHERE idSuggestion = idSuggestion_var;
   RETURN idSuggestionType_rt;
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `get_idUniqueID` (`idSuggestion_var` INT) RETURNS INT(11) BEGIN
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_idUniqueID` (`idSuggestion_var` INT) 
+RETURNS INT(11)
+READS SQL DATA
+BEGIN
   DECLARE idUniqueID_rt INT DEFAULT 0;
   SELECT idUniqueID INTO idUniqueID_rt FROM Suggestions WHERE idSuggestion = idSuggestion_var;
   RETURN idUniqueID_rt;
 END$$
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `insert_interaction` (`idSession_var` INT, `idInteractionType_var` INT) RETURNS INT(11) BEGIN
+CREATE DEFINER=`root`@`localhost` FUNCTION `insert_interaction` (`idSession_var` INT, `idInteractionType_var` INT) 
+RETURNS INT(11) 
+MODIFIES SQL DATA
+BEGIN
     DECLARE idInteraction_new INT; 
     INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, idSession_var, idInteractionType_var); 
     SET idInteraction_new = (SELECT LAST_INSERT_ID());
