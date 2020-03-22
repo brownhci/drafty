@@ -109,6 +109,7 @@ app.use(lusca.referrerPolicy("same-origin"));
 app.use(helmet());
 
 // Global Middleware
+const heartbeat = 20 * 60000; // mins * 60000 milliseconds
 const user = {
   idSession: -1,
   idProfile: -1,
@@ -120,21 +121,24 @@ const user = {
   failedLoginAttempts: 0
 };
 app.use(async (req, res, next) => {
-  //check if new session (req.sessionID)
+  //check if new user (req.sessionID)
   if(req.session.user === undefined) {
     // sw: this is the only place a new idProfile is created
     user.idProfile = await createAnonUser();
     req.session.user = user;
   }
   
-  const heartbeat = 20 * 60000; // mins * 60000 milliseconds
   if(((Date.now() - req.session.user.lastInteraction) > heartbeat) || (req.session.user.idSession === -1)) {
     // new session
     req.session.user.idSession = await createSessionDB(req.session.user.idProfile); 
   }
   req.session.user.lastInteraction = Date.now();
 
-  next();
+  if(req.session.user.isAuth) {
+    next();
+  } else {
+    return res.redirect("/signup");
+  }
 });
 /* sw - commenting out for now since we are not using the FileStore sessions
 app.use((req, res, next) => {
@@ -142,6 +146,7 @@ app.use((req, res, next) => {
     next();
 });
 */
+
 app.use((req, res, next) => {
     // After successful login, redirect back to the intended page
     if (!req.user &&
