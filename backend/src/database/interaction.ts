@@ -115,7 +115,7 @@ export function insertSearchMulti(idInteraction: number, multiSearchValues: stri
             // value is the input on the search box
             const idSuggestionType: number|string = valsToInsert[0];
             const idSearchType: string = valsToInsert[1];
-            const : string = valsToInsert[2];
+            const value: string = valsToInsert[2];
             db.query(stmtSearchMulti, [idInteraction, idSuggestionType, idSearchType, value]);
         }
     } catch (error) {
