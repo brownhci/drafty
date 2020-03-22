@@ -73805,7 +73805,7 @@ ALTER TABLE `UniqueId`
 -- Constraints for table `Comment`
 --
 ALTER TABLE `Comment`
-  ADD CONSTRAINT `fk_Comment_Profile1` FOREIGN KEY (`idProfile`) REFERENCES `profile` (`idProfile`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_Comment_Profile1` FOREIGN KEY (`idProfile`) REFERENCES `Profile` (`idProfile`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_idInteraction_4236` FOREIGN KEY (`idInteraction`) REFERENCES `Interaction` (`idInteraction`),
   ADD CONSTRAINT `fk_idSuggestion_4236` FOREIGN KEY (`idSuggestion`) REFERENCES `Suggestions` (`idSuggestion`),
   ADD CONSTRAINT `fk_idUniqueID_1147` FOREIGN KEY (`idUniqueID`) REFERENCES `UniqueId` (`idUniqueID`);
