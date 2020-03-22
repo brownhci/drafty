@@ -189,6 +189,7 @@ END$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `insert_interaction` (`idSession_var` INT, `idInteractionType_var` INT) 
 RETURNS INT(11) 
 MODIFIES SQL DATA
+DETERMINISTIC
 BEGIN
     DECLARE idInteraction_new INT; 
     INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, idSession_var, idInteractionType_var); 
