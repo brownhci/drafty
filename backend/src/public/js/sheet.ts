@@ -12,8 +12,8 @@ const tableScrollContainer: HTMLElement = tableElement.parentElement;
 /* <tr>s */
 const tableRowElements: HTMLCollection = tableElement.rows;
 /* first table row: column labels */
-const columnLabelsRowIndex: number = 0;
-const tableColumnLabels: HTMLTableRowElement = tableRowElements[columnLabelsRowIndex] as HTMLTableRowElement;
+const columnLabelRowIndex: number = 0;
+const tableColumnLabels: HTMLTableRowElement = tableRowElements[columnLabelRowIndex] as HTMLTableRowElement;
 
 const numTableColumns: number = tableColumnLabels.children.length;
 
@@ -87,8 +87,26 @@ function isColumnSearch(element: HTMLElement): boolean {
 function isColumnSearchInput(element: HTMLElement): boolean {
   return element && isColumnSearch(element.parentElement);
 }
-function isColumnSearchInputFocus(): boolean {
+function isColumnSearchInputFocused(): boolean {
   return isColumnSearchInput(document.activeElement as HTMLElement);
+}
+function isColumnSearchFilled(columnSearch: HTMLTableCellElement): boolean {
+  if (!columnSearch) {
+    return false;
+  }
+  return getColumnSearchInput(columnSearch).value !== "";
+}
+function isMultipleColumnSearchInputFilled(limit: number = 2): boolean {
+  let n = 0;
+  for (const columnSearch of getTableCellElementsInRow(tableColumnSearches)) {
+    if (isColumnSearchFilled(columnSearch)) {
+      n++;
+      if (n >= limit) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 function isTableCellTextSelected(tableCellElement: HTMLTableCellElement): boolean {
    const selection = window.getSelection();
@@ -214,21 +232,44 @@ function getAutocompleteSuggestionsContainer(): HTMLElement {
 function getTableColElement(index: number): HTMLTableColElement | undefined {
   return tableColElements[index] as HTMLTableColElement;
 }
+function* getTableCellElementsInRow(tableRowElement: HTMLTableRowElement) {
+  yield* tableRowElement.cells;
+}
 /**
  * Gets the table cell elements for the specified column index.
  *
  * @param {number} index - Index of column.
  * @param {boolean} [skipColumnSearch = false] - whether skip column search in yielded elements.
+ * @param {boolean} [skipColumnSearch = true] - whether skip column label in yielded elements.
  * @yields {HTMLTableCellElement} Table cells in the specified column.
  */
-function* getTableCellElementsInColumn(index: number, skipColumnSearch = false) {
+function* getTableCellElementsInColumn(index: number, skipColumnLabel: boolean = false, skipColumnSearch = true) {
   for (let i = 0; i < tableRowElements.length; i++) {
     const tableRow = tableRowElements[i] as HTMLTableRowElement;
+    if (skipColumnLabel && i === columnLabelRowIndex) {
+      // skip over column label row
+      continue;
+    }
     if (skipColumnSearch && i === columnSearchRowIndex) {
       // skip over column search row
       continue;
     }
     yield getCellInTableRow(tableRow, index);
+  }
+}
+
+function* getTableCellTextsInColumn(index: number, skipColumnLabel: boolean = false, skipColumnSearch = true) {
+  for (const tableCellElement of getTableCellElementsInColumn(index, skipColumnLabel, skipColumnSearch)) {
+    if (!tableCellElement) {
+      continue;
+    }
+    if (isColumnLabel(tableCellElement)) {
+      yield getColumnLabelText(tableCellElement);
+    } else if (isColumnSearch(tableCellElement)) {
+      yield getColumnSearchInput(tableCellElement).value;
+    } else {
+      yield getTableDataText(tableCellElement);
+    }
   }
 }
 
@@ -244,6 +285,27 @@ function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
     return Number.parseInt(idSuggestionType);
   }
   return null;
+}
+function getIdSearchType(columnSearch: HTMLTableCellElement) {
+  return 1;
+}
+/**
+ * This corresponds to the `multiSearchValues` field in database which is represented as
+ * idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
+ * where two pipes `||` separates diffrent column search and `|` separates information about a column search
+ */
+function getSearchValues(): string {
+  const searchValues = [];
+  for (const columnSearch of getTableCellElementsInRow(tableColumnSearches)) {
+    if (isColumnSearchFilled(columnSearch)) {
+      const idSuggestionType = getIdSuggestionType(getColumnLabel(columnSearch.cellIndex));
+      const idSeachType = getIdSearchType(columnSearch);
+      const value = getColumnSearchInput(columnSearch).value;
+      const searchValue = `${idSuggestionType}|${idSeachType}|${value}`;
+      searchValues.push(searchValue);
+    }
+  }
+  return searchValues.join("||");
 }
 
 // Record Interaction
@@ -303,31 +365,29 @@ function recordCopyColumn(columnLabel: HTMLTableCellElement) {
   recordInteraction("/copy-column", {idSuggestionType});
 }
 
-function recordSearchPartial() {
-  const isPartial: number = 1;
-  /* TODO sw - will need
+function recordSearch(columnSearch: HTMLTableCellElement, isFullSearch: boolean) {
+  const columnIndex: number = columnSearch.cellIndex;
+  const columnLabel: HTMLTableCellElement = getColumnLabel(columnIndex);
+  const columnSearchInput: HTMLInputElement = getColumnSearchInput(columnSearch);
+  const matchedValues = [...new Set(getTableCellTextsInColumn(columnIndex, true, true))].join("|");
+  /* sw - will need
     const idSuggestionType: number|string
     const isMulti: number
     const isFromUrl: number // sw feature not implemented yet
     const value: string
-    const matchedValues: string
-    const multiSearchValues: string
+    const matchedValues: string: a pipe delimited list of unique values from that column that matched the input
+    const multiSearchValues: string idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
   */
-  recordInteraction("/search-partial", {});
+  const url = isFullSearch ? "/search-full" : "/search-partial";
+  recordInteraction(url, {
+    idSuggestionType: getIdSuggestionType(columnLabel),
+    isMulti: isMultipleColumnSearchInputFilled(),
+    isFromUrl: 0,
+    value: columnSearchInput.value,
+    matchedValues,
+    multiSearchValues: getSearchValues(),
+  });
 }
-
-function recordSearchFull() {
-  /* TODO sw - will need
-    const idSuggestionType: number|string
-    const isMulti: number
-    const isFromUrl: number // sw feature not implemented yet
-    const value: string
-    const matchedValues: string
-    const multiSearchValues: string
-  */
-  recordInteraction("/search-full", {});
-}
-
 
 // width conversion
 function vw2px(vw: number) {
@@ -746,8 +806,8 @@ function copyElementTextToTextarea(tableCellElement: HTMLTableCellElement) {
   copyTextToTextarea(tableCellElement.textContent);
 }
 function copyTableColumnToTextarea(index: number) {
-  for (const tableCellElement of getTableCellElementsInColumn(index, true)) {
-    clipboardTextarea.value += `${tableCellElement.textContent}\n`;
+  for (const text of getTableCellTextsInColumn(index, false, true)) {
+    clipboardTextarea.value += `${text}\n`;
   }
   clipboardTextarea.value = clipboardTextarea.value.trimRight();
 }
@@ -784,7 +844,13 @@ function tableColumnSearchElementOnInput(tableColumnSearchInputElement: HTMLInpu
   if (columnSearchFilteringTimeoutId) {
     window.clearTimeout(columnSearchFilteringTimeoutId);
   }
-  columnSearchFilteringTimeoutId = window.setTimeout(() => updateTableColumnFilter(tableColumnSearchElement.cellIndex, tableColumnSearchInputElement.value), 400);
+  columnSearchFilteringTimeoutId = window.setTimeout(() => {
+    recordSearch(tableColumnSearchElement, false);
+    updateTableColumnFilter(tableColumnSearchElement.cellIndex, tableColumnSearchInputElement.value);
+  }, 400);
+}
+function tableColumnSearchElementOnChange(tableColumnSearchInputElement: HTMLInputElement, tableColumnSearchElement: HTMLTableCellElement) {
+  recordSearch(tableColumnSearchElement, true);
 }
 
 function tableColumnSearchElementOnKeyDown(tableColumnSearchElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
@@ -845,6 +911,18 @@ tableElement.addEventListener("input", function(event: Event) {
   event.stopPropagation();
 }, true);
 
+tableElement.addEventListener("change", function(event: Event) {
+  const target: HTMLElement = event.target as HTMLElement;
+  if (isInput(target)) {
+    // inputting on column search
+    const columnSearch = target.closest("th.column-search");
+    if (columnSearch) {
+      const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
+      tableColumnSearchElementOnChange(target as HTMLInputElement, tableColumnSearchElement);
+    }
+  }
+  event.stopPropagation();
+}, true);
 
 /* mouse events */
 interface ResizableHTMLTableCellElement extends HTMLTableCellElement {
@@ -2533,7 +2611,7 @@ class TableStatusManager {
       return;
     }
 
-    const shouldGetFocus: boolean = !isColumnSearchInputFocus();
+    const shouldGetFocus: boolean = !isColumnSearchInputFocused();
     // active element is in view: tableDataSectionRendered
     this.activateTableCellElement(activeTableCellElement, false, shouldGetFocus);
   }
@@ -2699,7 +2777,7 @@ class TableStatusManager {
   restoreTableCellInputFormTargetElement() {
     const tableCellInputFormTargetElement = this.tableCellInputFormTargetElement;
     if (tableCellInputFormTargetElement) {
-      const getFocus: boolean = !isColumnSearchInputFocus();
+      const getFocus: boolean = !isColumnSearchInputFocused();
       // form target is in view
       this.tableCellInputFormAssignTarget(tableCellInputFormTargetElement, undefined, getFocus);
     } else {
