@@ -134,11 +134,7 @@ app.use(async (req, res, next) => {
   }
   req.session.user.lastInteraction = Date.now();
 
-  if(req.session.user.isAuth) {
-    next();
-  } else {
-    return res.redirect("/signup");
-  }
+  next();
 });
 /* sw - commenting out for now since we are not using the FileStore sessions
 app.use((req, res, next) => {

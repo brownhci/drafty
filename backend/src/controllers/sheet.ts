@@ -9,15 +9,18 @@ import { makeRenderObject } from "../config/handlebars-helpers";
  */
 export function getSheet(req: Request, res: Response) {
   const sheetURL = req.params.sheet;
-  if (!hasRequestedSheet(sheetURL)) {
+  if(!req.session.user.isAuth) {
+    res.render("account/signup", makeRenderObject({ title: "Signup" }, req));
+  } else if (!hasRequestedSheet(sheetURL)) {
     if(sheetURL !== "service-worker.js") { // sw bug: service-worker.js is gitting this endpoint
       req.flash("errors", { msg: "Oh sorry we cannot find requested sheet :("});
     }
     return res.redirect("/");
+  } else {
+    const sheetName = getRequestedSheetName(sheetURL);
+    const sheetPath = getRequestedSheetPath(sheetURL);
+    res.render("pages/sheet", makeRenderObject({ title: `Sheet:${sheetName}`, sheetName: sheetName, sheetPath: sheetPath }, req));
   }
-  const sheetName = getRequestedSheetName(sheetURL);
-  const sheetPath = getRequestedSheetPath(sheetURL);
-  res.render("pages/sheet", makeRenderObject({ title: `Sheet:${sheetName}`, sheetName: sheetName, sheetPath: sheetPath }, req));
 }
 
 // TODO gen_spreadsheets no longer exist
