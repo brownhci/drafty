@@ -106,13 +106,16 @@ export function insertSearchMulti(idInteraction: number, multiSearchValues: stri
     try {
         const idInteractionType: number = 11;
 
+        // each col search input is separated by ||
         const msVals: Array<string> = multiSearchValues.split("||");
         for (let i = 0; i < msVals.length; i++) {
             const valsToInsert: Array<string> = msVals[i].split("|");
 
+            // idSuggestionType|idSearchType|value
+            // value is the input on the search box
             const idSuggestionType: number|string = valsToInsert[0];
             const idSearchType: string = valsToInsert[1];
-            const value: string = valsToInsert[2];
+            const : string = valsToInsert[2];
             db.query(stmtSearchMulti, [idInteraction, idSuggestionType, idSearchType, value]);
         }
     } catch (error) {
