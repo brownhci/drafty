@@ -3,7 +3,8 @@ import { db,logDbErr } from "./mysql";
 //import { tableName as suggestionTypeTableName, name as nameTableFieldName } from "../models/suggestionType";
 
 //idSuggestion, suggestion, idProfile
-const stmtProcedureEdit: string = "SET @id = ?; CALL new_suggestion(@id,?,?); SELECT @id AS idSuggestion;";
+//const stmtProcedureEdit: string = "SET @id = ?; CALL new_suggestion(@id,?,?); SELECT @id AS idSuggestion;";
+const stmtProcedureEdit: string = "SET @p0=?; SET @p1=?; SET @p2=?; CALL new_suggestion(@p0, @p1, @p2, @p3); SELECT @p0 AS idSuggestion, @p3 AS isNewSuggestion;";
 
 //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
 const stmtProcedureEditSuggestions: string = "CALL insert_edit_suggestions(?, ?, ?, ?, ?, ?);";
@@ -22,10 +23,13 @@ const stmtSelectSuggestionsForEdit: string = "SELECT suggestion, 1 as prevSugg F
 export async function newSuggestion(idSuggestion: number, suggestion: string, idProfile: number, idSession: number, idInteractionType: number, idEntryType: number, mode: string) {
   try {
       const [results] = await db.query(stmtProcedureEdit, [idSuggestion,suggestion,idProfile]);
+      //console.log(results)
 
       //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
       const idSuggestionPrev = idSuggestion;
-      const idSuggestionChosen = (results as any)[2][0]["idSuggestion"]; // sw: this is bc of how procedures return data
+      let pos = Object.keys(results).pop(); // get last 
+      const idSuggestionChosen = (results as any)[pos][0]["idSuggestion"]; // sw: this is bc of how procedures return data
+      
       //console.log('\n\n',idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode,'\n\n')
       // getting error that COLUMN suggestion cannot be null
       db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode]);
