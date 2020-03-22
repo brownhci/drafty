@@ -13,10 +13,9 @@
                 {{/eachInMap}}
             </div>
         </li>
-        <!-- <li data-href="/credits">Credits</li> -->
+        <!-- not available yet <li data-href="/credits">Credits</li> -->
         <li data-href="/account">Your Profile</li>
-        <li data-href="/account/edits">Your edits</li>
-        <li data-href="/account/digests">Your digests</li>
+        <!-- not available yet <li data-href="/account/edits">Your edits</li> -->
         <li data-href="/help">Help</li>
          {{#unless signedIn}}
              <li data-href="/login">Sign in</li>
@@ -37,18 +36,23 @@
                      {{/if}}
                  </span>
                  <div class="dropdown-menu" aria-labelledby="navabr-sheet">
+                    <a class="dropdown-item selected" href="professors">CS Professors</a>
+                     <!--
                      {{#eachInMap sheetNameToURL}}
                          <a class="dropdown-item{{selected ../sheetName key}}" href="{{value}}">
                             {{key}}
                          </a>
                      {{/eachInMap}}
+                     -->
                  </div>
              </li>
+             <!--
              <li class="nav-item">
                  <a id="navbar-credits" href="/credits">
                      Credits
                  </a>
              </li>
+             -->
          </ul>
     </div>
     <div class="collapse navbar-collapse justify-content-end">
@@ -60,12 +64,11 @@
                      <a class="dropdown-item" href="/account">
                          Your Profile
                      </a>
+                     <!-- not available right now
                      <a class="dropdown-item" href="/account/edits">
                          Your edits
                      </a>
-                     <a class="dropdown-item" href="/account/digests">
-                         Your digests
-                     </a>
+                     -->
                      <div class="dropdown-divider"></div>
                      <a class="dropdown-item" href="/help">
                          Help
