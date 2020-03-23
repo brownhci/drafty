@@ -96,17 +96,17 @@ function isColumnSearchFilled(columnSearch: HTMLTableCellElement): boolean {
   }
   return getColumnSearchInput(columnSearch).value !== "";
 }
-function isMultipleColumnSearchInputFilled(limit: number = 2): boolean {
+function isMultipleColumnSearchInputFilled(limit: number = 2): number {
   let n = 0;
   for (const columnSearch of getTableCellElementsInRow(tableColumnSearches)) {
     if (isColumnSearchFilled(columnSearch)) {
       n++;
       if (n >= limit) {
-        return true;
+        return 1;
       }
     }
   }
-  return false;
+  return 0;
 }
 function isTableCellTextSelected(tableCellElement: HTMLTableCellElement): boolean {
    const selection = window.getSelection();
