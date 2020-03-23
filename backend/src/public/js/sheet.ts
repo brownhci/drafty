@@ -23,10 +23,6 @@ const tableColumnSearches: HTMLTableRowElement = tableRowElements[columnSearchRo
 
 const tableRowHeight = tableColumnLabels.clientHeight;
 
-/* for handling complete searches */
-let lastColumnSearchIndex: number = -1;
-let lastColumnSearchRecorded: boolean = true;
-
 /* <col>s */
 const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
 
@@ -942,6 +938,10 @@ tableCellInputFormElement.addEventListener("keydown", function(event: KeyboardEv
   }
 });
 
+
+/* for handling complete searches */
+let lastColumnSearchIndex: number = -1;
+let lastColumnSearchRecorded: boolean = true;
 tableElement.addEventListener("input", function(event: Event) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isInput(target)) {
@@ -963,10 +963,7 @@ tableElement.addEventListener("blur", function(event: Event) {
     const columnSearch = target.closest("th.column-search");
     if (columnSearch) {
       const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
-      /* sw:
-        should only fire if cellIndex = last changed search input cellIndex
-        can add a boolean to
-      */
+      // only recording full search when completing a previous partial search
       if(tableColumnSearchElement.cellIndex === lastColumnSearchIndex && lastColumnSearchRecorded === false) {
         lastColumnSearchRecorded = true;
         tableColumnSearchElementOnChange(target as HTMLInputElement, tableColumnSearchElement);
