@@ -135,10 +135,13 @@ export async function insertSearch(idSession: string, idSuggestionType: number|s
         const idInteraction = await insertInteraction(idSession, idInteractionType);
         const idSearchType: number = 1; // default 1 = equals
         
+        /*
         console.log("\n\nSEARCH: ", idInteraction,idInteractionType,idSearchType);
-        console.log(idSession, idSuggestionType, isPartial, isMulti, isFromUrl);
+        console.log(idSession, idSuggestionType);
+        console.log("isPartial, isMulti, isFromUrl :: ",isPartial, isMulti, isFromUrl);
         console.log(value, matchedValues, multiSearchValues);
-
+        */
+       
         // idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues
         db.query(stmtSearch, [idSession, idInteractionType, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues]);
 
