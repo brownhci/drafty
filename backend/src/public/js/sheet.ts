@@ -100,17 +100,17 @@ function isColumnSearchFilled(columnSearch: HTMLTableCellElement): boolean {
   }
   return getColumnSearchInput(columnSearch).value !== "";
 }
-function isMultipleColumnSearchInputFilled(limit: number = 2): number {
+function isMultipleColumnSearchInputFilled(limit: number = 2): boolean {
   let n = 0;
   for (const columnSearch of getTableCellElementsInRow(tableColumnSearches)) {
     if (isColumnSearchFilled(columnSearch)) {
       n++;
       if (n >= limit) {
-        return 1;
+        return true;
       }
     }
   }
-  return 0;
+  return false;
 }
 function isTableCellTextSelected(tableCellElement: HTMLTableCellElement): boolean {
    const selection = window.getSelection();
@@ -385,7 +385,7 @@ function recordSearch(columnSearch: HTMLTableCellElement, isFullSearch: boolean)
   const url = isFullSearch ? "/search-full" : "/search-partial";
   recordInteraction(url, {
     idSuggestionType: getIdSuggestionType(columnLabel),
-    isMulti: isMultipleColumnSearchInputFilled(),
+    isMulti: Number(isMultipleColumnSearchInputFilled()),
     isFromUrl: 0,
     value: columnSearchInput.value,
     matchedValues,
