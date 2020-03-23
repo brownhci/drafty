@@ -414,6 +414,34 @@ function em2px(em: number, fontSize = 16, element: HTMLElement | null = null) {
   }
 }
 
+// welcome screen
+const welcomeScreenElement: HTMLElement = document.getElementById("welcome-screen");
+function showWelcomeScreen() {
+  welcomeScreenElement.classList.add(TableStatusManager.activeClass);
+  welcomeScreenElement.setAttribute("aira-hidden", "false");
+}
+function hideWelcomeScreen() {
+  welcomeScreenElement.classList.remove(TableStatusManager.activeClass);
+  welcomeScreenElement.setAttribute("aira-hidden", "true");
+}
+function setWelcomeScreenCookie() {
+  document.cookie = "usage-policy-accepted=true;max-age=3153600000;samesite=strict";
+}
+function showWelcomeScreenWhenCookieNotSet() {
+  if (!document.cookie.includes("usage-policy-accepted=true")) {
+    showWelcomeScreen();
+  }
+}
+welcomeScreenElement.addEventListener("click", function(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+  if (target.dataset.dismiss === "modal") {
+    setWelcomeScreenCookie();
+    hideWelcomeScreen();
+  }
+  event.stopPropagation();
+  event.preventDefault();
+}, true);
+
 // input editor
 /* input editor element */
 const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
@@ -734,7 +762,7 @@ function addColumnSorter(columnIndex: number, sortingDirection: SortingDirection
     sorter = (text1, text2) => text2.localeCompare(text1);
   }
   tableDataManager.addSorter(columnIndex, sorter, order);
-  recordSort(columnIndex,sortingDirection);
+  recordSort(columnIndex, sortingDirection);
 }
 
 function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement) {
@@ -2828,3 +2856,4 @@ class TableStatusManager {
 }
 const tableStatusManager: TableStatusManager = new TableStatusManager();
 const tableDataManager = new TableDataManager(tableElement, document.getElementById("table-data"), tableScrollContainer, tableRowHeight, undefined, () => tableStatusManager.restoreStatus());
+showWelcomeScreenWhenCookieNotSet();
