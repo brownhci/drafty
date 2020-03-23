@@ -13,9 +13,9 @@ const stmtInsertDoubleClick: string = "INSERT INTO DoubleClick (idInteraction, i
 
 const stmtInsertSort: string  = "INSERT INTO Sort (idInteraction, idSuggestionType, isAsc, isTrigger, isMulti) VALUES (insert_interaction(?,?), ?, ?, ?, ?);";
 
-const stmtSearch: string  = "INSERT INTO Search (idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?, ?, ?)";
+const stmtSearch: string  = "INSERT INTO Search (idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-const stmtSearchMulti: string  = "INSERT INTO SearchMulti (idInteraction, idSuggestionType, idSearchType, value) VALUES (insert_interaction(?,?), ?, ?, ?)";
+const stmtSearchMulti: string  = "INSERT INTO SearchMulti (idInteraction, idSuggestionType, idSearchType, value) VALUES (?, ?, ?, ?)";
 
 //const stmtInsertEdit: string  = "INSERT INTO Edit (idInteraction, idSuggestion, idEntryType, chosen) VALUES (?, ?, ?, ?);";
 
@@ -104,8 +104,6 @@ async function insertInteraction(idSession: string, idInteractionType: number|st
 //DB Code
 export function insertSearchMulti(idInteraction: number, multiSearchValues: string) {
     try {
-        const idInteractionType: number = 11;
-
         // each col search input is separated by ||
         const msVals: Array<string> = multiSearchValues.split("||");
         for (let i = 0; i < msVals.length; i++) {
@@ -129,17 +127,24 @@ export function insertSearchMulti(idInteraction: number, multiSearchValues: stri
 //DB Code
 export async function insertSearch(idSession: string, idSuggestionType: number|string, isPartial: number, isMulti: number, isFromUrl: number, value: string, matchedValues: string, multiSearchValues: string) {
     try {
-        const idInteractionType: number = 7;
+        let idInteractionType: number = 7; // 7 = search
+        if(isMulti === 1) { 
+            idInteractionType = 11; // 11 = searchMulti 
+        }
+
         const idInteraction = await insertInteraction(idSession, idInteractionType);
         const idSearchType: number = 1; // default 1 = equals
+        
+        console.log("\n\nSEARCH: ", idInteraction,idInteractionType,idSearchType);
+        console.log(idSession, idSuggestionType, isPartial, isMulti, isFromUrl);
+        console.log(value, matchedValues, multiSearchValues);
 
+        // idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues
+        db.query(stmtSearch, [idSession, idInteractionType, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues]);
 
         if(isMulti === 1) {
             insertSearchMulti(idInteraction, multiSearchValues);
         }
-
-        // idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues
-        db.query(stmtSearch, [idSession, idInteractionType, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues]);
     } catch (error) {
         logDbErr(error, "error during insert insertSearch", "warn");
     }

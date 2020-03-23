@@ -27,7 +27,7 @@ export async function newSuggestion(idSuggestion: number, suggestion: string, id
 
       //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
       const idSuggestionPrev = idSuggestion;
-      let pos = Object.keys(results).pop(); // get last 
+      const pos = Object.keys(results).pop(); // get last 
       const idSuggestionChosen = (results as any)[pos][0]["idSuggestion"]; // sw: this is bc of how procedures return data
       
       //console.log('\n\n',idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode,'\n\n')
