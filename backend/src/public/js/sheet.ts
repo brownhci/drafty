@@ -389,6 +389,15 @@ function recordSearch(columnSearch: HTMLTableCellElement, isFullSearch: boolean)
   });
 }
 
+function recordSort(columnIndex: number , sortingDirection: number) {
+  const columnLabel: HTMLTableCellElement = getColumnLabel(columnIndex);
+  const url = "/sort";
+  recordInteraction(url, {
+    idSuggestionType: getIdSuggestionType(columnLabel),
+    isAsc: (1 - sortingDirection)
+  });
+}
+
 // width conversion
 function vw2px(vw: number) {
   return document.documentElement.clientWidth * vw / 100;
@@ -721,6 +730,7 @@ function addColumnSorter(columnIndex: number, sortingDirection: SortingDirection
     sorter = (text1, text2) => text2.localeCompare(text1);
   }
   tableDataManager.addSorter(columnIndex, sorter, order);
+  recordSort(columnIndex,sortingDirection);
 }
 
 function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement) {
@@ -839,7 +849,9 @@ function updateTableColumnFilter(columnIndex: number, query: string) {
     tableDataManager.addFilter(columnIndex, filter);
   }
 }
+
 let columnSearchFilteringTimeoutId: number | null = null;
+
 function tableColumnSearchElementOnInput(tableColumnSearchInputElement: HTMLInputElement, tableColumnSearchElement: HTMLTableCellElement) {
   if (columnSearchFilteringTimeoutId) {
     window.clearTimeout(columnSearchFilteringTimeoutId);
@@ -849,6 +861,7 @@ function tableColumnSearchElementOnInput(tableColumnSearchInputElement: HTMLInpu
     updateTableColumnFilter(tableColumnSearchElement.cellIndex, tableColumnSearchInputElement.value);
   }, 400);
 }
+
 function tableColumnSearchElementOnChange(tableColumnSearchInputElement: HTMLInputElement, tableColumnSearchElement: HTMLTableCellElement) {
   recordSearch(tableColumnSearchElement, true);
 }
@@ -891,7 +904,6 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   event.stopPropagation();
 }, true);
 
-
 tableCellInputFormElement.addEventListener("keydown", function(event: KeyboardEvent) {
   if (isTableCellInputFormActive()) {
     tableStatusManager.tableCellInputFormOnKeyDown(event);
@@ -899,6 +911,7 @@ tableCellInputFormElement.addEventListener("keydown", function(event: KeyboardEv
 });
 
 tableElement.addEventListener("input", function(event: Event) {
+  console.log("tableColumnSearchElementOnInput");
   const target: HTMLElement = event.target as HTMLElement;
   if (isInput(target)) {
     // inputting on column search
@@ -911,10 +924,24 @@ tableElement.addEventListener("input", function(event: Event) {
   event.stopPropagation();
 }, true);
 
+/* sw: this is causing partial seach changes to fire 
 tableElement.addEventListener("change", function(event: Event) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isInput(target)) {
     // inputting on column search
+    const columnSearch = target.closest("th.column-search");
+    if (columnSearch) {
+      const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
+      tableColumnSearchElementOnChange(target as HTMLInputElement, tableColumnSearchElement);
+    }
+  }
+  event.stopPropagation();
+}, true);
+*/
+
+tableElement.addEventListener("change", function(event: Event) {
+  const target: HTMLElement = event.target as HTMLElement;
+  if (isInput(target)) {
     const columnSearch = target.closest("th.column-search");
     if (columnSearch) {
       const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
