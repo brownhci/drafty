@@ -23,6 +23,10 @@ const tableColumnSearches: HTMLTableRowElement = tableRowElements[columnSearchRo
 
 const tableRowHeight = tableColumnLabels.clientHeight;
 
+/* for handling complete searches */
+let lastColumnSearchIndex: number = -1;
+let lastColumnSearchRecorded: boolean = true;
+
 /* <col>s */
 const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
 
@@ -911,41 +915,34 @@ tableCellInputFormElement.addEventListener("keydown", function(event: KeyboardEv
 });
 
 tableElement.addEventListener("input", function(event: Event) {
-  console.log("tableColumnSearchElementOnInput");
   const target: HTMLElement = event.target as HTMLElement;
   if (isInput(target)) {
     // inputting on column search
     const columnSearch = target.closest("th.column-search");
     if (columnSearch) {
       const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
+      lastColumnSearchIndex = tableColumnSearchElement.cellIndex;
+      lastColumnSearchRecorded = false;
       tableColumnSearchElementOnInput(target as HTMLInputElement, tableColumnSearchElement);
     }
   }
   event.stopPropagation();
 }, true);
 
-/* sw: this is causing partial seach changes to fire 
-tableElement.addEventListener("change", function(event: Event) {
-  const target: HTMLElement = event.target as HTMLElement;
-  if (isInput(target)) {
-    // inputting on column search
-    const columnSearch = target.closest("th.column-search");
-    if (columnSearch) {
-      const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
-      tableColumnSearchElementOnChange(target as HTMLInputElement, tableColumnSearchElement);
-    }
-  }
-  event.stopPropagation();
-}, true);
-*/
-
-tableElement.addEventListener("change", function(event: Event) {
+tableElement.addEventListener("blur", function(event: Event) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isInput(target)) {
     const columnSearch = target.closest("th.column-search");
     if (columnSearch) {
       const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
-      tableColumnSearchElementOnChange(target as HTMLInputElement, tableColumnSearchElement);
+      /* sw:
+        should only fire if cellIndex = last changed search input cellIndex
+        can add a boolean to
+      */
+      if(tableColumnSearchElement.cellIndex === lastColumnSearchIndex && lastColumnSearchRecorded === false) {
+        lastColumnSearchRecorded = true;
+        tableColumnSearchElementOnChange(target as HTMLInputElement, tableColumnSearchElement);
+      }
     }
   }
   event.stopPropagation();
