@@ -134,7 +134,7 @@ function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
   }
   const columnLabel = getColumnLabel(tableCellElement.cellIndex);
   const columnLabelText = getColumnLabelText(columnLabel);
-  if (!isTableData(tableCellElement) && columnLabelText === "Last Updated By" || columnLabelText === "Last Updated") {
+  if (columnLabelText === "Last Updated By" || columnLabelText === "Last Updated") {
     tableCellElement.contentEditable = "false";
     return false;
   }
@@ -885,7 +885,6 @@ tableElement.addEventListener("paste", function (event: ClipboardEvent) {
   if (isTableData(target) && isTableCellEditable(target as HTMLTableCellElement)) {
     const pasteContent = event.clipboardData.getData("text");
     tableCellElementOnPaste(target as HTMLTableCellElement, pasteContent);
-            console.log("order 2");
 
   }
   event.preventDefault();
@@ -2562,7 +2561,7 @@ class TableStatusManager {
    * @public
    * Use this function to change table cell element to ensure previous active element is properly deactivated
    */
-  updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null) {
+  updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null, shouldGetFocus: boolean = true) {
     if (!tableCellElement) {
       return;
     }
@@ -2573,7 +2572,7 @@ class TableStatusManager {
       this.deactivateTableCellInputForm();
     }
 
-    this.activateTableCellElement(tableCellElement);
+    this.activateTableCellElement(tableCellElement, undefined, shouldGetFocus);
   }
 
   // input editor exit
@@ -2591,9 +2590,6 @@ class TableStatusManager {
     }
 
     this.tableCellInputFormAssignTarget(null);
-    if (activeTableCellElement) {
-      activeTableCellElement.focus({preventScroll: true});
-    }
   }
 
   /* click event */
@@ -2636,7 +2632,6 @@ class TableStatusManager {
         this.tableCellElementOnCopy(tableCellElement, event);
         break;
       case "v":
-        console.log("order 1");
         tableCellElementOnPasteKeyPressed(tableCellElement, event);
         break;
       case "Alt":
@@ -2655,7 +2650,9 @@ class TableStatusManager {
       case "SymbolLock":
         event.consumed = true;
     }
-    if (!event.consumed) {
+    if (event.consumed) {
+      event.preventDefault();
+    } else {
       tableCellElementOnInput(event);
     }
   }

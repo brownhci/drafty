@@ -43,7 +43,7 @@ def get_column_widths(cursor):
 def build_column_label_cell(row, column_index):
     id_suggestion_type = row['idSuggestionType']
     colname = row['name']
-    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" class="column-label">{colname}<button class="sort-btn"></button></th>\n'
+    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" tabindex="-1" class="column-label">{colname}<button class="sort-btn"></button></th>\n'
 
 
 def build_column_labels_row(cursor):
