@@ -138,22 +138,14 @@ $resize-shadow-width: 5px;
     table-layout: fixed;
     border-collapse: collapse;
 
-    .copied {
-      background-color: rgba($info, 0.1);
-      &::after {
-        @extend .font-awesome;
-        @extend .text-info;
-        @extend .float-right;
-      }
-      &:hover::after {
-        content: "\f0c5";
-      }
-    }
-
     col {
       width: 10vw;
       &.active {
         background-color: rgba($primary, 0.1);
+      }
+
+      &.copied {
+        background-color: rgba($info, 0.1);
       }
     }
 
@@ -212,6 +204,10 @@ $resize-shadow-width: 5px;
             }
           }
         }
+        &.copied {
+          @extend .bg-info;
+          @extend .text-white;
+        }
         &.active-accompany {
           @extend .bg-secondary;
           @extend .text-white;
@@ -265,6 +261,18 @@ $resize-shadow-width: 5px;
           }
           &:hover::after {
             content: "\f0ea";
+          }
+        }
+
+        &.copied {
+          background-color: rgba($info, 0.25);
+          &::after {
+            @extend .font-awesome;
+            @extend .text-info;
+            @extend .float-right;
+          }
+          &:hover::after {
+            content: "\f0c5";
           }
         }
       }

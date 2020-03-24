@@ -844,7 +844,7 @@ function copyElementTextToTextarea(tableCellElement: HTMLTableCellElement) {
   copyTextToTextarea(tableCellElement.textContent);
 }
 function copyTableColumnToTextarea(index: number) {
-  for (const text of getTableCellTextsInColumn(index, false, true)) {
+  for (const text of getTableCellTextsInColumn(index,true, true)) {
     clipboardTextarea.value += `${text}\n`;
   }
   clipboardTextarea.value = clipboardTextarea.value.trimRight();
@@ -856,6 +856,9 @@ function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: s
   tableStatusManager.tableCellInputFormAssignTarget(tableCellElement, text, true);
 }
 function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+  if (isTableHead(tableCellElement)) {
+    return;
+  }
   if (!hasCopyModifier(event)) {
     return;
   }
@@ -2401,7 +2404,10 @@ class TableStatusManager {
           copyElementTextToTextarea(tableCellElement);
         }
         elementToHighlight = tableCellElement;
-        recordCopyCell(tableCellElement);
+        if (isTableData(tableCellElement)) {
+          // do not record copy on table head element
+          recordCopyCell(tableCellElement);
+        }
       }
 
       copyTextareaToClipboard();
@@ -2776,6 +2782,11 @@ class TableStatusManager {
    * Use this function to change the editor associated table cell.
    */
   tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string, getFocus: boolean = true) {
+    // ignore if input on table head
+    if (isTableHead(targetHTMLTableCellElement)) {
+      return;
+    }
+
     this.deactivateTableCellInputForm();
     this.deactivateTableCellInputFormLocation();
     removeSelect(tableCellInputFormElement);
