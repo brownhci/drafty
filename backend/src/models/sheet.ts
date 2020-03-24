@@ -16,7 +16,8 @@ export const sheetNameToURL = new Map();
 const sheetURLToName = new Map();
 const sheetURLToSheetPath = new Map();
 
-for (let i = 0; i < sheetNames.length; i++) {
+// TODO change to reflect other sheets
+for (let i = 0; i < 1; i++) {
   const sheetName = sheetNames[i];
   const sheetURL = sheetURLs[i];
   const sheetPath = sheetPaths[i];
