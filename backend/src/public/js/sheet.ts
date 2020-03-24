@@ -133,6 +133,7 @@ function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
   }
   const columnLabel = getColumnLabel(tableCellElement.cellIndex);
   const columnLabelText = getColumnLabelText(columnLabel);
+  // TODO - sw: this should not be hardcoded by names --- the attributes of cols should be pulled from the server - or embedded in the sheet's <name>.hbs
   if (columnLabelText === "Last Updated By" || columnLabelText === "Last Updated") {
     tableCellElement.contentEditable = "false";
     return false;
@@ -887,7 +888,6 @@ tableElement.addEventListener("paste", function (event: ClipboardEvent) {
   if (isTableData(target) && isTableCellEditable(target as HTMLTableCellElement)) {
     const pasteContent = event.clipboardData.getData("text");
     tableCellElementOnPaste(target as HTMLTableCellElement, pasteContent);
-
   }
   event.preventDefault();
   event.stopPropagation();
