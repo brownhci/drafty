@@ -2,11 +2,11 @@
     <label for="email">Email address (or MTurk Worker ID)</label>
     <input
         id="email"
-        type="email"
+        type="text"
         name="email"
         class="form-control{{getValidationClass messages.emailValidationFailure}}"
         aria-describedby="email-usage-explanation"
-        placeholder="Enter email"
+        placeholder="Enter username"
         required
         >
     {{#if messages.emailValidationFailure}}
@@ -19,11 +19,11 @@
         {{/with}}
     {{/if}}
     <div class="invalid-feedback">
-        Please provide a valid email
+        Please provide a valid username
     </div>
     {{#if showEmailUsageExplanation}}
         <small id="email-usage-explanation" class="form-text">
-            Your email will only be used to retrieve your account.
+            If you provide your email, it can be used to retrieve your account.
         </small>
     {{/if}}
 </div>

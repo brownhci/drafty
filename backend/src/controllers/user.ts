@@ -71,7 +71,7 @@ export const getSignup = (req: Request, res: Response) => {
         req.flash("info", {msg: "You are already logged in, please log out first"});
         return res.redirect("/");
     }
-    res.render("account/signup", makeRenderObject({ title: "Signup" }, req));
+    res.render("account/signup", makeRenderObject({ title: "Signup", showEmailUsageExplanation: true }, req));
 };
 
 /**
@@ -124,7 +124,7 @@ export async function createAnonUser() {
     [emailFieldName]: email,
     [passwordFieldName]: password,
   };
-  
+
   const [error, results] = await createUser(newUser);
   return results.insertId;
 }
