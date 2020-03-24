@@ -299,9 +299,9 @@ function getSearchValues(): string {
   for (const columnSearch of getTableCellElementsInRow(tableColumnSearches)) {
     if (isColumnSearchFilled(columnSearch)) {
       const idSuggestionType = getIdSuggestionType(getColumnLabel(columnSearch.cellIndex));
-      const idSeachType = getIdSearchType(columnSearch);
+      const idSearchType = getIdSearchType(columnSearch);
       const value = getColumnSearchInput(columnSearch).value;
-      const searchValue = `${idSuggestionType}|${idSeachType}|${value}`;
+      const searchValue = `${idSuggestionType}|${idSearchType}|${value}`;
       searchValues.push(searchValue);
     }
   }
@@ -479,7 +479,7 @@ function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCell
 
   // resize
   const minWidth = targetHTMLTableCellElement.offsetWidth;
-  const resizeWidth = measureTextWidth(text) + em2px(3);
+  const resizeWidth = measureTextWidth(text) + 120;
   const width = Math.max(minWidth, resizeWidth);
   tableCellInputFormElement.style.width = `${width}px`;
 }
@@ -849,20 +849,48 @@ function copyTableColumnToTextarea(index: number) {
   }
   clipboardTextarea.value = clipboardTextarea.value.trimRight();
 }
-// function tableCellElementOnPaste(event: ClipboardEvent) {
-//   console.log("here2");
-//   const pasteContent = (event.clipboardData || window.clipboardData).getData("text");
-//   console.log(pasteContent);
-//   event.preventDefault();
-// }
-// [> paste event <]
-// tableElement.addEventListener("paste", function (event: ClipboardEvent) {
-//   const target: HTMLElement = event.target as HTMLElement;
-//   if (isTableData(target) && isTableCellEditable(target as HTMLTableCellElement)) {
-//     tableCellElementOnPaste(event);
-//   }
-//   event.stopPropagation();
-// }, true);
+
+// paste event
+function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: string) {
+  // invoke edit editor
+  tableStatusManager.tableCellInputFormAssignTarget(tableCellElement, text, true);
+}
+function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+  if (!hasCopyModifier(event)) {
+    return;
+  }
+  // handle potential CTRL+v or CMD+v
+  if (navigator.clipboard) {
+    navigator.clipboard.readText().then(text => {
+      tableCellElementOnPaste(tableCellElement, text);
+    });
+    event.consumed = true;
+  } else {
+    const copyTarget = tableStatusManager.copyTarget;
+    if (!copyTarget) {
+      return;
+    }
+
+    if (!isTableData(copyTarget)) {
+      return;
+    }
+
+    const text = getTableDataText(copyTarget as HTMLTableCellElement);
+    tableCellElementOnPaste(tableCellElement, text);
+    event.consumed = true;
+  }
+}
+tableElement.addEventListener("paste", function (event: ClipboardEvent) {
+  const target: HTMLElement = event.target as HTMLElement;
+  if (isTableData(target) && isTableCellEditable(target as HTMLTableCellElement)) {
+    const pasteContent = event.clipboardData.getData("text");
+    tableCellElementOnPaste(target as HTMLTableCellElement, pasteContent);
+            console.log("order 2");
+
+  }
+  event.preventDefault();
+  event.stopPropagation();
+}, true);
 
 type FilterFunction = (s: string) => boolean;
 function constructTableRowFilter(query: string): FilterFunction {
@@ -2066,9 +2094,6 @@ class TableDataManager {
   }
 
   initializeSentinelObservers() {
-    if (!this.shouldLazyLoad) {
-      return;
-    }
     this.topSentinelObserver = new IntersectionObserver((entries) => this.sentinelReachedHandler(entries), {
       "threshold": [0, 0.25, 0.5, 0.75, 1],
     });
@@ -2078,6 +2103,9 @@ class TableDataManager {
   }
 
   activateSentinelObservers() {
+    if (!this.shouldLazyLoad) {
+      return;
+    }
     this.topSentinelObserver.observe(this.topSentinel);
     this.bottomSentinelObserver.observe(this.bottomSentinel);
   }
@@ -2608,10 +2636,8 @@ class TableStatusManager {
         this.tableCellElementOnCopy(tableCellElement, event);
         break;
       case "v":
-        if (hasCopyModifier(event)) {
-          // handle potential CTRL+v or CMD+v
-          event.consumed = true;
-        }
+        console.log("order 1");
+        tableCellElementOnPasteKeyPressed(tableCellElement, event);
         break;
       case "Alt":
       case "AltLock":
@@ -2755,8 +2781,7 @@ class TableStatusManager {
   tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string, getFocus: boolean = true) {
     this.deactivateTableCellInputForm();
     this.deactivateTableCellInputFormLocation();
-    removeSelect(tableCellInputFormAutocompleteSuggestionsSelectInfo);
-    removeSelect(tableCellInputFormEditSuggestionsSelectInfo);
+    removeSelect(tableCellInputFormElement);
 
     if (targetHTMLTableCellElement) {
       if (!isTableCellEditable(targetHTMLTableCellElement)) {

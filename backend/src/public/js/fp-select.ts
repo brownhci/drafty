@@ -226,9 +226,9 @@ function createSelect(identifier: string, options: Array<Option>, userConfig = {
   selectInfo.selectConfig.mountMethod(selectInfo.optionContainerWrapper);
   return selectInfo;
 }
-function removeSelect(selectInfo: SelectInfo) {
-  if (selectInfo) {
-    selectInfo.optionContainerWrapper.remove();
+function removeSelect(container: HTMLElement) {
+  for (const optionContainerWrapper of container.querySelectorAll(`.${optionContainerWrapperClass}`)) {
+    optionContainerWrapper.remove();
   }
 }
 

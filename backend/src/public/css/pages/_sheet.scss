@@ -139,7 +139,27 @@ $resize-shadow-width: 5px;
     border-collapse: collapse;
 
     .copied {
-      border: dashed $primary 2px !important
+      background-color: rgba($info, 0.1);
+      &::after {
+        @extend .font-awesome;
+        @extend .text-info;
+        @extend .float-right;
+      }
+      &:hover::after {
+        content: "\f0c5";
+      }
+    }
+
+    .pasted {
+      background-color: rgba($primary, 0.1);
+      &::after {
+        @extend .font-awesome;
+        @extend .text-primary;
+        @extend .float-right;
+      }
+      &:hover::after {
+        content: "\f0ea";
+      }
     }
 
     col {
@@ -236,8 +256,7 @@ $resize-shadow-width: 5px;
             @extend .w-100;
             @extend .form-control;
             &:placeholder-shown {
-              font-family: 'Font Awesome 5 Free';
-              font-weight: 900;
+              @extend .font-awesome;
             }
           }
         }

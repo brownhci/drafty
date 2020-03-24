@@ -17,6 +17,7 @@
     @extend .overflow-auto;
     @extend .px-0;
     max-height: 25vh;
+    cursor: pointer;
 
     &.previous-edits {
       .fp-select-option {
