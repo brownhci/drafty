@@ -99,6 +99,7 @@ $resize-shadow-width: 5px;
       left: 0;
       max-width: 90vw;
       z-index: $zindex-popover;
+      cursor: move;
       &.active {
         @extend .d-inline-block;
       }

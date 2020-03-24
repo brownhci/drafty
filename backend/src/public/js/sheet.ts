@@ -1,5 +1,4 @@
 // TODO ARROW KEY not functioning when scrolling off screen
-// TODO paste event handling
 // TODO add new row
 
 /* which table column is active: a table column is activated when associated head is clicked */
@@ -968,6 +967,36 @@ tableCellInputFormElement.addEventListener("keydown", function(event: KeyboardEv
   }
 });
 
+// mouse event handlers
+let isRepositioningTableCellInputForm = false;
+tableCellInputFormElement.addEventListener("mousedown", function(event: MouseEvent) {
+  tableStatusManager.activateTableCellInputFormLocation();
+  isRepositioningTableCellInputForm = true;
+  event.stopPropagation();
+}, {passive: true, capture: true});
+let tableCellInputFormElementXShift: number = 0;
+let tableCellInputFormElementYShift: number = 0;
+function tableCellInputFormElementOnMouseMove(event: MouseEvent) {
+  const {movementX: xShift, movementY: yShift } = event;
+  // debounce
+  tableCellInputFormElementXShift += xShift;
+  tableCellInputFormElementYShift += yShift;
+  tableCellInputFormElement.style.transform = `translate(${tableCellInputFormElementXShift}px, ${tableCellInputFormElementYShift}px)`;
+}
+tableCellInputFormElement.addEventListener("mousemove", function(event: MouseEvent) {
+  if (isRepositioningTableCellInputForm) {
+    tableCellInputFormElementOnMouseMove(event);
+  }
+});
+function tableCellInputFormElementOnMouseUp() {
+  isRepositioningTableCellInputForm = false;
+}
+tableCellInputFormElement.addEventListener("mouseup", function(event: MouseEvent) {
+  if (isRepositioningTableCellInputForm) {
+    tableCellInputFormElementOnMouseUp();
+  }
+});
+
 
 /* for handling complete searches */
 let lastColumnSearchIndex: number = -1;
@@ -1167,6 +1196,8 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableHead(target)) {
     tableHeadOnMouseMove(target as HTMLTableCellElement, event);
+  } else if (isRepositioningTableCellInputForm) {
+    tableCellInputFormElementOnMouseMove(event);
   } else {
     if (tableCellElementUnderMouse) {
       // some table cell is previous hovered or resized
@@ -1183,7 +1214,13 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
   event.stopPropagation();
 }, {passive: true, capture: true});
 tableElement.addEventListener("mouseup", function(event: MouseEvent) {
-  tableHeadOnMouseUp(event);
+  if (isRepositioningTableCellInputForm) {
+    // stop moving the input form editor
+  tableCellInputFormElementOnMouseUp();
+  } else {
+    tableHeadOnMouseUp(event);
+  }
+  event.stopPropagation();
 }, {passive: true, capture: true});
 
 
@@ -2808,9 +2845,29 @@ class TableStatusManager {
   alignTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement) {
     // set position
     const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
-    const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
-    tableCellInputFormElement.style.left = `${left}px`;
-    tableCellInputFormElement.style.top = `${top - buttonHeight}px`;
+    this.positionTableCellInputForm(left, top);
+    tableCellInputFormElement.style.transform = "";
+  }
+
+  /**
+   * Repositions the input form editor
+   *
+   * @arg {number} left - the new form left (as left in tableCellInputFormElement.getBoundingClientRect())
+   * @arg {number} top - the new form top
+   * @arg {boolean = false} topAsEntireFormTop - if true, then the top refers to top in tableCellInputFormElement.getBoundingClientRect(); if false, then the top refers to the form top below the tableCellInputFormLocateCellElement.
+   */
+  positionTableCellInputForm(left: number, top: number, topAsEntireFormTop=false) {
+    if (left !== undefined) {
+      tableCellInputFormElement.style.left = `${left}px`;
+    }
+    if (top !== undefined) {
+      if (topAsEntireFormTop) {
+        tableCellInputFormElement.style.top = `${top}px`;
+      } else {
+        const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
+        tableCellInputFormElement.style.top = `${top - buttonHeight}px`;
+      }
+    }
   }
 
   saveTableCellInputForm() {
