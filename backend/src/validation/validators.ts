@@ -33,7 +33,7 @@ export async function emailNotTaken(req: Request) {
   }
 
   // conflicts with existing user
-  req.flash(emailValidationFailure, { msg: `Account with email address ${email} already exists` });
+  req.flash(emailValidationFailure, { msg: `Account ${email} already exists` });
   return false;
 }
 
@@ -42,7 +42,7 @@ export async function emailExists(req: Request) {
   const [error, user] = await findUserByField(emailFieldName, email);
   if (user == null) {
     // email not taken
-    req.flash(emailValidationFailure, { msg: `Account with email address ${email} does not exists` });
+    req.flash(emailValidationFailure, { msg: `Account ${email} does not exists` });
     return false;
   }
 
@@ -61,6 +61,16 @@ export async function isValidEmail(req: Request) {
   const result = await body("email").normalizeEmail({ gmail_remove_dots: false }).isEmail().run(req);
   if (!validationResult(req).isEmpty()) {
     req.flash(emailValidationFailure, { msg: "Email not in valid format" });
+    return false;
+  }
+  return result;
+}
+
+
+export async function isValidUsername(req: Request) {
+  const result = await body("email").notEmpty().isString().run(req);
+  if (!validationResult(req).isEmpty()) {
+    req.flash(emailValidationFailure, { msg: "Username not in valid format" });
     return false;
   }
   return result;
