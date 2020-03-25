@@ -852,8 +852,9 @@ function copyTableColumnToTextarea(index: number) {
 
 // paste event
 function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: string) {
+  // disable paste
   // invoke edit editor
-  tableStatusManager.tableCellInputFormAssignTarget(tableCellElement, text, true);
+  // tableStatusManager.tableCellInputFormAssignTarget(tableCellElement, text, true);
 }
 function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   if (isTableHead(tableCellElement)) {
