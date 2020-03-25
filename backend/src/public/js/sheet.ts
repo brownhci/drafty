@@ -2446,6 +2446,9 @@ class TableStatusManager {
           // do not record copy on table head element
           recordCopyCell(tableCellElement);
         }
+
+        // regain focus
+        elementToHighlight.focus();
       }
 
       copyTextareaToClipboard();
