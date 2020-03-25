@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+cd ..
+git pull
+cd backend
+npm update
+npm run build
+pm2 restart app
