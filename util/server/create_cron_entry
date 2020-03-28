@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+cp render_sheets /etc/cron.d/
