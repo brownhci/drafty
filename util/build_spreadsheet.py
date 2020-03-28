@@ -1,8 +1,8 @@
-import argparse
-import itertools
-
-import pymysql
+import argparse, itertools, os, pymysql
 from atomicwrites import atomic_write
+
+db_user = 'test'
+db_pass = 'test'
 
 NROWS_IN_SECTION = 50 # sw90: number of rows per <template>; the lower the number the better the performance
 
@@ -145,16 +145,23 @@ def save_to_file(output_file, cursor):
     with atomic_write(output_file, overwrite=True) as f:
         f.write(build_table_file(cursor))
 
+def get_db_creds():
+    with open('../backend/.env', 'r') as fh:
+        for line in fh.readlines():
+            #print(line)
+            kv = line.strip().split('=')
+            k = kv[0]
+            if k == 'DB_USER':
+                dbuser = kv[1]
+            if k == 'DB_PASSWORD':
+                dbpass = kv[1]
+    return dbuser,dbpass
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Write database data to table HTML file.')
     parser.add_argument('--host', default='localhost',
                         help='The host of the MySQL database')
-    parser.add_argument('--username', default='testuser',
-                        help='The user of the MySQL database')
-    parser.add_argument('--password', default='testpassword',
-                        help='The password of the MySQL database')
     parser.add_argument('--database', default='profs',
                         help='The database to be outputtted')
     parser.add_argument('--nrows', default=NROWS_IN_SECTION, type=int,
@@ -164,14 +171,19 @@ if __name__ == '__main__':
                         help='where the HTML markup will be written to')
     args = parser.parse_args()
 
+    db_user,db_pass = get_db_creds()
+    db = pymysql.connect(host=args.host, user=db_user,
+                            password=db_pass,
+                            db=args.database, charset='utf8mb4',
+                            cursorclass=pymysql.cursors.DictCursor)
+
     try:
-        db = pymysql.connect(host=args.host, user=args.username,
-                             password=args.password,
-                             db=args.database, charset='utf8mb4',
-                             cursorclass=pymysql.cursors.DictCursor)
         with db.cursor() as cursor:
             NROWS_IN_SECTION = args.nrows_in_section
             filepath = f'../backend/views/partials/sheets/{args.outfile}'
             save_to_file(filepath, cursor)
+    except Exception as e:
+        print('ERROR exiting...')
+        print(e)
     finally:
         db.close()
