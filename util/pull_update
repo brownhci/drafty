@@ -3,6 +3,11 @@
 cd ..
 git pull
 cd backend
-npm update
+
+if [ "$#" -gt 0 ] # if greater than 0
+then
+  npm update
+fi
+
 npm run build
 pm2 restart server
