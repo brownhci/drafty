@@ -1,2 +1,2 @@
 # Start job every 1 minute
-* * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_spreadsheet.py --host=localhost --username=root --password=<pass> --database=<ddname> --nrows 40 <sheetname>.hbs
+* * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_spreadsheet.py --host=localhost --database=<ddname> --nrows 40 <sheetname>.hbs
