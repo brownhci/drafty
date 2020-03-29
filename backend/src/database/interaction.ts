@@ -128,10 +128,14 @@ export function insertSearchMulti(idInteraction: number, multiSearchValues: stri
 export async function insertSearch(idSession: string, idSuggestionType: number|string, isPartial: number, isMulti: number, isFromUrl: number, value: string, matchedValues: string, multiSearchValues: string) {
     try {
         let idInteractionType: number = 7; // 7 = search
-        if(isMulti === 1) { 
+        if(isMulti === 1 && isPartial === 1) { 
             idInteractionType = 11; // 11 = searchMulti 
+        } else if(isMulti === 1 && isPartial === 0) { 
+            idInteractionType = 16; // 11 = searchMulti-full
+        } else if(isMulti === 0 && isPartial === 0) { 
+            idInteractionType = 15; // 11 = search-full
         }
-
+        
         const idInteraction = await insertInteraction(idSession, idInteractionType);
         const idSearchType: number = 1; // default 1 = equals
         
@@ -142,8 +146,8 @@ export async function insertSearch(idSession: string, idSuggestionType: number|s
         console.log(value, matchedValues, multiSearchValues);
         */
        
-        // idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues
-        db.query(stmtSearch, [idSession, idInteractionType, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues]);
+        ///////////////////// idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues
+        db.query(stmtSearch, [idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues]);
 
         if(isMulti === 1) {
             insertSearchMulti(idInteraction, multiSearchValues);
