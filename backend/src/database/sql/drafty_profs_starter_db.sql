@@ -624,7 +624,7 @@ CREATE TABLE `SelectRange` (
 CREATE TABLE `Session` (
   `idSession` int(11) NOT NULL,
   `idProfile` int(11) DEFAULT NULL,
-  `start` datetime DEFAULT NULL,
+  `start` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `end` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
