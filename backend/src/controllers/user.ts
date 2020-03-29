@@ -4,7 +4,7 @@ import moment from "moment";
 import passport from "passport";
 import { Request, Response, NextFunction } from "express";
 import { UserModel, idFieldName, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
-import { findUserByField, createUser, updateUser, insertSession } from "../database/user";
+import { findUserByField, createUser, updateUser, insertSession, updateUserNewSignup } from "../database/user";
 import { emailExists, emailNotTaken, isValidUsername, checkPasswordLength, confirmMatchPassword } from "../validation/validators";
 import { encryptPassword } from "../util/encrypt";
 import { sendMail, userPasswordResetEmailAccount } from "../util/email";
@@ -96,7 +96,9 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
     [passwordFieldName]: password,
   };
 
-  const [error, results] = await createUser(newUser);
+  // sw: we should just update their anonymous user profile instead
+  //const [error, results] = await createUser(newUser);
+  const [error, results] = await updateUserNewSignup(email, password);
   if (error) {
     return next(error);
   }

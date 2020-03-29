@@ -5,6 +5,7 @@ import { tableName, validFieldNamesForLookup, UserModel } from "../models/user";
 const stmtSelUser: string    = "SELECT * FROM ?? WHERE ?? = ?";
 const stmtInsertUser: string = "INSERT INTO ?? SET ?";
 const stmtUpdateUser: string = "UPDATE ?? SET ? WHERE ?";
+const stmtUpdateUserNewSignUp: string = "UPDATE Profile SET email = ?, password = ? WHERE idProfile = ?";
 const stmtInsertSession: string = "INSERT INTO Session (idProfile) VALUES (?);";
 
 // Result type of findUserByField
@@ -77,6 +78,17 @@ export async function createUser(user: Partial<UserModel>) {
 export async function updateUser(updates: Partial<UserModel>, constraints: Partial<UserModel>) {
   try {
     const [results, fields] = await db.query(stmtUpdateUser, [tableName, updates, constraints]);
+    return [null, results, fields];
+  } catch (error) {
+    logDbErr(error, "error during updating existing user", "warn");
+    return [error];
+  }
+}
+
+// sw: this is just way simpler way to do things
+export async function updateUserNewSignup(email: string, password: string) {
+  try {
+    const [results, fields] = await db.query(stmtUpdateUserNewSignUp, [email, password]);
     return [null, results, fields];
   } catch (error) {
     logDbErr(error, "error during updating existing user", "warn");
