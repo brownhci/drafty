@@ -27,10 +27,10 @@ ALTER TABLE Edit
   ADD KEY _fk_idEntryType_from_edit_asllhg1233 (idEntryType);
 
 --
--- AUTO_INCREMENT for table `Edit`
+-- AUTO_INCREMENT for table Edit
 --
-ALTER TABLE `Edit`
-  MODIFY `idEdit` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE Edit
+  MODIFY idEdit int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for table Edit
@@ -57,12 +57,12 @@ CREATE TABLE Edit_Suggestion (
 --
 
 --
--- Indexes for table `Edit_Suggestion`
+-- Indexes for table Edit_Suggestion
 --
-ALTER TABLE `Edit_Suggestion`
-  ADD UNIQUE KEY `_unique_edit_suggestion_idEdit_agsdh1872dg` (`idEdit`,`idSuggestion`),
-  ADD KEY `_index_edit_suggestion_idEdit_agsdh1872dg` (`idEdit`);
-  ADD KEY `_index_edit_suggestion_idSuggestion_agsdh1872dg` (`idSuggestion`);
+ALTER TABLE Edit_Suggestion
+  ADD UNIQUE( idEdit, idSuggestion),
+  ADD KEY _index_edit_suggestion_idEdit_agsdh1872dg (idEdit),
+  ADD KEY _index_edit_suggestion_idSuggestion_agsdh1872dg (idSuggestion);
 
 --
 -- Constraints for dumped tables
