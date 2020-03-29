@@ -50,3 +50,6 @@ database/*.sql
 
 # sessions
 .sessions*
+
+# sheets - they are updated live on server
+backend/views/partials/sheets/*
