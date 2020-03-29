@@ -57,11 +57,12 @@ CREATE TABLE Edit_Suggestion (
 --
 
 --
--- Indexes for table Edit_Suggestion
+-- Indexes for table `Edit_Suggestion`
 --
-ALTER TABLE Edit_Suggestion
-  ADD KEY _index_edit_suggestion_idEdit_agsdh1872dg (idEdit),
-  ADD KEY _index_edit_suggestion_idSuggestion_agsdh1872dg (idSuggestion);
+ALTER TABLE `Edit_Suggestion`
+  ADD UNIQUE KEY `_unique_edit_suggestion_idEdit_agsdh1872dg` (`idEdit`,`idSuggestion`),
+  ADD KEY `_index_edit_suggestion_idEdit_agsdh1872dg` (`idEdit`);
+  ADD KEY `_index_edit_suggestion_idSuggestion_agsdh1872dg` (`idSuggestion`);
 
 --
 -- Constraints for dumped tables
