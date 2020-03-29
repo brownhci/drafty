@@ -158,8 +158,8 @@ def get_db_creds():
     return dbuser,dbpass
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='Write database data to table HTML file.')
+    # python3 build_spreadsheet.py --host localhost --database 2300profs --nrows 40 2300profs.hbs
+    parser = argparse.ArgumentParser(description='Write database data to table HTML file.')
     parser.add_argument('--host', default='localhost',
                         help='The host of the MySQL database')
     parser.add_argument('--database', default='profs',
