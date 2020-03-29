@@ -44,7 +44,6 @@ def get_column_widths(cursor):
     rows = cursor.fetchall()
     global num_columns
     num_columns = len(rows)
-    print(num_columns)
     return {row['idSuggestionType']: row['avg_length'] for row in rows}
 
 
