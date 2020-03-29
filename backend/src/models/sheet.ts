@@ -1,3 +1,6 @@
+const classProfsName = "CS Professors";
+const classProfsURL = "2300profs";
+const classProfsPath = "sheets/2300profs";
 const csProfessorName = "CS Professors";
 const csProfessorURL = "professors";
 const csProfessorPath = "sheets/professors";
@@ -8,15 +11,16 @@ const demoName = "Demo";
 const demoURL = "demo";
 const demoPath = "sheets/demo";
 
-const sheetNames = [csProfessorName, academicJobName, demoName];
-const sheetURLs = [csProfessorURL, academicJobURL, demoURL];
-const sheetPaths = [csProfessorPath, academicJobPath, demoPath];
+const sheetNames = [classProfsName, csProfessorName, academicJobName, demoName];
+const sheetURLs = [classProfsURL, csProfessorURL, academicJobURL, demoURL];
+const sheetPaths = [classProfsPath, csProfessorPath, academicJobPath, demoPath];
 
 export const sheetNameToURL = new Map();
 const sheetURLToName = new Map();
 const sheetURLToSheetPath = new Map();
 
 // TODO change to reflect other sheets
+// sw: we need to avoid hardcoding sheets as much as possible we could cr
 for (let i = 0; i < 1; i++) {
   const sheetName = sheetNames[i];
   const sheetURL = sheetURLs[i];
