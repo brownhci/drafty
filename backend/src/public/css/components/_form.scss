@@ -1,9 +1,0 @@
-form {
-  & > div{
-    @extend .form-group;
-  }
-  & > [type="submit"] {
-    @extend .btn;
-    @extend .btn-primary;
-  }
-}

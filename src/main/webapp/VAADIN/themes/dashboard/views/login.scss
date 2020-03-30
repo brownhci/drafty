@@ -1,0 +1,81 @@
+@mixin dashboard-login-view {
+
+  .loginview {
+    padding-top: 0 !important;
+	
+	background-color: transparent;
+    background-size: cover;
+	
+    > .v-loading-indicator {
+      display: none !important;
+    }
+  }
+
+  .login-panel {
+    @include valo-panel-style;
+    padding: round($v-unit-size / 1.5) round($v-unit-size / 1.5);
+    //min-width: $v-font-size * 13;
+    min-width: 600px;
+    max-width: 90%;
+
+    .labels {
+      display: block;
+
+      .h4 {
+        margin: 0;
+        vertical-align: baseline;
+      }
+
+      .h3 {
+        margin: 0;
+        float: right;
+      }
+    }
+
+    .fields .v-icon {
+      opacity: 0.3;
+    }
+
+    @include width-range($min: 0, $max: $v-unit-size * 14) {
+      .labels .h3 {
+        float: none;
+        display: block;
+        margin-top: .2em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .fields {
+        display: block;
+
+        .v-slot {
+          display: block;
+
+          .v-widget {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+
+  .login-help {
+    margin: 0 round($v-unit-size/4) !important;
+
+    &.v-Notification-animate-in {
+      @include animation(valo-animate-in-fade 500ms 1500ms backwards);
+    }
+
+    p span {
+      // Mimic paragraphs (since notification styles are a bit limiting...)
+      display: block;
+      margin-top: .5em;
+
+      a {
+        color: #fff;
+        text-decoration: none;
+        border-bottom: 1px solid #888;
+      }
+    }
+  }
+}

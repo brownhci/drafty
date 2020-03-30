@@ -1,0 +1,156 @@
+// Styles imported from Responsive_Form.html
+@mixin vaadin-form-template {
+     .form-template {
+       overflow-x: hidden;
+       overflow-y: scroll;
+       padding: $v-unit-size / 2;
+       min-width: 320px;
+
+       .title {
+         font-size: $v-font-size * 1.2;
+         font-weight: 600;
+         padding-bottom: $v-unit-size / 2;
+       }
+
+       .v-caption-form-section {
+         text-transform: uppercase;
+         font-size: $v-font-size * 0.8;
+         color: lighten($v-font-color, 20%);
+         font-weight: 600;
+         padding-bottom: 0;
+         width: 100%;
+       }
+
+       .input-wrapper {
+         padding: $v-unit-size / 4;
+         line-height: $v-unit-size;
+       }
+
+       .input-group {
+         width: 100%;
+       }
+
+       .text-wrapper {
+         padding: $v-unit-size / 2;
+         background: lighten($v-app-background-color, 10%);
+       }
+
+       .form-section {
+         padding: $v-unit-size / 4 0 $v-unit-size;
+         width: 100%;
+         border-top: valo-border($v-border);
+       }
+
+       .input-wrapper .v-caption {
+         display: block;
+       }
+
+       .v-button.borderless {
+         color: $v-focus-color;
+       }
+
+       .input-wrapper {
+         .v-widget + .v-widget {
+           margin-left: $v-unit-size / 2;
+         }
+       }
+
+       .align-bottom {
+         vertical-align: bottom;
+       }
+
+       .border {
+         border: valo-border($border: $v-border, $strength: 0.5);
+         margin: $v-unit-size / 4 0;
+       }
+
+       &[width-range~="-550px"] {
+         .input-wrapper {
+           width: 100%;
+         }
+       }
+
+       &[width-range~="551px-"] {
+
+         .caption-left .input-wrapper .v-caption {
+           display: inline-block;
+           height: $v-unit-size;
+           line-height: $v-unit-size;
+           padding-right: $v-unit-size / 6;
+           padding-bottom: 0;
+           vertical-align: top;
+         }
+
+         .caption-left .input-wrapper .v-caption.v-caption-tiny {
+           height: $v-unit-size--tiny;
+           line-height: $v-unit-size--tiny;
+         }
+
+         .caption-left .input-wrapper .v-caption.v-caption-small {
+           height: $v-unit-size--small;
+           line-height: $v-unit-size--small;
+         }
+
+         .caption-left .input-wrapper .v-caption.v-caption-large {
+           height: $v-unit-size--large;
+           line-height: $v-unit-size--large;
+         }
+
+         .caption-left .input-wrapper .v-caption.v-caption-huge {
+           height: $v-unit-size--huge;
+           line-height: $v-unit-size--huge;
+         }
+       }
+
+       &[width-range~="551-750px"] {
+
+         .input-wrapper {
+           width: 50%;
+         }
+
+         .caption-left .input-wrapper {
+           width: 100%;
+
+           > .v-widget {
+             width: 65% !important;
+             float: right;
+           }
+
+           > .v-caption {
+             text-align: right;
+             width: 35%;
+             box-sizing: border-box;
+           }
+         }
+       }
+
+       &[width-range~="-750px"] {
+
+         .title, .v-caption-form-section {
+           text-align: center;
+         }
+
+         .input-wrapper .v-datefield, .v-textfield, .v-filterselect, .v-textarea {
+           width: 100%;
+         }
+
+         .input-wrapper {
+           .v-widget + .v-widget {
+             margin-left: 0;
+             margin-top: $v-unit-size / 4;
+           }
+         }
+
+         .input-group {
+           margin-bottom: $v-unit-size / 2;
+         }
+
+         .v-captiontext {
+           text-overflow: ellipsis;
+           overflow: hidden;
+           width: 100%;
+         }
+       }
+     }
+   }
+
