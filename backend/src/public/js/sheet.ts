@@ -279,6 +279,9 @@ function getIdUniqueID(tableCellElement: HTMLTableCellElement): number {
 function getIdSuggestion(tableCellElement: HTMLTableCellElement): number {
   return Number.parseInt(tableCellElement.id);
 }
+function setIdSuggestion(tableCellElement: HTMLTableCellElement, idSuggestion: string) {
+  tableCellElement.id = idSuggestion;
+}
 function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
   const idSuggestionType = columnLabel.dataset.idSuggestionType;
   if (idSuggestionType) {
@@ -309,7 +312,7 @@ function getSearchValues(): string {
 }
 
 // Record Interaction
-function recordInteraction(url: string, data: Record<string, any>) {
+function recordInteraction(url: string, data: Record<string, any>, responseHandler: (response: Response) => void = () => {}) {
   data["_csrf"] = tableCellInputFormCSRFInput.value;
 
   fetch(url, {
@@ -322,6 +325,7 @@ function recordInteraction(url: string, data: Record<string, any>) {
       if (!response.ok) {
         console.error(`${response.status}: ${response.statusText}`);
       }
+      responseHandler(response);
     })
     .catch(error => console.error("Network error when posting interaction: ", error));
 }
@@ -333,6 +337,10 @@ function recordEdit(tableCellElement: HTMLTableCellElement) {
     "idUniqueID": getIdUniqueID(tableCellElement),
     "idSuggestion": getIdSuggestion(tableCellElement),
     "suggestion": tableCellElement.textContent,
+  }, (response) => {
+    response.json().then(idSuggestion => {
+      setIdSuggestion(tableCellElement, idSuggestion);
+    });
   });
 }
 
