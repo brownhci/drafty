@@ -73673,7 +73673,6 @@ ALTER TABLE `Suggestions`
   ADD UNIQUE KEY `idSuggestion` (`idSuggestion`),
   ADD KEY `fk_Suggestion_UniqueID_idx` (`idUniqueID`),
   ADD KEY `fk_Suggestion_SuggestionType1_idx` (`idSuggestionType`),
-  ADD KEY `_INDEX_idProfile_Suggestions_1208736` (`idProfile`),
   ADD KEY `idSuggestion_2` (`idSuggestion`);
 
 --
