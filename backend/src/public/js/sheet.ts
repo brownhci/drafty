@@ -750,7 +750,7 @@ enum SortingDirection {
   ASCENDING,
   DESCENDING,
 }
-function addColumnSorter(columnIndex: number, sortingDirection: SortingDirection, order: number = columnIndex) {
+function addColumnSorter(columnIndex: number, sortingDirection: SortingDirection, order: number = columnIndex, recordSortInteraction: boolean = true) {
   let sorter: TextSortingFunction;
   if (sortingDirection === SortingDirection.ASCENDING) {
     sorter = (text1, text2) => text1.localeCompare(text2);
@@ -758,10 +758,12 @@ function addColumnSorter(columnIndex: number, sortingDirection: SortingDirection
     sorter = (text1, text2) => text2.localeCompare(text1);
   }
   tableDataManager.addSorter(columnIndex, sorter, order);
-  recordSort(columnIndex, sortingDirection);
+  if (recordSortInteraction) {
+    recordSort(columnIndex, sortingDirection);
+  }
 }
 
-function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement) {
+function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement, recordSort: boolean = true) {
   const clickClass = "clicked";
   const descendingClass = "desc";
 
@@ -778,18 +780,17 @@ function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement) {
     if (buttonElement.classList.contains(descendingClass)) {
       // ascending sort
       buttonElement.classList.remove(descendingClass);
-      addColumnSorter(columnIndex, SortingDirection.ASCENDING);
+      addColumnSorter(columnIndex, SortingDirection.ASCENDING, undefined, recordSort);
     } else {
       // descending sort
       buttonElement.classList.add(descendingClass);
-      addColumnSorter(columnIndex, SortingDirection.DESCENDING);
+      addColumnSorter(columnIndex, SortingDirection.DESCENDING, undefined, recordSort);
     }
   } else {
     // ascending sort
     buttonElement.classList.add(clickClass);
-      addColumnSorter(columnIndex, SortingDirection.ASCENDING);
+    addColumnSorter(columnIndex, SortingDirection.ASCENDING, undefined, recordSort);
   }
-
 }
 tableElement.addEventListener("click", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
@@ -2948,3 +2949,5 @@ class TableStatusManager {
 const tableStatusManager: TableStatusManager = new TableStatusManager();
 const tableDataManager = new TableDataManager(tableElement, document.getElementById("table-data"), tableScrollContainer, tableRowHeight, undefined, () => tableStatusManager.restoreStatus());
 showWelcomeScreenWhenCookieNotSet();
+// sort on University A-Z
+tableCellSortButtonOnClick(tableElement.querySelectorAll(".sort-btn")[1] as HTMLButtonElement, false);
