@@ -1,11 +1,15 @@
-import argparse, itertools, os, pymysql
+import argparse
+import itertools
+import os
+
+import pymysql
 from atomicwrites import atomic_write
 
 db_user = 'test'
 db_pass = 'test'
 
 # sw90: number of rows per <template>; the lower the number the better the performance
-NROWS_IN_SECTION = 50 
+NROWS_IN_SECTION = 50
 
 
 sql_col_order = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.columnOrder"
@@ -51,7 +55,12 @@ def get_column_widths(cursor):
 def build_column_label_cell(row, column_index):
     id_suggestion_type = row['idSuggestionType']
     colname = row['name']
-    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" tabindex="-1" class="column-label">{colname}<button class="sort-btn"></button></th>\n'
+    if row['isEditable']:
+        content_editable = ""
+    else:
+        noneditable_indices.append(column_index)
+        content_editable = 'contenteditable="false"'
+    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" tabindex="-1" class="column-label" {content_editable}>{colname}<button class="sort-btn"></button></th>\n'
 
 
 def build_column_labels_row(cursor):
@@ -77,12 +86,16 @@ def build_placeholder_table(cursor):
     return f'<table id="table">{build_colgroup(column_widths)}{build_table_head(cursor, column_widths)}</table>\n'
 
 
-def build_table_datarow_cell(row):
+noneditable_indices = []
+
+
+def build_table_datarow_cell(row, cellindex):
     id_suggestion = row['idSuggestion']
     suggestion = row['suggestion']
     #  id_suggestion_type = row['idSuggestionType']
     suggestion = ''.join(chr(c) for c in suggestion.encode('ascii', 'xmlcharrefreplace') if c != 0)
-    return f'<td id="{id_suggestion}" tabindex="-1">{suggestion}</td>'
+    content_editable = 'contenteditable="false"' if cellindex in noneditable_indices else ""
+    return f'<td id="{id_suggestion}" tabindex="-1" {content_editable}>{suggestion}</td>'
 
 
 def pad_iterator(orig_iter, filler, target_len):
@@ -112,10 +125,11 @@ def build_table_row(rows_iter):
     tablecell_rows_iter = itertools.chain([first_tablecell],
                                           filter(best_in_type, itertools.takewhile(same_row, rows_iter1)))
     rest_rows_iter = itertools.dropwhile(same_row, rows_iter2)
-    datarow_cell_iter = pad_iterator(
-        map(build_table_datarow_cell, tablecell_rows_iter),
-        '<td tabindex="-1"></td>',
-        num_columns)
+    datarow_cell_iter = (build_table_datarow_cell(row, i) for i, row in enumerate(
+        pad_iterator(
+            tablecell_rows_iter,
+            filler={'suggestion': ''},
+            target_len=num_columns)))
     return f'<tr data-id="{id_unique_id}">{"".join(datarow_cell_iter)}</tr>', rest_rows_iter
 
 
@@ -153,6 +167,7 @@ def save_to_file(output_file, cursor):
     with atomic_write(output_file, overwrite=True) as f:
         f.write(build_table_file(cursor))
 
+
 def get_db_creds():
     with open('../backend/.env', 'r') as fh:
         for line in fh.readlines():
@@ -162,7 +177,7 @@ def get_db_creds():
                 dbuser = kv[1]
             if k == 'DB_PASSWORD':
                 dbpass = kv[1]
-    return dbuser ,dbpass
+    return dbuser, dbpass
 
 
 if __name__ == '__main__':

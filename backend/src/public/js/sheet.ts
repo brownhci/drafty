@@ -132,9 +132,8 @@ function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
     return false;
   }
   const columnLabel = getColumnLabel(tableCellElement.cellIndex);
-  const columnLabelText = getColumnLabelText(columnLabel);
   // TODO - sw: this should not be hardcoded by names --- the attributes of cols should be pulled from the server - or embedded in the sheet's <name>.hbs
-  if (columnLabelText === "Last Updated By" || columnLabelText === "Last Updated") {
+  if (columnLabel.contentEditable === "false") {
     tableCellElement.contentEditable = "false";
     return false;
   }
@@ -1790,6 +1789,7 @@ interface DatumLike {
   id: string;
   textContent: string;
   className: string;
+  contentEditable: string;
 }
 // HTML
 class DataCellElement implements DatumLike {
@@ -1819,6 +1819,14 @@ class DataCellElement implements DatumLike {
     this.element.className = className;
   }
 
+  get contentEditable() {
+    return this.element.contentEditable;
+  }
+
+  set contentEditable(contentEditable: string) {
+    this.element.contentEditable = contentEditable;
+  }
+
   constructor(element: HTMLTableCellElement = undefined) {
     if (element) {
       this.element = element;
@@ -1836,6 +1844,7 @@ class DataCellElement implements DatumLike {
     this.id = datum.id;
     this.textContent = datum.textContent;
     this.className = datum.className;
+    this.contentEditable = datum.contentEditable;
   }
 
   toDatum(): Datum {
@@ -1847,15 +1856,17 @@ class Datum implements DatumLike {
   id: string;
   textContent: string;
   className: string;
+  contentEditable: string;
 
-  constructor(id: string, textContent: string, className: string) {
+  constructor(id: string, textContent: string, className: string, contentEditable: string) {
     this.id = id;
     this.textContent = textContent;
     this.className = className;
+    this.contentEditable = contentEditable;
   }
 
   static from(datum: DatumLike) {
-    return new Datum(datum.id, datum.textContent, datum.className);
+    return new Datum(datum.id, datum.textContent, datum.className, datum.contentEditable);
   }
 
   toDataCellElement(): DataCellElement {
@@ -1863,6 +1874,7 @@ class Datum implements DatumLike {
     dataCellElement.id = this.id;
     dataCellElement.textContent = this.textContent;
     dataCellElement.className = this.className;
+    dataCellElement.contentEditable = this.contentEditable;
     return dataCellElement;
   }
 }
