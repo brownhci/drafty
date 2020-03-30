@@ -2814,6 +2814,9 @@ class TableStatusManager {
     if (tableCellInputFormLocationActive) {
       if (tableDataManager.putElementInRenderingViewByCellId(this.tableCellInputFormTargetElementId)) {
         this.alignTableCellInputForm(this.tableCellInputFormTargetElement);
+        // clear cumulative shift so that next shifting of input form can start afresh
+        tableCellInputFormElementXShift = 0;
+        tableCellInputFormElementYShift = 0;
       }
     }
   }
