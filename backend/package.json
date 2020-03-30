@@ -102,7 +102,7 @@
         "nodemon": "^2.0.2",
         "shelljs": "^0.8.3",
         "supertest": "^4.0.2",
-        "ts-jest": "^25.2.1",
+        "ts-jest": "^25.3.0",
         "ts-node": "^8.6.2",
         "typescript": "^3.8.3"
     }
