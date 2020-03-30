@@ -612,7 +612,6 @@ function createEditSuggestionsContainer(editSuggestions: Array<Suggestion>, targ
   tableCellInputFormEditSuggestionsSelectInfo = createSelect(identifier, editSuggestions, userConfig);
   // resize form editor
   updateTableCellInputFormWidthToFitText(tableCellInputFormEditSuggestionsSelectInfo.longestText);
-  tableCellInputFormEditSuggestionsSelectInfo.optionContainer.classList.add("previous-edits");
 }
 
 /**
@@ -999,6 +998,7 @@ tableCellInputFormElement.addEventListener("mousemove", function(event: MouseEve
 });
 function tableCellInputFormElementOnMouseUp() {
   isRepositioningTableCellInputForm = false;
+  tableCellInputFormInputElement.focus({preventScroll: true});
 }
 tableCellInputFormElement.addEventListener("mouseup", function(event: MouseEvent) {
   if (isRepositioningTableCellInputForm) {
@@ -2870,8 +2870,8 @@ class TableStatusManager {
   alignTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement) {
     // set position
     const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
-    this.positionTableCellInputForm(left, top);
     tableCellInputFormElement.style.transform = "";
+    this.positionTableCellInputForm(left, top);
   }
 
   /**
