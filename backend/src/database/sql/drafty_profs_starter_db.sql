@@ -26,7 +26,7 @@ DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_edit_suggestions` (IN `idSuggestionPrev_var` INT, IN `idSuggestionChosen_var` INT, IN `idSession_var` INT, IN `idInteractionType_var` INT, IN `idEntryType_var` INT, IN `mode_var` VARCHAR(25))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_edit_suggestions` (IN `idSuggestionPrev_var` INT, IN `idSuggestionChosen_var` INT, IN `idSession_var` INT, IN `idInteractionType_var` INT, IN `idEntryType_var` INT, IN `mode_var` VARCHAR(25), IN `idProfile_var` INT)  BEGIN
     DECLARE finished INTEGER DEFAULT 0;
     DECLARE idEdit_var INTEGER;
     DECLARE idSugg_var INTEGER;
@@ -89,7 +89,7 @@ START TRANSACTION;
     SELECT s.idSuggestion INTO idSuggestion_username FROM Suggestions s INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType WHERE s.idSuggestionType = (SELECT idSuggestionType FROM SuggestionType WHERE idDatatype = 5) AND s.idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var) ORDER BY confidence DESC LIMIT 1;
     SELECT s.idSuggestion INTO idSuggestion_lastupdated FROM Suggestions s INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType WHERE s.idSuggestionType = (SELECT idSuggestionType FROM SuggestionType WHERE idDatatype = 6) AND s.idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var) ORDER BY confidence DESC LIMIT 1;
 
-    UPDATE Suggestions SET suggestion = (SELECT s.idProfile FROM Session s WHERE s.idSession = idSession_var) WHERE idSuggestion = idSuggestion_username;
+    UPDATE Suggestions SET suggestion = idProfile_var WHERE idSuggestion = idSuggestion_username;
     UPDATE Suggestions SET suggestion = CURRENT_TIMESTAMP WHERE  idSuggestion = idSuggestion_lastupdated;
 
     CLOSE cursorIdSuggs;
@@ -73879,7 +73879,6 @@ ALTER TABLE `Sort`
 -- Constraints for table `Suggestions`
 --
 ALTER TABLE `Suggestions`
-  ADD CONSTRAINT `fk_Suggestion_IdProfile_idx` FOREIGN KEY (`idProfile`) REFERENCES `Profile` (`idProfile`),
   ADD CONSTRAINT `fk_idSuggestionType_123687` FOREIGN KEY (`idSuggestionType`) REFERENCES `SuggestionType` (`idSuggestionType`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

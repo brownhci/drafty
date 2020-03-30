@@ -104,7 +104,8 @@ CREATE PROCEDURE insert_edit_suggestions(
     IN idSession_var INT,
     IN idInteractionType_var INT,
     IN idEntryType_var INT,
-    IN mode_var VARCHAR(25)
+    IN mode_var VARCHAR(25),
+    IN idProfile_var INT)
 )
 BEGIN
     DECLARE finished INTEGER DEFAULT 0;
@@ -169,7 +170,7 @@ START TRANSACTION;
     SELECT s.idSuggestion INTO idSuggestion_username FROM Suggestions s INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType WHERE s.idSuggestionType = (SELECT idSuggestionType FROM SuggestionType WHERE idDatatype = 5) AND s.idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var) ORDER BY confidence DESC LIMIT 1;
     SELECT s.idSuggestion INTO idSuggestion_lastupdated FROM Suggestions s INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType WHERE s.idSuggestionType = (SELECT idSuggestionType FROM SuggestionType WHERE idDatatype = 6) AND s.idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = idSuggestionChosen_var) ORDER BY confidence DESC LIMIT 1;
 
-    UPDATE Suggestions SET suggestion = (SELECT s.idProfile FROM Session s WHERE s.idSession = idSession_var) WHERE idSuggestion = idSuggestion_username;
+    UPDATE Suggestions SET suggestion = idProfile_var WHERE idSuggestion = idSuggestion_username;
     UPDATE Suggestions SET suggestion = CURRENT_TIMESTAMP WHERE  idSuggestion = idSuggestion_lastupdated;
 
     CLOSE cursorIdSuggs;
