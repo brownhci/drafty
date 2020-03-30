@@ -1,12 +1,46 @@
--- Generation Time: Mar 29, 2020 at 07:54 PM
+-- phpMyAdmin SQL Dump
+-- version 4.8.3
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost:3306
+-- Generation Time: Mar 30, 2020 at 01:08 AM
 -- Server version: 5.7.23
+-- PHP Version: 7.2.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
 SET time_zone = "+00:00";
 
 --
--- Database: Users
+-- Database: users
 --
+CREATE DATABASE IF NOT EXISTS users DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE users;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table Experiment
+--
+
+CREATE TABLE Experiment (
+  idExperiment int(11) NOT NULL,
+  experiment varchar(45) DEFAULT NULL,
+  dataset varchar(25) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table Experiment_Session
+--
+
+CREATE TABLE Experiment_Session (
+  idSession int(11) NOT NULL,
+  idExperiment int(11) NOT NULL,
+  date_created datetime DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -70,9 +104,29 @@ CREATE TABLE Session (
   end datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table ViewChange
+--
+
+CREATE TABLE ViewChange (
+  idViewChange int(11) NOT NULL,
+  idSession int(11) NOT NULL,
+  origin varchar(255) DEFAULT NULL,
+  view varchar(255) DEFAULT NULL,
+  time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table Experiment
+--
+ALTER TABLE Experiment
+  ADD PRIMARY KEY (idExperiment);
 
 --
 -- Indexes for table Profile
@@ -97,8 +151,20 @@ ALTER TABLE Session
   ADD KEY fk_Session_Profile1_idx (idProfile);
 
 --
+-- Indexes for table ViewChange
+--
+ALTER TABLE ViewChange
+  ADD PRIMARY KEY (idViewChange);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table Experiment
+--
+ALTER TABLE Experiment
+  MODIFY idExperiment int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table Profile
@@ -117,3 +183,10 @@ ALTER TABLE Role
 --
 ALTER TABLE Session
   MODIFY idSession int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table ViewChange
+--
+ALTER TABLE ViewChange
+  MODIFY idViewChange int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;

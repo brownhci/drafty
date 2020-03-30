@@ -73576,8 +73576,7 @@ ALTER TABLE `Experiment`
 --
 ALTER TABLE `Interaction`
   ADD PRIMARY KEY (`idInteraction`),
-  ADD KEY `fk_Interaction_InteractionType1_idx` (`idInteractionType`),
-  ADD KEY `fk_Interaction_Session1_idx` (`idSession`);
+  ADD KEY `fk_Interaction_InteractionType1_idx` (`idInteractionType`);
 
 --
 -- Indexes for table `InteractionType`
