@@ -99,7 +99,7 @@ INSERT INTO Role (idRole, role) VALUES
 CREATE TABLE Session (
   idSession int(11) NOT NULL,
   idProfile int(11) DEFAULT NULL,
-  idExpressSession int(11) DEFAULT NULL,
+  idExpressSession varchar(255) DEFAULT NULL,
   start datetime DEFAULT CURRENT_TIMESTAMP,
   end datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
