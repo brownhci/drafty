@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 -- phpMyAdmin SQL Dump
 -- version 4.8.3
 -- https://www.phpmyadmin.net/
@@ -43,18 +42,6 @@ CREATE TABLE Experiment_Session (
   date_created datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-=======
--- Generation Time: Mar 29, 2020 at 07:54 PM
--- Server version: 5.7.23
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
-
---
--- Database: Users
---
-
->>>>>>> e712c49c5a89a6cd88aa717e75f897210317e3ed
 -- --------------------------------------------------------
 
 --
@@ -117,7 +104,6 @@ CREATE TABLE Session (
   end datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-<<<<<<< HEAD
 -- --------------------------------------------------------
 
 --
@@ -132,22 +118,17 @@ CREATE TABLE ViewChange (
   time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-=======
->>>>>>> e712c49c5a89a6cd88aa717e75f897210317e3ed
 --
 -- Indexes for dumped tables
 --
 
 --
-<<<<<<< HEAD
 -- Indexes for table Experiment
 --
 ALTER TABLE Experiment
   ADD PRIMARY KEY (idExperiment);
 
 --
-=======
->>>>>>> e712c49c5a89a6cd88aa717e75f897210317e3ed
 -- Indexes for table Profile
 --
 ALTER TABLE Profile
@@ -170,28 +151,22 @@ ALTER TABLE Session
   ADD KEY fk_Session_Profile1_idx (idProfile);
 
 --
-<<<<<<< HEAD
 -- Indexes for table ViewChange
 --
 ALTER TABLE ViewChange
   ADD PRIMARY KEY (idViewChange);
 
 --
-=======
->>>>>>> e712c49c5a89a6cd88aa717e75f897210317e3ed
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
-<<<<<<< HEAD
 -- AUTO_INCREMENT for table Experiment
 --
 ALTER TABLE Experiment
   MODIFY idExperiment int(11) NOT NULL AUTO_INCREMENT;
 
 --
-=======
->>>>>>> e712c49c5a89a6cd88aa717e75f897210317e3ed
 -- AUTO_INCREMENT for table Profile
 --
 ALTER TABLE Profile
@@ -208,7 +183,6 @@ ALTER TABLE Role
 --
 ALTER TABLE Session
   MODIFY idSession int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-<<<<<<< HEAD
 
 --
 -- AUTO_INCREMENT for table ViewChange
@@ -216,5 +190,3 @@ ALTER TABLE Session
 ALTER TABLE ViewChange
   MODIFY idViewChange int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
-=======
->>>>>>> e712c49c5a89a6cd88aa717e75f897210317e3ed
