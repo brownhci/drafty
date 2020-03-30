@@ -1,18 +1,23 @@
-import argparse, itertools, os, pymysql
+import argparse
+import itertools
+import os
+
+import pymysql
 from atomicwrites import atomic_write
 
 db_user = 'test'
 db_pass = 'test'
 
-NROWS_IN_SECTION = 50 # sw90: number of rows per <template>; the lower the number the better the performance
+
+NROWS_IN_SECTION = 50
 
 
 sql_col_order = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.columnOrder"
 sql_col_widths = '''
-                SELECT s.idSuggestionType, (ROUND(AVG(LENGTH(s.suggestion))) * 6.6) + 100 as avg_length 
-                FROM Suggestions s 
-                INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType 
-                WHERE st.isActive = 1 
+                SELECT s.idSuggestionType, (ROUND(AVG(LENGTH(s.suggestion))) * 6.6) + 100 as avg_length
+                FROM Suggestions s
+                INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType
+                WHERE st.isActive = 1
                 GROUP BY s.idSuggestionType
                 '''
 sql_suggestions = '''
@@ -155,14 +160,14 @@ def save_to_file(output_file, cursor):
 def get_db_creds():
     with open('../backend/.env', 'r') as fh:
         for line in fh.readlines():
-            #print(line)
             kv = line.strip().split('=')
             k = kv[0]
             if k == 'DB_USER':
                 dbuser = kv[1]
             if k == 'DB_PASSWORD':
                 dbpass = kv[1]
-    return dbuser,dbpass
+    return dbuser ,dbpass
+
 
 if __name__ == '__main__':
     # python3 build_spreadsheet.py --host localhost --database 2300profs --nrows 40 2300profs.hbs
@@ -178,11 +183,11 @@ if __name__ == '__main__':
                         help='where the HTML markup will be written to')
     args = parser.parse_args()
 
-    db_user,db_pass = get_db_creds()
+    db_user, db_pass = get_db_creds()
     db = pymysql.connect(host=args.host, user=db_user,
-                            password=db_pass,
-                            db=args.database, charset='utf8mb4',
-                            cursorclass=pymysql.cursors.DictCursor)
+                         password=db_pass,
+                         db=args.database, charset='utf8mb4',
+                         cursorclass=pymysql.cursors.DictCursor)
 
     try:
         with db.cursor() as cursor:
