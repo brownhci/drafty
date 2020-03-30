@@ -98,7 +98,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 
   // sw: we should just update their anonymous user profile instead
   //const [error, results] = await createUser(newUser);
-  const [error, results] = await updateUserNewSignup(email, password);
+  const [error, results] = await updateUserNewSignup(email, password, req.session.user.idProfile);
   if (error) {
     return next(error);
   }
@@ -134,8 +134,8 @@ export async function createAnonUser() {
 /**
  * Function to ceate new Session in our DB (not express-session)
  */
-export async function createSessionDB(idProfile: number) {
-  const idSession = await insertSession(idProfile);
+export async function createSessionDB(idProfile: number,idExpressSession: string) {
+  const idSession = await insertSession(idProfile,idExpressSession);
   return idSession;
 }
 

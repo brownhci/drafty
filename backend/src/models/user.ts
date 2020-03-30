@@ -1,5 +1,5 @@
 // DATABASE Table Names and Field Names
-export const tableName: string = "Profile";
+export const tableName: string = "users.Profile";
 
 export const idFieldName       = "idProfile";
 export const usernameFieldName = "username";

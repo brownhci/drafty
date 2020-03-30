@@ -80,7 +80,7 @@ app.use(session({
       host: DB_HOST,
       user: DB_USER,
       password: DB_PASSWORD,
-      database: DB_DATABASE, // sw: change this to create sessions only db
+      database: 'users', // sw: change this to create sessions only db
     })
     /*
     store: new sessionStore({
@@ -127,10 +127,12 @@ app.use(async (req, res, next) => {
     user.idProfile = await createAnonUser();
     req.session.user = user;
   }
+
+  // if idProfile not found create new idProfile
   
   if(((Date.now() - req.session.user.lastInteraction) > heartbeat) || (req.session.user.idSession === -1)) {
     // new session
-    req.session.user.idSession = await createSessionDB(req.session.user.idProfile); 
+    req.session.user.idSession = await createSessionDB(req.session.user.idProfile,req.sessionID); 
   }
   req.session.user.lastInteraction = Date.now();
 

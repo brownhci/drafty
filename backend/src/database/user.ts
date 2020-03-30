@@ -5,8 +5,8 @@ import { tableName, validFieldNamesForLookup, UserModel } from "../models/user";
 const stmtSelUser: string    = "SELECT * FROM ?? WHERE ?? = ?";
 const stmtInsertUser: string = "INSERT INTO ?? SET ?";
 const stmtUpdateUser: string = "UPDATE ?? SET ? WHERE ?";
-const stmtUpdateUserNewSignUp: string = "UPDATE Profile SET email = ?, password = ? WHERE idProfile = ?";
-const stmtInsertSession: string = "INSERT INTO Session (idProfile) VALUES (?);";
+const stmtUpdateUserNewSignUp: string = "UPDATE users.Profile SET email = ?, password = ? WHERE idProfile = ?";
+const stmtInsertSession: string = "INSERT INTO users.Session (idProfile,idExpressSession) VALUES (?,?);";
 
 // Result type of findUserByField
 export type findUserByFieldResultType = UserModel | null | undefined;
@@ -86,9 +86,9 @@ export async function updateUser(updates: Partial<UserModel>, constraints: Parti
 }
 
 // sw: this is just way simpler way to do things
-export async function updateUserNewSignup(email: string, password: string) {
+export async function updateUserNewSignup(email: string, password: string, idProfile: number) {
   try {
-    const [results, fields] = await db.query(stmtUpdateUserNewSignUp, [email, password]);
+    const [results, fields] = await db.query(stmtUpdateUserNewSignUp, [email, password, idProfile]);
     return [null, results, fields];
   } catch (error) {
     logDbErr(error, "error during updating existing user", "warn");
@@ -107,9 +107,9 @@ export async function updateUserNewSignup(email: string, password: string) {
  *      - receive [error] if the insertion fails
  *      - receive [null, results, fields] if the insertion succeeds
  */
-export async function insertSession(idProfile: number) {
+export async function insertSession(idProfile: number, idExpressSession: string) {
   try {
-    const [results] = await db.query(stmtInsertSession, [idProfile]);
+    const [results] = await db.query(stmtInsertSession, [idProfile,idExpressSession]);
     return (results as any).insertId;
   } catch (error) {
     logDbErr(error, "error during creating user", "warn");
