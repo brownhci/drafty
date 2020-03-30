@@ -1,15 +1,11 @@
-import argparse
-import itertools
-import os
-
-import pymysql
+import argparse, itertools, os, pymysql
 from atomicwrites import atomic_write
 
 db_user = 'test'
 db_pass = 'test'
 
-
-NROWS_IN_SECTION = 50
+# sw90: number of rows per <template>; the lower the number the better the performance
+NROWS_IN_SECTION = 50 
 
 
 sql_col_order = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.columnOrder"
