@@ -64,6 +64,6 @@ export const postNewSuggestion = async (req: Request, res: Response, next: NextF
   if (error) {
     return next(error);
   }
-
+  
   return res.status(200).json(results);
 };

@@ -22,8 +22,8 @@ const stmtSelectSuggestionsForEdit: string = "SELECT suggestion, 1 as prevSugg F
  */
 export async function newSuggestion(idSuggestion: number, suggestion: string, idProfile: number, idSession: number, idInteractionType: number, idEntryType: number, mode: string) {
   try {
-      console.log("\n before stmtProcedureEdit");
-      console.log(idSuggestion, suggestion, idProfile, idSession, idInteractionType, idEntryType, mode);
+      //console.log("\n before stmtProcedureEdit");
+      //console.log(idSuggestion, suggestion, idProfile, idSession, idInteractionType, idEntryType, mode);
       
       const [results] = await db.query(stmtProcedureEdit, [idSuggestion,suggestion,idProfile]);
       console.log(results);
@@ -37,7 +37,7 @@ export async function newSuggestion(idSuggestion: number, suggestion: string, id
       // getting error that COLUMN suggestion cannot be null
       db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode, idProfile]);
 
-      return [null, results];
+      return [null, idSuggestionChosen];
   } catch (error) {
     logDbErr(error, "error during newSuggestion procedure", "warn");
     return [error];

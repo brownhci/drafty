@@ -80,7 +80,7 @@ app.use(session({
       host: DB_HOST,
       user: DB_USER,
       password: DB_PASSWORD,
-      database: 'users', // sw: change this to create sessions only db
+      database: "users", // sw: change this to create sessions only db
     })
     /*
     store: new sessionStore({
