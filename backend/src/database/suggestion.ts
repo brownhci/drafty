@@ -7,7 +7,7 @@ import { db,logDbErr } from "./mysql";
 const stmtProcedureEdit: string = "SET @p0=?; SET @p1=?; SET @p2=?; CALL new_suggestion(@p0, @p1, @p2, @p3); SELECT @p0 AS idSuggestion, @p3 AS isNewSuggestion;";
 
 //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
-const stmtProcedureEditSuggestions: string = "CALL insert_edit_suggestions(?, ?, ?, ?, ?, ?);";
+const stmtProcedureEditSuggestions: string = "CALL insert_edit_suggestions(?, ?, ?, ?, ?, ?, ?);";
 
 const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)";
 
@@ -22,17 +22,20 @@ const stmtSelectSuggestionsForEdit: string = "SELECT suggestion, 1 as prevSugg F
  */
 export async function newSuggestion(idSuggestion: number, suggestion: string, idProfile: number, idSession: number, idInteractionType: number, idEntryType: number, mode: string) {
   try {
+      console.log("\n before stmtProcedureEdit");
+      console.log(idSuggestion, suggestion, idProfile, idSession, idInteractionType, idEntryType, mode);
+      
       const [results] = await db.query(stmtProcedureEdit, [idSuggestion,suggestion,idProfile]);
-      //console.log(results)
+      console.log(results);
 
       //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
       const idSuggestionPrev = idSuggestion;
       const pos = Object.keys(results).pop(); // get last 
       const idSuggestionChosen = (results as any)[pos][0]["idSuggestion"]; // sw: this is bc of how procedures return data
       
-      //console.log('\n\n',idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode,'\n\n')
+      //console.log("\n\n before stmtProcedureEditSuggestions: ",idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode,"\n\n");
       // getting error that COLUMN suggestion cannot be null
-      db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode]);
+      db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode, idProfile]);
 
       return [null, results];
   } catch (error) {
