@@ -143,7 +143,7 @@ function createOptionContainer(options: Array<Option>, selectInfo: SelectInfo) {
   });
 
   const nameKey = selectConfig.nameKey;
-  const priorityKey = selectConfig.priorityKey;
+  //const priorityKey = selectConfig.priorityKey; //sw: unused
   for (let i = 0; i < selectInfo.numOptions; i++) {
     const option: Option = options[i];
     option[originalIndexKey] = i;
