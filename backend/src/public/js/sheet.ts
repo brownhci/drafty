@@ -311,7 +311,7 @@ function getSearchValues(): string {
 }
 
 // Record Interaction
-function recordInteraction(url: string, data: Record<string, any>, responseHandler: (response: Response) => void = () => {}) {
+function recordInteraction(url: string, data: Record<string, any>, responseHandler: (response: Response) => void = () => undefined) {
   data["_csrf"] = tableCellInputFormCSRFInput.value;
 
   fetch(url, {
@@ -1705,7 +1705,7 @@ class DataElement implements DataLike {
     for (const dataElement of this.getDataCellElements()) {
       if (datumIndex < numDatum) {
         // in place patch
-        dataElement.patch(datums[datumIndex]);
+        dataElement.patch(datums[datumIndex] as DatumLike);
       } else {
         dataElement.remove();
       }
