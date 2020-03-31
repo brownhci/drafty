@@ -10,4 +10,4 @@ then
 fi
 
 npm run build
-pm2 restart server
+pm2 restart npm -- run watch --max-memory-restart 1000M
