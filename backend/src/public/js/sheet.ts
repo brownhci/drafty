@@ -3,7 +3,7 @@
 
 /* Force screen zoom to 100% - otherwise cell input form will flash when selecting the first few rows */
 // https://stackoverflow.com/questions/1713771/how-to-detect-page-zoom-level-in-all-modern-browsers/5078596#5078596
-let scale: string = 'scale(1)';
+const scale: string = "scale(1)";
 document.body.style.webkitTransform =  scale;    // Chrome, Opera, Safari
 //document.body.style.msTransform     =   scale;   // IE 9 :: sw getting a TS error saying this doesn't exist
 document.body.style.transform       = scale;     // General
@@ -140,7 +140,6 @@ function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
     return false;
   }
   const columnLabel = getColumnLabel(tableCellElement.cellIndex);
-  // TODO - sw: this should not be hardcoded by names --- the attributes of cols should be pulled from the server - or embedded in the sheet's <name>.hbs
   if (columnLabel.contentEditable === "false") {
     tableCellElement.contentEditable = "false";
     return false;
@@ -2908,20 +2907,20 @@ class TableStatusManager {
     //const bounding = tableCellInputFormElement.getBoundingClientRect(); // sw height is wrong
     const bounding = document.getElementById("table-cell-input-form").getBoundingClientRect();
     //console.log('bounding: ', bounding);
-    
+
     if (bounding.top < 0) {
       //console.log('Top is out of viewport');
     }
     if (bounding.left < 0) {
       //console.log('Left side is out of viewport');
     }
-    
+
     if (bounding.bottom > (window.innerHeight || document.documentElement.clientHeight)) {
       //console.log('Bottom is out of viewport');
       const newTop = document.documentElement.clientHeight - bounding.height - 80;
       tableCellInputFormElement.style.top = `${newTop}px`;
     }
-    
+
     if (bounding.right > (window.innerWidth || document.documentElement.clientWidth)) {
       //console.log('Right side is out of viewport');
       const newLeft = document.documentElement.clientWidth - bounding.width;
