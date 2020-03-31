@@ -1246,9 +1246,7 @@ let scrollTimeoutId: number | null = null;
 function whenScrollFinished() {
   tableStatusManager.tableCellInputFormLocationOnScroll();
   // detect out of sync and rerendering
-  if (tableDataManager.refreshRenderingViewIfNeeded()) {
-    //console.log("successfully restored sync");
-  }
+  tableDataManager.refreshRenderingViewIfNeeded();
 }
 tableScrollContainer.addEventListener("scroll", function(event: Event) {
   if (scrollTimeoutId) {
