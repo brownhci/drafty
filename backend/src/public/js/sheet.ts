@@ -2896,6 +2896,29 @@ class TableStatusManager {
         tableCellInputFormElement.style.top = `${top - buttonHeight}px`;
       }
     }
+
+    //const bounding = tableCellInputFormElement.getBoundingClientRect(); // sw height is wrong
+    const bounding = document.getElementById("table-cell-input-form").getBoundingClientRect();
+    //console.log('bounding: ', bounding);
+    
+    if (bounding.top < 0) {
+      //console.log('Top is out of viewport');
+    }
+    if (bounding.left < 0) {
+      //console.log('Left side is out of viewport');
+    }
+    
+    if (bounding.bottom > (window.innerHeight || document.documentElement.clientHeight)) {
+      //console.log('Bottom is out of viewport');
+      const newTop = document.documentElement.clientHeight - bounding.height - 80;
+      tableCellInputFormElement.style.top = `${newTop}px`;
+    }
+    
+    if (bounding.right > (window.innerWidth || document.documentElement.clientWidth)) {
+      //console.log('Right side is out of viewport');
+      const newLeft = document.documentElement.clientWidth - bounding.width;
+      tableCellInputFormElement.style.left = `${newLeft}px`;
+    }
   }
 
   saveTableCellInputForm() {
