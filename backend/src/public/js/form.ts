@@ -1,6 +1,6 @@
 function removeAssociatedInvalidTooltip(element: HTMLInputElement) {
   const nextElement = element.nextElementSibling;
-  console.log(nextElement);
+  //console.log(nextElement);
   if (nextElement && nextElement.classList.contains("invalid-tooltip")) {
     nextElement.remove();
   }

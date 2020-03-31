@@ -26,7 +26,6 @@ export async function newSuggestion(idSuggestion: number, suggestion: string, id
       //console.log(idSuggestion, suggestion, idProfile, idSession, idInteractionType, idEntryType, mode);
       
       const [results] = await db.query(stmtProcedureEdit, [idSuggestion,suggestion,idProfile]);
-      console.log(results);
 
       //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
       const idSuggestionPrev = idSuggestion;

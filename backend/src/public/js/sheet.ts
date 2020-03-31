@@ -1240,7 +1240,7 @@ function whenScrollFinished() {
   tableStatusManager.tableCellInputFormLocationOnScroll();
   // detect out of sync and rerendering
   if (tableDataManager.refreshRenderingViewIfNeeded()) {
-    console.log("successfully restored sync");
+    //console.log("successfully restored sync");
   }
 }
 tableScrollContainer.addEventListener("scroll", function(event: Event) {

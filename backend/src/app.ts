@@ -65,7 +65,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //const expInMilliseconds = 1200000 // this is 20 minutes (1 min = 60000 ms)
 const days = 10800; // we will manually manage sessions
 const age = days * 24 * 60 * 60 * 1000; // days * hours * minutes * seconds * milliseconds
-console.log(age);
+
 app.use(session({
     secret: SESSION_SECRET,
     name: "zomg_this_enhances_security",
@@ -121,6 +121,9 @@ const user = {
   failedLoginAttempts: 0
 };
 app.use(async (req, res, next) => {
+  //console.log(req.originalUrl);
+  //console.log(req.method);
+
   //check if new user (req.sessionID)
   if(req.session.user === undefined) {
     // sw: this is the only place a new idProfile is created
@@ -153,8 +156,7 @@ app.use((req, res, next) => {
     !req.path.match(/^\/auth/) &&
     !req.path.match(/\./)) {
         req.session.returnTo = req.path;
-    } else if (req.user &&
-    req.path == "/account") {
+    } else if (req.user && req.path == "/account") {
         req.session.returnTo = req.path;
     }
     next();
