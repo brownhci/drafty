@@ -286,7 +286,7 @@ function getIdSuggestion(tableCellElement: HTMLTableCellElement): number {
   return Number.parseInt(tableCellElement.id);
 }
 function setIdSuggestion(tableCellElement: HTMLTableCellElement, idSuggestion: string) {
-  tableCellElement.id = idSuggestion;
+  tableDataManager.updateCellInRenderingView(tableCellElement.id, (datum) => datum.id = idSuggestion, true);
 }
 function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
   const idSuggestionType = columnLabel.dataset.idSuggestionType;
@@ -345,7 +345,7 @@ function recordEdit(tableCellElement: HTMLTableCellElement) {
     "suggestion": tableCellElement.textContent,
   }, (response) => {
     response.json().then(idSuggestion => {
-      setIdSuggestion(tableCellElement, idSuggestion);
+      setIdSuggestion(tableCellElement, idSuggestion.toString());
     });
   });
 }
@@ -2298,6 +2298,17 @@ class TableDataManager {
     return Boolean(this.dataCollection.getDatumByDatumId(cellid));
   }
 
+  /**
+   * Makes change to a Datum (data layer) and control whether the change will be reflected in the view layer (actual HTML Element encapsulated by DataCellElement).
+   */
+  updateCellInRenderingView(cellid: string, handler: (datum: Datum) => void, shouldRefreshCurrentView: boolean = true) {
+    const datum: Datum = this.dataCollection.getDatumByDatumId(cellid);
+    handler(datum);
+    if (shouldRefreshCurrentView) {
+      this.refreshCurrentView();
+    }
+  }
+
   getElementIndexByCellId(cellid: string): number {
     return this.dataCollection.getChildIndexByDatumId(cellid);
   }
@@ -2363,6 +2374,14 @@ class TableDataManager {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Usually execute after a change is made to DataCollection (data layer) and before the change is reflected in the DataSectionElement (view layer)
+   * Will cause the view layer to reflect the changes made to rendering slice of DataCollection
+   */
+  refreshCurrentView() {
+    this.updateRenderingView(this.renderedFirstElementIndex);
   }
 
   updateRenderingView(startIndex: number) {
@@ -2902,9 +2921,7 @@ class TableStatusManager {
       }
     }
 
-    //const bounding = tableCellInputFormElement.getBoundingClientRect(); // sw height is wrong
-    const bounding = document.getElementById("table-cell-input-form").getBoundingClientRect();
-    //console.log('bounding: ', bounding);
+    const bounding = tableCellInputFormElement.getBoundingClientRect();
 
     if (bounding.top < 0) {
       //console.log('Top is out of viewport');
