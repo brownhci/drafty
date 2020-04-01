@@ -285,9 +285,6 @@ function getIdUniqueID(tableCellElement: HTMLTableCellElement): number {
 function getIdSuggestion(tableCellElement: HTMLTableCellElement): number {
   return Number.parseInt(tableCellElement.id);
 }
-function setIdSuggestion(tableCellElement: HTMLTableCellElement, idSuggestion: string) {
-  tableDataManager.updateCellInRenderingView(tableCellElement.id, (datum) => datum.id = idSuggestion, true);
-}
 function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
   const idSuggestionType = columnLabel.dataset.idSuggestionType;
   if (idSuggestionType) {
@@ -336,16 +333,19 @@ function recordInteraction(url: string, data: Record<string, any>, responseHandl
     .catch(error => console.error("Network error when posting interaction: ", error));
 }
 
-function recordEdit(tableCellElement: HTMLTableCellElement) {
+function recordEdit(tableCellElement: HTMLTableCellElement, textContent: string) {
   // supply enough fields to update database entry for table cell
 
   recordInteraction("/suggestions/new", {
     "idUniqueID": getIdUniqueID(tableCellElement),
     "idSuggestion": getIdSuggestion(tableCellElement),
-    "suggestion": tableCellElement.textContent,
+    "suggestion": textContent,
   }, (response) => {
     response.json().then(idSuggestion => {
-      setIdSuggestion(tableCellElement, idSuggestion.toString());
+      tableDataManager.updateCellInRenderingView(tableCellElement.id, (datum) => {
+        datum.id = idSuggestion.toString();
+        datum.textContent = textContent;
+      }, true);
     });
   });
 }
@@ -2948,8 +2948,7 @@ class TableStatusManager {
     const text = tableCellInputFormInputElement.value;
     if (tableCellInputFormTargetElement) {
       // call backend api to send user submission
-      tableCellInputFormTargetElement.textContent = text;
-      recordEdit(tableCellInputFormTargetElement);
+      recordEdit(tableCellInputFormTargetElement, text);
     }
   }
 
