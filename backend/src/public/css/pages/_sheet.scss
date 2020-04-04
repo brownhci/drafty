@@ -1,5 +1,6 @@
 $shadow-width: 3px;
-$resize-shadow-width: 5px;
+$resize-shadow-width: 3px;
+$visual-cue-width: 5px;
 
 %cell-overflow {
     @extend .overflow-hidden;
@@ -79,8 +80,8 @@ $resize-shadow-width: 5px;
       @extend .position-absolute;
       @extend .d-none;
       pointer-events: none;
-      background-color: rgba($primary, 0.2);
-      width: $resize-shadow-width !important;
+      background-color: rgba($info, 0.2);
+      width: $visual-cue-width !important;
       top: 0;
       left: 0;
       &.active {
@@ -169,6 +170,13 @@ $resize-shadow-width: 5px;
 
     thead {
       @extend .thead-light;
+      tr {
+        &.column-label-row {
+          &.resize-border {
+            cursor: ew-resize;
+          }
+        }
+      }
       th {
         border-bottom-width: 1px;
         .sort-btn {
@@ -216,17 +224,14 @@ $resize-shadow-width: 5px;
         &.near-left-border, &.near-right-border {
           cursor: col-resize;
         }
-        &.resize-left-border, &.resize-right-border {
-          cursor: ew-resize;
-        }
         &.near-left-border {
-          @include vendor-prefix(box-shadow, inset $resize-shadow-width 0 0 0 $primary, webkit ms);
+          @include vendor-prefix(box-shadow, inset $resize-shadow-width 0 0 0 $info, webkit ms);
         }
         &.near-right-border {
-          @include vendor-prefix(box-shadow, inset (-$resize-shadow-width) 0 0 0 $primary, webkit ms);
+          @include vendor-prefix(box-shadow, inset (-$resize-shadow-width) 0 0 0 $info, webkit ms);
         }
         &.near-left-border.near-right-border {
-          @include vendor-prefix(box-shadow, (inset $resize-shadow-width 0 0 0 $primary, inset (-$resize-shadow-width) 0 0 0 $primary), webkit ms);
+          @include vendor-prefix(box-shadow, (inset $resize-shadow-width 0 0 0 $info, inset (-$resize-shadow-width) 0 0 0 $info), webkit ms);
         }
         &.column-label {
           position: sticky;
