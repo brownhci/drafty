@@ -922,8 +922,9 @@ tableElement.addEventListener("paste", function (event: ClipboardEvent) {
   const pasteContent = event.clipboardData.getData("text");
   const target: HTMLElement = event.target as HTMLElement;
   if(isColumnSearchInput(target)) {
-    target.value = pasteContent;
-    target.dispatchEvent(new Event("input"))
+    const targetInput: HTMLInputElement = event.target as HTMLInputElement;
+    targetInput.value = pasteContent;
+    targetInput.dispatchEvent(new Event("input"));
   } else if (isTableData(target) && isTableCellEditable(target as HTMLTableCellElement)) {
     tableCellElementOnPaste(target as HTMLTableCellElement, pasteContent);
   }
