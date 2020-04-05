@@ -494,12 +494,11 @@ const tableCellInputFormInputContainer: HTMLElement = tableCellInputFormLocateCe
  */
 function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
   const text = input === undefined ? getTableDataText(targetHTMLTableCellElement): input;
-
-  tableCellInputFormInputElement.value = text;
+  //tableCellInputFormInputElement.value = text; // causes double entry bug
 
   // resize
   const minWidth = targetHTMLTableCellElement.offsetWidth;
-  const resizeWidth = measureTextWidth(text) + 120;
+  const resizeWidth = measureTextWidth(ext) + 120;
   const width = Math.max(minWidth, resizeWidth);
   tableCellInputFormElement.style.width = `${width}px`;
 }
@@ -1009,6 +1008,8 @@ function tableCellInputFormElementOnMouseMove(event: MouseEvent) {
   // debounce
   tableCellInputFormElementXShift += xShift;
   tableCellInputFormElementYShift += yShift;
+
+  //console.log('tableCellInputFormElementOnMouseMove - ' + tableCellInputFormElementXShift + ' :: ' + tableCellInputFormElementYShift);
   tableCellInputFormElement.style.transform = `translate(${tableCellInputFormElementXShift}px, ${tableCellInputFormElementYShift}px)`;
 }
 tableCellInputFormElement.addEventListener("mousemove", function(event: MouseEvent) {
@@ -1235,8 +1236,7 @@ tableCellInputFormElement.addEventListener("submit", function(event: Event) {
 
 /* input event */
 tableCellInputFormInputElement.addEventListener("input", function(event) {
-  const query = tableCellInputFormInputElement.value;
-  filterSelectOptions(query, tableCellInputFormAutocompleteSuggestionsSelectInfo);
+  filterSelectOptions(tableCellInputFormInputElement.value, tableCellInputFormAutocompleteSuggestionsSelectInfo);
   event.stopPropagation();
 }, { passive: true});
 
@@ -2795,7 +2795,7 @@ class TableStatusManager {
   updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
     // row index
     /* since recordIndex is 0-based */
-      const elementIndex = tableDataManager.getElementIndexByCellId(targetHTMLTableCellElement.id);
+    const elementIndex = tableDataManager.getElementIndexByCellId(targetHTMLTableCellElement.id);
     tableCellInputFormLocateCellRowElement.textContent = `${elementIndex + 1}`;
     // column index
     const colIndex = getColumnIndex(targetHTMLTableCellElement);
@@ -2808,6 +2808,7 @@ class TableStatusManager {
       if (tableDataManager.putElementInRenderingViewByCellId(this.tableCellInputFormTargetElementId)) {
         this.alignTableCellInputForm(this.tableCellInputFormTargetElement);
         // clear cumulative shift so that next shifting of input form can start afresh
+        //console.log('restoreTableCellInputFormLocation');
         tableCellInputFormElementXShift = 0;
         tableCellInputFormElementYShift = 0;
       }
@@ -2847,6 +2848,10 @@ class TableStatusManager {
 
     this.deactivateTableCellInputForm();
     this.deactivateTableCellInputFormLocation();
+
+    // sw: reset val to avoid double entry bug
+    // sw: if you call in removeSelect() gives es-lint err
+    tableCellInputFormInputElement.value = ''; 
     removeSelect(tableCellInputFormElement);
 
     if (targetHTMLTableCellElement) {
@@ -2855,7 +2860,7 @@ class TableStatusManager {
       }
 
       this.activateTableCellInputForm(targetHTMLTableCellElement, getFocus);
-      updateTableCellInputFormInput(targetHTMLTableCellElement, input);
+      updateTableCellInputFormInput(targetHTMLTableCellElement, input); // remove this no double value on input
       attachSuggestions(targetHTMLTableCellElement);
 
       this.updateTableCellInputFormLocation(targetHTMLTableCellElement);
