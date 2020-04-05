@@ -14,7 +14,7 @@ NROWS_IN_SECTION = 50
 
 sql_col_order = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.columnOrder"
 sql_col_widths = '''
-                SELECT s.idSuggestionType, (ROUND(AVG(LENGTH(s.suggestion))) * 6.6) + 100 as avg_length
+                SELECT s.idSuggestionType, (ROUND(AVG(LENGTH(s.suggestion))) * 6.6) + 140 as avg_length
                 FROM Suggestions s
                 INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType
                 WHERE st.isActive = 1
