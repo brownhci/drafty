@@ -1020,8 +1020,6 @@ function tableCellInputFormElementOnMouseMove(event: MouseEvent) {
   // debounce
   tableCellInputFormElementXShift += xShift;
   tableCellInputFormElementYShift += yShift;
-
-  //console.log('tableCellInputFormElementOnMouseMove - ' + tableCellInputFormElementXShift + ' :: ' + tableCellInputFormElementYShift);
   tableCellInputFormElement.style.transform = `translate(${tableCellInputFormElementXShift}px, ${tableCellInputFormElementYShift}px)`;
 }
 tableCellInputFormElement.addEventListener("mousemove", function(event: MouseEvent) {
@@ -1248,7 +1246,6 @@ tableCellInputFormElement.addEventListener("submit", function(event: Event) {
 
 /* input event */
 tableCellInputFormInputElement.addEventListener("input", function(event) {
-  //console.log('tableCellInputFormInputElement.addEventListener - input - ' + tableCellInputFormInputElement.value);
   filterSelectOptions(tableCellInputFormInputElement.value, tableCellInputFormAutocompleteSuggestionsSelectInfo);
   event.stopPropagation();
 }, { passive: true});
@@ -2287,14 +2284,18 @@ class TableDataManager {
    * Makes change to a Datum (data layer) and control whether the change will be reflected in the view layer (actual HTML Element encapsulated by DataCellElement).
    */
   updateCellInRenderingView(cellid: string, handler: (datum: Datum) => void, shouldRefreshCurrentView: boolean = true) {
-    console.log('updateCellInRenderingView - cellid = ' + cellid)
-
+    //console.log('updateCellInRenderingView - cellid = ' + cellid)
+    
     // sw: bug here after 2nd edit
     const datum: Datum = this.dataCollection.getDatumByDatumId(cellid);
+    //console.log('updateCellInRenderingView - datum = ')
+    //console.log(datum)
     handler(datum);
     if (shouldRefreshCurrentView) {
       this.refreshCurrentView();
     }
+    //should be updated here
+    //console.log(this.dataCollection.getDatumByDatumId(cellid))
   }
 
   getElementIndexByCellId(cellid: string): number {
@@ -2369,13 +2370,12 @@ class TableDataManager {
    * Will cause the view layer to reflect the changes made to rendering slice of DataCollection
    */
   refreshCurrentView() {
-    console.log("refreshCurrentView()");
+    //console.log("refreshCurrentView()");
     this.updateRenderingView(this.renderedFirstElementIndex);
   }
 
   updateRenderingView(startIndex: number) {
     //console.log('updateRenderingView()')
-
     this.deactivateObservers();
     const end: number = startIndex + this.numElementToRender;
     this.setViewToRender({
@@ -2829,10 +2829,6 @@ class TableStatusManager {
     if (tableCellInputFormLocationActive) {
       if (tableDataManager.putElementInRenderingViewByCellId(this.tableCellInputFormTargetElementId)) {
         this.alignTableCellInputForm(this.tableCellInputFormTargetElement);
-        // clear cumulative shift so that next shifting of input form can start afresh
-        //console.log('restoreTableCellInputFormLocation');
-        tableCellInputFormElementXShift = 0;
-        tableCellInputFormElementYShift = 0;
       }
     }
   }
@@ -2904,7 +2900,10 @@ class TableStatusManager {
    * @arg {number} top - the new form top
    * @arg {boolean = false} topAsEntireFormTop - if true, then the top refers to top in tableCellInputFormElement.getBoundingClientRect(); if false, then the top refers to the form top below the tableCellInputFormLocateCellElement.
    */
+  // test = positionTableCellInputForm(tableCellInputFormElement.getBoundingClientRect().left, tableCellInputFormElement.getBoundingClientRect().top, false)
   positionTableCellInputForm(left: number, top: number, topAsEntireFormTop=false) {
+    console.log('')
+
     if (left !== undefined) {
       tableCellInputFormElement.style.left = `${left}px`;
     }
@@ -2927,16 +2926,24 @@ class TableStatusManager {
     }
 
     if (bounding.bottom > (window.innerHeight || document.documentElement.clientHeight)) {
-      //console.log('Bottom is out of viewport');
+      console.log('Bottom is out of viewport');
       const newTop = document.documentElement.clientHeight - bounding.height - 80;
       tableCellInputFormElement.style.top = `${newTop}px`;
     }
 
     if (bounding.right > (window.innerWidth || document.documentElement.clientWidth)) {
-      //console.log('Right side is out of viewport');
+      console.log('Right side is out of viewport');
       const newLeft = document.documentElement.clientWidth - bounding.width;
       tableCellInputFormElement.style.left = `${newLeft}px`;
     }
+
+    // clear cumulative shift so that next shifting of input form can start afresh
+    tableCellInputFormElementXShift = 0;
+    tableCellInputFormElementYShift = 0;
+
+    // TODO: sw: sometimes the edit window is still not repositioned correctly
+    console.log(top + ' :: ' + tableCellInputFormElement.style.top);
+    console.log(left + ' :: ' + tableCellInputFormElement.style.left);
   }
 
   saveTableCellInputForm() {
