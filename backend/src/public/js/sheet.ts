@@ -616,7 +616,7 @@ function createEditSuggestionsContainer(editSuggestions: Array<Suggestion>, targ
   // sw: fixing double entry bug: it happens before: createEditSuggestionsContainer
   if(tableCellInputFormInputElement.value.length === 2) {
     if(tableCellInputFormInputElement.value.charAt(0) === tableCellInputFormInputElement.value.charAt(1)) {
-      tableCellInputFormInputElement.value = tableCellInputFormInputElement.value.charAt(0)
+      tableCellInputFormInputElement.value = tableCellInputFormInputElement.value.charAt(0);
     }
   }
 
@@ -2287,8 +2287,9 @@ class TableDataManager {
    * Makes change to a Datum (data layer) and control whether the change will be reflected in the view layer (actual HTML Element encapsulated by DataCellElement).
    */
   updateCellInRenderingView(cellid: string, handler: (datum: Datum) => void, shouldRefreshCurrentView: boolean = true) {
-    //console.log('updateCellInRenderingView - cellid = ' + cellid)
+    console.log('updateCellInRenderingView - cellid = ' + cellid)
 
+    // sw: bug here after 2nd edit
     const datum: Datum = this.dataCollection.getDatumByDatumId(cellid);
     handler(datum);
     if (shouldRefreshCurrentView) {
@@ -2368,7 +2369,7 @@ class TableDataManager {
    * Will cause the view layer to reflect the changes made to rendering slice of DataCollection
    */
   refreshCurrentView() {
-    console.log('refreshCurrentView()')
+    console.log("refreshCurrentView()");
     this.updateRenderingView(this.renderedFirstElementIndex);
   }
 
@@ -2872,7 +2873,7 @@ class TableStatusManager {
 
     // sw: reset val to avoid double entry bug
     // sw: if you call in removeSelect() gives es-lint err
-    tableCellInputFormInputElement.value = ''; 
+    tableCellInputFormInputElement.value = ""; 
     removeSelect(tableCellInputFormElement);
 
     if (targetHTMLTableCellElement) {
