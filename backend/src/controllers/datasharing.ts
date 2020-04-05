@@ -6,7 +6,7 @@ import path from "path";
  * Help page.
  */
 export const getFile = (req: Request, res: Response) => {
-  if(req.session.user.isAuth && req.originalUrl === '/data/edithistory') {
+  if(req.session.user.isAuth && req.originalUrl === "/data/edithistory") {
     const file = path.join(__dirname, "../../data_sharing/2300profs_edits.csv");
     res.download(file); // Set disposition and send it.
   } else {
