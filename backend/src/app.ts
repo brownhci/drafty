@@ -27,6 +27,7 @@ import * as userController from "./controllers/user";
 import * as contactController from "./controllers/contact";
 import * as interactionController from "./controllers/interaction";
 import * as suggestionController from "./controllers/suggestion";
+import * as dataSharingController from "./controllers/datasharing";
 
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
@@ -121,6 +122,7 @@ const user = {
   failedLoginAttempts: 0
 };
 app.use(async (req, res, next) => {
+  // detect bots: https://github.com/expressjs/session/issues/94
   //console.log(req.originalUrl);
   //console.log(req.method);
 
@@ -138,6 +140,7 @@ app.use(async (req, res, next) => {
     req.session.user.idSession = await createSessionDB(req.session.user.idProfile,req.sessionID); 
   }
   req.session.user.lastInteraction = Date.now();
+  //req.session.user.views++;
 
   next();
 });
@@ -195,6 +198,9 @@ app.post("/contact", contactController.postContact);
 app.get("/account", userController.getAccount);
 app.post("/account/profile", passportConfig.isAuthenticated, userController.postUpdateProfile);
 app.post("/account/password", passportConfig.isAuthenticated, userController.postUpdatePassword);
+
+// data sharing
+app.get("/data/:data", dataSharingController.getFile);
 
 // interactions
 app.post("/click", interactionController.postClick);
