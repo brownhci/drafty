@@ -498,7 +498,7 @@ function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCell
 
   // resize
   const minWidth = targetHTMLTableCellElement.offsetWidth;
-  const resizeWidth = measureTextWidth(text) + 120;
+  const resizeWidth = measureTextWidth(ext) + 120;
   const width = Math.max(minWidth, resizeWidth);
   tableCellInputFormElement.style.width = `${width}px`;
 }
@@ -2857,6 +2857,10 @@ class TableStatusManager {
 
     this.deactivateTableCellInputForm();
     this.deactivateTableCellInputFormLocation();
+
+    // sw: reset val to avoid double entry bug
+    // sw: if you call in removeSelect() gives es-lint err
+    tableCellInputFormInputElement.value = ''; 
     removeSelect(tableCellInputFormElement);
 
     if (targetHTMLTableCellElement) {
