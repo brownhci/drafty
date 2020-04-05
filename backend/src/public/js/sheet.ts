@@ -494,7 +494,7 @@ const tableCellInputFormInputContainer: HTMLElement = tableCellInputFormLocateCe
  */
 function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
   const text = input === undefined ? getTableDataText(targetHTMLTableCellElement): input;
-  tableCellInputFormInputElement.value = text; // causes double entry bug
+  tableCellInputFormInputElement.value = text;
 
   // resize
   const minWidth = targetHTMLTableCellElement.offsetWidth;
@@ -919,9 +919,12 @@ function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCellElemen
   }
 }
 tableElement.addEventListener("paste", function (event: ClipboardEvent) {
+  const pasteContent = event.clipboardData.getData("text");
   const target: HTMLElement = event.target as HTMLElement;
-  if (isTableData(target) && isTableCellEditable(target as HTMLTableCellElement)) {
-    const pasteContent = event.clipboardData.getData("text");
+  if(isColumnSearchInput(target)) {
+    target.value = pasteContent;
+    target.dispatchEvent(new Event("input"))
+  } else if (isTableData(target) && isTableCellEditable(target as HTMLTableCellElement)) {
     tableCellElementOnPaste(target as HTMLTableCellElement, pasteContent);
   }
   event.preventDefault();
@@ -1593,7 +1596,10 @@ class DataCollection {
   }
 
   getDatumByDatumId(datumid: string): Datum {
+    //console.log('getDatumByDatumId - ' + datumid)
     const indexedDatum: IndexedDatum = this.datumIdToDatum.get(datumid);
+    //console.log('getDatumByDatumId - after ' + indexedDatum)
+
     if (indexedDatum) {
       return indexedDatum.datum;
     } else {
@@ -2280,6 +2286,8 @@ class TableDataManager {
    * Makes change to a Datum (data layer) and control whether the change will be reflected in the view layer (actual HTML Element encapsulated by DataCellElement).
    */
   updateCellInRenderingView(cellid: string, handler: (datum: Datum) => void, shouldRefreshCurrentView: boolean = true) {
+    //console.log('updateCellInRenderingView - cellid = ' + cellid)
+
     const datum: Datum = this.dataCollection.getDatumByDatumId(cellid);
     handler(datum);
     if (shouldRefreshCurrentView) {
@@ -2359,10 +2367,13 @@ class TableDataManager {
    * Will cause the view layer to reflect the changes made to rendering slice of DataCollection
    */
   refreshCurrentView() {
+    console.log('refreshCurrentView()')
     this.updateRenderingView(this.renderedFirstElementIndex);
   }
 
   updateRenderingView(startIndex: number) {
+    //console.log('updateRenderingView()')
+
     this.deactivateObservers();
     const end: number = startIndex + this.numElementToRender;
     this.setViewToRender({
