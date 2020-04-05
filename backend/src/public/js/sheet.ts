@@ -498,7 +498,7 @@ function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCell
 
   // resize
   const minWidth = targetHTMLTableCellElement.offsetWidth;
-  const resizeWidth = measureTextWidth(ext) + 120;
+  const resizeWidth = measureTextWidth(text) + 120;
   const width = Math.max(minWidth, resizeWidth);
   tableCellInputFormElement.style.width = `${width}px`;
 }
