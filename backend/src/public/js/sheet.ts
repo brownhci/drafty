@@ -791,6 +791,10 @@ function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement, recordSort
 
   if (lastSortButtonClicked && lastSortButtonClicked !== buttonElement) {
     lastSortButtonClicked.classList.remove(clickClass, descendingClass);
+    // remove all existing sorters since a single sorter system is employed
+    // refresh view  is deferred since addSorter will soon trigger a refresh
+    // thereby reduce the painting cost
+    tableDataManager.clearSorter(false);
   }
   lastSortButtonClicked = buttonElement;
 
@@ -2207,8 +2211,8 @@ class TableDataManager {
     }
   }
 
-  clearSorter() {
-    if (this.dataCollection.clearSorter()) {
+  clearSorter(refreshViewImmediately: boolean = true) {
+    if (this.dataCollection.clearSorter() && refreshViewImmediately) {
       this.setViewToRender();
     }
   }
