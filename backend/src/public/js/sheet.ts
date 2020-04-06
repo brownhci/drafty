@@ -1670,7 +1670,6 @@ class DataCollection {
 
   getDatumByDatumId(datumid: string): Datum {
     const indexedDatum: IndexedDatum = this.datumIdToDatum.get(datumid);
-
     if (indexedDatum) {
       return indexedDatum.datum;
     } else {
@@ -2375,6 +2374,14 @@ class TableDataManager {
   }
 
   isCellInRenderingView(cellid: string): boolean {
+    const elementIndex = this.getElementIndexByCellId(cellid);
+    return this.isElementInRenderingView(elementIndex);
+  }
+  /**
+   * @param {string} cellid - The id of cell element.
+   * @return {boolean} whether a table cell element specified by `cellid` can appear within rendering view by scrolling
+   */
+  isCellInPotentialRenderingView(cellid: string): boolean {
     if (!cellid) {
       return false;
     }
@@ -2917,8 +2924,15 @@ class TableStatusManager {
 
   restoreTableCellInputFormLocation() {
     if (tableCellInputFormLocationActive) {
-      if (tableDataManager.putElementInRenderingViewByCellId(this.tableCellInputFormTargetElementId)) {
-        this.alignTableCellInputForm(this.tableCellInputFormTargetElement);
+      const cellid = this.tableCellInputFormTargetElementId;
+      if (tableDataManager.isCellInRenderingView(cellid)) {
+        // cell is in rendering view, only alignment is needed
+        this.alignTableCellInputForm();
+      } else {
+        // cell not in rendering view, need to put cell into rendering view before setting alignment
+        if (tableDataManager.putElementInRenderingViewByCellId(cellid)) {
+          this.alignTableCellInputForm();
+        }
       }
     }
   }
@@ -2967,14 +2981,14 @@ class TableStatusManager {
 
       this.activateTableCellInputForm(targetHTMLTableCellElement, getFocus);
       updateTableCellInputFormInput(targetHTMLTableCellElement, input);
-      attachSuggestions(targetHTMLTableCellElement, () => this.alignTableCellInputForm(targetHTMLTableCellElement));
+      attachSuggestions(targetHTMLTableCellElement, () => this.alignTableCellInputForm());
 
       this.updateTableCellInputFormLocation(targetHTMLTableCellElement);
-      this.alignTableCellInputForm(targetHTMLTableCellElement);
+      this.alignTableCellInputForm();
     }
   }
 
-  alignTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement, tableCellInputFormLocateCellElementActive: boolean = tableCellInputFormLocationActive) {
+  alignTableCellInputForm(tableCellInputFormLocateCellElementActive: boolean = tableCellInputFormLocationActive) {
     // reset last shifting
     tableCellInputFormElement.style.transform = "";
     tableCellInputFormElementXShift = 0;
@@ -2982,7 +2996,8 @@ class TableStatusManager {
 
     // configure placement
     const {left: leftLimit, right: rightLimit} = tableElement.getBoundingClientRect();
-    const cellDimensions = targetHTMLTableCellElement.getBoundingClientRect();
+    const targetCellElement = this.tableCellInputFormTargetElement;
+    const cellDimensions = targetCellElement.getBoundingClientRect();
     const cellHeight = cellDimensions.height;
     let {top: cellTop, bottom: cellBottom, left: cellLeft, right: cellRight} = cellDimensions;
     let {width: formWidth, height: formHeight} = tableCellInputFormElement.getBoundingClientRect();
@@ -3053,7 +3068,7 @@ class TableStatusManager {
       */
      const buttonHeight = tableCellInputFormLocateCellElementActive? tableCellInputFormLocateCellElement.offsetHeight: 0;
 
-     const cellTopFromPageTop = targetHTMLTableCellElement.offsetTop;
+     const cellTopFromPageTop = targetCellElement.offsetTop;
      const cellBottomFromPageTop = cellTopFromPageTop + cellHeight;
      let formTop: number;
      if (cellTopFromPageTop + formHeight - buttonHeight < bottomFromPageTopLimit) {
@@ -3136,7 +3151,7 @@ class TableStatusManager {
         return;
       }
 
-      if (tableDataManager.isCellInRenderingView(this.tableCellInputFormTargetElementId)) {
+      if (tableDataManager.isCellInPotentialRenderingView(this.tableCellInputFormTargetElementId)) {
         // row index
         const elementIndex = tableDataManager.getElementIndexByCellId(this.tableCellInputFormTargetElementId);
         tableCellInputFormLocateCellRowElement.textContent = `${elementIndex + 1}`;
