@@ -16,6 +16,8 @@ let activeTableColElement: null | HTMLTableColElement = null;
 const tableElement: HTMLTableElement = document.getElementById("table") as HTMLTableElement;
 const tableScrollContainer: HTMLElement = tableElement.parentElement;
 
+/* <thead> */
+const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
 /* <tr>s */
 const tableRowElements: HTMLCollection = tableElement.rows;
 /* first table row: column labels */
@@ -234,8 +236,22 @@ function getDownTableCellElement(tableCellElement: HTMLTableCellElement): HTMLTa
   }
   return getCellInTableRow(downTableRow, cellIndex);
 }
+function getViewportWidth(): number {
+  return Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+}
+function getViewportHeight(): number {
+  return Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+}
 function getAutocompleteSuggestionsContainer(): HTMLElement {
   return tableCellInputFormElement.querySelector(`.${optionContainerClass}`);
+}
+function getOffsetFromPageTop(element: HTMLElement): number {
+  let offset = 0;
+  while (element.offsetParent) {
+    offset += element.offsetTop;
+    element = element.offsetParent as HTMLElement;
+  }
+  return offset;
 }
 
 /**
@@ -658,7 +674,7 @@ function createEditSuggestionsContainer(editSuggestions: Array<Suggestion>, targ
  * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Suggestion objects.
 
  */
-function attachSuggestions(targetHTMLTableCellElement: HTMLTableCellElement) {
+function attachSuggestions(targetHTMLTableCellElement: HTMLTableCellElement, callback: () => void = () => undefined) {
   // recover timestamp for stored autocomplete suggestions (sugggestions for a specific column)
   const columnLabel = getColumnLabel(targetHTMLTableCellElement.cellIndex);
   const columnLabelText = getColumnLabelText(columnLabel);
@@ -676,6 +692,7 @@ function attachSuggestions(targetHTMLTableCellElement: HTMLTableCellElement) {
 
       createAutocompleteSuggestionsContainer(autocompleteSuggestions, targetHTMLTableCellElement, columnLabelText);
       createEditSuggestionsContainer(previousEditSuggestions, targetHTMLTableCellElement);
+      callback();
     });
   } else {
     // reuse suggestions in local storage
@@ -690,6 +707,7 @@ function attachSuggestions(targetHTMLTableCellElement: HTMLTableCellElement) {
       storeAutocompleteSuggestionsInLocalStorage(columnLabelText, autocompleteSuggestions);
 
       createEditSuggestionsContainer(previousEditSuggestions, targetHTMLTableCellElement);
+      callback();
     });
   }
 }
@@ -1284,7 +1302,9 @@ tableCellInputFormElement.addEventListener("submit", function(event: Event) {
 
 /* input event */
 tableCellInputFormInputElement.addEventListener("input", function(event) {
-  filterSelectOptions(tableCellInputFormInputElement.value, tableCellInputFormAutocompleteSuggestionsSelectInfo);
+  const query: string = tableCellInputFormInputElement.value;
+  filterSelectOptions(query, tableCellInputFormAutocompleteSuggestionsSelectInfo);
+  filterSelectOptions(query, tableCellInputFormEditSuggestionsSelectInfo);
   event.stopPropagation();
 }, { passive: true});
 
@@ -1981,6 +2001,21 @@ class TableDataManager {
 
   get numElementToRender(): number {
     return Math.min(this.numElement, TableDataManager.numElementToEnableLazyLoad);
+  }
+
+  get topFromPageTop(): number {
+    return getOffsetFromPageTop(this.topFiller);
+  }
+
+  get height(): number {
+    return this.numElement * this.elementHeight;
+  }
+
+  /**
+   * @return {number} How far the bottom of the dataSectionElement is from the top of the page
+   */
+  get bottomFromPageTop(): number {
+    return getOffsetFromPageTop(this.bottomFiller);
   }
 
   get numElementNotRenderedAbove(): number {
@@ -2916,65 +2951,125 @@ class TableStatusManager {
 
       this.activateTableCellInputForm(targetHTMLTableCellElement, getFocus);
       updateTableCellInputFormInput(targetHTMLTableCellElement, input);
-      attachSuggestions(targetHTMLTableCellElement);
+      attachSuggestions(targetHTMLTableCellElement, () => this.alignTableCellInputForm(targetHTMLTableCellElement));
 
       this.updateTableCellInputFormLocation(targetHTMLTableCellElement);
       this.alignTableCellInputForm(targetHTMLTableCellElement);
     }
   }
 
-  alignTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement) {
-    // set position
-    const {left, top} = targetHTMLTableCellElement.getBoundingClientRect();
+  alignTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement, tableCellInputFormLocateCellElementActive: boolean = tableCellInputFormLocationActive) {
+    // reset last shifting
     tableCellInputFormElement.style.transform = "";
-    this.positionTableCellInputForm(left, top);
-  }
-
-  /**
-   * Repositions the input form editor
-   *
-   * @arg {number} left - the new form left (as left in tableCellInputFormElement.getBoundingClientRect())
-   * @arg {number} top - the new form top
-   * @arg {boolean = false} topAsEntireFormTop - if true, then the top refers to top in tableCellInputFormElement.getBoundingClientRect(); if false, then the top refers to the form top below the tableCellInputFormLocateCellElement.
-   */
-  // test = positionTableCellInputForm(tableCellInputFormElement.getBoundingClientRect().left, tableCellInputFormElement.getBoundingClientRect().top, false)
-  positionTableCellInputForm(left: number, top: number, topAsEntireFormTop=false) {
-    if (left !== undefined) {
-      tableCellInputFormElement.style.left = `${left}px`;
-    }
-    if (top !== undefined) {
-      if (topAsEntireFormTop) {
-        tableCellInputFormElement.style.top = `${top}px`;
-      } else {
-        const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
-        tableCellInputFormElement.style.top = `${top - buttonHeight}px`;
-      }
-    }
-
-    const bounding = tableCellInputFormElement.getBoundingClientRect();
-
-    if (bounding.top < 0) {
-      //console.log('Top is out of viewport');
-    }
-    if (bounding.left < 0) {
-      //console.log('Left side is out of viewport');
-    }
-
-    if (bounding.bottom > (window.innerHeight || document.documentElement.clientHeight)) {
-      console.log("Bottom is out of viewport");
-      const newTop = document.documentElement.clientHeight - bounding.height - 80;
-      tableCellInputFormElement.style.top = `${newTop}px`;
-    }
-
-    if (bounding.right > (window.innerWidth || document.documentElement.clientWidth)) {
-      console.log("Right side is out of viewport");
-      const newLeft = document.documentElement.clientWidth - bounding.width;
-      tableCellInputFormElement.style.left = `${newLeft}px`;
-    }
-
-    // clear cumulative shift so that next shifting of input form can start afresh
     tableCellInputFormElementXShift = 0;
     tableCellInputFormElementYShift = 0;
+
+    // configure placement
+    const {left: leftLimit, right: rightLimit} = tableElement.getBoundingClientRect();
+    const cellDimensions = targetHTMLTableCellElement.getBoundingClientRect();
+    const cellHeight = cellDimensions.height;
+    let {top: cellTop, bottom: cellBottom, left: cellLeft, right: cellRight} = cellDimensions;
+    let {width: formWidth, height: formHeight} = tableCellInputFormElement.getBoundingClientRect();
+
+    const verticalScrollBarWidth = tableScrollContainer.offsetWidth - tableScrollContainer.clientWidth;
+    const viewportWidth = getViewportWidth() - verticalScrollBarWidth;
+    const horizontalScrollBarHeight = tableScrollContainer.offsetHeight - tableScrollContainer.clientHeight;
+    const viewportHeight = getViewportHeight() - horizontalScrollBarHeight;
+
+    const topFromPageTopLimit = tableDataManager.topFromPageTop;
+    // the concerned viewport is restricted to the table rows in <tbody>
+    const viewportTopPadding = topFromPageTopLimit;
+    const bottomFromPageTopLimit = Math.max(viewportHeight, tableDataManager.bottomFromPageTop);
+
+    if (formWidth > viewportWidth) {
+      formWidth = viewportWidth;
+      tableCellInputFormElement.style.width = `${formWidth}px`;
+    }
+    /**
+     * set horizontal placement
+     * two choices for horizontal placement
+     *   1. left border of form stick to left border of target cell
+     *     This option should be picked when right side of the form does not exceed table element's right bound (rightLimit)
+     *   2. right border of form stick to right border of target cell
+     *     This option should be picked when the first option isn't available and the left side of the form does not exceed table element's left bound (leftLimit)
+     */
+    let formLeft: number;
+     if (cellLeft + formWidth <= rightLimit) {
+       // option 1
+       if (cellLeft < 0) {
+         // left border the form is to the left of viewport
+         const leftShiftAmount: number = -cellLeft;
+         cellLeft += leftShiftAmount;
+         tableScrollContainer.scrollLeft -= leftShiftAmount;
+       } else if (cellLeft + formWidth > viewportWidth) {
+         // right border of the form is to the right of viewport
+         const rightShiftAmount: number = cellLeft + formWidth - viewportWidth;
+         cellLeft -= rightShiftAmount;
+         tableScrollContainer.scrollLeft += rightShiftAmount;
+       }
+       formLeft = cellLeft;
+     } else if (cellRight - formWidth >= leftLimit) {
+       // option 2
+       if (cellRight > viewportWidth) {
+         // right border of the form is to the right of viewport
+         const rightShiftAmount: number = cellRight - viewportWidth;
+         cellRight -= rightShiftAmount;
+         tableScrollContainer.scrollLeft += rightShiftAmount;
+       } else if (cellRight - formWidth < 0) {
+         // left border of the form is to the left left of viewport
+         const leftShiftAmount: number = formWidth - cellRight;
+         cellRight += leftShiftAmount;
+         tableScrollContainer.scrollLeft -= leftShiftAmount;
+       }
+       formLeft = cellRight - formWidth;
+     }
+     tableCellInputFormElement.style.left = `${formLeft}px`;
+
+     if (formHeight > viewportHeight) {
+       removeSelect(tableCellInputFormElement);
+       formHeight = tableCellInputFormElement.getBoundingClientRect().height;
+     }
+     /**
+      * set vertical placement
+      * two choices for vertical placement
+      *   1. top border (offset by buttonHeight) of form stick to the top border of the target cell
+      *   2. bottom border of form stick to the bottom border of the target cell
+      */
+     const buttonHeight = tableCellInputFormLocateCellElementActive? tableCellInputFormLocateCellElement.offsetHeight: 0;
+
+     const cellTopFromPageTop = targetHTMLTableCellElement.offsetTop;
+     const cellBottomFromPageTop = cellTopFromPageTop + cellHeight;
+     let formTop: number;
+     if (cellTopFromPageTop + formHeight - buttonHeight < bottomFromPageTopLimit) {
+       // option 1
+       if (cellTop < viewportTopPadding) {
+         // top border of form is to the top of the viewport
+         const upShiftAmount: number = viewportTopPadding - cellTop;
+         cellTop += upShiftAmount;
+         tableScrollContainer.scrollTop -= upShiftAmount;
+       } else if (cellTop + formHeight - buttonHeight > viewportHeight) {
+         // bottom border of form is to the bottom of the viewport
+         const downShiftAmount: number = cellTop + formHeight - buttonHeight - viewportHeight;
+         cellTop -= downShiftAmount;
+         tableScrollContainer.scrollTop += downShiftAmount;
+       }
+       formTop = cellTop - buttonHeight;
+     } else if (cellBottomFromPageTop - formHeight + buttonHeight >= topFromPageTopLimit) {
+       // option 2
+       if (cellBottom > viewportHeight) {
+         // bottom border of form is to the bottom of the viewport
+         const downShiftAmount: number = cellBottom - viewportHeight;
+         cellBottom -= downShiftAmount;
+         tableScrollContainer.scrollTop += downShiftAmount;
+       } else if (cellBottom - formHeight + buttonHeight < viewportTopPadding) {
+         // top border of form is to the top of the viewport
+         const upShiftAmount: number = viewportTopPadding - (cellBottom - formHeight + buttonHeight);
+         cellBottom += upShiftAmount;
+         tableScrollContainer.scrollTop -= upShiftAmount;
+       }
+       formTop = cellBottom - formHeight + buttonHeight;
+     }
+     tableCellInputFormElement.style.top = `${formTop}px`;
   }
 
   saveTableCellInputForm() {
