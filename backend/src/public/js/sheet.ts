@@ -722,13 +722,24 @@ function storePreferredColumnWidth(index: number, columnWidth: string) {
 function getPreferredColumnWidth(index: number): string | null {
   return window.localStorage.getItem(getStoredColumnWidthKey(index));
 }
-function loadPreferredColumnWidths() {
+function loadPreferredColumnWidths(respectMinimumColumnWidth: boolean = true) {
   let index = 0;
   for (const tableColElement of tableColElements) {
-    const preferredColumnWidth = getPreferredColumnWidth(index);
+    const preferredColumnWidth: string = getPreferredColumnWidth(index);
+
+    const tableColEl = tableColElement as HTMLTableColElement;
     if (preferredColumnWidth) {
-      const tableColEl = tableColElement as HTMLTableColElement;
-      tableColEl.style.width = preferredColumnWidth;
+      let columnWidth: string;
+      if (respectMinimumColumnWidth) {
+        columnWidth = `${Math.max(getMinimumColumnWidth(index), Number.parseFloat(preferredColumnWidth))}px`;
+      } else {
+        columnWidth = preferredColumnWidth;
+      }
+        tableColEl.style.width = columnWidth;
+    } else {
+      if (respectMinimumColumnWidth) {
+        tableColEl.style.width = `${getMinimumColumnWidth(index)}px`;
+      }
     }
 
     index += 1;
@@ -755,8 +766,15 @@ function updateTableColumnWidthToFitText(tableColumnSearchElement: HTMLTableCell
     updateTableColumnWidth(index, `${newColumnWidth}px`);
   }
 }
-function getMinimumAllowedColumnWidth(index: number) {
-  return vw2px(5);
+function getMinimumColumnWidth(index: number) {
+  const columnLabelText: string = getColumnLabelText(getColumnLabel(index));
+
+  const textWidth: number = measureTextWidth(columnLabelText);
+  const paddingWidth: number = em2px(0.75) * 2;
+  const sortButtonWidth: number = 30;
+  const slack: number = 15;
+
+  return textWidth + paddingWidth + sortButtonWidth + slack;
 }
 function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, resizeAmount: number) {
   if (resizeAmount === 0) {
@@ -766,7 +784,7 @@ function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, res
   const index = tableCellElement.cellIndex;
   // in pixels
   const currentColumnWidth = tableCellElement.clientWidth;
-  const newColumnWidth = Math.max(getMinimumAllowedColumnWidth(index), currentColumnWidth + resizeAmount);
+  const newColumnWidth = Math.max(getMinimumColumnWidth(index), currentColumnWidth + resizeAmount);
 
   updateTableColumnWidth(index, `${newColumnWidth}px`);
 }
@@ -781,7 +799,7 @@ const resizeVisualCue: HTMLElement = initializeResizeVisualCue();
 function resizeVisualCueMininumX(tableCellElement: HTMLTableCellElement) {
   const elementLeft = tableCellElement.getBoundingClientRect().left;
   const index = tableCellElement.cellIndex;
-  return elementLeft + getMinimumAllowedColumnWidth(index);
+  return elementLeft + getMinimumColumnWidth(index);
 }
 function repositionResizeVisualCue(newXPos: number) {
   resizeVisualCue.style.left = `${newXPos}px`;
@@ -1195,7 +1213,7 @@ function handleMouseMoveNearElementBorder(tableCellElement: ResizableHTMLTableCe
 }
 function tableColumnColorify(columnIndex: number, originalWidth: string = "50%", newWidth: string = "100%", bufferBackgroundColor: string = "#f8f9fa") {
   for (const tableCellElement of getTableCellElementsInColumn(columnIndex, false, false)) {
-    if (isColumnSearch(tableCellElement)) {
+    if (isColumnLabel(tableCellElement) || isColumnSearch(tableCellElement)) {
       tableCellElement.style.paddingRight = `calc(0.75rem + calc(${newWidth} - ${originalWidth}))`;
     }
 
@@ -1224,7 +1242,6 @@ function tableHeadOnMouseMove(tableCellElement: HTMLTableCellElement, event: Mou
     // handle mouse move to element border
     handleMouseMoveNearElementBorder(tableCellElement, event);
   }
-
 }
 function tableHeadOnMouseDown(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
   if (tableCellElementUnderMouse !== tableCellElement) {
