@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 cd ..
+git stash
 git pull
 cd backend
 
@@ -10,8 +11,12 @@ then
 fi
 
 npm run build
-# https://pm2.keymetrics.io/docs/usage/signals-clean-restart/
-#pm2 restart npm -- run watch --max-memory-restart 1000M # causes weird restarts
-#pm2 reload npm -- run watch --env production --source-map-support --wait-ready
 
-pm2 reload npm -- run watch --source-map-support --node-args="--max_old_space_size=2048"  
+if [ "$#" -gt 0 ] # if greater than 0
+then
+  # only run if npm update was run
+  # https://pm2.keymetrics.io/docs/usage/signals-clean-restart/
+  # pm2 restart npm -- run watch --max-memory-restart 1000M # causes weird restarts
+  # pm2 reload npm -- run watch --env production --source-map-support --wait-ready
+  pm2 reload npm -- run watch --source-map-support --node-args="--max_old_space_size=2048"
+fi
