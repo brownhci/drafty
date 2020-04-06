@@ -353,9 +353,9 @@ function recordEdit(tableCellElement: HTMLTableCellElement, textContent: string)
     "suggestion": textContent,
   }, (response) => {
     response.json().then(idSuggestion => {
-      tableDataManager.updateCellInRenderingView(tableCellElement.id, (datum) => {
-        datum.id = idSuggestion.toString();
-        datum.textContent = textContent;
+      tableDataManager.updateCellInRenderingView(tableCellElement.id, {
+        id: idSuggestion.toString(),
+        textContent,
       }, true);
     });
   });
@@ -1622,14 +1622,25 @@ class DataCollection {
   }
 
   getDatumByDatumId(datumid: string): Datum {
-    //console.log('getDatumByDatumId - ' + datumid)
     const indexedDatum: IndexedDatum = this.datumIdToDatum.get(datumid);
-    //console.log('getDatumByDatumId - after ' + indexedDatum)
 
     if (indexedDatum) {
       return indexedDatum.datum;
     } else {
       return null;
+    }
+  }
+
+  updateDatumByDatumId(datumId: string, newDatum: Partial<DatumLike>) {
+    const { datum, childIndex } = this.datumIdToDatum.get(datumId);
+
+    Object.assign(datum, newDatum);
+
+    if ("id" in newDatum) {
+      const newDatumId: string = newDatum.id;
+      // updates the entry in datumIdToDatum when a new id is given to the datum
+      this.datumIdToDatum.delete(datumId);
+      this.datumIdToDatum.set(newDatumId, {datum, childIndex});
     }
   }
 
@@ -2311,19 +2322,11 @@ class TableDataManager {
   /**
    * Makes change to a Datum (data layer) and control whether the change will be reflected in the view layer (actual HTML Element encapsulated by DataCellElement).
    */
-  updateCellInRenderingView(cellid: string, handler: (datum: Datum) => void, shouldRefreshCurrentView: boolean = true) {
-    //console.log('updateCellInRenderingView - cellid = ' + cellid)
-
-    // sw: bug here after 2nd edit
-    const datum: Datum = this.dataCollection.getDatumByDatumId(cellid);
-    //console.log('updateCellInRenderingView - datum = ')
-    //console.log(datum)
-    handler(datum);
+  updateCellInRenderingView(cellid: string, newDatum: Partial<DatumLike>, shouldRefreshCurrentView: boolean = true) {
+    this.dataCollection.updateDatumByDatumId(cellid, newDatum);
     if (shouldRefreshCurrentView) {
       this.refreshCurrentView();
     }
-    //should be updated here
-    //console.log(this.dataCollection.getDatumByDatumId(cellid))
   }
 
   getElementIndexByCellId(cellid: string): number {
@@ -2398,12 +2401,10 @@ class TableDataManager {
    * Will cause the view layer to reflect the changes made to rendering slice of DataCollection
    */
   refreshCurrentView() {
-    //console.log("refreshCurrentView()");
     this.updateRenderingView(this.renderedFirstElementIndex);
   }
 
   updateRenderingView(startIndex: number) {
-    //console.log('updateRenderingView()')
     this.deactivateObservers();
     const end: number = startIndex + this.numElementToRender;
     this.setViewToRender({
