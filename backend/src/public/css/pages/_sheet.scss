@@ -171,9 +171,9 @@ $visual-cue-width: 5px;
     thead {
       @extend .thead-light;
       tr {
-        &.column-label-row {
+        &#column-label-row {
           &.resize-border {
-            cursor: ew-resize;
+            cursor: ew-resize !important;
           }
         }
       }

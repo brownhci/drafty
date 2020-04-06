@@ -258,6 +258,11 @@ function* getTableCellElementsInRow(tableRowElement: HTMLTableRowElement) {
 function* getTableCellElementsInColumn(index: number, skipColumnLabel: boolean = false, skipColumnSearch = true) {
   for (let i = 0; i < tableRowElements.length; i++) {
     const tableRow = tableRowElements[i] as HTMLTableRowElement;
+    if (tableRow === tableDataManager.topFiller || tableRow === tableDataManager.bottomFiller) {
+      // skip over filler row
+      continue;
+    }
+
     if (skipColumnLabel && i === columnLabelRowIndex) {
       // skip over column label row
       continue;
@@ -1150,10 +1155,33 @@ function handleMouseMoveNearElementBorder(tableCellElement: ResizableHTMLTableCe
     // near left border
     tableCellElement.classList.add(nearLeftBorderClass);
     getLeftTableCellElement(tableCellElement).classList.add(nearRightBorderClass);
-  } else if (distanceFromRightBorder <= distanceConsideredNearToBorder && distanceFromRightBorder <= distanceFromLeftBorder && !isLastTableCell(tableCellElement)) {
+  } else if (distanceFromRightBorder <= distanceConsideredNearToBorder && distanceFromRightBorder <= distanceFromLeftBorder) {
     // near right border
     tableCellElement.classList.add(nearRightBorderClass);
-    getRightTableCellElement(tableCellElement).classList.add(nearLeftBorderClass);
+
+    if (!isLastTableCell(tableCellElement)) {
+      // last tale column does not have a right border
+      getRightTableCellElement(tableCellElement).classList.add(nearLeftBorderClass);
+    }
+  }
+}
+function tableColumnColorify(columnIndex: number, originalWidth: string = "50%", newWidth: string = "100%", bufferBackgroundColor: string = "#f8f9fa") {
+  for (const tableCellElement of getTableCellElementsInColumn(columnIndex, false, false)) {
+    if (isColumnSearch(tableCellElement)) {
+      tableCellElement.style.paddingRight = `calc(0.75rem + calc(${newWidth} - ${originalWidth}))`;
+    }
+
+    const currentBackgroundColor: string = getComputedStyle(tableCellElement, null).backgroundColor;
+    tableCellElement.style.background = `linear-gradient(to right, ${currentBackgroundColor} 0%, ${currentBackgroundColor} ${originalWidth}, ${bufferBackgroundColor} ${originalWidth}, ${bufferBackgroundColor} ${newWidth})`;
+  }
+}
+function tableColumnDecolorify(columnIndex: number) {
+  for (const tableCellElement of getTableCellElementsInColumn(columnIndex, false, false)) {
+    if (isColumnSearch(tableCellElement)) {
+      tableCellElement.style.paddingRight = "";
+    }
+
+    tableCellElement.style.background = "";
   }
 }
 function tableHeadOnMouseMove(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
@@ -2285,7 +2313,7 @@ class TableDataManager {
    */
   updateCellInRenderingView(cellid: string, handler: (datum: Datum) => void, shouldRefreshCurrentView: boolean = true) {
     //console.log('updateCellInRenderingView - cellid = ' + cellid)
-    
+
     // sw: bug here after 2nd edit
     const datum: Datum = this.dataCollection.getDatumByDatumId(cellid);
     //console.log('updateCellInRenderingView - datum = ')
@@ -2869,7 +2897,7 @@ class TableStatusManager {
 
     // sw: reset val to avoid double entry bug
     // sw: if you call in removeSelect() gives es-lint err
-    tableCellInputFormInputElement.value = ""; 
+    tableCellInputFormInputElement.value = "";
     removeSelect(tableCellInputFormElement);
 
     if (targetHTMLTableCellElement) {
@@ -2902,7 +2930,7 @@ class TableStatusManager {
    */
   // test = positionTableCellInputForm(tableCellInputFormElement.getBoundingClientRect().left, tableCellInputFormElement.getBoundingClientRect().top, false)
   positionTableCellInputForm(left: number, top: number, topAsEntireFormTop=false) {
-    console.log('')
+    console.log("");
 
     if (left !== undefined) {
       tableCellInputFormElement.style.left = `${left}px`;
@@ -2926,13 +2954,13 @@ class TableStatusManager {
     }
 
     if (bounding.bottom > (window.innerHeight || document.documentElement.clientHeight)) {
-      console.log('Bottom is out of viewport');
+      console.log("Bottom is out of viewport");
       const newTop = document.documentElement.clientHeight - bounding.height - 80;
       tableCellInputFormElement.style.top = `${newTop}px`;
     }
 
     if (bounding.right > (window.innerWidth || document.documentElement.clientWidth)) {
-      console.log('Right side is out of viewport');
+      console.log("Right side is out of viewport");
       const newLeft = document.documentElement.clientWidth - bounding.width;
       tableCellInputFormElement.style.left = `${newLeft}px`;
     }
@@ -2942,8 +2970,8 @@ class TableStatusManager {
     tableCellInputFormElementYShift = 0;
 
     // TODO: sw: sometimes the edit window is still not repositioned correctly
-    console.log(top + ' :: ' + tableCellInputFormElement.style.top);
-    console.log(left + ' :: ' + tableCellInputFormElement.style.left);
+    console.log(top + " :: " + tableCellInputFormElement.style.top);
+    console.log(left + " :: " + tableCellInputFormElement.style.left);
   }
 
   saveTableCellInputForm() {
