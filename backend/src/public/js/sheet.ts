@@ -769,10 +769,10 @@ function updateTableColumnWidthToFitText(tableColumnSearchElement: HTMLTableCell
 function getMinimumColumnWidth(index: number) {
   const columnLabelText: string = getColumnLabelText(getColumnLabel(index));
 
-  const textWidth: number = measureTextWidth(columnLabelText) + 80;
+  const textWidth: number = measureTextWidth(columnLabelText);
   const paddingWidth: number = em2px(0.75) * 2;
   const sortButtonWidth: number = 30;
-  const slack: number = 15;
+  const slack: number = 80;
 
   return textWidth + paddingWidth + sortButtonWidth + slack;
 }
