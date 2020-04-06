@@ -2823,7 +2823,6 @@ class TableStatusManager {
       case "Enter":
         this.quitTableCellInputForm(true);
         break;
-
     }
     event.stopPropagation();
   }
@@ -3105,12 +3104,7 @@ class TableStatusManager {
   }
 
   tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-    const input = event.key;
-    if (input.length === 1) {
-      this.tableCellInputFormAssignTarget(tableDataElement, input);
-    } else {
-      this.tableCellInputFormAssignTarget(tableDataElement);
-    }
+    this.tableCellInputFormAssignTarget(tableDataElement);
     event.consumed = true;
   }
 
