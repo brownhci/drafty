@@ -592,7 +592,14 @@ function parseSuggestions(suggestions: Array<Suggestion>): Record<string, Array<
   };
 
   for (const suggestion of suggestions) {
-    (suggestion.prevSugg === 1 ? parsedSuggestions[previousEditsKeyName] : parsedSuggestions[autocompleteSuggestionsKeyName]).push(suggestion);
+    if (suggestion.prevSugg === 1) {
+      if (suggestion.suggestion !== "") {
+        // avoid empty string showing as previous edit
+        parsedSuggestions[previousEditsKeyName].push(suggestion);
+      }
+    } else {
+      parsedSuggestions[autocompleteSuggestionsKeyName].push(suggestion);
+    }
   }
   return parsedSuggestions;
 }
@@ -614,11 +621,14 @@ function createAutocompleteSuggestionsContainer(autocompleteSuggestions: Array<S
   updateTableCellInputFormWidthToFitText(tableCellInputFormAutocompleteSuggestionsSelectInfo.longestText);
 }
 function createEditSuggestionsContainer(editSuggestions: Array<Suggestion>, targetHTMLTableCellElement: HTMLTableCellElement) {
-  if (!editSuggestions || editSuggestions.length === 0) {
+  if (!editSuggestions) {
     return;
   }
 
-  // sw: fixing double entry bug: it happens before: createEditSuggestionsContainer
+  if (editSuggestions.length === 0) {
+    return;
+  }
+
   if(tableCellInputFormInputElement.value.length === 2) {
     if(tableCellInputFormInputElement.value.charAt(0) === tableCellInputFormInputElement.value.charAt(1)) {
       tableCellInputFormInputElement.value = tableCellInputFormInputElement.value.charAt(0);
@@ -2896,8 +2906,6 @@ class TableStatusManager {
     this.deactivateTableCellInputForm();
     this.deactivateTableCellInputFormLocation();
 
-    // sw: reset val to avoid double entry bug
-    // sw: if you call in removeSelect() gives es-lint err
     tableCellInputFormInputElement.value = "";
     removeSelect(tableCellInputFormElement);
 
@@ -2907,7 +2915,7 @@ class TableStatusManager {
       }
 
       this.activateTableCellInputForm(targetHTMLTableCellElement, getFocus);
-      updateTableCellInputFormInput(targetHTMLTableCellElement, input); // remove this no double value on input
+      updateTableCellInputFormInput(targetHTMLTableCellElement, input);
       attachSuggestions(targetHTMLTableCellElement);
 
       this.updateTableCellInputFormLocation(targetHTMLTableCellElement);
@@ -2931,8 +2939,6 @@ class TableStatusManager {
    */
   // test = positionTableCellInputForm(tableCellInputFormElement.getBoundingClientRect().left, tableCellInputFormElement.getBoundingClientRect().top, false)
   positionTableCellInputForm(left: number, top: number, topAsEntireFormTop=false) {
-    console.log("");
-
     if (left !== undefined) {
       tableCellInputFormElement.style.left = `${left}px`;
     }
@@ -2969,10 +2975,6 @@ class TableStatusManager {
     // clear cumulative shift so that next shifting of input form can start afresh
     tableCellInputFormElementXShift = 0;
     tableCellInputFormElementYShift = 0;
-
-    // TODO: sw: sometimes the edit window is still not repositioned correctly
-    console.log(top + " :: " + tableCellInputFormElement.style.top);
-    console.log(left + " :: " + tableCellInputFormElement.style.left);
   }
 
   saveTableCellInputForm() {
