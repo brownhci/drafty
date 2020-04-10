@@ -163,3 +163,5 @@ typings/
 
 # vscode history
 .history*
+
+backend/data_sharing/*
