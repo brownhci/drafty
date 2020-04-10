@@ -68,13 +68,24 @@ def build_column_labels_row(cursor):
     rows = cursor.fetchall()
     return f'<tr id="column-label-row">{"".join(build_column_label_cell(row, i) for i, row in enumerate(rows))}</tr>'
 
+def isFreeEdit(val):
+    if val:
+        return 'true'
+    else:
+        return 'false'
 
 def build_column_search_row():
     # &#xF002; is the looking glass icon to use as a palceholder
-    search_input = '''<th id="column-search{column_search_index}" class="column-search" scope="col" tabindex="-1"><input type="search" placeholder="&#xF002;"></th>'''
+    search_input = '''<th id="column-search{column_search_index}" data-autocomplete-only={free_edit} class="column-search" scope="col" tabindex="-1">
+                        <input type="search" placeholder="&#xF002;">
+                      </th>'''
     cursor.execute(sql_col_order)
     rows = cursor.fetchall()
-    return f'\n<tr id="column-search-row">\n{"".join(search_input.format(column_search_index=i) for i, row in enumerate(rows))}</tr>\n'
+    search_row = f'\n<tr id="column-search-row">\n'
+    for i, row in enumerate(rows):
+        search_row += search_input.format(column_search_index=i, free_edit=isFreeEdit(row['isFreeEdit']))
+    #return f'\n<tr id="column-search-row">\n{"".join(search_input.format(column_search_index=i) for i, row in enumerate(rows))}\n</tr>\n' 
+    return search_row + f'\n</tr>\n'
 
 
 def build_table_head(cursor, column_widths):
