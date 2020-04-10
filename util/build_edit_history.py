@@ -9,10 +9,11 @@ db_user = 'test'
 db_pass = 'test'
 
 sql = '''
-    SELECT p.email, su.suggestion, i.timestamp, sname.suggestion as prof_name, suni.suggestion as university
+    SELECT p.email, su.suggestion, sut.name as col, i.timestamp, sname.suggestion as prof_name, suni.suggestion as university
     FROM Edit e
     INNER JOIN (SELECT idEdit, idSuggestion FROM Edit_Suggestion WHERE isChosen = 1) es ON es.idEdit = e.idEdit
     INNER JOIN Suggestions su ON su.idSuggestion = es.idSuggestion
+    INNER JOIN SuggestionType sut ON sut.idSuggestionType = su.idSuggestionType
     INNER JOIN (SELECT * FROM Suggestions WHERE idSuggestionType = 1 GROUP BY idUniqueId) sname ON sname.idUniqueId = su.idUniqueId
     INNER JOIN (SELECT * FROM Suggestions WHERE idSuggestionType = 2 GROUP BY idUniqueId) suni ON suni.idUniqueId = su.idUniqueId
     INNER JOIN Interaction i ON i.idInteraction = e.IdInteraction
@@ -30,6 +31,7 @@ def build_csv_file(cursor):
         if '@' not in email:
             out += '\"' + email
             out += '\",\"' + row['suggestion']
+            out += '\",\"' + row['col']
             out += '\",\"' + str(row['timestamp'])
             out += '\",\"' + row['prof_name']
             out += '\",\"' + row['university'] + '\"\n'
@@ -38,7 +40,7 @@ def build_csv_file(cursor):
 
 def save_to_file(output_file, cursor):
     with atomic_write(output_file, overwrite=True) as f:
-        f.write('\"worker_id\",\"edit\",\"timestamp\",\"professor_name\",\"university\"\n')
+        f.write('\"worker_id\",\"edit\",\"column\",\"timestamp\",\"professor_name\",\"university\"\n')
         f.write(build_csv_file(cursor))
 
 
