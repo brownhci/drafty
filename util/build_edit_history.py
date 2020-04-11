@@ -1,6 +1,7 @@
 import argparse
 import itertools
 import os
+import sys
 
 import pymysql
 from atomicwrites import atomic_write
@@ -57,7 +58,7 @@ def get_db_creds():
 
 
 if __name__ == '__main__':
-    # python3 build_spreadsheet.py --host localhost --database 2300profs --nrows 40 2300profs.hbs
+    # python3 build_edit_history.py --host localhost --database 2300profs 2300profs.hbs
     parser = argparse.ArgumentParser(description='Write database data to table HTML file.')
     parser.add_argument('--database', default='2300profs',
                         help='The database to be outputtted')
@@ -78,5 +79,10 @@ if __name__ == '__main__':
     except Exception as e:
         print('ERROR exiting...')
         print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type)
+        print(fname)
+        print(exc_tb.tb_lineno)
     finally:
         db.close()

@@ -1,6 +1,7 @@
 import argparse
 import itertools
 import os
+import sys
 
 import pymysql
 from atomicwrites import atomic_write
@@ -219,5 +220,10 @@ if __name__ == '__main__':
     except Exception as e:
         print('ERROR exiting...')
         print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type)
+        print(fname)
+        print(exc_tb.tb_lineno)
     finally:
         db.close()
