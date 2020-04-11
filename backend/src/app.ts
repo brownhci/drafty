@@ -38,6 +38,7 @@ const app = express();
 
 // Express configuration
 app.set("port", process.env.PORT || 3000);
+app.set("trust proxy", true); // sw: for production reverse proxy
 
 // View Engine
 import helpers from "./config/handlebars-helpers";
@@ -219,6 +220,11 @@ app.post("/suggestions/new", suggestionController.postNewSuggestion);
 // sheets
 app.get("/:sheet", sheetController.getSheet);
 // app.post("/gen", sheetController.genSheet);
+
+//idSession
+app.get("/account/idsession", function(req, res) {
+  res.status(200).json(req.session.user.idSession);
+});
 
 // handle missing pages
 app.get("*", function(req, res) {
