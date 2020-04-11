@@ -111,6 +111,9 @@ function isColumnSearchFilled(columnSearch: HTMLTableCellElement): boolean {
   }
   return getColumnSearchInput(columnSearch).value !== "";
 }
+function isColumnAutocompleteOnly(columnLabel: HTMLTableCellElement) {
+  return columnLabel.dataset.autocompleteOnly === "true";
+}
 function isMultipleColumnSearchInputFilled(limit: number = 2): boolean {
   let n = 0;
   for (const columnSearch of getTableCellElementsInRow(tableColumnSearches)) {
@@ -2952,6 +2955,11 @@ class TableStatusManager {
     if (columnLabel) {
       columnLabel.classList.add(TableStatusManager.inputtingClass);
     }
+
+    // set readOnly depending on whether the autocompleteOnly is set on the column label
+    const isReadOnly = isColumnAutocompleteOnly(columnLabel);
+    tableCellInputFormInputElement.readOnly = isReadOnly;
+
 
     // highlight the target cell
     targetHTMLTableCellElement.classList.add(TableStatusManager.inputtingClass);

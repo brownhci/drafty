@@ -61,7 +61,8 @@ def build_column_label_cell(row, column_index):
     else:
         noneditable_indices.append(column_index)
         content_editable = 'contenteditable="false"'
-    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" tabindex="-1" class="column-label" {content_editable}>{colname}<button class="sort-btn"></button></th>\n'
+    free_edit = 'true' if row['isFreeEdit'] else 'false'
+    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" data-autocomplete-only="{free_edit}" tabindex="-1" class="column-label" {content_editable}>{colname}<button class="sort-btn"></button></th>\n'
 
 
 def build_column_labels_row(cursor):
@@ -69,24 +70,16 @@ def build_column_labels_row(cursor):
     rows = cursor.fetchall()
     return f'<tr id="column-label-row">{"".join(build_column_label_cell(row, i) for i, row in enumerate(rows))}</tr>'
 
-def isFreeEdit(val):
-    if val:
-        return 'true'
-    else:
-        return 'false'
 
 def build_column_search_row():
     # &#xF002; is the looking glass icon to use as a palceholder
-    search_input = '''<th id="column-search{column_search_index}" data-autocomplete-only={free_edit} class="column-search" scope="col" tabindex="-1">
+    search_input = '''<th id="column-search{column_search_index}" class="column-search" scope="col" tabindex="-1">
                         <input type="search" placeholder="&#xF002;">
                       </th>'''
     cursor.execute(sql_col_order)
     rows = cursor.fetchall()
     search_row = f'\n<tr id="column-search-row">\n'
-    for i, row in enumerate(rows):
-        search_row += search_input.format(column_search_index=i, free_edit=isFreeEdit(row['isFreeEdit']))
-    #return f'\n<tr id="column-search-row">\n{"".join(search_input.format(column_search_index=i) for i, row in enumerate(rows))}\n</tr>\n' 
-    return search_row + f'\n</tr>\n'
+    return f'\n<tr id="column-search-row">\n{"".join(search_input.format(column_search_index=i) for i, row in enumerate(rows))}\n</tr>\n'
 
 
 def build_table_head(cursor, column_widths):
