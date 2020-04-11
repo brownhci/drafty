@@ -132,7 +132,7 @@ export async function createAnonUser() {
 }
 
 /**
- * Function to ceate new Session in our DB (not express-session)
+ * Function to create new Session in our DB (not express-session)
  */
 export async function createSessionDB(idProfile: number,idExpressSession: string) {
   const idSession = await insertSession(idProfile,idExpressSession);
@@ -149,7 +149,7 @@ export const getAccount = (req: Request, res: Response) => {
     const user = req.user as Partial<UserModel>;
     username = user.email;
   }
-  res.render("account/profile", makeRenderObject({ title: "Account Management", username: username }, req));
+  res.render("account/profile", makeRenderObject({ title: "Account Management", username: username, identifier: req.session.user.idProfile }, req));
 };
 
 /**

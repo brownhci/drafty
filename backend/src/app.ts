@@ -134,10 +134,10 @@ app.use(async (req, res, next) => {
   }
 
   // if idProfile not found create new idProfile
-  
+
   if(((Date.now() - req.session.user.lastInteraction) > heartbeat) || (req.session.user.idSession === -1)) {
     // new session
-    req.session.user.idSession = await createSessionDB(req.session.user.idProfile,req.sessionID); 
+    req.session.user.idSession = await createSessionDB(req.session.user.idProfile,req.sessionID);
   }
   req.session.user.lastInteraction = Date.now();
   //req.session.user.views++;

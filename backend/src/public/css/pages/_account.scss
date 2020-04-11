@@ -1,0 +1,14 @@
+#account-container {
+  #editor-identifier {
+    @extend .text-primary;
+    @extend .clickable;
+    @extend .ml-2;
+    &:hover {
+      border-bottom: solid medium $primary;
+    }
+    &::selection {
+      @extend .bg-primary;
+      @extend .text-white;
+    }
+  }
+}

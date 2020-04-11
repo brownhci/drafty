@@ -27,7 +27,10 @@
             <h2>Proud of yourself</h2>
             <div>
                 <p>
-                    You are a valuable contributor to Drafty! Here are your contributions we have in record:
+                    You are a valuable contributor to Drafty!
+                </p>
+                <p>
+                    <b>This is your identifier to receive credit at Amazon Mechanical Turk: <span id="editor-identifier">{{identifier}}</span></b>.
                 </p>
             </div>
         </section>
@@ -36,4 +39,8 @@
         </section>
     </div>
 </main>
+<script>
+    const editorIdentifier = document.getElementById("editor-identifier");
+    editorIdentifier.addEventListener("click", () => copyToClipboard(editorIdentifier));
+</script>
 <script src="/js/form.js"></script>
