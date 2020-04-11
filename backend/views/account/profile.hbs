@@ -1,6 +1,9 @@
 <main id="account-container" class="centered-section-layout">
     <div>
         <h1>Hi, <span id="username">{{username}}</span></h1>
+        <p>
+            To receive credit at <i>Amazon Mechanical Turk</i>, pleaseuse this <b>animal code</b>: <b><span id="editor-identifier">{{identifier}}</span>_rabbit</b>
+        </p>
         <section>
             {{#if signedIn}}
                 <h2>Reset your password</h2>
@@ -28,9 +31,6 @@
             <div>
                 <p>
                     You are a valuable contributor to Drafty!
-                </p>
-                <p>
-                    <b>This is your identifier to receive credit at Amazon Mechanical Turk: <span id="editor-identifier">{{identifier}}</span></b>.
                 </p>
             </div>
         </section>
