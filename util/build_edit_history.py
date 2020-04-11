@@ -24,19 +24,36 @@ sql = '''
     # (1139, "Got error 'repetition-operator operand invalid' from regexp")
     # INNER JOIN (SELECT * FROM users.Profile WHERE email REGEXP '^((?!@).)*$') p on p.idProfile = s.idProfile  
 
+def report_error(e):
+    print('ERROR exiting...')
+    print(e)
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    print(exc_type)
+    print(fname)
+    print(exc_tb.tb_lineno)
+
+def checkNone(s):
+    if s is None:
+        return ''
+    return str(s)
+
 def build_csv_file(cursor):
-    cursor.execute(sql)
-    out = ''
-    for row in cursor.fetchall():
-        email = row['email']
-        if '@' not in email:
-            out += '\"' + email
-            out += '\",\"' + row['suggestion']
-            out += '\",\"' + row['col']
-            out += '\",\"' + str(row['timestamp'])
-            out += '\",\"' + row['prof_name']
-            out += '\",\"' + row['university'] + '\"\n'
-    return out
+    try:
+        cursor.execute(sql)
+        out = ''
+        for row in cursor.fetchall():
+            email = checkNone(row['email'])
+            if '@' not in email:
+                out += '\"' + email
+                out += '\",\"' + row['suggestion']
+                out += '\",\"' + row['col']
+                out += '\",\"' + str(row['timestamp'])
+                out += '\",\"' + row['prof_name']
+                out += '\",\"' + row['university'] + '\"\n'
+        return out
+    except Exception as e:
+        report_error(e)
 
 
 def save_to_file(output_file, cursor):
@@ -77,12 +94,6 @@ if __name__ == '__main__':
             filepath = f'../backend/data_sharing/{args.outfile}'
             save_to_file(filepath, cursor)
     except Exception as e:
-        print('ERROR exiting...')
-        print(e)
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type)
-        print(fname)
-        print(exc_tb.tb_lineno)
+        report_error(e)
     finally:
         db.close()
