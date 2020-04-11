@@ -10,7 +10,8 @@ db_user = 'test'
 db_pass = 'test'
 
 sql = '''
-    SELECT p.email, su.suggestion, sut.name as col, i.timestamp, sname.suggestion as prof_name, suni.suggestion as university
+    SELECT p.email as user_MTurkID, su.suggestion, sut.name as col, i.timestamp, sname.suggestion as prof_name, suni.suggestion as university, 
+    p.idProfile as user_id_profile, s.idSession as user_id_session, s.idExpressSession as user_id_session_hash, es.data as user_data_dump
     FROM Edit e
     INNER JOIN (SELECT idEdit, idSuggestion FROM Edit_Suggestion WHERE isChosen = 1) es ON es.idEdit = e.idEdit
     INNER JOIN Suggestions su ON su.idSuggestion = es.idSuggestion
@@ -19,6 +20,7 @@ sql = '''
     INNER JOIN (SELECT * FROM Suggestions WHERE idSuggestionType = 2 GROUP BY idUniqueId) suni ON suni.idUniqueId = su.idUniqueId
     INNER JOIN Interaction i ON i.idInteraction = e.IdInteraction
     INNER JOIN users.Session s ON s.idSession = i.idSession
+    INNER JOIN users.sessions es ON es.session_id = s.idExpressSession
     INNER JOIN (SELECT * FROM users.Profile) p on p.idProfile = s.idProfile 
     '''
     # (1139, "Got error 'repetition-operator operand invalid' from regexp")
@@ -43,14 +45,19 @@ def build_csv_file(cursor):
         cursor.execute(sql)
         out = ''
         for row in cursor.fetchall():
-            email = checkNone(row['email'])
+            email = checkNone(row['user_MTurkID']) # sw: email is field in db
             if '@' not in email:
                 out += '\"' + email
                 out += '\",\"' + row['suggestion']
                 out += '\",\"' + row['col']
                 out += '\",\"' + str(row['timestamp'])
                 out += '\",\"' + row['prof_name']
-                out += '\",\"' + row['university'] + '\"\n'
+                out += '\",\"' + row['university']
+                out += '\",\"' + str(row['user_id_profile'])
+                out += '\",\"' + str(row['user_id_session'])
+                out += '\",\"' + str(row['user_id_session_hash'])
+                out += '\",\"' + row['user_data_dump']
+                out += '\"\n'
         return out
     except Exception as e:
         report_error(e)
@@ -58,7 +65,7 @@ def build_csv_file(cursor):
 
 def save_to_file(output_file, cursor):
     with atomic_write(output_file, overwrite=True) as f:
-        f.write('\"worker_id\",\"edit\",\"column\",\"timestamp\",\"professor_name\",\"university\"\n')
+        f.write('\"worker_id\",\"edit\",\"column\",\"timestamp\",\"professor_name\",\"university\",\"user_id_profile\",\"user_id_session\",\"user_id_session_hash\",\"user_data_dump\"\n')
         f.write(build_csv_file(cursor))
 
 
