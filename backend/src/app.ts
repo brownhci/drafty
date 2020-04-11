@@ -221,11 +221,6 @@ app.post("/suggestions/new", suggestionController.postNewSuggestion);
 app.get("/:sheet", sheetController.getSheet);
 // app.post("/gen", sheetController.genSheet);
 
-//idSession
-app.get("/account/idsession", function(req, res) {
-  res.status(200).json(req.session.user.idSession);
-});
-
 // handle missing pages
 app.get("*", function(req, res) {
   req.flash("errors", { msg: `Cannot find requested page ${req.originalUrl}`});
