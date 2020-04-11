@@ -47,7 +47,7 @@ def build_csv_file(cursor):
         out = ''
         for row in cursor.fetchall():
             email = checkNone(row['user_MTurkID']) # sw: email is field in db
-            if '@' not in email:
+            if 'brown' not in email:
                 out += '\"' + email
                 out += '\",\"' + row['suggestion']
                 out += '\",\"' + row['col']
