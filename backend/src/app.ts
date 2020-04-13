@@ -124,18 +124,19 @@ const user = {
 };
 app.use(async (req, res, next) => {
   // detect bots: https://github.com/expressjs/session/issues/94
-  //console.log(req.originalUrl);
-  //console.log(req.method);
+  // console.log(req.originalUrl);
+  // console.log(req.method);
+  // console.log(req.sessionID);
+  // console.log('\n');
 
   //check if new user (req.sessionID)
-  if(req.session.user === undefined) {
+  const sessionCheck = await req.session.user;
+  if(sessionCheck === undefined) {
     // sw: this is the only place a new idProfile is created
     user.idProfile = await createAnonUser();
     req.session.user = user;
   }
-
-  // if idProfile not found create new idProfile
-
+  
   if(((Date.now() - req.session.user.lastInteraction) > heartbeat) || (req.session.user.idSession === -1)) {
     // new session
     req.session.user.idSession = await createSessionDB(req.session.user.idProfile,req.sessionID);
