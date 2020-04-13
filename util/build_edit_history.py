@@ -22,8 +22,8 @@ sql = '''
     INNER JOIN users.Session s ON s.idSession = i.idSession
     INNER JOIN users.sessions es ON es.session_id = s.idExpressSession
     INNER JOIN (SELECT * FROM users.Profile) p on p.idProfile = s.idProfile
-    WHERE suni.suggestion != 'University of Montreal' 
     '''
+    # WHERE suni.suggestion != 'University of Montreal' 
     # (1139, "Got error 'repetition-operator operand invalid' from regexp")
     # INNER JOIN (SELECT * FROM users.Profile WHERE email REGEXP '^((?!@).)*$') p on p.idProfile = s.idProfile  
 
