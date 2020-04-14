@@ -11,7 +11,8 @@ db_pass = 'test'
 
 sql = '''
     SELECT p.email as user_MTurkID, su.suggestion, sut.name as col, i.timestamp, sname.suggestion as prof_name, suni.suggestion as university, 
-    p.idProfile as user_id_profile, s.idSession as user_id_session, s.idExpressSession as user_id_session_hash, es.data as user_data_dump
+    p.idProfile as user_id_profile, s.idSession as user_id_session, s.idExpressSession as user_id_session_hash, es.data as user_data_dump,
+    JSON_EXTRACT(data, '$.passport.user') as uname
     FROM Edit e
     INNER JOIN (SELECT idEdit, idSuggestion FROM Edit_Suggestion WHERE isChosen = 1) es ON es.idEdit = e.idEdit
     INNER JOIN Suggestions su ON su.idSuggestion = es.idSuggestion
@@ -47,6 +48,8 @@ def build_csv_file(cursor):
         out = ''
         for row in cursor.fetchall():
             email = checkNone(row['user_MTurkID']) # sw: email is field in db
+            if email is '':
+                email = checkNone(row['uname'].strip('\"')) # sw: 
             if 'brown' not in email:
                 out += '\"' + email
                 out += '\",\"' + row['suggestion']
