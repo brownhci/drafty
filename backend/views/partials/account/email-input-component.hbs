@@ -1,12 +1,12 @@
 <div>
-    <label for="email">Email address (or MTurk Worker ID)</label>
+    <label for="email">Unique Account Name (or MTurk Worker ID)</label>
     <input
         id="email"
         type="text"
         name="email"
         class="form-control{{getValidationClass messages.emailValidationFailure}}"
         aria-describedby="email-usage-explanation"
-        placeholder="Enter username"
+        placeholder="Enter account name"
         required
         >
     {{#if messages.emailValidationFailure}}
