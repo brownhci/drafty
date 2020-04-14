@@ -47,9 +47,6 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
           if (err) { return next(err); }
           req.session.isAuth = true;
           req.session.user.isAuth = true;
-
-          console.log(req.session.returnTo);
-
           res.redirect(req.session.returnTo || "/");
         });
     })(req, res, next);
@@ -64,18 +61,11 @@ export const logout = async (req: Request, res: Response) => {
   /*
   req.logout(); // this should destroy the cookie
   */
-  console.log(req.session);
 
   await req.logout();
   req.session.user.isAuth = false;
   req.session.isAuth = false;
-
-  console.log('\n');
-  console.log(req.session);
-  console.log('\n');
-
   res.redirect(req.session.returnTo || "/");
-  
 };
 
 /**
@@ -127,8 +117,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
       return next(err);
     }
     req.session.user.isAuth = true;
-    console.log('SIGNUP - ' + req.session.returnTo);
-
+    req.session.isAuth = true;
     res.redirect(req.session.returnTo || "/");
   });
 };
@@ -430,10 +419,10 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
       lastInteraction: Date.now(),
       failedLoginAttempts: 0
     };
-    console.log(req.sessionID + ' :: ' + req.session.user.idProfile);
+    //console.log(req.sessionID + " :: " + req.session.user.idProfile);
     next();
   } else {
-    console.log(req.sessionID + ' :: ' + req.session.user.idProfile + ' :: ' + req.session.user.isAuth  + ' :: ' + req.session.isAuth);
+    //console.log(req.sessionID + " :: " + req.session.user.idProfile + " :: " + req.session.user.isAuth  + " :: " + req.session.isAuth);
     next();
   }
 }
@@ -453,7 +442,7 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
 }
 
 export async function checkReturnPath(req: Request, res: Response, next: NextFunction) {
-  if(req.path !== '/favicon.ico') {
+  if(req.path !== "/favicon.ico") {
     req.session.returnTo = req.path;
   }
   next();
