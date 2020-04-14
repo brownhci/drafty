@@ -74,7 +74,7 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
     cookie: {
-        secure: false, // sw after a change to session config not flipping this var true->false->true will result in multple sessionIDs
+        secure: false, // sw: should be set to true on production server; which means cookies will only be used over https
         httpOnly: true,
         maxAge: age
     },
@@ -84,13 +84,8 @@ app.use(session({
       password: DB_PASSWORD,
       database: "users", // sw: change this to create sessions only db
     })
-    /*
-    store: new sessionStore({
-       path: process.env.NOW ? `sessions` : `.sessions`,
-       secret: "testing_please_change"
-    })
-    */
 }));
+// passport.session has to be used after express.session in order to work properly
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
@@ -112,33 +107,35 @@ app.use(helmet());
 
 // Global Middleware
 const heartbeat = 20 * 60000; // mins * 60000 milliseconds
-const user = {
-  idSession: -1,
-  idProfile: -1,
-  isAuth: false,
-  isAdmin: false,
-  views: 0,
-  seenWelcome: 0,
-  lastInteraction: Date.now(),
-  failedLoginAttempts: 0
-};
 app.use(async (req, res, next) => {
+  // check if new user (req.sessionID)
+  if(await req.session.user === undefined) {
+    // sw: this is the only place a new idProfile is created
+    req.session.user = {
+      idSession: -1,
+      idProfile: await createAnonUser(),
+      isAuth: false,
+      isAdmin: false,
+      views: 0,
+      seenWelcome: 0,
+      lastInteraction: Date.now(),
+      failedLoginAttempts: 0
+    };
+  }
+
   // detect bots: https://github.com/expressjs/session/issues/94
   // console.log(req.originalUrl);
   // console.log(req.method);
-  // console.log(req.sessionID);
-  // console.log('\n');
-
-  //check if new user (req.sessionID)
-  const sessionCheck = await req.session.user;
-  if(sessionCheck === undefined) {
-    // sw: this is the only place a new idProfile is created
-    user.idProfile = await createAnonUser();
-    req.session.user = user;
-  }
-  
-  if(((Date.now() - req.session.user.lastInteraction) > heartbeat) || (req.session.user.idSession === -1)) {
-    // new session
+  /*
+  console.log(req.isAuthenticated());
+  console.log(req.session.user.idProfile);
+  console.log(req.user);
+  console.log(req.sessionID);
+  console.log(req.session.user);
+  console.log('\n');
+  */
+  // new session
+  if(((Date.now() - await req.session.user.lastInteraction) > heartbeat) || (await req.session.user.idSession === -1)) {
     req.session.user.idSession = await createSessionDB(req.session.user.idProfile,req.sessionID);
   }
   req.session.user.lastInteraction = Date.now();
