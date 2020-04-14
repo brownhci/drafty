@@ -410,7 +410,7 @@ export const postSeenWelcome = (req: Request, res: Response) => {
  * GLOBAL MIDDLEWARE
  */
 export async function checkSessionUser(req: Request, res: Response, next: NextFunction) {
-  if (!req.session.user) {
+  if (await !req.session.user) {
     if(req.user) {
       console.log(req.sessionID + " :: NO USER but there is a passport :: " + req.user);
     }
@@ -428,8 +428,8 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
     console.log('NEW Profile created! ' + req.sessionID + " :: " + req.session.user.idProfile);
     next();
   } else {
-    //console.log(req.sessionID + " :: " + req.session.user.idProfile + " :: " + req.session.user.isAuth  + " :: " + req.session.isAuth);
-    console.log(req.user); // sw: this is created by passport
+    // console.log(req.sessionID + " :: " + req.session.user.idProfile + " :: " + req.session.user.isAuth  + " :: " + req.session.isAuth);
+    // console.log(req.user); // sw: this is created by passport
     next();
   }
 }
