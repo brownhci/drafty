@@ -409,6 +409,10 @@ export const postSeenWelcome = (req: Request, res: Response) => {
 
 export async function checkSessionUser(req: Request, res: Response, next: NextFunction) {
   if (!req.session.user) {
+    if(req.session.passport) {
+      console.log(req.sessionID + " :: NO USER but there is a passport :: " + req.session.passport);
+    }
+
     req.session.user = {
       idSession: -1,
       idProfile: await createAnonUser(),
@@ -423,6 +427,7 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
     next();
   } else {
     //console.log(req.sessionID + " :: " + req.session.user.idProfile + " :: " + req.session.user.isAuth  + " :: " + req.session.isAuth);
+    //console.log(req.session);
     next();
   }
 }
