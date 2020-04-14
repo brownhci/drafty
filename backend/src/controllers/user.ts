@@ -425,7 +425,7 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
       lastInteraction: Date.now(),
       failedLoginAttempts: 0
     };
-    console.log('NEW Profile created! ' + req.sessionID + " :: " + req.session.user.idProfile);
+    console.log("NEW Profile created! " + req.sessionID + " :: " + req.session.user.idProfile);
     next();
   } else {
     // console.log(req.sessionID + " :: " + req.session.user.idProfile + " :: " + req.session.user.isAuth  + " :: " + req.session.isAuth);
