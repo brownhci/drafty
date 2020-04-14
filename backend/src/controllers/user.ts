@@ -5,7 +5,7 @@ import passport from "passport";
 import logger from "../util/logger";
 import { Request, Response, NextFunction } from "express";
 import { UserModel, idFieldName, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
-import { findUserByField, createUser, updateUser, insertSession, updateUserNewSignup } from "../database/user";
+import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup } from "../database/user";
 import { emailExists, emailNotTaken, isValidUsername, checkPasswordLength, confirmMatchPassword } from "../validation/validators";
 import { encryptPassword } from "../util/encrypt";
 import { sendMail, userPasswordResetEmailAccount } from "../util/email";
@@ -35,7 +35,6 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
         await checkPasswordLength(req) === false) {
         return res.redirect("/login");
     }
-
     // we're good, do something
     passport.authenticate("local", (err: Error, user: UserModel) => {
         if (err) { return next(err); }
@@ -45,6 +44,10 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
         }
         req.login(user, (err) => {
           if (err) { return next(err); }
+          // update the sessions user.idProfile to match and update the Session tables idProfile
+          const idProfile = user.idProfile;
+          updateSession(idProfile, req.session.user.idSession);
+          req.session.user.idProfile = idProfile;
           req.session.isAuth = true;
           req.session.user.isAuth = true;
           res.redirect(req.session.returnTo || "/");

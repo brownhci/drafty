@@ -7,6 +7,7 @@ const stmtInsertUser: string = "INSERT INTO ?? SET ?";
 const stmtUpdateUser: string = "UPDATE ?? SET ? WHERE ?";
 const stmtUpdateUserNewSignUp: string = "UPDATE users.Profile SET email = ?, password = ? WHERE idProfile = ?";
 const stmtInsertSession: string = "INSERT INTO users.Session (idProfile,idExpressSession) VALUES (?,?);";
+const stmtUpdateSession: string = "UPDATE users.Session SET idProfile = ? WHERE idSession = ?"
 
 // Result type of findUserByField
 export type findUserByFieldResultType = UserModel | null | undefined;
@@ -112,7 +113,20 @@ export async function insertSession(idProfile: number, idExpressSession: string)
     const [results] = await db.query(stmtInsertSession, [idProfile,idExpressSession]);
     return (results as any).insertId;
   } catch (error) {
-    logDbErr(error, "error during creating user", "warn");
+    logDbErr(error, "error during creating session", "warn");
+    return [error];
+  }
+}
+
+/**
+ * Update session in database after user login
+ */
+export async function updateSession(idProfile: number, idSession: number) {
+  try {
+    const [results] = await db.query(stmtUpdateSession, [idProfile, idSession]);
+    return [results];
+  } catch (error) {
+    logDbErr(error, "error during updating session", "warn");
     return [error];
   }
 }
