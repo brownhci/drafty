@@ -9,10 +9,10 @@ import { makeRenderObject } from "../config/handlebars-helpers";
  */
 export function getSheet(req: Request, res: Response) {
   const sheetURL = req.params.sheet;
-  if(!req.session.user.isAuth) {
+  if(!req.user) {
     res.render("account/signup", makeRenderObject({ title: "Signup" }, req));
   } else if (!hasRequestedSheet(sheetURL)) {
-    if(sheetURL !== "service-worker.js") { // sw bug: service-worker.js is gitting this endpoint
+    if(sheetURL !== "service-worker.js") { // sw bug: service-worker.js is getting this endpoint
       req.flash("errors", { msg: "Oh sorry we cannot find requested sheet :("});
     }
     return res.redirect("/");
