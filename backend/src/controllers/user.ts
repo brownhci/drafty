@@ -406,13 +406,15 @@ export const postSeenWelcome = (req: Request, res: Response) => {
   req.session.user.seenWelcome = req.body.seenWelcome; // should be 0 or 1
 };
 
-
+/**
+ * GLOBAL MIDDLEWARE
+ */
 export async function checkSessionUser(req: Request, res: Response, next: NextFunction) {
   if (!req.session.user) {
-    if(req.session.passport) {
-      console.log(req.sessionID + " :: NO USER but there is a passport :: " + req.session.passport);
+    if(req.user) {
+      console.log(req.sessionID + " :: NO USER but there is a passport :: " + req.user);
     }
-
+    // sw: only place to create a new idProfile - this will get triggered before any login
     req.session.user = {
       idSession: -1,
       idProfile: await createAnonUser(),
@@ -423,21 +425,23 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
       lastInteraction: Date.now(),
       failedLoginAttempts: 0
     };
-    //console.log(req.sessionID + " :: " + req.session.user.idProfile);
+    console.log('NEW Profile created! ' + req.sessionID + " :: " + req.session.user.idProfile);
     next();
   } else {
     //console.log(req.sessionID + " :: " + req.session.user.idProfile + " :: " + req.session.user.isAuth  + " :: " + req.session.isAuth);
-    //console.log(req.session);
+    console.log(req.user); // sw: this is created by passport
     next();
   }
 }
 
+/**
+ * GLOBAL MIDDLEWARE
+ */
 const heartbeat = 20 * 60000; // mins * 60000 milliseconds
 export async function checkSessionId(req: Request, res: Response, next: NextFunction) {
   const interactionTime = Date.now();
   //console.log(await req.session.user.lastInteraction + ' == ' + interactionTime);
   //console.log(interactionTime - await req.session.user.lastInteraction);
-
   if(((interactionTime - await req.session.user.lastInteraction) > heartbeat) || (await req.session.user.idSession === -1)) {
     req.session.user.idSession = await createSessionDB(req.session.user.idProfile,req.sessionID);
   }
@@ -446,9 +450,13 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
   next();
 }
 
+/**
+ * GLOBAL MIDDLEWARE
+ */
 export async function checkReturnPath(req: Request, res: Response, next: NextFunction) {
   if(req.path !== "/favicon.ico") {
     req.session.returnTo = req.path;
   }
+  //console.log('checkReturnPath: ' + req.path);
   next();
 }
