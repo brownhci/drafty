@@ -2,6 +2,7 @@ import async from "async";
 import crypto from "crypto";
 import moment from "moment";
 import passport from "passport";
+import logger from "../util/logger";
 import { Request, Response, NextFunction } from "express";
 import { UserModel, idFieldName, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
 import { findUserByField, createUser, updateUser, insertSession, updateUserNewSignup } from "../database/user";
@@ -46,6 +47,9 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
           if (err) { return next(err); }
           req.session.isAuth = true;
           req.session.user.isAuth = true;
+
+          console.log(req.session.returnTo);
+
           res.redirect(req.session.returnTo || "/");
         });
     })(req, res, next);
@@ -55,11 +59,23 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
  * GET /logout
  * Log out.
  */
-export const logout = (req: Request, res: Response) => {
+export const logout = async (req: Request, res: Response) => {
   // sw: what happens to the express-session here?
-  req.logout();
+  /*
+  req.logout(); // this should destroy the cookie
+  */
+  console.log(req.session);
+
+  await req.logout();
   req.session.user.isAuth = false;
+  req.session.isAuth = false;
+
+  console.log('\n');
+  console.log(req.session);
+  console.log('\n');
+
   res.redirect(req.session.returnTo || "/");
+  
 };
 
 /**
@@ -97,7 +113,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
   };
 
   // sw: we should just update their anonymous user profile instead
-  //const [error, results] = await createUser(newUser);
+  // const [error, results] = await createUser(newUser);
   const [error, results] = await updateUserNewSignup(email, password, req.session.user.idProfile);
   if (error) {
     return next(error);
@@ -111,6 +127,8 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
       return next(err);
     }
     req.session.user.isAuth = true;
+    console.log('SIGNUP - ' + req.session.returnTo);
+
     res.redirect(req.session.returnTo || "/");
   });
 };
@@ -149,7 +167,7 @@ export const getAccount = (req: Request, res: Response) => {
     const user = req.user as Partial<UserModel>;
     username = user.email;
   }
-  res.render("account/profile", makeRenderObject({ title: "Account Management", username: username, identifier: req.session.user.idProfile }, req));
+  res.render("account/profile", makeRenderObject({ title: "Account Management", username: username, idProfile: req.session.user.idProfile, idSession: req.session.user.idSession, idExpress: req.sessionID }, req));
 };
 
 /**
@@ -342,7 +360,7 @@ export const postForget = async (req: Request, res: Response, next: NextFunction
     async function setRandomToken(token: string, done: Function) {
       const [error, user] = await findUserByField(emailFieldName, email);
       if (user == null) {
-          req.flash("errors", { msg: "Account with that email address does not exist." });
+          req.flash("errors", { msg: "Account with that name does not exist." });
           return res.redirect("/forget");
       }
       if (!user) {
@@ -398,3 +416,45 @@ export const getSeenWelcome = (req: Request, res: Response) => {
 export const postSeenWelcome = (req: Request, res: Response) => {
   req.session.user.seenWelcome = req.body.seenWelcome; // should be 0 or 1
 };
+
+
+export async function checkSessionUser(req: Request, res: Response, next: NextFunction) {
+  if (!req.session.user) {
+    req.session.user = {
+      idSession: -1,
+      idProfile: await createAnonUser(),
+      isAuth: false,
+      isAdmin: false,
+      views: 0,
+      seenWelcome: 0,
+      lastInteraction: Date.now(),
+      failedLoginAttempts: 0
+    };
+    console.log(req.sessionID + ' :: ' + req.session.user.idProfile);
+    next();
+  } else {
+    console.log(req.sessionID + ' :: ' + req.session.user.idProfile + ' :: ' + req.session.user.isAuth  + ' :: ' + req.session.isAuth);
+    next();
+  }
+}
+
+const heartbeat = 20 * 60000; // mins * 60000 milliseconds
+export async function checkSessionId(req: Request, res: Response, next: NextFunction) {
+  const interactionTime = Date.now();
+  //console.log(await req.session.user.lastInteraction + ' == ' + interactionTime);
+  //console.log(interactionTime - await req.session.user.lastInteraction);
+
+  if(((interactionTime - await req.session.user.lastInteraction) > heartbeat) || (await req.session.user.idSession === -1)) {
+    req.session.user.idSession = await createSessionDB(req.session.user.idProfile,req.sessionID);
+  }
+  req.session.user.lastInteraction = interactionTime;
+  req.session.user.views++;
+  next();
+}
+
+export async function checkReturnPath(req: Request, res: Response, next: NextFunction) {
+  if(req.path !== '/favicon.ico') {
+    req.session.returnTo = req.path;
+  }
+  next();
+}
