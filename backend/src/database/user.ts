@@ -7,7 +7,7 @@ const stmtInsertUser: string = "INSERT INTO ?? SET ?";
 const stmtUpdateUser: string = "UPDATE ?? SET ? WHERE ?";
 const stmtUpdateUserNewSignUp: string = "UPDATE users.Profile SET email = ?, password = ? WHERE idProfile = ?";
 const stmtInsertSession: string = "INSERT INTO users.Session (idProfile,idExpressSession) VALUES (?,?);";
-const stmtUpdateSession: string = "UPDATE users.Session SET idProfile = ? WHERE idSession = ?"
+const stmtUpdateSession: string = "UPDATE users.Session SET idProfile = ? WHERE idSession = ?";
 
 // Result type of findUserByField
 export type findUserByFieldResultType = UserModel | null | undefined;

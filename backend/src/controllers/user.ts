@@ -65,7 +65,7 @@ export const logout = async (req: Request, res: Response) => {
   req.logout(); // this should destroy the cookie
   */
 
-  await req.logout();
+  req.logout();
   req.session.user.isAuth = false;
   req.session.isAuth = false;
   res.redirect(req.session.returnTo || "/");
