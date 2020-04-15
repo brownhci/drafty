@@ -188,6 +188,7 @@ function sortOptionsByPriority(selectInfo: SelectInfo) {
   selectInfo.options.sort((option1, option2) => option2[priorityKey] - option1[priorityKey]);
 }
 function createSelect(identifier: string, options: Array<Option>, userConfig = {}) {
+  console.log('createSelect');
   let selectInfo: SelectInfo = identifierToSelectInfo.get(identifier);
   if (!selectInfo) {
     // initialize new select info
@@ -210,6 +211,9 @@ function createSelect(identifier: string, options: Array<Option>, userConfig = {
     createOptionContainer(options, selectInfo);
     // register created select info under identifier
     identifierToSelectInfo.set(identifier, selectInfo);
+  } else {
+    // sw: solves completions ordering bug
+    createOptionContainer(options, selectInfo);
   }
 
   selectInfo.optionContainerWrapper = document.createElement("div");
