@@ -363,6 +363,29 @@ function recordInteraction(url: string, data: Record<string, any>, responseHandl
     .catch(error => console.error("Network error when posting interaction: ", error));
 }
 
+function activateInvalidFeedback(invalidFeedback: string) {
+  tableCellInputFormInputInvalidFeedbackElement.textContent = invalidFeedback;
+  tableCellInputFormInputInvalidFeedbackElement.classList.add(TableStatusManager.activeClass);
+  tableCellInputFormInputElement.classList.add(TableStatusManager.invalidInputClass);
+}
+function deactivateInvalidFeedback() {
+  tableCellInputFormInputInvalidFeedbackElement.textContent = "";
+  tableCellInputFormInputInvalidFeedbackElement.classList.remove(TableStatusManager.activeClass);
+  tableCellInputFormInputElement.classList.remove(TableStatusManager.invalidInputClass);
+}
+
+function verifyEdit(edit: string, tableCellElement: HTMLTableCellElement): boolean {
+  if (isColumnAutocompleteOnly(getColumnLabel(tableCellElement.cellIndex))) {
+    if (hasOptionValue(edit, tableCellInputFormAutocompleteSuggestionsSelectInfo)) {
+      deactivateInvalidFeedback();
+    } else {
+      activateInvalidFeedback("Value must from Completions");
+      return false;
+    }
+  }
+  return true;
+}
+
 function recordEdit(tableCellElement: HTMLTableCellElement, textContent: string) {
   // supply enough fields to update database entry for table cell
 
@@ -491,6 +514,7 @@ function isTableCellInputFormActive() {
 }
 /* the input element in the input editor */
 const tableCellInputFormInputElement: HTMLInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
+const tableCellInputFormInputInvalidFeedbackElement: HTMLInputElement = document.getElementById("table-cell-input-feedback") as HTMLInputElement;
 const tableCellInputFormInputSaveButtonElement: HTMLButtonElement = document.getElementById("table-cell-input-save") as HTMLButtonElement;
 /* the target element the input editor is associated with */
 
@@ -522,13 +546,13 @@ function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCell
 
   // resize
   const minWidth = targetHTMLTableCellElement.offsetWidth;
-  const resizeWidth = measureTextWidth(text) + 120;
+  const resizeWidth = measureTextWidth(text) + 120 + 24;
   const width = Math.max(minWidth, resizeWidth);
   tableCellInputFormElement.style.width = `${width}px`;
 }
 function updateTableCellInputFormWidthToFitText(textToFit: string) {
   const textWidth = measureTextWidth(textToFit);
-  const slack = 100;
+  const slack = 124;
   const newWidth = textWidth + slack;
 
   const formWidth = tableCellInputFormElement.offsetWidth;
@@ -2512,6 +2536,7 @@ type CopyTarget = HTMLTableColElement | HTMLTableCellElement;
 class TableStatusManager {
   static activeClass = "active";
   static activeAccompanyClass = "active-accompany";
+  static invalidInputClass = "is-invalid";
   static recentTimeLimit = 1000;
 
   // copying
@@ -2763,7 +2788,11 @@ class TableStatusManager {
   quitTableCellInputForm(saveContent = false) {
     const activeTableCellElement = this.activeTableCellElement;
     if (saveContent) {
-      this.saveTableCellInputForm();
+      if (verifyEdit(tableCellInputFormInputElement.value, this.tableCellInputFormTargetElement)) {
+        this.saveTableCellInputForm();
+      } else {
+        return;
+      }
       // move to next cell to allow continuous edit
       if (activeTableCellElement) {
         const nextCell = getRightTableCellElement(activeTableCellElement);
@@ -2956,11 +2985,6 @@ class TableStatusManager {
       columnLabel.classList.add(TableStatusManager.inputtingClass);
     }
 
-    // set readOnly depending on whether the autocompleteOnly is set on the column label
-    const isReadOnly = isColumnAutocompleteOnly(columnLabel);
-    tableCellInputFormInputElement.readOnly = isReadOnly;
-
-
     // highlight the target cell
     targetHTMLTableCellElement.classList.add(TableStatusManager.inputtingClass);
     this.tableCellInputFormTargetElement = targetHTMLTableCellElement;
@@ -2980,6 +3004,7 @@ class TableStatusManager {
     this.deactivateTableCellInputFormLocation();
 
     tableCellInputFormInputElement.value = "";
+    deactivateInvalidFeedback();
     removeSelect(tableCellInputFormElement);
 
     if (targetHTMLTableCellElement) {

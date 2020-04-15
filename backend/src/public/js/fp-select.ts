@@ -188,7 +188,7 @@ function sortOptionsByPriority(selectInfo: SelectInfo) {
   selectInfo.options.sort((option1, option2) => option2[priorityKey] - option1[priorityKey]);
 }
 function createSelect(identifier: string, options: Array<Option>, userConfig = {}) {
-  console.log('createSelect');
+  console.log("createSelect");
   let selectInfo: SelectInfo = identifierToSelectInfo.get(identifier);
   if (!selectInfo) {
     // initialize new select info
@@ -234,6 +234,15 @@ function removeSelect(container: HTMLElement) {
   for (const optionContainerWrapper of container.querySelectorAll(`.${optionContainerWrapperClass}`)) {
     optionContainerWrapper.remove();
   }
+}
+
+function hasOptionValue(valueToMatch: string, selectInfo: SelectInfo, keyName: string = selectInfo.selectConfig.nameKey): boolean {
+  for (const option of selectInfo.options) {
+    if (option[keyName] === valueToMatch) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
