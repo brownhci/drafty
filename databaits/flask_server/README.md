@@ -1,3 +1,4 @@
+# https://realpython.com/flask-by-example-part-1-project-setup/
 cd databaits/flask_server/
 python3 -m venv env
 source env/bin/activate
