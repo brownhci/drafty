@@ -1,7 +1,12 @@
+import sys
+import argparse
 import pandas as pd 
 import matplotlib.pyplot as plt
 
-def databait_1(column, label, time_column, time_type):
+def get_data(file_location, index):
+    return pd.read_csv(file_location, index_col = index)
+
+def databait_1(df, column, label, time_column, time_type):
     """
     For DataBait 1
     Given a column and a label to count, creates a distribution over time.
@@ -33,7 +38,6 @@ def databait_1(column, label, time_column, time_type):
     # pd.set_option('display.max_rows', None)
     #
     # ===============================================================
-    df = pd.read_csv("data/professors.csv", index_col = "UniqueId")
     df = df.loc[df[column] == label]
 
     years = df[time_column].dropna().astype('int32')
@@ -46,24 +50,23 @@ def databait_1(column, label, time_column, time_type):
     # TODO: code once we decide how to choose year range
     return counts
 
-def databait_2(column, label1, label2, time_column, time_type):
+def databait_2(df, column, label1, label2, time_column, time_type):
     """
     For DataBait 2
     Does the same thing as for Databait 1, but for two labels and 
     produces a comparison between their rates of growth
     """
-    dist1 = databait_1(column, label1, time_column, time_type)
-    dist2 = databait_1(column, label2, time_column, time_type)
+    dist1 = databait_1(df, column, label1, time_column, time_type)
+    dist2 = databait_1(df, column, label2, time_column, time_type)
     # TODO: code once we decide how to choose year range
 
     return None
 
-def databait_3(column1, label1, column2, label2, time_column, time_type):
+def databait_3(df, column1, label1, column2, label2, time_column, time_type):
     """
     For DataBait 3
     Does the same thing as for Databait 1, but counts across two columns
     """
-    df = pd.read_csv("data/professors.csv", index_col = "UniqueId")
     big_df = df.loc[df[column1] == label1]
     small_df = big_df.loc[df[column2] == label2]
 
@@ -73,16 +76,15 @@ def databait_3(column1, label1, column2, label2, time_column, time_type):
     # TODO: code once we decide how to choose year range
     return years
 
-def databait_4():
+def databait_4(df):
     # TODO: code once we decide how to choose year range
     return None
 
-def databait_5(column, time_column, time_type, time_point):
+def databait_5(df, column, time_column, time_type, time_point):
     """
     For Databait 5
     Compare the max of a column with the avg of all other values
     """
-    df = pd.read_csv("data/professors.csv", index_col = "UniqueId")
     time_df = df.loc[df[time_column] == time_point]
     labels = time_df[column].dropna()
     counts = labels.value_counts(sort=False)
@@ -96,7 +98,7 @@ def databait_5(column, time_column, time_type, time_point):
     # return the times by which max is higher than avg (% gets too high)
     return max_label, delta 
 
-def databait_6(column, time_column, time_point):
+def databait_6(df, column, time_column, time_point):
     """
     For Databait 6
     Finds the proportion of a column comprised of the most common value
@@ -106,7 +108,6 @@ def databait_6(column, time_column, time_point):
     :ratio: frequency of max_label
     """
     # TODO: decide whether to do time point/range
-    df = pd.read_csv("data/professors.csv", index_col = "UniqueId")
     time_df = df.loc[df[time_column] == time_point]
     labels = time_df[column].dropna()
     counts = labels.value_counts(sort=False)
@@ -115,12 +116,11 @@ def databait_6(column, time_column, time_point):
     max_count = counts.max()
     return max_label, max_count / counts.count()
 
-def databait_8(column1, column2):
+def databait_8(df, column1, column2):
     """
     For Databait 8
     Calculates proportion of overlap between two columns with recurring labels
     """
-    df = pd.read_csv("data/professors.csv", index_col = "UniqueId")
     c1 = df[column1].dropna().value_counts()
     c2 = df[column2].dropna().value_counts().index
     total = 0
@@ -133,7 +133,16 @@ def databait_8(column1, column2):
 
 
 if __name__ == '__main__':
-    # databait_1("University", "Brown University", "JoinYear", "Year")
-    # print(databait_5("University", "JoinYear", "Year", "2016"))
-    print(databait_8("University", "Bachelors"))
+    parser = argparse.ArgumentParser(description='Generate DataBaits from CSV file')
+    parser.add_argument('--csv', default='data/professors.csv',
+                        help='The CSV to read data from')
+    parser.add_argument('--index',
+                        help='the index column for the pandas dataframe')
+    args = parser.parse_args()
+    df = get_data(args.csv,args.index)
+    print(databait_1(df, "University", "Brown University", "JoinYear", "Year"))
+
+    # databait_1(df, "University", "Brown University", "JoinYear", "Year")
+    # print(databait_5(df, "University", "JoinYear", "Year", "2016"))
+    print(databait_8(df, "University", "Bachelors"))
 
