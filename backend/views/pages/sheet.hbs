@@ -2,33 +2,7 @@
     <div>
         <span id="text-width-measure"></span>
         {{> welcome-screen }}
-        <form id="table-cell-input-form" class="custom-validation" autocomplete novalidate>
-            {{> csrf }}
-            <div>
-                <button id="locate-cell" type="button">
-                    <i id="locate-cell-icon"></i>
-                    <span id="locate-cell-row-col">
-                        Row: <span id="locate-cell-associated-row"></span>, Col: <span id="locate-cell-associated-col"></span>
-                    </span>
-                </button>
-                <div class="input-group">
-                    <input
-                        id="table-cell-input-entry"
-                        name="entry"
-                        type="search"
-                        class="form-control"
-                        required
-                        >
-                        <div class="input-group-append">
-                            <button id="table-cell-input-save" class="btn btn-primary" type="button">
-                                <i class="fas fa-check-circle"></i>
-                            </button>
-                        </div>
-                        <div id="table-cell-input-feedback">
-                        </div>
-                </div>
-            </div>
-        </form>
+        {{> table-cell-input-form }}
         {{> (lookup . 'sheetPath') }}
     </div>
 </main>
