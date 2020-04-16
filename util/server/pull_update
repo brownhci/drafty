@@ -2,6 +2,9 @@
 
 cd ..
 git stash
+# sw: can check this output to run updates based on cron jobs
+# git remote update
+# git status -uno
 git pull
 cd backend
 
