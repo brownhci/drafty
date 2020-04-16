@@ -124,6 +124,13 @@ $visual-cue-width: 5px;
           @extend .d-inline-block;
         }
       }
+      #table-cell-input-feedback {
+        @extend .invalid-feedback;
+        padding-left: 0.75em;
+        &:active {
+          @extend .d-block;
+        }
+      }
       & > div {
         @extend .mb-0;
         @extend .px-1;
