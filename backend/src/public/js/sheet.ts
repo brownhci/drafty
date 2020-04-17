@@ -81,8 +81,15 @@ function isFirstTableCell(tableCellElement: HTMLTableCellElement): boolean {
 function isLastTableCell(tableCellElement: HTMLTableCellElement): boolean {
   return getRightTableCellElement(tableCellElement) === null;
 }
-function isTableCellSortButton(element: HTMLElement): boolean {
-  return element && element.classList.contains("sort-btn");
+function isSortPanelSorterOrderButton(element: HTMLElement): boolean {
+  return element && element.classList.contains("column-sorter-order");
+}
+function isSortPanelSorterDeleteButton(element: HTMLElement): boolean {
+  return element && element.classList.contains("column-sorter-delete");
+}
+const descendingClass: string = "desc";
+function isDescendingSorted(element: HTMLElement): boolean {
+  return element && element.classList.contains(descendingClass);
 }
 function isInput(element: HTMLElement): boolean {
   return element && element.tagName === "INPUT";
@@ -95,6 +102,18 @@ function isTemplate(element: HTMLElement): boolean {
 }
 function isColumnLabel(element: HTMLElement): boolean {
   return element && element.classList.contains("column-label");
+}
+const columnSorterColumnSelectClass: string = "column-sorter-column-select";
+function isColumnSorterColumnSelect(element: HTMLElement): boolean {
+  return element && element.classList.contains(columnSorterColumnSelectClass);
+}
+const columnSorterReorderGripClass = "column-sorter-reorder-grip";
+function isColumnSorterReorderGrip(element: HTMLElement): boolean {
+  return element && element.classList.contains(columnSorterReorderGripClass);
+}
+const tableColumnSortButtonClass: string = "sort-btn";
+function isColumnLabelSortButton(element: HTMLElement): boolean {
+  return element && element.classList.contains(tableColumnSortButtonClass);
 }
 function isColumnSearch(element: HTMLElement): boolean {
   return  element && element.classList.contains("column-search");
@@ -192,8 +211,32 @@ function getCellInTableRow(tableRowElement: HTMLTableRowElement, cellIndex: numb
 function getColumnLabel(index: number): HTMLTableCellElement {
   return getCellInTableRow(tableColumnLabels, index);
 }
+function getColumnLabelSortButton(columnLabel: HTMLTableCellElement): HTMLButtonElement {
+  return columnLabel.querySelector(`.${tableColumnSortButtonClass}`);
+
+}
+function getSortDirectionFromColumnLabelSortButton(columnLabelSortButton: HTMLButtonElement): SortingDirection {
+  return isDescendingSorted(columnLabelSortButton) ? SortingDirection.DESCENDING : SortingDirection.ASCENDING;
+}
+function* getColumnLabels() {
+  for (const columnLabel of getTableCellElementsInRow(tableColumnLabels)) {
+    yield columnLabel;
+  }
+}
 function getColumnLabelText(columnLabel: HTMLTableCellElement): string {
   return columnLabel.textContent;
+}
+function* getColumnLabelTexts() {
+  for (const columnLabel of getColumnLabels()) {
+    yield getColumnLabelText(columnLabel as HTMLTableCellElement);
+  }
+}
+function getLongestColumnTextWidth(): number {
+  let textWidth = Number.NEGATIVE_INFINITY;
+  for (const columnLabelText of getColumnLabelTexts()) {
+    textWidth = Math.max(textWidth, measureTextWidth(columnLabelText));
+  }
+  return textWidth;
 }
 function getColumnSearch(index: number): HTMLTableCellElement {
   return getCellInTableRow(tableColumnSearches, index);
@@ -324,6 +367,12 @@ function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
 }
 function getIdSearchType(columnSearch: HTMLTableCellElement) {
   return 1;
+}
+function getColumnIndexFromColumnSorterContainer(columnSorterContainer: HTMLElement): number {
+  return Number.parseInt(columnSorterContainer.dataset.columnIndex);
+}
+function getColumnSorterContainerFromChildElement(childElement: HTMLElement): HTMLElement {
+  return childElement.closest(`.${tableColumnSortPanelColumnSorterClass}`);
 }
 /**
  * This corresponds to the `multiSearchValues` field in database which is represented as
@@ -850,14 +899,257 @@ function deactivateResizeVisualCue() {
 }
 
 // events
-let lastSortButtonClicked: HTMLButtonElement;
+const tableColumnSortPanel: HTMLElement = document.getElementById("table-column-sort-panel");
+const tableColumnSortPanelColumnSorterContainers: HTMLCollection = tableColumnSortPanel.getElementsByTagName("div");
+const tableColumnSortPanelColumnSorterContainerTemplate: HTMLTemplateElement = tableColumnSortPanel.firstElementChild as HTMLTemplateElement;
+(tableColumnSortPanelColumnSorterContainerTemplate.content.querySelector(`.${columnSorterColumnSelectClass}`) as HTMLElement).style.width = `${getLongestColumnTextWidth() + 50}px`;
+const tableColumnSortPanelColumnSorterClass: string = "column-sorter";
+
+function modifyColumnSorterContainer(container: HTMLElement, columnIndex: number, containerIndex: number) {
+  container.dataset.columnIndex = columnIndex.toString();
+
+  const sortbyText = containerIndex === 0 ? "Sort by" : "Then by";
+  container.querySelector(".column-sorter-sortby-text").textContent = sortbyText;
+
+  const columnLabel = getColumnLabel(columnIndex);
+  const columnLabelSortButton = getColumnLabelSortButton(columnLabel);
+  if (isDescendingSorted(columnLabelSortButton)) {
+    container.querySelector(".column-sorter-order").classList.add(descendingClass);
+  }
+
+  const columnSorterColumnSelect: HTMLSelectElement = container.querySelector(`.${columnSorterColumnSelectClass}`);
+  columnSorterColumnSelect.selectedIndex = columnIndex;
+}
+function updateSorterBasedOnSortPanel() {
+  const ordering: Map<number, number> = new Map();
+
+  let order = 0;
+  for (const columnSorterContainer of tableColumnSortPanelColumnSorterContainers) {
+    const columnIndex: number = getColumnIndexFromColumnSorterContainer(columnSorterContainer as HTMLElement);
+    ordering.set(columnIndex, order)
+
+    columnSorterContainer.querySelector(".column-sorter-sortby-text").textContent = order === 0? "Sort by" : "Then by";
+
+    order++;
+  }
+
+  tableDataManager.reorderSorter(ordering);
+}
+
+/**
+ * Align an element horizontally with respect to targetElement (either align to the left border or right border of targetElement.
+ *
+ * If the element can be aligned after scrolling the container, viewport will be adjusted.
+ *
+ * NOTE: This method works for elements inside tableScrollContainer.
+ *
+ * @param {HTMLElement} element - The element to be aligned.
+ * @param {DOMRect} targetDimensions - The result of running getBoundingClientRect() on the element to align against.
+ */
+function alignElementHorizontally(element: HTMLElement, targetDimensions: DOMRect) {
+
+  const {left: leftLimit, right: rightLimit} = tableElement.getBoundingClientRect();
+  let {left: targetLeft, right: targetRight} = targetDimensions;
+  const elementWidth: number = element.getBoundingClientRect().width;
+
+  const verticalScrollBarWidth = tableScrollContainer.offsetWidth - tableScrollContainer.clientWidth;
+  const viewportWidth = getViewportWidth() - verticalScrollBarWidth;
+
+  /**
+   * set horizontal placement
+   * two choices for horizontal placement
+   *   1. left border of form stick to left border of target cell
+   *     This option should be picked when right side of the form does not exceed table element's right bound (rightLimit)
+   *   2. right border of form stick to right border of target cell
+   *     This option should be picked when the first option isn't available and the left side of the form does not exceed table element's left bound (leftLimit)
+   */
+  let elementLeft: number;
+   if (targetLeft + elementWidth <= rightLimit) {
+     // option 1
+     if (targetLeft < 0) {
+       // left border the form is to the left of viewport
+       const leftShiftAmount: number = -targetLeft;
+       targetLeft += leftShiftAmount;
+       tableScrollContainer.scrollLeft -= leftShiftAmount;
+     } else if (targetLeft + elementWidth > viewportWidth) {
+       // right border of the form is to the right of viewport
+       const rightShiftAmount: number = targetLeft + elementWidth - viewportWidth;
+       targetLeft -= rightShiftAmount;
+       tableScrollContainer.scrollLeft += rightShiftAmount;
+     }
+     elementLeft = targetLeft;
+   } else if (targetRight - elementWidth >= leftLimit) {
+     // option 2
+     if (targetRight > viewportWidth) {
+       // right border of the form is to the right of viewport
+       const rightShiftAmount: number = targetRight - viewportWidth;
+       targetRight -= rightShiftAmount;
+       tableScrollContainer.scrollLeft += rightShiftAmount;
+     } else if (targetRight - elementWidth < 0) {
+       // left border of the form is to the left left of viewport
+       const leftShiftAmount: number = elementWidth - targetRight;
+       targetRight += leftShiftAmount;
+       tableScrollContainer.scrollLeft -= leftShiftAmount;
+     }
+     elementLeft = targetRight - elementWidth;
+   }
+
+   element.style.left = `${elementLeft}px`;
+}
+function activateSortPanel(targetElement: HTMLElement) {
+  // show sort panel
+  tableColumnSortPanel.classList.add(TableStatusManager.activeClass);
+
+  // patch sort panel
+  const sorters = [...tableDataManager.getSorters()];
+  sorters.sort((s1, s2) => s1[1].order - s2[1].order);
+  const numSorter: number = sorters.length;
+
+  let sorterContainerIndex = 0;
+  for (const columnSorterContainer of tableColumnSortPanelColumnSorterContainers) {
+    if (sorterContainerIndex < numSorter) {
+      const columnIndex: number = sorters[sorterContainerIndex][0];
+      modifyColumnSorterContainer(columnSorterContainer as HTMLElement, columnIndex, sorterContainerIndex);
+    } else {
+      columnSorterContainer.remove();
+    }
+    sorterContainerIndex++;
+  }
+
+  for (; sorterContainerIndex < numSorter; sorterContainerIndex++) {
+    const templateContainer = tableColumnSortPanelColumnSorterContainerTemplate.content.firstElementChild;
+    const columnSorterContainer = templateContainer.cloneNode(true) as HTMLElement;
+    const columnIndex: number = sorters[sorterContainerIndex][0];
+    modifyColumnSorterContainer(columnSorterContainer, columnIndex, sorterContainerIndex);
+    tableColumnSortPanel.appendChild(columnSorterContainer);
+  }
+
+  // position sort panel
+  const targetDimensions = targetElement.getBoundingClientRect();
+  alignElementHorizontally(tableColumnSortPanel, targetDimensions);
+  tableColumnSortPanel.style.top = `${targetDimensions.bottom}px`;
+}
+function deactivateSortPanel() {
+  tableColumnSortPanel.classList.remove(TableStatusManager.activeClass);
+}
+function sortPanelSorterOrderButtonOnClick(sorterOrderButton: HTMLElement) {
+  const columnIndex = getColumnIndexFromColumnSorterContainer(getColumnSorterContainerFromChildElement(sorterOrderButton));
+  if (isDescendingSorted(sorterOrderButton)) {
+      // ascending sort
+      sorterOrderButton.classList.remove(descendingClass);
+      changeColumnSorterSortOrder(columnIndex);
+  } else {
+      // descending sort
+      sorterOrderButton.classList.add(descendingClass);
+      changeColumnSorterSortOrder(columnIndex);
+  }
+}
+function sortPanelSorterDeleteButtonOnClick(sorterDeleteButton: HTMLElement) {
+  const columnSorterContainer: HTMLElement = getColumnSorterContainerFromChildElement(sorterDeleteButton);
+  const columnIndex = getColumnIndexFromColumnSorterContainer(columnSorterContainer);
+  deleteColumnSorter(columnIndex, true);
+  columnSorterContainer.remove();
+
+  if (tableColumnSortPanelColumnSorterContainers.length === 0) {
+    deactivateSortPanel();
+  }
+}
+// click event handler
+tableColumnSortPanel.addEventListener("click", function(event: MouseEvent) {
+  const target: HTMLElement = event.target as HTMLElement;
+  if (isSortPanelSorterOrderButton(target)) {
+    sortPanelSorterOrderButtonOnClick(target);
+  } else if (isSortPanelSorterDeleteButton(target)) {
+    sortPanelSorterDeleteButtonOnClick(target);
+  }
+  event.preventDefault();
+  event.stopPropagation();
+}, true);
+// change (select value change) event handler
+function sortPanelColumnSelectOnChange(selectElement: HTMLSelectElement, event: Event) {
+  const columnSorterContainer = getColumnSorterContainerFromChildElement(selectElement);
+  const columnIndex: number = getColumnIndexFromColumnSorterContainer(columnSorterContainer);
+  deleteColumnSorter(columnIndex, true);
+
+  const selectedIndex = selectElement.selectedIndex;
+  setColumnSorter(selectedIndex);
+  columnSorterContainer.dataset.columnIndex = selectedIndex.toString();
+}
+
+tableColumnSortPanel.addEventListener("change", function(event: Event) {
+  const target = event.target as HTMLElement;
+  if (isColumnSorterColumnSelect(target)) {
+    sortPanelColumnSelectOnChange(target as HTMLSelectElement, event);
+  } else {
+    event.preventDefault();
+  }
+
+  event.stopPropagation();
+}, true);
+// mouse event handlers
+let activeColumnSorterReorderGrip: HTMLElement = undefined;
+function activateColumnSorterReorderGrip(element: HTMLElement) {
+  element.classList.add(TableStatusManager.activeClass);
+  activeColumnSorterReorderGrip = element;
+}
+function deactivateColumnSorterReorderGrip(event: MouseEvent) {
+  if (activeColumnSorterReorderGrip) {
+    const {clientX: x, clientY: y} = event;
+    const elementAtPoint = document.elementFromPoint(x, y) as HTMLElement;
+    if (elementAtPoint) {
+      const columnSorterContainer = getColumnSorterContainerFromChildElement(elementAtPoint);
+      const {top, bottom} = columnSorterContainer.getBoundingClientRect();
+      if (columnSorterContainer) {
+        const initialColumnSorterContainer = getColumnSorterContainerFromChildElement(activeColumnSorterReorderGrip);
+
+        let insertBefore: boolean;
+        if (columnSorterContainer.nextElementSibling === initialColumnSorterContainer) {
+          insertBefore = true;
+        } else if (columnSorterContainer.previousElementSibling === initialColumnSorterContainer) {
+          insertBefore = false;
+        } else {
+          // will insert before if closer to top
+          insertBefore = Math.abs(top - y) < Math.abs(bottom - y);
+        }
+
+        if (insertBefore) {
+          columnSorterContainer.before(initialColumnSorterContainer);
+        } else {
+          columnSorterContainer.after(initialColumnSorterContainer);
+        }
+        updateSorterBasedOnSortPanel();
+      }
+    }
+
+    activeColumnSorterReorderGrip.classList.remove(TableStatusManager.activeClass);
+    activeColumnSorterReorderGrip = undefined;
+  }
+}
+tableColumnSortPanel.addEventListener("mousedown", function(event: MouseEvent) {
+  const target: HTMLElement = event.target as HTMLElement;
+  if (isColumnSorterReorderGrip(target)) {
+    activateColumnSorterReorderGrip(target);
+    event.preventDefault();
+  }
+  event.stopPropagation();
+}, true);
+tableColumnSortPanel.addEventListener("mouseup", function(event: MouseEvent) {
+  deactivateColumnSorterReorderGrip(event);
+  event.preventDefault();
+  event.stopPropagation();
+}, true);
+
 
 type TextSortingFunction = (s1: string, s2: string) => number;
 enum SortingDirection {
   ASCENDING,
   DESCENDING,
 }
-function addColumnSorter(columnIndex: number, sortingDirection: SortingDirection, order: number = columnIndex, recordSortInteraction: boolean = true) {
+const clickClass = "clicked";
+function setColumnSorter(columnIndex: number, sortingDirection: SortingDirection = SortingDirection.ASCENDING, order: number = columnIndex, recordSortInteraction: boolean = true) {
+  const buttonElement = getColumnLabelSortButton(getColumnLabel(columnIndex));
+  buttonElement.classList.add(clickClass);
+
   let sorter: TextSortingFunction;
   if (sortingDirection === SortingDirection.ASCENDING) {
     sorter = (text1, text2) => text1.localeCompare(text2);
@@ -869,46 +1161,40 @@ function addColumnSorter(columnIndex: number, sortingDirection: SortingDirection
     recordSort(columnIndex, sortingDirection);
   }
 }
+function changeColumnSorterSortOrder(
+  columnIndex: number,
+  columnLabelSortButton: HTMLButtonElement = getColumnLabelSortButton(getColumnLabel(columnIndex)),
+  newSortOrder: SortingDirection = isDescendingSorted(columnLabelSortButton) ? SortingDirection.ASCENDING : SortingDirection.DESCENDING,
+  recordSort: boolean = true) {
+    columnLabelSortButton.classList.toggle(descendingClass);
+    setColumnSorter(columnIndex, newSortOrder, undefined, recordSort);
+}
 
+function deleteColumnSorter(columnIndex: number, refreshRenderingViewIfNeeded: boolean = true) {
+  const columnLabel = getColumnLabel(columnIndex);
+  const columnLabelSortButton = getColumnLabelSortButton(columnLabel);
+  columnLabelSortButton.classList.remove(clickClass, descendingClass);
+  tableDataManager.deleteSorter(columnIndex, refreshRenderingViewIfNeeded);
+}
 function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement, recordSort: boolean = true) {
-  const clickClass = "clicked";
-  const descendingClass = "desc";
-
-  if (lastSortButtonClicked && lastSortButtonClicked !== buttonElement) {
-    lastSortButtonClicked.classList.remove(clickClass, descendingClass);
-    // remove all existing sorters since a single sorter system is employed
-    // refresh view  is deferred since addSorter will soon trigger a refresh
-    // thereby reduce the painting cost
-    tableDataManager.clearSorter(false);
-  }
-  lastSortButtonClicked = buttonElement;
-
   const columnIndex = (buttonElement.parentElement as HTMLTableDataCellElement).cellIndex;
   // '' => 'clicked' => 'clicked desc' => 'clicked'
   // since we are sorting on the current displayed data elements, we need to collect
   // data elements from rendered table data sections
   if (buttonElement.classList.contains(clickClass)) {
-    if (buttonElement.classList.contains(descendingClass)) {
-      // ascending sort
-      buttonElement.classList.remove(descendingClass);
-      addColumnSorter(columnIndex, SortingDirection.ASCENDING, undefined, recordSort);
-    } else {
-      // descending sort
-      buttonElement.classList.add(descendingClass);
-      addColumnSorter(columnIndex, SortingDirection.DESCENDING, undefined, recordSort);
-    }
+    changeColumnSorterSortOrder(columnIndex, buttonElement, undefined, recordSort);
   } else {
     // ascending sort
-    buttonElement.classList.add(clickClass);
-    addColumnSorter(columnIndex, SortingDirection.ASCENDING, undefined, recordSort);
+    setColumnSorter(columnIndex, SortingDirection.ASCENDING, undefined, recordSort);
   }
 }
 tableElement.addEventListener("click", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
     tableStatusManager.tableCellElementOnClick(target as HTMLTableCellElement, event);
-  } else if (isTableCellSortButton(target)) {
+  } else if (isColumnLabelSortButton(target)) {
     tableCellSortButtonOnClick(target as HTMLButtonElement);
+    activateSortPanel(target);
   }
   event.stopPropagation();
 }, true);
@@ -1594,7 +1880,6 @@ class DataCollection {
   addSorter(cellIndex: number, sorter: TextSortingFunction, order: number = cellIndex) {
     this.cellIndexToSorter.set(cellIndex, { order, sorter });
     return this.shouldRegenrateView = true;
-
   }
 
   deleteSorter(cellIndex: number): boolean {
@@ -1612,6 +1897,20 @@ class DataCollection {
 
     this.cellIndexToSorter.clear();
     return this.shouldRegenrateView = true;
+  }
+
+  reorderSorter(ordering: Map<number, number>): boolean {
+    let shouldRegenrateView = false;
+
+    for (const [cellIndex, order] of ordering) {
+      const { order: existingOrder, sorter } = this.cellIndexToSorter.get(cellIndex);
+      if (existingOrder !== order) {
+        this.cellIndexToSorter.set(cellIndex, {order, sorter });
+        shouldRegenrateView = true;
+      }
+    }
+
+    return this.shouldRegenrateView = shouldRegenrateView;
   }
 
   get filter(): DataIndexFilterFunction {
@@ -2339,14 +2638,24 @@ class TableDataManager {
   }
 
   /* sorting */
+  getSorters(): Map<number, OrderedTextSorter> {
+    return this.dataCollection.cellIndexToSorter;
+  }
+
   addSorter(cellIndex: number, sorter: TextSortingFunction, order: number = cellIndex) {
     if (this.dataCollection.addSorter(cellIndex, sorter, order)) {
       this.setViewToRender();
     }
   }
 
-  deleteSorter(cellIndex: number) {
-    if (this.dataCollection.deleteSorter(cellIndex)) {
+  deleteSorter(cellIndex: number, refreshViewImmediately: boolean = true) {
+    if (this.dataCollection.deleteSorter(cellIndex) && refreshViewImmediately) {
+      this.setViewToRender();
+    }
+  }
+
+  reorderSorter(ordering: Map<number, number>): boolean {
+    if (this.dataCollection.reorderSorter(ordering) {
       this.setViewToRender();
     }
   }
@@ -2777,6 +3086,7 @@ class TableStatusManager {
 
     if (this.activeTableCellElement) {
       this.deactivateTableCellElement();
+      deactivateSortPanel();
       // remove input form
       this.deactivateTableCellInputForm();
     }
@@ -3028,11 +3338,10 @@ class TableStatusManager {
     tableCellInputFormElementYShift = 0;
 
     // configure placement
-    const {left: leftLimit, right: rightLimit} = tableElement.getBoundingClientRect();
     const targetCellElement = this.tableCellInputFormTargetElement;
     const cellDimensions = targetCellElement.getBoundingClientRect();
     const cellHeight = cellDimensions.height;
-    let {top: cellTop, bottom: cellBottom, left: cellLeft, right: cellRight} = cellDimensions;
+    let {top: cellTop, bottom: cellBottom} = cellDimensions;
     let {width: formWidth, height: formHeight} = tableCellInputFormElement.getBoundingClientRect();
 
     const verticalScrollBarWidth = tableScrollContainer.offsetWidth - tableScrollContainer.clientWidth;
@@ -3049,91 +3358,55 @@ class TableStatusManager {
       formWidth = viewportWidth;
       tableCellInputFormElement.style.width = `${formWidth}px`;
     }
+
+    /* set horizontal placement */
+    alignElementHorizontally(tableCellInputFormElement, cellDimensions);
+
+    if (formHeight > viewportHeight) {
+      removeSelect(tableCellInputFormElement);
+      formHeight = tableCellInputFormElement.getBoundingClientRect().height;
+    }
     /**
-     * set horizontal placement
-     * two choices for horizontal placement
-     *   1. left border of form stick to left border of target cell
-     *     This option should be picked when right side of the form does not exceed table element's right bound (rightLimit)
-     *   2. right border of form stick to right border of target cell
-     *     This option should be picked when the first option isn't available and the left side of the form does not exceed table element's left bound (leftLimit)
+     * set vertical placement
+     * two choices for vertical placement
+     *   1. top border (offset by buttonHeight) of form stick to the top border of the target cell
+     *   2. bottom border of form stick to the bottom border of the target cell
      */
-    let formLeft: number;
-     if (cellLeft + formWidth <= rightLimit) {
-       // option 1
-       if (cellLeft < 0) {
-         // left border the form is to the left of viewport
-         const leftShiftAmount: number = -cellLeft;
-         cellLeft += leftShiftAmount;
-         tableScrollContainer.scrollLeft -= leftShiftAmount;
-       } else if (cellLeft + formWidth > viewportWidth) {
-         // right border of the form is to the right of viewport
-         const rightShiftAmount: number = cellLeft + formWidth - viewportWidth;
-         cellLeft -= rightShiftAmount;
-         tableScrollContainer.scrollLeft += rightShiftAmount;
-       }
-       formLeft = cellLeft;
-     } else if (cellRight - formWidth >= leftLimit) {
-       // option 2
-       if (cellRight > viewportWidth) {
-         // right border of the form is to the right of viewport
-         const rightShiftAmount: number = cellRight - viewportWidth;
-         cellRight -= rightShiftAmount;
-         tableScrollContainer.scrollLeft += rightShiftAmount;
-       } else if (cellRight - formWidth < 0) {
-         // left border of the form is to the left left of viewport
-         const leftShiftAmount: number = formWidth - cellRight;
-         cellRight += leftShiftAmount;
-         tableScrollContainer.scrollLeft -= leftShiftAmount;
-       }
-       formLeft = cellRight - formWidth;
-     }
-     tableCellInputFormElement.style.left = `${formLeft}px`;
+    const buttonHeight = tableCellInputFormLocateCellElementActive? tableCellInputFormLocateCellElement.offsetHeight: 0;
 
-     if (formHeight > viewportHeight) {
-       removeSelect(tableCellInputFormElement);
-       formHeight = tableCellInputFormElement.getBoundingClientRect().height;
-     }
-     /**
-      * set vertical placement
-      * two choices for vertical placement
-      *   1. top border (offset by buttonHeight) of form stick to the top border of the target cell
-      *   2. bottom border of form stick to the bottom border of the target cell
-      */
-     const buttonHeight = tableCellInputFormLocateCellElementActive? tableCellInputFormLocateCellElement.offsetHeight: 0;
-
-     const cellTopFromPageTop = targetCellElement.offsetTop;
-     const cellBottomFromPageTop = cellTopFromPageTop + cellHeight;
-     let formTop: number;
-     if (cellTopFromPageTop + formHeight - buttonHeight < bottomFromPageTopLimit) {
-       // option 1
-       if (cellTop < viewportTopPadding) {
-         // top border of form is to the top of the viewport
-         const upShiftAmount: number = viewportTopPadding - cellTop;
-         cellTop += upShiftAmount;
-         tableScrollContainer.scrollTop -= upShiftAmount;
-       } else if (cellTop + formHeight - buttonHeight > viewportHeight) {
-         // bottom border of form is to the bottom of the viewport
-         const downShiftAmount: number = cellTop + formHeight - buttonHeight - viewportHeight;
-         cellTop -= downShiftAmount;
-         tableScrollContainer.scrollTop += downShiftAmount;
-       }
-       formTop = cellTop - buttonHeight;
-     } else if (cellBottomFromPageTop - formHeight + buttonHeight >= topFromPageTopLimit) {
-       // option 2
-       if (cellBottom > viewportHeight) {
-         // bottom border of form is to the bottom of the viewport
-         const downShiftAmount: number = cellBottom - viewportHeight;
-         cellBottom -= downShiftAmount;
-         tableScrollContainer.scrollTop += downShiftAmount;
-       } else if (cellBottom - formHeight + buttonHeight < viewportTopPadding) {
-         // top border of form is to the top of the viewport
-         const upShiftAmount: number = viewportTopPadding - (cellBottom - formHeight + buttonHeight);
-         cellBottom += upShiftAmount;
-         tableScrollContainer.scrollTop -= upShiftAmount;
-       }
-       formTop = cellBottom - formHeight + buttonHeight;
-     }
-     tableCellInputFormElement.style.top = `${formTop}px`;
+    const cellTopFromPageTop = targetCellElement.offsetTop;
+    const cellBottomFromPageTop = cellTopFromPageTop + cellHeight;
+    let formTop: number;
+    if (cellTopFromPageTop + formHeight - buttonHeight < bottomFromPageTopLimit) {
+      // option 1
+      if (cellTop < viewportTopPadding) {
+        // top border of form is to the top of the viewport
+        const upShiftAmount: number = viewportTopPadding - cellTop;
+        cellTop += upShiftAmount;
+        tableScrollContainer.scrollTop -= upShiftAmount;
+      } else if (cellTop + formHeight - buttonHeight > viewportHeight) {
+        // bottom border of form is to the bottom of the viewport
+        const downShiftAmount: number = cellTop + formHeight - buttonHeight - viewportHeight;
+        cellTop -= downShiftAmount;
+        tableScrollContainer.scrollTop += downShiftAmount;
+      }
+      formTop = cellTop - buttonHeight;
+    } else if (cellBottomFromPageTop - formHeight + buttonHeight >= topFromPageTopLimit) {
+      // option 2
+      if (cellBottom > viewportHeight) {
+        // bottom border of form is to the bottom of the viewport
+        const downShiftAmount: number = cellBottom - viewportHeight;
+        cellBottom -= downShiftAmount;
+        tableScrollContainer.scrollTop += downShiftAmount;
+      } else if (cellBottom - formHeight + buttonHeight < viewportTopPadding) {
+        // top border of form is to the top of the viewport
+        const upShiftAmount: number = viewportTopPadding - (cellBottom - formHeight + buttonHeight);
+        cellBottom += upShiftAmount;
+        tableScrollContainer.scrollTop -= upShiftAmount;
+      }
+      formTop = cellBottom - formHeight + buttonHeight;
+    }
+    tableCellInputFormElement.style.top = `${formTop}px`;
   }
 
   saveTableCellInputForm() {

@@ -90,6 +90,90 @@ $visual-cue-width: 5px;
       }
     }
 
+    #table-column-sort-panel {
+      @extend .position-absolute;
+      @extend .flex-column;
+      @extend .bg-light;
+      @extend .pt-1;
+      @extend .px-2;
+      @extend .d-none;
+      @extend .border;
+      z-index: $zindex-nav + 2;
+
+      &.active {
+        @extend .d-flex;
+      }
+
+      .column-sorter {
+        @extend .py-1;
+        @extend .mb-1;
+        @extend .d-flex;
+        @extend .text-secondary;
+        @extend .align-items-center;
+
+        &.near-top-border {
+          @include vendor-prefix(box-shadow, inset 0 $resize-shadow-width 0 0 $primary, webkit ms);
+        }
+
+        &.near-bottom-border {
+          @include vendor-prefix(box-shadow, inset 0 -$resize-shadow-width 0 0 $primary, webkit ms);
+        }
+
+        .column-sorter-reorder-grip {
+          @extend .fas;
+          @extend .fa-grip-vertical;
+          @extend .pl-2;
+          @extend .pr-4;
+          cursor: move;
+
+          &:hover {
+            @extend .text-info;
+          }
+
+          &.active {
+            @extend .text-primary;
+          }
+        }
+        .column-sorter-sortby-text {
+          @extend .text-nowrap;
+          @extend .d-inline-block;
+          @extend .unselectable;
+          width: 64px;
+        }
+
+        .column-sorter-column-select {
+          @extend .mr-3;
+          @extend .custom-select;
+          @include vendor-prefix(appearance, none, webkit moz);
+        }
+
+        .column-sorter-order {
+          @extend .fas;
+          @extend .clickable;
+          @extend .fa-sort-alpha-down;
+          &.desc {
+            @extend .fa-sort-alpha-down-alt;
+          }
+          &:hover {
+            @extend .text-dark;
+          }
+        }
+
+        .column-sorter-delete {
+          @extend .fas;
+          @extend .fa-times;
+          @extend .clickable;
+          @extend .ml-4;
+          @extend .mr-2;
+
+          &:hover {
+            @extend .text-dark;
+          }
+        }
+
+      }
+    }
+
     #table-cell-input-form {
       @extend .position-absolute;
       @extend .d-none;
