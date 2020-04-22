@@ -22,13 +22,3 @@ export function getSheet(req: Request, res: Response) {
     res.render("pages/sheet", makeRenderObject({ title: `Sheet:${sheetName}`, sheetName: sheetName, sheetPath: sheetPath }, req));
   }
 }
-
-// TODO gen_spreadsheets no longer exist
-/**
- * POST /sheet/:sheet
- * Sheet page.
- */
-// export function genSheet(req: Request, res: Response) {
-//   genSheets(req.session.user.idProfile);
-//   res.status(200).end();
-// }

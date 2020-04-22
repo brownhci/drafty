@@ -160,7 +160,6 @@ app.post("/suggestions/new", suggestionCtrl.postNewSuggestion);
 
 // sheets
 app.get("/:sheet", userCtrl.checkReturnPath, sheetCtrl.getSheet);
-// app.post("/gen", sheetCtrl.genSheet);
 
 // handle missing pages
 app.get("*", function(req, res) {
