@@ -32,7 +32,12 @@ sql_suggestions = '''
 
 
 def build_column_width(row, column_index, column_widths):
-    width = column_widths[row['idSuggestionType']]
+    idSuggestionType = row['idSuggestionType']
+    width = column_widths[idSuggestionType]
+    if idSuggestionType in [2,3,5] and width <= 300:
+        width = 300
+    elif idSuggestionType in [7] and width <= 240:
+        width = 240
     return f'<col id="col{column_index}" style="width:{width}px" >\n'
 
 
