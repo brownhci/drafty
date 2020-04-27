@@ -38,7 +38,7 @@ def build_column_width(row, column_index, column_widths):
         width = 300
     elif idSuggestionType in [7] and width <= 240:
         width = 240
-    return f'<col id="col{column_index}" style="width:{width}px" >\n'
+    return f'<col id="col{column_index}" data-width="{width}">\n'
 
 
 def build_colgroup(column_widths):

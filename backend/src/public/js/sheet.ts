@@ -800,6 +800,11 @@ function storePreferredColumnWidth(index: number, columnWidth: string) {
   window.localStorage.setItem(getStoredColumnWidthKey(index), columnWidth);
 }
 function getPreferredColumnWidth(index: number): string | null {
+  const tableColumnElement: HTMLTableColElement = getTableColElement(index);
+  if (tableColumnElement) {
+    const dataWidth = tableColumnElement.dataset.width;
+    return `${dataWidth}px`;
+  }
   return window.localStorage.getItem(getStoredColumnWidthKey(index));
 }
 function loadPreferredColumnWidths(respectMinimumColumnWidth: boolean = true) {
