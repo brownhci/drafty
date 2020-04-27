@@ -930,7 +930,7 @@ function updateSorterBasedOnSortPanel() {
   let order = 0;
   for (const columnSorterContainer of tableColumnSortPanelColumnSorterContainers) {
     const columnIndex: number = getColumnIndexFromColumnSorterContainer(columnSorterContainer as HTMLElement);
-    ordering.set(columnIndex, order)
+    ordering.set(columnIndex, order);
 
     columnSorterContainer.querySelector(".column-sorter-sortby-text").textContent = order === 0? "Sort by" : "Then by";
 
@@ -2659,8 +2659,8 @@ class TableDataManager {
     }
   }
 
-  reorderSorter(ordering: Map<number, number>): boolean {
-    if (this.dataCollection.reorderSorter(ordering) {
+  reorderSorter(ordering: Map<number, number>) {
+    if (this.dataCollection.reorderSorter(ordering)) {
       this.setViewToRender();
     }
   }
