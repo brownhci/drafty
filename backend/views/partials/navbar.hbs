@@ -35,7 +35,7 @@
                          All sheets
                      {{/if}}
                  </span>
-                 <div class="dropdown-menu" aria-labelledby="navabr-sheet">
+                 <div class="dropdown-menu">
                      {{#eachInMap sheetNameToURL}}
                          <a class="dropdown-item{{selected ../sheetName key}}" href="{{value}}">
                             {{key}}
@@ -57,7 +57,7 @@
              <li class="nav-item dropdown">
                  <span id="navbar-user" class="{{getUserSignedInClass signedIn}}">
                  </span>
-                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navabr-sheet">
+                 <div class="dropdown-menu dropdown-menu-right">
                      <a class="dropdown-item" href="/account">
                          Your Profile
                      </a>
