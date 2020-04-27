@@ -90,6 +90,7 @@ app.use(lusca.csrf());
 app.use(lusca.csp({
   policy: {
     "default-src": "'self'",
+    "frame-ancestors": "'none'",
   }
 }));
 app.use(lusca.xframe("SAMEORIGIN"));
