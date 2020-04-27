@@ -1216,6 +1216,7 @@ function initializeClipboardTextarea() {
   textarea.id = "clipboard-textarea";
   textarea.readOnly = true;
   textarea.tabIndex = -1;
+  textarea.setAttribute("aria-label", "a textarea to support copy command");
   const bodyElement = document.body;
   bodyElement.appendChild(textarea);
   return textarea;
