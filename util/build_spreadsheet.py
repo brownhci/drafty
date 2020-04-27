@@ -62,7 +62,7 @@ def build_column_label_cell(row, column_index):
         noneditable_indices.append(column_index)
         content_editable = 'contenteditable="false"'
     free_edit = 'false' if row['isFreeEdit'] else 'true'
-    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" data-autocomplete-only="{free_edit}" tabindex="-1" class="column-label" {content_editable}>{colname}<button class="sort-btn"></button></th>\n'
+    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" data-autocomplete-only="{free_edit}" tabindex="-1" class="column-label" {content_editable}>{colname}<button class="sort-btn"><span class="sr-only sr-only-focusable">Sort</span></button></th>\n'
 
 
 def build_column_labels_row(cursor):
@@ -74,7 +74,7 @@ def build_column_labels_row(cursor):
 def build_column_search_row():
     # &#xF002; is the looking glass icon to use as a palceholder
     search_input = '''<th id="column-search{column_search_index}" class="column-search" scope="col" tabindex="-1">
-                        <input type="search" placeholder="&#xF002;">
+                        <input type="search" placeholder="&#xF002;" aria-label="search in column">
                       </th>'''
     cursor.execute(sql_col_order)
     rows = cursor.fetchall()
