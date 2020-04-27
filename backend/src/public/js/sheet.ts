@@ -223,8 +223,9 @@ function* getColumnLabels() {
     yield columnLabel;
   }
 }
+const columnLabelTextClass: string = "column-label-text";
 function getColumnLabelText(columnLabel: HTMLTableCellElement): string {
-  return columnLabel.textContent;
+  return columnLabel.querySelector(`.${columnLabelTextClass}`).textContent;
 }
 function* getColumnLabelTexts() {
   for (const columnLabel of getColumnLabels()) {
@@ -337,18 +338,21 @@ function* getTableCellElementsInColumn(index: number, skipColumnLabel: boolean =
   }
 }
 
+function getTableCellText(tableCellElement: HTMLTableCellElement) {
+  if (isColumnLabel(tableCellElement)) {
+    return getColumnLabelText(tableCellElement);
+  } else if (isColumnSearch(tableCellElement)) {
+    return getColumnSearchInput(tableCellElement).value;
+  } else {
+    return getTableDataText(tableCellElement);
+  }
+}
 function* getTableCellTextsInColumn(index: number, skipColumnLabel: boolean = false, skipColumnSearch = true) {
   for (const tableCellElement of getTableCellElementsInColumn(index, skipColumnLabel, skipColumnSearch)) {
     if (!tableCellElement) {
       continue;
     }
-    if (isColumnLabel(tableCellElement)) {
-      yield getColumnLabelText(tableCellElement);
-    } else if (isColumnSearch(tableCellElement)) {
-      yield getColumnSearchInput(tableCellElement).value;
-    } else {
-      yield getTableDataText(tableCellElement);
-    }
+    yield getTableCellText(tableCellElement);
   }
 }
 
@@ -1240,7 +1244,7 @@ function copyTextToTextarea(text: string) {
   clipboardTextarea.value = text;
 }
 function copyElementTextToTextarea(tableCellElement: HTMLTableCellElement) {
-  copyTextToTextarea(tableCellElement.textContent);
+  copyTextToTextarea(getTableCellText(tableCellElement));
 }
 function copyTableColumnToTextarea(index: number) {
   for (const text of getTableCellTextsInColumn(index,true, true)) {
