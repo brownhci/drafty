@@ -10,7 +10,7 @@
     <meta name="copyright" content="Brown HCI Group">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#4DA5F4" />
-    <meta name="csrf-token" content={{_csrf}} />
+    <meta name="csrf-token" content="{{_csrf}}" />
     <link rel="stylesheet" href="/css/main.css" />
      <!--<link rel="shortcut icon" href="/images/favicon.png" /> -->
 
@@ -39,5 +39,18 @@
     {{/unless}}
     <script src="/js/main.js"></script>
     <script src="/js/flash.js"></script>
+    <noscript>
+        <div id="noscript-modal" tabindex="-1" role="dialog" data-backdrop="static">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-body">
+                <p>
+                    Drafty requires Javascript to function normally. Please enable Javascript before starting use Drafty.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+    </noscript>
 </body>
 </html>
