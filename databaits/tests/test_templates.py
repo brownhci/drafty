@@ -1,0 +1,1 @@
+"""Tests to ensure that values returned fit templates"""

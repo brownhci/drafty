@@ -1,0 +1,12 @@
+README.md
+setup.py
+databaits/__init__.py
+databaits.egg-info/PKG-INFO
+databaits.egg-info/SOURCES.txt
+databaits.egg-info/dependency_links.txt
+databaits.egg-info/top_level.txt
+databaits/src/__init__.py
+databaits/src/databaits.py
+databaits/tests/__init__.py
+databaits/tests/test_numbers.py
+databaits/tests/test_templates.py
