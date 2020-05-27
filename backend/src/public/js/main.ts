@@ -1,3 +1,5 @@
+import "./flash.js";
+
 /**
  * This script will be used for all pages
  */
