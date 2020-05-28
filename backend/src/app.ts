@@ -145,7 +145,8 @@ app.post("/account/profile", passportConfig.isAuthenticated, userCtrl.postUpdate
 app.post("/account/password", passportConfig.isAuthenticated, userCtrl.postUpdatePassword);
 
 // data sharing
-app.get("/data/:data", dataSharingCtrl.getFile);
+app.get("/data/edithistory", dataSharingCtrl.getEditHistory);
+app.get("/data/csv/:name", dataSharingCtrl.getCSV);
 
 // interactions
 app.post("/click", interactionCtrl.postClick);
