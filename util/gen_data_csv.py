@@ -1,4 +1,4 @@
-import pymysql, html, re
+import pymysql, html, re, argparse
 
 def get_db_creds():
     with open('../backend/.env', 'r') as fh:
@@ -14,8 +14,6 @@ def get_db_creds():
 parser = argparse.ArgumentParser(description='Write edit history to csv file.')
 parser.add_argument('--database', default='2300profs',
                     help='The database to be outputtted')
-parser.add_argument('outfile',
-                    help='where the HTML markup will be written to')
 args = parser.parse_args()
 
 # Open database connection
@@ -93,8 +91,8 @@ for r in rows:
     idColPrev = idCol
     idRowPrev = idRow
 
-file_name = args.outfile + '.csv'
-with open(file_name, 'w+') as f:
+filepath = f'../backend/data_sharing/{args.database}.csv'
+with open(filepath, 'w+') as f:
     final = header + '\n' + body
     f.write(final)
 
