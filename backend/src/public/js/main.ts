@@ -1,4 +1,4 @@
-import "./flash.js";
+import "./modules/components/flash-messages.js";
 
 /**
  * This script will be used for all pages
