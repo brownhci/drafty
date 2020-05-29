@@ -2,9 +2,9 @@
  * @file input form suggestions
  */
 
-import { LocalStorageCache } from "../../utils/local-storage.js";
-import { getEditSuggestionURL } from "../../constants/endpoints.js";
-import { FuseSelect } from "../../fuse/sheet-fuse.js";
+import { LocalStorageCache } from "../../utils/local-storage";
+import { getEditSuggestionURL } from "../../constants/endpoints";
+import { FuseSelect } from "../../fuse/sheet-fuse";
 
 export interface Option {
   suggestion: string;
@@ -13,7 +13,6 @@ export interface Option {
 }
 
 const autocompleteOptionCache = new LocalStorageCache(5 * 60 * 1000);
-const editOptionCache = new LocalStorageCache(1 * 60 * 1000);
 
 const previousEditsKeyName: string = "previousEdit";
 const autocompleteSuggestionsKeyName: string = "autocompleteSuggestions";
@@ -68,7 +67,7 @@ function parseSuggestions(suggestions: Array<Option>): Record<string, Array<Opti
 }
 
 export const fuseSelect: FuseSelect = new FuseSelect();
-export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod: (HTMLElement) => void) {
+export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod: (element: HTMLElement) => void) {
   fuseSelect.handleClickOnOption((text: string) => {
     inputElement.value = text;
     inputElement.dispatchEvent(new Event("input"));
@@ -83,7 +82,7 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
  *
  * @async
  * @param {string} idSuggestion - @see sheet.ts:getIdSuggestion
- * @param {string} idSuggestiontype - @see sheet.ts:getIdSuggestiontype
+ * @param {string} idSuggestionType - @see sheet.ts:getIdSuggestionType
  * @param {string} callback - A callback executed after the fetched suggestions are used.
 
  */
@@ -96,20 +95,16 @@ export function updateFuseSelect(idSuggestion: number, idSuggestionType: number,
   }
   fuseSelect.autocompleteOptions = autocompleteOptions;
 
-  const idSuggestionString = idSuggestion.toString();
-  let editOptions = editOptionCache.retrieve(idSuggestionString) as Array<Option>;
-  if (!editOptions) {
-    editOptions = [];
-  }
-  fuseSelect.editOptions = editOptions;
+  fuseSelect.editOptions = [];
+  fuseSelect.syncAll();
 
   fetchSuggestions(idSuggestion).then(suggestions => {
       const {[previousEditsKeyName]: editOptions, [autocompleteSuggestionsKeyName]: autocompleteOptions} = parseSuggestions(suggestions);
     autocompleteOptionCache.store(idSuggestionTypeString, autocompleteOptions);
     fuseSelect.autocompleteOptions = autocompleteOptions;
 
-    editOptionCache.store(idSuggestionString, editOptions);
     fuseSelect.editOptions = editOptions;
+    fuseSelect.syncAll();
 
     callback();
   });

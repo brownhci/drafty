@@ -1,5 +1,11 @@
 .fuse-select-options-wrapper {
   @extend .my-2;
+  @extend .d-none;
+
+  &.active {
+    @extend .d-block;
+  }
+
   &.previous-edits {
     .fuse-select-options-title {
       @extend .text-primary;

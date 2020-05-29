@@ -1,6 +1,7 @@
-import Fuse from "./fuse.js";
-import { Option } from "../components/sheet/suggestions.js";
-import { fuseSelectRootContainerClass, optionContainerTitleClass, optionContainerWrapperClass, autocompleteSuggestionOptionContainerClass, previousEditOptionContainerClass, optionContainerClass, optionClass, optionTextClass } from "../constants/css-classes.js";
+import Fuse from "./fuse";
+import { Option } from "../components/sheet/suggestions";
+import { fuseSelectRootContainerClass, optionContainerTitleClass, optionContainerWrapperClass, autocompleteSuggestionOptionContainerClass, previousEditOptionContainerClass, optionContainerClass, optionClass, optionTextClass } from "../constants/css-classes";
+import { activeClass } from "../constants/css-classes";
 
 interface FuseMatch {
   item: Option;
@@ -65,6 +66,9 @@ export class FuseSelect {
   set autocompleteOptions(options: Array<Option>) {
     this.identifierToOptions.set(FuseSelect.autocompleteIdentifier, options);
     this.identifierToFuse.set(FuseSelect.autocompleteIdentifier, new Fuse(this.autocompleteOptions, fuseOptions));
+
+    const optionContainer = this.identifierToOptionContainer.get(FuseSelect.autocompleteIdentifier);
+    this.hideOptionContainerWrapperIfNoOptions(optionContainer, options);
   }
 
   get editOptions(): Array<Option> {
@@ -74,6 +78,22 @@ export class FuseSelect {
   set editOptions(options: Array<Option>) {
     this.identifierToOptions.set(FuseSelect.editIdentifier, options);
     this.identifierToFuse.set(FuseSelect.editIdentifier, new Fuse(this.editOptions, fuseOptions));
+
+    const optionContainer = this.identifierToOptionContainer.get(FuseSelect.editIdentifier);
+    this.hideOptionContainerWrapperIfNoOptions(optionContainer, options);
+  }
+
+  hideOptionContainerWrapperIfNoOptions(optionContainer: HTMLElement, options: Array<Option>) {
+    if (optionContainer) {
+      // hide the option container wrapper when there is no options
+      const optionContainerWrapper = optionContainer.parentElement;
+
+      if (options.length) {
+        optionContainerWrapper.classList.add(activeClass);
+      } else {
+        optionContainerWrapper.classList.remove(activeClass);
+      }
+    }
   }
 
   hasAutocompleteSuggestion(query: string): boolean {
@@ -121,7 +141,7 @@ export class FuseSelect {
   query(q: string) {
     for (const identifier of FuseSelect.identifiers) {
       const fuse = this.identifierToFuse.get(identifier);
-      const filteredOptions = fuse.search(q).map(match => match.item);
+      const filteredOptions = fuse.search(q).map((match: FuseMatch) => match.item);
 
       if (filteredOptions.length > 0) {
         this.patch(identifier, filteredOptions);
@@ -131,7 +151,7 @@ export class FuseSelect {
 
   patch(identifier: string, options: Array<Option>) {
     const optionContainer = this.identifierToOptionContainer.get(identifier);
-    const optionElements = optionContainer.getElementsByClassName(optionClass);
+    const optionElements = optionContainer.querySelectorAll(`.${optionClass}`);
 
     const numOptions = options.length;
 
@@ -139,7 +159,7 @@ export class FuseSelect {
     for (const optionElement of optionElements) {
       if (optionIndex < numOptions) {
         // in place patch
-        this.patchOption(optionElement, options[optionIndex]);
+        this.patchOption(optionElement as HTMLElement, options[optionIndex]);
       } else {
         // trim exceeding elements
         optionElement.remove();
@@ -187,24 +207,27 @@ export class FuseSelect {
     this.rootContainer.appendChild(editContainer);
   }
 
-  createContainer(options: Array<Option>, title: string, identifier: string): HTMLElement {
+  createContainer(options: Array<Option>, identifier: string, containerClass: string): HTMLElement {
     const optionContainerWrapper = document.createElement("div");
-    optionContainerWrapper.classList.add(optionContainerWrapperClass, identifier);
+    optionContainerWrapper.classList.add(optionContainerWrapperClass, containerClass);
+    if (options) {
+      optionContainerWrapper.classList.add(activeClass);
+    }
 
     // create description title
     const titleElement = document.createElement("span");
-    titleElement.textContent = title;
+    titleElement.textContent = identifier;
     titleElement.classList.add(optionContainerTitleClass);
     optionContainerWrapper.appendChild(titleElement);
 
-    optionContainerWrapper.appendChild(this.createOptionContainer(options, identifier));
+    optionContainerWrapper.appendChild(this.createOptionContainer(options, identifier, containerClass));
 
     return optionContainerWrapper;
   }
 
-  createOptionContainer(options: Array<Option>, identifier: string): HTMLElement {
+  createOptionContainer(options: Array<Option>, identifier: string, containerClass: string): HTMLElement {
     const optionContainer = document.createElement("div");
-    optionContainer.classList.add(optionContainerClass, identifier);
+    optionContainer.classList.add(optionContainerClass, containerClass);
 
     this.identifierToOptionContainer.set(identifier, optionContainer);
 

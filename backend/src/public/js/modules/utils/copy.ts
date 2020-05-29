@@ -1,5 +1,5 @@
-import { onMac } from "./platform.js";
-import { getTextSelected } from "./selection.js";
+import { onMac } from "./platform";
+import { getTextSelected } from "./selection";
 
 
 /** copy **/

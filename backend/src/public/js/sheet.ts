@@ -1,11 +1,11 @@
-import { activeClass, activeAccompanyClass, copiedClass, invalidClass, columnLabelTextClass } from "./modules/constants/css-classes.js";
-import "./modules/components/welcome-screen.js";
-import { hasCopyModifier, clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyTextToCopyBuffer, copyCopyBuffer } from "./modules/utils/copy.js";
-import { hasTextSelected} from "./modules/utils/selection.js";
-import { getViewportWidth, getViewportHeight, em2px, measureTextWidth } from "./modules/utils/length.js";
-import { getEnclosingTableRow, getCellInTableRow, getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate.js";
-import { isTableData, isTableHead, isTableCell, isTableBody, isInput, isTemplate } from "./modules/dom/types.js";
-import { fuseSelect, initializeFuseSelect, updateFuseSelect } from "./modules/components/sheet/suggestions.js";
+import { activeClass, activeAccompanyClass, copiedClass, invalidClass, columnLabelTextClass } from "./modules/constants/css-classes";
+import "./modules/components/welcome-screen";
+import { hasCopyModifier, clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyTextToCopyBuffer, copyCopyBuffer } from "./modules/utils/copy";
+import { hasTextSelected} from "./modules/utils/selection";
+import { getViewportWidth, getViewportHeight, em2px, measureTextWidth } from "./modules/utils/length";
+import { getEnclosingTableRow, getCellInTableRow, getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
+import { isTableData, isTableHead, isTableCell, isTableBody, isInput, isTemplate } from "./modules/dom/types";
+import { fuseSelect, initializeFuseSelect, updateFuseSelect } from "./modules/components/sheet/suggestions";
 
 
 

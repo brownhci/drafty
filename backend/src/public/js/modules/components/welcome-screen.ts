@@ -1,4 +1,4 @@
-import { activeClass } from "../constants/css-classes.js";
+import { activeClass } from "../constants/css-classes";
 
 // welcome screen
 const welcomeScreenElement: HTMLElement = document.getElementById("welcome-screen");
