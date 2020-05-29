@@ -9,11 +9,6 @@ $visual-cue-width: 5px;
     text-overflow: ellipsis;
 }
 
-#clipboard-textarea {
-  @extend .position-absolute;
-  top: -50%;
-  left: -50%;
-}
 
 #text-width-measure {
   @extend .m-0;
@@ -39,48 +34,6 @@ $visual-cue-width: 5px;
       @extend .pt-4;
       @extend .pb-2;
       @extend .text-center;
-    }
-  }
-}
-
-#welcome-screen {
-  @extend .modal;
-
-  &.active {
-    z-index: $zindex-nav + 2;
-    background-color: rgba(0, 0, 0, 0.5);
-    @extend .d-block;
-  }
-
-  .modal-dialog {
-    @extend .modal-lg;
-    @extend  .modal-dialog-centered;
-
-    .modal-body {
-      @extend .px-4;
-      @extend .pt-5;
-      @extend .pb-2;
-      @extend .text-center;
-
-      .fa-edit, .fa-users, .fa-cookie-bite {
-        @extend .mx-1;
-        &:hover {
-          @extend .text-info;
-        }
-      }
-
-      #welcome-screen-research-group {
-        @extend .border-top;
-        @extend .border-bottom;
-        @extend .border-primary;
-        @extend .py-2;
-        @extend .mt-4;
-        @extend .mb-0;
-      }
-    }
-
-    .modal-footer {
-      @extend .border-top-0;
     }
   }
 }
