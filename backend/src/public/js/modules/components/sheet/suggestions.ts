@@ -3,7 +3,7 @@
  */
 
 import { LocalStorageCache } from "../../utils/local-storage";
-import { getEditSuggestionURL } from "../../constants/endpoints";
+import { getEditSuggestionURL } from "../../api/endpoints";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 
 export interface Option {

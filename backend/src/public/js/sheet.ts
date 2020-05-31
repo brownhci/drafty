@@ -1,12 +1,15 @@
-import { activeClass, activeAccompanyClass, copiedClass, invalidClass, columnLabelTextClass } from "./modules/constants/css-classes";
+import { activeClass, activeAccompanyClass, copiedClass, invalidClass } from "./modules/constants/css-classes";
 import "./modules/components/welcome-screen";
 import { hasCopyModifier, clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyTextToCopyBuffer, copyCopyBuffer } from "./modules/utils/copy";
 import { hasTextSelected} from "./modules/utils/selection";
-import { getViewportWidth, getViewportHeight, em2px, measureTextWidth } from "./modules/utils/length";
-import { getEnclosingTableRow, getCellInTableRow, getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
+import { getViewportWidth, getViewportHeight, measureTextWidth } from "./modules/utils/length";
+import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
 import { isTableData, isTableHead, isTableCell, isTableBody, isInput, isTemplate } from "./modules/dom/types";
 import { fuseSelect, initializeFuseSelect, updateFuseSelect } from "./modules/components/sheet/suggestions";
-
+import { recordCellEdit, recordCellClick, recordCellDoubleClick, recordCellCopy, recordColumnCopy, recordColumnSearch, recordColumnSort } from "./modules/api/record-interactions";
+import { tableElement, tableColumnLabels, isColumnAutocompleteOnly, getColumnLabel, getTableDataText, tableScrollContainer, getLongestColumnTextWidth, getColumnLabelSortButton, isColumnLabelSortButton, getTableCellText, getTableCellTextsInColumn, isColumnSearchInput, isTableCellEditable, getColumnSearchInput, isColumnLabel, isFirstTableCell, isLastTableCell, isColumnSearch, getTableCellElementsInColumn, getColumnSearch, getTableColElement, isColumnSearchInputFocused, getColumnLabelText, tableRowHeight } from "./modules/dom/sheet";
+import { getMinimumColumnWidth, updateTableColumnSearchWidth, updateTableCellWidth } from "./modules/components/sheet/column-width";
+import { getIdSuggestion, getIdSuggestionType } from "./modules/api/record-interactions";
 
 
 // TODO ARROW KEY not functioning when scrolling off screen
@@ -15,35 +18,6 @@ import { fuseSelect, initializeFuseSelect, updateFuseSelect } from "./modules/co
 /* which table column is active: a table column is activated when associated head is clicked */
 let activeTableColElement: null | HTMLTableColElement = null;
 
-// DOM Elements
-const tableElement: HTMLTableElement = document.getElementById("table") as HTMLTableElement;
-const tableScrollContainer: HTMLElement = tableElement.parentElement;
-
-/* <thead> */
-const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
-/* <tr>s */
-const tableRowElements: HTMLCollection = tableElement.rows;
-/* first table row: column labels */
-const columnLabelRowIndex: number = 0;
-const tableColumnLabels: HTMLTableRowElement = tableRowElements[columnLabelRowIndex] as HTMLTableRowElement;
-
-const numTableColumns: number = tableColumnLabels.children.length;
-
-/* first table row: column labels */
-const columnSearchRowIndex = 1;
-const tableColumnSearches: HTMLTableRowElement = tableRowElements[columnSearchRowIndex] as HTMLTableRowElement;
-
-const tableRowHeight = tableColumnLabels.clientHeight;
-
-/* <col>s */
-const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
-
-function isFirstTableCell(tableCellElement: HTMLTableCellElement): boolean {
-  return tableCellElement.cellIndex === 0;
-}
-function isLastTableCell(tableCellElement: HTMLTableCellElement): boolean {
-  return getRightTableCellElement(tableCellElement) === null;
-}
 function isSortPanelSorterOrderButton(element: HTMLElement): boolean {
   return element && element.classList.contains("column-sorter-order");
 }
@@ -54,9 +28,6 @@ const descendingClass: string = "desc";
 function isDescendingSorted(element: HTMLElement): boolean {
   return element && element.classList.contains(descendingClass);
 }
-function isColumnLabel(element: HTMLElement): boolean {
-  return element && element.classList.contains("column-label");
-}
 const columnSorterColumnSelectClass: string = "column-sorter-column-select";
 function isColumnSorterColumnSelect(element: HTMLElement): boolean {
   return element && element.classList.contains(columnSorterColumnSelectClass);
@@ -65,100 +36,7 @@ const columnSorterReorderGripClass = "column-sorter-reorder-grip";
 function isColumnSorterReorderGrip(element: HTMLElement): boolean {
   return element && element.classList.contains(columnSorterReorderGripClass);
 }
-const tableColumnSortButtonClass: string = "sort-btn";
-function isColumnLabelSortButton(element: HTMLElement): boolean {
-  return element && element.classList.contains(tableColumnSortButtonClass);
-}
-function isColumnSearch(element: HTMLElement): boolean {
-  return  element && element.classList.contains("column-search");
-}
-function isColumnSearchInput(element: HTMLElement): boolean {
-  return element && isColumnSearch(element.parentElement);
-}
-function isColumnSearchInputFocused(): boolean {
-  return isColumnSearchInput(document.activeElement as HTMLElement);
-}
-function isColumnSearchFilled(columnSearch: HTMLTableCellElement): boolean {
-  if (!columnSearch) {
-    return false;
-  }
-  return getColumnSearchInput(columnSearch).value !== "";
-}
-function isColumnAutocompleteOnly(columnLabel: HTMLTableCellElement) {
-  return columnLabel.dataset.autocompleteOnly === "true";
-}
-function isMultipleColumnSearchInputFilled(limit: number = 2): boolean {
-  let n = 0;
-  for (const columnSearch of getTableCellElementsInRow(tableColumnSearches)) {
-    if (isColumnSearchFilled(columnSearch)) {
-      n++;
-      if (n >= limit) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
-  if (tableCellElement.contentEditable === "false") {
-    return false;
-  }
-  const columnLabel = getColumnLabel(tableCellElement.cellIndex);
-  if (columnLabel.contentEditable === "false") {
-    tableCellElement.contentEditable = "false";
-    return false;
-  }
 
-  tableCellElement.contentEditable = "true";
-  return true;
-}
-
-// getters
-function getColumnLabel(index: number): HTMLTableCellElement {
-  return getCellInTableRow(tableColumnLabels, index);
-}
-function getColumnLabelSortButton(columnLabel: HTMLTableCellElement): HTMLButtonElement {
-  return columnLabel.querySelector(`.${tableColumnSortButtonClass}`);
-
-}
-function getSortDirectionFromColumnLabelSortButton(columnLabelSortButton: HTMLButtonElement): SortingDirection {
-  return isDescendingSorted(columnLabelSortButton) ? SortingDirection.DESCENDING : SortingDirection.ASCENDING;
-}
-function* getColumnLabels() {
-  for (const columnLabel of getTableCellElementsInRow(tableColumnLabels)) {
-    yield columnLabel;
-  }
-}
-function getColumnLabelText(columnLabel: HTMLTableCellElement): string {
-  return columnLabel.querySelector(`.${columnLabelTextClass}`).textContent;
-}
-function* getColumnLabelTexts() {
-  for (const columnLabel of getColumnLabels()) {
-    yield getColumnLabelText(columnLabel as HTMLTableCellElement);
-  }
-}
-function getLongestColumnTextWidth(): number {
-  let textWidth = Number.NEGATIVE_INFINITY;
-  for (const columnLabelText of getColumnLabelTexts()) {
-    textWidth = Math.max(textWidth, measureTextWidth(columnLabelText));
-  }
-  return textWidth;
-}
-function getColumnSearch(index: number): HTMLTableCellElement {
-  return getCellInTableRow(tableColumnSearches, index);
-}
-function getColumnSearchInput(columnSearch: HTMLTableCellElement): HTMLInputElement {
-  return columnSearch.querySelector("input");
-}
-function getTableDataText(tableCellElement: HTMLTableCellElement) {
-  return tableCellElement.textContent;
-}
-function setTableDataText(tableCellElement: HTMLTableCellElement, text: string) {
-  return tableCellElement.textContent = text;
-}
-function getTableRowCellValues(tableRowElement: HTMLTableRowElement): Array<string> {
-  return Array.from(tableRowElement.cells).map(getTableDataText);
-}
 
 function getOffsetFromPageTop(element: HTMLElement): number {
   let offset = 0;
@@ -169,120 +47,39 @@ function getOffsetFromPageTop(element: HTMLElement): number {
   return offset;
 }
 
-/**
- * Gets the <col> element for the specified column index.
- */
-function getTableColElement(index: number): HTMLTableColElement | undefined {
-  return tableColElements[index] as HTMLTableColElement;
-}
-function* getTableCellElementsInRow(tableRowElement: HTMLTableRowElement) {
-  yield* tableRowElement.cells;
-}
-/**
- * Gets the table cell elements for the specified column index.
- *
- * @param {number} index - Index of column.
- * @param {boolean} [skipColumnSearch = false] - whether skip column search in yielded elements.
- * @param {boolean} [skipColumnSearch = true] - whether skip column label in yielded elements.
- * @yields {HTMLTableCellElement} Table cells in the specified column.
- */
-function* getTableCellElementsInColumn(index: number, skipColumnLabel: boolean = false, skipColumnSearch = true) {
-  for (let i = 0; i < tableRowElements.length; i++) {
-    const tableRow = tableRowElements[i] as HTMLTableRowElement;
-    if (tableRow === tableDataManager.topFiller || tableRow === tableDataManager.bottomFiller) {
-      // skip over filler row
-      continue;
-    }
 
-    if (skipColumnLabel && i === columnLabelRowIndex) {
-      // skip over column label row
-      continue;
-    }
-    if (skipColumnSearch && i === columnSearchRowIndex) {
-      // skip over column search row
-      continue;
-    }
-    yield getCellInTableRow(tableRow, index);
-  }
-}
-
-function getTableCellText(tableCellElement: HTMLTableCellElement) {
-  if (isColumnLabel(tableCellElement)) {
-    return getColumnLabelText(tableCellElement);
-  } else if (isColumnSearch(tableCellElement)) {
-    return getColumnSearchInput(tableCellElement).value;
-  } else {
-    return getTableDataText(tableCellElement);
-  }
-}
-function* getTableCellTextsInColumn(index: number, skipColumnLabel: boolean = false, skipColumnSearch = true) {
-  for (const tableCellElement of getTableCellElementsInColumn(index, skipColumnLabel, skipColumnSearch)) {
-    if (!tableCellElement) {
-      continue;
-    }
-    yield getTableCellText(tableCellElement);
-  }
-}
-
-function getIdUniqueID(tableCellElement: HTMLTableCellElement): number {
-  return Number.parseInt(getEnclosingTableRow(tableCellElement).dataset.id);
-}
-function getIdSuggestion(tableCellElement: HTMLTableCellElement): number {
-  return Number.parseInt(tableCellElement.id);
-}
-function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
-  const idSuggestionType = columnLabel.dataset.idSuggestionType;
-  if (idSuggestionType) {
-    return Number.parseInt(idSuggestionType);
-  }
-  return null;
-}
-function getIdSearchType(columnSearch: HTMLTableCellElement) {
-  return 1;
-}
 function getColumnIndexFromColumnSorterContainer(columnSorterContainer: HTMLElement): number {
   return Number.parseInt(columnSorterContainer.dataset.columnIndex);
 }
+const tableColumnSortPanelColumnSorterClass: string = "column-sorter";
 function getColumnSorterContainerFromChildElement(childElement: HTMLElement): HTMLElement {
   return childElement.closest(`.${tableColumnSortPanelColumnSorterClass}`);
 }
-/**
- * This corresponds to the `multiSearchValues` field in database which is represented as
- * idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
- * where two pipes `||` separates diffrent column search and `|` separates information about a column search
- */
-function getSearchValues(): string {
-  const searchValues = [];
-  for (const columnSearch of getTableCellElementsInRow(tableColumnSearches)) {
-    if (isColumnSearchFilled(columnSearch)) {
-      const idSuggestionType = getIdSuggestionType(getColumnLabel(columnSearch.cellIndex));
-      const idSearchType = getIdSearchType(columnSearch);
-      const value = getColumnSearchInput(columnSearch).value;
-      const searchValue = `${idSuggestionType}|${idSearchType}|${value}`;
-      searchValues.push(searchValue);
-    }
-  }
-  return searchValues.join("||");
-}
 
-// Record Interaction
-function recordInteraction(url: string, data: Record<string, any>, responseHandler: (response: Response) => void = () => undefined) {
-  data["_csrf"] = tableCellInputFormCSRFInput.value;
 
-  fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  }).then(response => {
-      if (!response.ok) {
-        console.error(`${response.status}: ${response.statusText}`);
-      }
-      responseHandler(response);
-    })
-    .catch(error => console.error("Network error when posting interaction: ", error));
+// input editor
+/* input editor element */
+const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
+function isTableCellInputFormActive() {
+  return tableCellInputFormElement.classList.contains(activeClass);
 }
+/* the input element in the input editor */
+const tableCellInputFormInputElement: HTMLInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
+const tableCellInputFormInputInvalidFeedbackElement: HTMLInputElement = document.getElementById("table-cell-input-feedback") as HTMLInputElement;
+const tableCellInputFormInputSaveButtonElement: HTMLButtonElement = document.getElementById("table-cell-input-save") as HTMLButtonElement;
+/* the target element the input editor is associated with */
+
+// input editor location
+/* the location element */
+const tableCellInputFormLocateCellElement: HTMLButtonElement = document.getElementById("locate-cell") as HTMLButtonElement;
+/* the row index element in the location element */
+const tableCellInputFormLocateCellRowElement: HTMLSpanElement = document.getElementById("locate-cell-associated-row") as HTMLSpanElement;
+/* the column index element in the location element */
+const tableCellInputFormLocateCellColElement: HTMLSpanElement = document.getElementById("locate-cell-associated-col") as HTMLSpanElement;
+/* whether the location element is shown in the input editor */
+let tableCellInputFormLocationActive: boolean = false;
+
+const tableCellInputFormInputContainer: HTMLElement = tableCellInputFormLocateCellElement.parentElement;
 
 function activateInvalidFeedback(invalidFeedback: string) {
   tableCellInputFormInputInvalidFeedbackElement.textContent = invalidFeedback;
@@ -306,111 +103,6 @@ function verifyEdit(edit: string, tableCellElement: HTMLTableCellElement): boole
   }
   return true;
 }
-
-function recordEdit(tableCellElement: HTMLTableCellElement, textContent: string) {
-  // supply enough fields to update database entry for table cell
-
-  recordInteraction("/suggestions/new", {
-    "idUniqueID": getIdUniqueID(tableCellElement),
-    "idSuggestion": getIdSuggestion(tableCellElement),
-    "suggestion": textContent,
-  }, (response) => {
-    response.json().then(idSuggestion => {
-      tableDataManager.updateCellInRenderingView(tableCellElement.id, {
-        id: idSuggestion.toString(),
-        textContent,
-      }, true);
-    });
-  });
-}
-
-function recordClickOnCell(tableCellElement: HTMLTableCellElement) {
-  if (isTableData(tableCellElement)) {
-    // only record click on table data now
-    const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
-    const rowValues = getTableRowCellValues(tableRow);
-
-    const idSuggestion = getIdSuggestion(tableCellElement);
-    recordInteraction("/click", {idSuggestion, rowValues});
-  }
-}
-
-function recordDoubleClickOnCell(tableCellElement: HTMLTableCellElement) {
-  const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
-  const rowValues = getTableRowCellValues(tableRow);
-
-  const idSuggestion = getIdSuggestion(tableCellElement);
-  recordInteraction("/click-double", {idSuggestion, rowValues});
-}
-
-function recordCopyCell(tableCellElement: HTMLTableCellElement) {
-  const idSuggestion = getIdSuggestion(tableCellElement);
-  recordInteraction("/copy-cell", {idSuggestion});
-}
-
-function recordCopyColumn(columnLabel: HTMLTableCellElement) {
-  const idSuggestionType = getIdSuggestionType(columnLabel);
-  recordInteraction("/copy-column", {idSuggestionType});
-}
-
-function recordSearch(columnSearch: HTMLTableCellElement, isFullSearch: boolean) {
-  const columnIndex: number = columnSearch.cellIndex;
-  const columnLabel: HTMLTableCellElement = getColumnLabel(columnIndex);
-  const columnSearchInput: HTMLInputElement = getColumnSearchInput(columnSearch);
-  const matchedValues = [...new Set(getTableCellTextsInColumn(columnIndex, true, true))].join("|");
-  /* sw - will need
-    const idSuggestionType: number|string
-    const isMulti: number
-    const isFromUrl: number // sw feature not implemented yet
-    const value: string
-    const matchedValues: string: a pipe delimited list of unique values from that column that matched the input
-    const multiSearchValues: string idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
-  */
-  const url = isFullSearch ? "/search-full" : "/search-partial";
-  recordInteraction(url, {
-    idSuggestionType: getIdSuggestionType(columnLabel),
-    isMulti: Number(isMultipleColumnSearchInputFilled()),
-    isFromUrl: 0,
-    value: columnSearchInput.value,
-    matchedValues,
-    multiSearchValues: getSearchValues(),
-  });
-}
-
-function recordSort(columnIndex: number , sortingDirection: number) {
-  const columnLabel: HTMLTableCellElement = getColumnLabel(columnIndex);
-  const url = "/sort";
-  recordInteraction(url, {
-    idSuggestionType: getIdSuggestionType(columnLabel),
-    isAsc: (1 - sortingDirection)
-  });
-}
-
-// input editor
-/* input editor element */
-const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
-const tableCellInputFormCSRFInput: HTMLInputElement = tableCellInputFormElement.querySelector("input[name='_csrf']");
-function isTableCellInputFormActive() {
-  return tableCellInputFormElement.classList.contains(activeClass);
-}
-/* the input element in the input editor */
-const tableCellInputFormInputElement: HTMLInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
-const tableCellInputFormInputInvalidFeedbackElement: HTMLInputElement = document.getElementById("table-cell-input-feedback") as HTMLInputElement;
-const tableCellInputFormInputSaveButtonElement: HTMLButtonElement = document.getElementById("table-cell-input-save") as HTMLButtonElement;
-/* the target element the input editor is associated with */
-
-// input editor location
-/* the location element */
-const tableCellInputFormLocateCellElement: HTMLButtonElement = document.getElementById("locate-cell") as HTMLButtonElement;
-/* the row index element in the location element */
-const tableCellInputFormLocateCellRowElement: HTMLSpanElement = document.getElementById("locate-cell-associated-row") as HTMLSpanElement;
-/* the column index element in the location element */
-const tableCellInputFormLocateCellColElement: HTMLSpanElement = document.getElementById("locate-cell-associated-col") as HTMLSpanElement;
-const tableCellInputFormLocateCellIcon: HTMLElement = document.getElementById("locate-cell-icon");
-/* whether the location element is shown in the input editor */
-let tableCellInputFormLocationActive: boolean = false;
-
-const tableCellInputFormInputContainer: HTMLElement = tableCellInputFormLocateCellElement.parentElement;
 
 /**
  * Updates the text inside the input element inside the input editor and resizes the input eidtor properly.
@@ -445,88 +137,6 @@ function updateTableCellInputFormWidthToFitText(textToFit: string) {
   //   }
   // }
 
-
-// store resized width in local storage
-function getStoredColumnWidthKey(index: number) {
-  return `columnWidth${index}`;
-}
-function storePreferredColumnWidth(index: number, columnWidth: string) {
-  window.localStorage.setItem(getStoredColumnWidthKey(index), columnWidth);
-}
-function getPreferredColumnWidth(index: number): string | null {
-  const tableColumnElement: HTMLTableColElement = getTableColElement(index);
-  if (tableColumnElement) {
-    const dataWidth = tableColumnElement.dataset.width;
-    return `${dataWidth}px`;
-  }
-  return window.localStorage.getItem(getStoredColumnWidthKey(index));
-}
-function loadPreferredColumnWidths(respectMinimumColumnWidth: boolean = true) {
-  let index = 0;
-  for (const tableColElement of tableColElements) {
-    const preferredColumnWidth: string = getPreferredColumnWidth(index);
-
-    const tableColEl = tableColElement as HTMLTableColElement;
-    if (preferredColumnWidth) {
-      let columnWidth: string;
-      if (respectMinimumColumnWidth) {
-        columnWidth = `${Math.max(getMinimumColumnWidth(index), Number.parseFloat(preferredColumnWidth))}px`;
-      } else {
-        columnWidth = preferredColumnWidth;
-      }
-        tableColEl.style.width = columnWidth;
-    } else {
-      if (respectMinimumColumnWidth) {
-        tableColEl.style.width = `${getMinimumColumnWidth(index)}px`;
-      }
-    }
-
-    index += 1;
-  }
-}
-loadPreferredColumnWidths();
-
-// resize width
-function updateTableColumnWidth(index: number, newWidth: string) {
-  const tableColElement = getTableColElement(index);
-  tableColElement.style.width = newWidth;
-  storePreferredColumnWidth(index, newWidth);
-}
-function updateTableColumnWidthToFitText(tableColumnSearchElement: HTMLTableCellElement, tableColumnSearchInputElement: HTMLInputElement) {
-  const textLength = measureTextWidth(tableColumnSearchInputElement.value);
-  const padding = 24;
-  const slack = 44;
-  const estimatedTextWidth = textLength + slack + padding;
-
-  const currentTextWidthCanFit = tableColumnSearchInputElement.offsetWidth;
-  if (estimatedTextWidth > currentTextWidthCanFit) {
-    const index = tableColumnSearchElement.cellIndex;
-    const newColumnWidth = estimatedTextWidth + padding;
-    updateTableColumnWidth(index, `${newColumnWidth}px`);
-  }
-}
-function getMinimumColumnWidth(index: number) {
-  const columnLabelText: string = getColumnLabelText(getColumnLabel(index));
-
-  const textWidth: number = measureTextWidth(columnLabelText);
-  const paddingWidth: number = em2px(0.75) * 2;
-  const sortButtonWidth: number = 30;
-  const slack: number = 80;
-
-  return textWidth + paddingWidth + sortButtonWidth + slack;
-}
-function updateTableCellElementWidth(tableCellElement: HTMLTableCellElement, resizeAmount: number) {
-  if (resizeAmount === 0) {
-    return;
-  }
-
-  const index = tableCellElement.cellIndex;
-  // in pixels
-  const currentColumnWidth = tableCellElement.clientWidth;
-  const newColumnWidth = Math.max(getMinimumColumnWidth(index), currentColumnWidth + resizeAmount);
-
-  updateTableColumnWidth(index, `${newColumnWidth}px`);
-}
 /* visual cue during resize */
 function initializeResizeVisualCue() {
   const visualCue = document.createElement("div");
@@ -566,7 +176,6 @@ const tableColumnSortPanel: HTMLElement = document.getElementById("table-column-
 const tableColumnSortPanelColumnSorterContainers: HTMLCollection = tableColumnSortPanel.getElementsByTagName("div");
 const tableColumnSortPanelColumnSorterContainerTemplate: HTMLTemplateElement = tableColumnSortPanel.firstElementChild as HTMLTemplateElement;
 (tableColumnSortPanelColumnSorterContainerTemplate.content.querySelector(`.${columnSorterColumnSelectClass}`) as HTMLElement).style.width = `${getLongestColumnTextWidth() + 50}px`;
-const tableColumnSortPanelColumnSorterClass: string = "column-sorter";
 
 function modifyColumnSorterContainer(container: HTMLElement, columnIndex: number, containerIndex: number) {
   container.dataset.columnIndex = columnIndex.toString();
@@ -664,7 +273,7 @@ function activateSortPanel(targetElement: HTMLElement) {
   tableColumnSortPanel.classList.add(activeClass);
 
   // patch sort panel
-  const sorters = [...tableDataManager.getSorters()];
+  const sorters = Array.from(tableDataManager.getSorters());
   sorters.sort((s1, s2) => s1[1].order - s2[1].order);
   const numSorter: number = sorters.length;
 
@@ -809,7 +418,7 @@ enum SortingDirection {
   DESCENDING,
 }
 const clickClass = "clicked";
-function setColumnSorter(columnIndex: number, sortingDirection: SortingDirection = SortingDirection.ASCENDING, order: number = columnIndex, recordSortInteraction: boolean = true) {
+function setColumnSorter(columnIndex: number, sortingDirection: SortingDirection = SortingDirection.ASCENDING, order: number = columnIndex, recordColumnSortInteraction: boolean = true) {
   const buttonElement = getColumnLabelSortButton(getColumnLabel(columnIndex));
   buttonElement.classList.add(clickClass);
 
@@ -820,17 +429,17 @@ function setColumnSorter(columnIndex: number, sortingDirection: SortingDirection
     sorter = (text1, text2) => text2.localeCompare(text1);
   }
   tableDataManager.addSorter(columnIndex, sorter, order);
-  if (recordSortInteraction) {
-    recordSort(columnIndex, sortingDirection);
+  if (recordColumnSortInteraction) {
+    recordColumnSort(columnIndex, sortingDirection);
   }
 }
 function changeColumnSorterSortOrder(
   columnIndex: number,
   columnLabelSortButton: HTMLButtonElement = getColumnLabelSortButton(getColumnLabel(columnIndex)),
   newSortOrder: SortingDirection = isDescendingSorted(columnLabelSortButton) ? SortingDirection.ASCENDING : SortingDirection.DESCENDING,
-  recordSort: boolean = true) {
+  recordColumnSort: boolean = true) {
     columnLabelSortButton.classList.toggle(descendingClass);
-    setColumnSorter(columnIndex, newSortOrder, undefined, recordSort);
+    setColumnSorter(columnIndex, newSortOrder, undefined, recordColumnSort);
 }
 
 function deleteColumnSorter(columnIndex: number, refreshRenderingViewIfNeeded: boolean = true) {
@@ -839,16 +448,16 @@ function deleteColumnSorter(columnIndex: number, refreshRenderingViewIfNeeded: b
   columnLabelSortButton.classList.remove(clickClass, descendingClass);
   tableDataManager.deleteSorter(columnIndex, refreshRenderingViewIfNeeded);
 }
-function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement, recordSort: boolean = true) {
+function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement, recordColumnSort: boolean = true) {
   const columnIndex = (buttonElement.parentElement as HTMLTableDataCellElement).cellIndex;
   // '' => 'clicked' => 'clicked desc' => 'clicked'
   // since we are sorting on the current displayed data elements, we need to collect
   // data elements from rendered table data sections
   if (buttonElement.classList.contains(clickClass)) {
-    changeColumnSorterSortOrder(columnIndex, buttonElement, undefined, recordSort);
+    changeColumnSorterSortOrder(columnIndex, buttonElement, undefined, recordColumnSort);
   } else {
     // ascending sort
-    setColumnSorter(columnIndex, SortingDirection.ASCENDING, undefined, recordSort);
+    setColumnSorter(columnIndex, SortingDirection.ASCENDING, undefined, recordColumnSort);
   }
 }
 tableElement.addEventListener("click", function(event: MouseEvent) {
@@ -886,9 +495,8 @@ function copyTableColumnToCopyBuffer(index: number) {
 
 // paste event
 function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: string) {
-  // disable paste
   // invoke edit editor
-  // tableStatusManager.tableCellInputFormAssignTarget(tableCellElement, text, true);
+  tableStatusManager.tableCellInputFormAssignTarget(tableCellElement, text, true);
 }
 function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   if (isTableHead(tableCellElement)) {
@@ -953,13 +561,13 @@ function tableColumnSearchElementOnInput(tableColumnSearchInputElement: HTMLInpu
     window.clearTimeout(columnSearchFilteringTimeoutId);
   }
   columnSearchFilteringTimeoutId = window.setTimeout(() => {
-    recordSearch(tableColumnSearchElement, false);
+    recordColumnSearch(tableColumnSearchElement, false);
     updateTableColumnFilter(tableColumnSearchElement.cellIndex, tableColumnSearchInputElement.value);
   }, 400);
 }
 
 function tableColumnSearchElementOnChange(tableColumnSearchInputElement: HTMLInputElement, tableColumnSearchElement: HTMLTableCellElement) {
-  recordSearch(tableColumnSearchElement, true);
+  recordColumnSearch(tableColumnSearchElement, true);
 }
 
 function tableColumnSearchElementOnKeyDown(tableColumnSearchElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
@@ -975,7 +583,7 @@ function tableColumnSearchElementOnKeyDown(tableColumnSearchElement: HTMLTableCe
     updateTableColumnFilter(tableColumnSearchElement.cellIndex, columnSearchInput.value);
   }
 
-  updateTableColumnWidthToFitText(tableColumnSearchElement, columnSearchInput);
+  updateTableColumnSearchWidth(tableColumnSearchElement);
   event.consumed = true;
 }
 function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
@@ -1115,9 +723,9 @@ function finishResizingBorderOnTableHead(event: MouseEvent) {
   const resizeAmount = finishMouseX - startMouseX;
   if (resizeAmount !== 0) {
     if (nearElementLeftBorder(tableCellElementUnderMouse)) {
-      updateTableCellElementWidth(getLeftTableCellElement(tableCellElementUnderMouse), resizeAmount);
+      updateTableCellWidth(getLeftTableCellElement(tableCellElementUnderMouse), resizeAmount);
     } else {
-      updateTableCellElementWidth(tableCellElementUnderMouse, resizeAmount);
+      updateTableCellWidth(tableCellElementUnderMouse, resizeAmount);
     }
   }
 }
@@ -1488,7 +1096,7 @@ class DataCollection {
       return null;
     }
 
-    const sorters: Array<[number, OrderedTextSorter]> = [...this.cellIndexToSorter];
+    const sorters: Array<[number, OrderedTextSorter]> = Array.from(this.cellIndexToSorter);
     sorters.sort((s1, s2) => s1[1].order - s2[1].order);
 
     return (dataIndex1, dataIndex2) => {
@@ -2532,7 +2140,7 @@ class TableStatusManager {
         const columnIndex: number = this.activeTableCellElement.cellIndex;
         copyTableColumnToCopyBuffer(columnIndex);
         elementToHighlight = activeTableColElement;
-        recordCopyColumn(getColumnLabel(columnIndex));
+        recordColumnCopy(getColumnLabel(columnIndex));
       } else if (!(isColumnSearch(tableCellElement))) {
         if (hasTextSelected(tableCellElement)) {
           // copy selected part
@@ -2544,7 +2152,7 @@ class TableStatusManager {
         elementToHighlight = tableCellElement;
         if (isTableData(tableCellElement)) {
           // do not record copy on table head element
-          recordCopyCell(tableCellElement);
+          recordCellCopy(tableCellElement);
         }
 
         // regain focus
@@ -2609,7 +2217,7 @@ class TableStatusManager {
       if (this.isTableDataLastActivatedRecently()) {
         this.tableCellInputFormAssignTarget(activeTableCellElement);
         activeTableCellElement.lastActiveTimestamp = null;
-        recordDoubleClickOnCell(activeTableCellElement);
+        recordCellDoubleClick(activeTableCellElement);
       } else {
         this.updateActiveTimestamp();
       }
@@ -2751,7 +2359,7 @@ class TableStatusManager {
       this.activeElementOnRepeatedClick(event);
     } else {
       this.updateActiveTableCellElement(tableCellElement);
-      recordClickOnCell(tableCellElement);
+      recordCellClick(tableCellElement);
     }
     event.preventDefault();
   }
@@ -3051,7 +2659,10 @@ class TableStatusManager {
     const text = tableCellInputFormInputElement.value;
     if (tableCellInputFormTargetElement) {
       // call backend api to send user submission
-      recordEdit(tableCellInputFormTargetElement, text);
+      recordCellEdit(tableCellInputFormTargetElement, text, idSuggestion => tableDataManager.updateCellInRenderingView(tableCellInputFormTargetElement.id, {
+        id: idSuggestion.toString(),
+        textContent: text,
+      }, true));
     }
   }
 
