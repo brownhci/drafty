@@ -5,9 +5,13 @@
         "noImplicitAny": true,
         "sourceMap": true,
         "outDir": "../../../dist/public/js",
-        "allowJs": true
-        }
-    },
+        "checkJs": false,
+        "allowJs": true,
+        "lib": [
+          "ESNext",
+          "DOM"
+        ]
+      },
     "exclude": [
         "webpack.config.js"
     ]
