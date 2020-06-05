@@ -6,20 +6,6 @@
  * These properties, like regular properties defined on an object, can be accessed and modified using regular dot syntax or bracket syntax. However, their access/modification is channeled through property descriptor (more specifically, access descriptors which are getter and setter functions) {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptor}, which can facilitate advanced mechanisms like proxy or aliasing.
  * Read {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get getter} and {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/set setter} for inspiration.
  *
- * These core functionalities are exposed by the Abstraction class:
- *    + @protected access to registered properties {@link Abstraction#propNames_}
- *    + @public iterate through property name, value pair {@link Abstraction#[Symbol.iterator]}
- *    + @public registering/revoking properties {@link Abstraction#registerProps__}
- *    + @public detecting whether another object (might be or might noe be an Abstraction) has same properties registered {@link Abstraction#hasSameShape__}
- *
- * These functionalities can be overriden:
- *    + @protected create a descriptor for a property given part of a complete property descriptor (usually just the getter and setter) {@link Abstraction.createDescriptor__}
- *
- * This module and its subclasses should follow these naming conventions:
- *    + registered properties should be intact (unmodified) and can be accessed directly
- *      @example Suppose `foo` is a registered property, it should be accessible from `this.foo`
- *    + implementation-specific variable will be preceded by one underscores if it is private, otherwise, it will be suffixed by one underscore
- *    + implementation-specific method (except methods like constructor or Symbol.iterator required by class) will be preceded by two underscores if it is private, otherwise, it will be suffixed by two underscores
  */
 
 import { NotImplemented } from "../../../utils/errors";
@@ -33,6 +19,24 @@ import { isSubset } from "../../../utils/Set";
  */
 export type Prop = string | number | symbol;
 
+/**
+ * These core functionalities are exposed by the Abstraction class:
+ *    + @protected access to registered properties {@link Abstraction#propNames_}
+ *    + @public iterate through property name, value pair {@link Abstraction#[Symbol.iterator]}
+ *    + @public registering/revoking properties {@link Abstraction#registerProps__}
+ *    + @public detecting whether another object (might be or might noe be an Abstraction) has same properties registered {@link Abstraction#hasSameShape__}
+ *
+ * These functionalities can be overriden:
+ *    + @protected create a descriptor for a property given part of a complete property descriptor (usually just the getter and setter) {@link Abstraction.createDescriptor__}
+ *
+ * Its subclasses should follow these naming conventions:
+ *    + registered properties should be intact (unmodified) and can be accessed directly
+ *      @example Suppose `foo` is a registered property, it should be accessible from `this.foo`
+ *    + implementation-specific variable will be preceded by one underscores if it is private, otherwise, it will be suffixed by one underscore
+ *    + implementation-specific method (except methods like constructor or Symbol.iterator required by class) will be preceded by two underscores if it is private, otherwise, it will be suffixed by two underscores
+ *
+ * @classdesc An abstraction groups together a set of properties.
+ */
 export abstract class Abstraction {
   protected propNames_: Set<Prop>;
 
@@ -144,8 +148,6 @@ export abstract class Abstraction {
    *    + is enumerable
    *    + will report NotImplemented error when uses [[Get]] or [[Set]] to access the property
    *
-   * @private
-   * @static
    * @param {Prop} property - Name of property.
    * @return {PropertyDescriptor} A descriptor that can be used as argument in {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty Object.defineProperty()}.
    * @throws {NotImplemented} When getter or setter is not provided but access/modification is performed.
@@ -169,8 +171,6 @@ export abstract class Abstraction {
    * Notes:
    *    + Passing null / undefined to descriptor will result in a clone of default descriptor
    *
-   * @protected
-   * @static
    * @param {Prop} property - Name of property.
    * @param {Partial<PropertyDescriptor>} descriptor - An object containing overrides to default descriptor.
    * @return {PropertyDescriptor} A descriptor that can be used as argument in {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty Object.defineProperty()}.
@@ -182,7 +182,6 @@ export abstract class Abstraction {
   /**
    * Registers properties on current instance.
    *
-   * @private
    * @param {Record<Prop, Partial<PropertyDescriptor>>} props - An object whose keys represent the names of properties to be defined or modified and whose values are objects describing those properties. Each value in props must provide a descriptor or contain overrides to default descriptor.
    */
   private __setPropertyDescriptors(props: Record<Prop, Partial<PropertyDescriptor>>) {
