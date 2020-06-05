@@ -20,6 +20,9 @@
         "src/**/*"
     ],
     "exclude": [
-        "src/public/js"
+        "src/public/js",
+        "node_modules",
+        "**/*.spec.ts",
+        "**/*.config.js"
     ]
 }
