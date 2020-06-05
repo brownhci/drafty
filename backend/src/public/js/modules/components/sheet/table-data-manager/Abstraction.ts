@@ -36,6 +36,12 @@ export type Prop = string | number | symbol;
 export abstract class Abstraction {
   protected propNames_: Set<Prop>;
 
+  /**
+   * Creates an Abstraction instance.
+   *
+   * @param {Record<Prop, Partial<PropertyDescriptor>} props: An object containing mapping from properties to their descriptors.
+   * @constructs Abstraction
+   */
   constructor(props: Record<Prop, Partial<PropertyDescriptor>>) {
     this.registerProps__(props);
   }
