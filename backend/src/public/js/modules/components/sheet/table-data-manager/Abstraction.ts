@@ -76,7 +76,7 @@ export abstract class Abstraction {
   registerProps__(props: Record<Prop, Partial<PropertyDescriptor>>, reset: boolean = false) {
     if (reset && this.propNames_) {
       for (const propName of this.propNames_) {
-        delete this[propName];
+        delete this[propName as keyof this];
       }
       this.propNames_.clear();
     }
@@ -103,6 +103,9 @@ export abstract class Abstraction {
    *
    * Another instance has the same **shape** with current instance when it has same properties registered.
    *
+   * Note:
+   *    + property does not need to be registered as an own property in the other instance, rather it can be a property registered in the prototype chain.
+   *
    * @public
    * @param {any} other - The other instance to compare with.
    * @return {boolean} True if two instances have same shape.
@@ -117,16 +120,21 @@ export abstract class Abstraction {
   hasSameShape__(other: any): boolean {
     if (other instanceof Abstraction) {
       return isSubset(this.propNames_, other.propNames_);
-    } else if (other instanceof Object) {
-      return isSubset(this.propNames_, new Set(Object.keys(other)));
     } else {
-      return false;
+      // treat other as an object
+      for (const propName of this.propNames_) {
+        // use the {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/in in} operator to look through the prototype chain
+        if (!(propName in other)) {
+          return false;
+        }
+      }
+      return true;
     }
   }
 
   /**
    * Creates a default descriptor that
-   *    + is non-configurable
+   *    + is configurable (so that it can be replaced or revoked in {@link Abstraction#registerProps__}
    *    + is enumerable
    *    + will report NotImplemented error when uses [[Get]] or [[Set]] to access the property
    *
@@ -138,7 +146,7 @@ export abstract class Abstraction {
    */
   private static __defaultDescriptor(property: Prop): PropertyDescriptor {
     return {
-        configurable: false,
+        configurable: true,
         enumerable: true,
         get(): any {
           throw new NotImplemented(`Getter for ${property.toString()} has not been implemented`);
