@@ -13,6 +13,8 @@
         ]
       },
     "exclude": [
-        "webpack.config.js"
+        "node_modules",
+        "**/*.spec.ts",
+        "**/*.config.js"
     ]
 }
