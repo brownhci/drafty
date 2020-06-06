@@ -21,7 +21,7 @@ export type Prop = string | number | symbol;
  * An abstraction groups together a set of properties.
  *
  * These core functionalities are exposed by the Abstraction class:
- * 
+ *
  *    + @protected {@link Abstraction#propNames_} access to registered properties
  *    + @public {@link Abstraction#[Symbol.iterator]} iterate through property name, value pair
  *    + @public {@link Abstraction#registerProps__} registering/revoking properties
@@ -31,14 +31,14 @@ export type Prop = string | number | symbol;
  *    + @protected {@link Abstraction.createDescriptor__} create a descriptor for a property given part of a complete property descriptor (usually just the getter and setter)
  *
  * Its subclasses should follow these naming conventions:
- * 
+ *
  *    + registered properties should be intact (unmodified) and can be accessed directly
  *      @example Suppose `foo` is a registered property, it should be accessible from `this.foo`
  *    + implementation-specific variable will be preceded by one underscores if it is private, otherwise, it will be suffixed by one underscore
  *    + implementation-specific method (except methods like constructor or Symbol.iterator required by class) will be preceded by two underscores if it is private, otherwise, it will be suffixed by two underscores
  *
  * Its subclass fields should follow these ordering convention:
- * 
+ *
  *    1. type definitions
  *    2. static class attributes {@link #ordering-principle}
  *    3. instance attributes {@link #ordering-principle}
@@ -48,7 +48,7 @@ export type Prop = string | number | symbol;
  *    7. instance methods {@link #ordering-principle}
  *
  * ###### Ordering Principle
- * 
+ *
  *     + grouped by relevance
  *     + ordered
  *       1. first by calling hierarchy
@@ -91,7 +91,7 @@ export abstract class Abstraction {
 
   /**
    * Creates a default descriptor that
-   * 
+   *
    *    + is configurable (so that it can be replaced or revoked in {@link Abstraction#registerProps__}
    *    + is enumerable
    *    + will report NotImplemented error when uses [[Get]] or [[Set]] to access the property
@@ -117,7 +117,7 @@ export abstract class Abstraction {
    * Create a descriptor by overriding default descriptor in {@link Abstraction.__defaultDescriptor}.
    *
    * Notes:
-   * 
+   *
    *    + Passing null / undefined to descriptor will result in a clone of default descriptor
    *
    * @param {Prop} property - Name of property.
@@ -147,7 +147,7 @@ export abstract class Abstraction {
    * You can think PropertyDescriptor as a Proxy that defines how access and modification to an attribute is eventually resolved. And the Abstraction has these props as pseudo-properties whose access/modification are proxied.
    *
    * This method can be used to
-   * 
+   *
    *    + register properties to a fresh new instance
    *    + add properties to a instance with existing properties registered
    *    + remove all existing registered properties from an instance
@@ -191,7 +191,7 @@ export abstract class Abstraction {
    * Another instance has the same **shape** with current instance when it has same properties registered.
    *
    * Note:
-   * 
+   *
    *    + property does not need to be registered as an own property in the other instance, rather it can be a property registered in the prototype chain.
    *
    * @public
@@ -210,7 +210,7 @@ export abstract class Abstraction {
     } else {
       // treat other as an object
       for (const propName of this.propNames_) {
-        /** use the {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/in in} operator to look through the prototype chain*/ 
+        /** use the {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/in in} operator to look through the prototype chain*/
         if (!(propName in other)) {
           return false;
         }

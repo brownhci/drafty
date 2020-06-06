@@ -1,4 +1,4 @@
-import { ForwardingInstantiation } from  "./Instantiation";
+import { DOMForwardingInstantiation, ForwardingInstantiation} from  "./Instantiation";
 import { NotImplemented } from "../../../utils/errors";
 
 
@@ -38,5 +38,32 @@ describe("Unimplemented getter and setter", () => {
   test("throwing NotImplemented error", () => {
     expect(() => (instantiation as any).id).toThrow(NotImplemented);
     expect(() => (instantiation as any).id = "foo").toThrow(NotImplemented);
+  });
+});
+
+describe("DOMForwardingInstantiation", () => {
+  const forwardingTarget = document.createElement("div");
+  const instantiation = new DOMForwardingInstantiation({
+    id: undefined,
+    secret: {
+      get(forwardingTo: any, thisArgument: DOMForwardingInstantiation) {
+        return 24;
+      }
+    }
+  }, forwardingTarget);
+
+  test("default forwarding property descriptor", () => {
+    expect((instantiation as any).id).toBe("");
+    (instantiation as any).id = "bar";
+    expect((instantiation as any).id).toBe("bar");
+    expect(forwardingTarget.id).toBe("bar");
+  });
+
+  test("overriden forwarding property descriptor", () => {
+    expect((instantiation as any).secret).toBe(24);
+  });
+
+  test("unimplemented descriptor", () => {
+    expect(() => (instantiation as any).secret = 44).toThrow(NotImplemented);
   });
 });
