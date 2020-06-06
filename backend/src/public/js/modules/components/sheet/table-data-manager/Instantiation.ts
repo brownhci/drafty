@@ -26,7 +26,7 @@ export interface ForwardingPropertyDescriptor extends DataDescriptor {
  * A ForwardingInstantiation forwards access/modification operations to an underlying object.
  *
  * These core functionalities are exposed by the ForwardingInstantiation class:
- * 
+ *
  *    + @public {@link ForwardingInstantiation#setForwardingTo__} change the forwarding target
  *    + @public {@link ForwardingInstantiation#registerProps__} registering/revoking properties
  *
@@ -53,20 +53,25 @@ export class ForwardingInstantiation extends Abstraction {
 
   /**
    * Transform a ForwardingPropertyDescriptor into a PropertyDescriptor. More specifically, it creates wrapper getter and setter that invoke the ForwardingPropertyDescriptor's getter and setter by supplying additional arguments through scoping.
+	 * @example
+	 * 		To transform into an empty property descriptor, simply pass `{}` as `descriptor`.
    *
    * @param {Partial<ForwardingPropertyDescriptor>} descriptor - An object containing partial implementation of a ForwardingPropertyDescriptor.
    * @param {ForwardingInstantiation} thisArgument - The invoking context: an ForwardingInstantiation which provides a forwarding target.
    * @return {Partial<PropertyDescriptor>} A partial implementation of a property descriptor.
    */
   private static __transformPropertyDescriptor(descriptor: Partial<ForwardingPropertyDescriptor>, thisArgument: ForwardingInstantiation): Partial<PropertyDescriptor> {
-    const accessFunctions: AccessFunctions = {
-      get: () => {
+    const accessFunctions: AccessFunctions = { };
+		if ("get" in descriptor) {
+      accessFunctions.get = () => {
         return descriptor.get(thisArgument._forwardingTo, thisArgument);
-      },
-      set: (v: any) => {
+      };
+		}
+		if ("set" in descriptor) {
+			accessFunctions.set = (v: any) => {
         return descriptor.set(v, thisArgument._forwardingTo, thisArgument);
-      }
-    };
+			};
+		}
     return Object.assign({}, descriptor, accessFunctions);
   }
 
