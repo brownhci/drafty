@@ -9,7 +9,7 @@ export class MutationReporter extends MutationObserver {
   readonly observing: Map<Node, MutationObserverInit> = new Map();
 
   constructor(mutationReporterCallback?: MutationReporterCallback) {
-    super(MutationReporter.buildCallback(mutationReporterCallback));
+    super(MutationReporter.buildCallback(mutationReporterCallback, () => this));
   }
 
   static createMutationObserverInit(shouldObserveAttributes: boolean, shouldObserveCharacterData: boolean, shouldObserveChildList: boolean, attributeFilter: Array<string> = undefined): MutationObserverInit {
@@ -39,42 +39,53 @@ export class MutationReporter extends MutationObserver {
     return mutationObserverInit;
   }
 
-  private static correctMutationRecord(mutationRecord: MutationRecord): MutationRecord {
-    switch (mutationRecord.type) {
-      case "childList":
-        for (const addedNode of mutationRecord.addedNodes) {
-          if (addedNode.nodeType === Node.TEXT_NODE) {
-            break;
-          }
-        }
-        for (const removedNode of mutationRecord.removedNodes) {
-          if (removedNode.nodeType === Node.TEXT_NODE) {
-            break;
-          }
-        }
-        // fallthrough
-      default:
-        return mutationRecord;
+  private static childListToCharacterData(mutationRecord: MutationRecord): MutationRecord {
+    let oldValue: string = null;
+    if (mutationRecord.removedNodes.length === 1) {
+      oldValue = mutationRecord.removedNodes[0].nodeValue;
+    }
+    let target: Node = mutationRecord.target;
+    if (mutationRecord.addedNodes.length === 1) {
+      target = mutationRecord.addedNodes[0];
     }
 
     /** {@link https://www.quirksmode.org/blog/archives/2017/11/mutation_observ.html} the childList change actually reflect a characterData change */
     return {
       type: "characterData",
-      target: mutationRecord.addedNodes[0],
+      target,
       addedNodes: this.emptyNodeList,
       removedNodes: this.emptyNodeList,
       previousSibling: null,
       nextSibling: null,
       attributeName: null,
       attributeNamespace: null,
-      oldValue: mutationRecord.removedNodes[0].nodeValue
+      oldValue
     };
   }
 
-  private static buildCallback(mutationReporterCallback: MutationReporterCallback): MutationCallback {
+  private static correctMutationRecord(mutationRecord: MutationRecord): MutationRecord {
+    switch (mutationRecord.type) {
+      case "childList":
+        for (const addedNode of mutationRecord.addedNodes) {
+          if (addedNode.nodeType === Node.TEXT_NODE) {
+            return MutationReporter.childListToCharacterData(mutationRecord);
+          }
+        }
+        for (const removedNode of mutationRecord.removedNodes) {
+          if (removedNode.nodeType === Node.TEXT_NODE) {
+            return MutationReporter.childListToCharacterData(mutationRecord);
+          }
+        }
+        // fallthrough
+      default:
+        return mutationRecord;
+    }
+  }
+
+  private static buildCallback(mutationReporterCallback: MutationReporterCallback, thisWrapper: () => MutationReporter): MutationCallback {
     return function(mutations, observer) {
       const correctedMutations = mutations.map(MutationReporter.correctMutationRecord);
-      mutationReporterCallback(correctedMutations, mutations, observer, this);
+      mutationReporterCallback(correctedMutations, mutations, observer, thisWrapper());
     };
   }
 
@@ -120,30 +131,32 @@ export class MutationReporter extends MutationObserver {
     this.reconnect();
   }
 
-  report(mutation: MutationRecord) {
-    let event: Event;
-    switch (mutation.type) {
-      case "attributes":
-        event = new PropertyChangeEvent({
-          attributeName: mutation.attributeName,
-          oldAttributeValue: mutation.oldValue
-        });
-        break;
-      case "characterData":
-        event = new CharacterDataChangeEvent({
-          oldValue: mutation.oldValue,
-          newValue: mutation.target.nodeValue
-        });
-        break;
-      case "childList":
-        event = new ChildListChangeEvent({
-          addedNodes: mutation.addedNodes,
-          removedNodes: mutation.removedNodes,
-          previousSibling: mutation.previousSibling,
-          nextSibling: mutation.nextSibling
-        });
-        break;
+  report(mutations: Array<MutationRecord>) {
+    for (const mutation of mutations) {
+      let event: Event;
+      switch (mutation.type) {
+        case "attributes":
+          event = new PropertyChangeEvent({
+            attributeName: mutation.attributeName,
+            oldAttributeValue: mutation.oldValue
+          });
+          break;
+        case "characterData":
+          event = new CharacterDataChangeEvent({
+            oldValue: mutation.oldValue,
+            newValue: mutation.target.nodeValue
+          });
+          break;
+        case "childList":
+          event = new ChildListChangeEvent({
+            addedNodes: mutation.addedNodes,
+            removedNodes: mutation.removedNodes,
+            previousSibling: mutation.previousSibling,
+            nextSibling: mutation.nextSibling
+          });
+          break;
+      }
+      mutation.target.dispatchEvent(event);
     }
-    mutation.target.dispatchEvent(event);
   }
 }
