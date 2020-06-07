@@ -7,9 +7,12 @@
         "outDir": "../../../dist/public/js",
         "checkJs": false,
         "allowJs": true,
+        "baseUrl": "./",
+        "esModuleInterop": true,
         "lib": [
           "ESNext",
-          "DOM"
+          "DOM",
+          "DOM.Iterable"
         ]
       },
     "exclude": [
