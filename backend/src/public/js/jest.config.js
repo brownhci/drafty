@@ -23,5 +23,6 @@ module.exports = {
     testEnvironment: "jsdom",
     collectCoverage: true,
     coverageDirectory: path.join(process.cwd(), "test", "coverage", "frontend"),
+    coveragePathIgnorePatterns: ["/node_modules/", ".*mutation-observer.js"],
     coverageReporters: ["json", "text", "html"]
 };
