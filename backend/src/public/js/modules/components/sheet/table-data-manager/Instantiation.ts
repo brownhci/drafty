@@ -34,7 +34,7 @@ export interface ForwardingPropertyDescriptor extends DataDescriptor {
  * @augments Abstraction
  */
 export class ForwardingInstantiation extends Abstraction {
-  private _forwardingTo: any;
+  protected forwardingTo_: any;
 
   /**
    * Creates a ForwardingInstantiation instance.
@@ -65,12 +65,12 @@ export class ForwardingInstantiation extends Abstraction {
     const accessFunctions: AccessFunctions = { };
 		if ("get" in descriptor) {
       accessFunctions.get = () => {
-        return descriptor.get(thisArgument._forwardingTo, thisArgument);
+        return descriptor.get(thisArgument.forwardingTo_, thisArgument);
       };
 		}
 		if ("set" in descriptor) {
 			accessFunctions.set = (v: any) => {
-        return descriptor.set(v, thisArgument._forwardingTo, thisArgument);
+        return descriptor.set(v, thisArgument.forwardingTo_, thisArgument);
 			};
 		}
     return Object.assign({}, descriptor, accessFunctions);
@@ -117,7 +117,7 @@ export class ForwardingInstantiation extends Abstraction {
    * @param {any} forwardingTo - A target to forward access / modification on regiserted properties.
    */
   setForwardingTo__(forwardingTo: any) {
-    Object.defineProperty(this, "_forwardingTo", {
+    Object.defineProperty(this, "forwardingTo_", {
         configurable: false,
         enumerable: false,
         value: forwardingTo,
@@ -139,7 +139,7 @@ export class ForwardingInstantiation extends Abstraction {
  * Some caveats:
  *
  * 		+ The property has to be a string.
- * 		+ If the element does not have the DOM property {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/hasAttribute}, the operation will not stop, ratherit will try to resolve the property as a JS property then a custom property. But suppose this DOM attribute comes into existence because of user action or script execution, next operation will resolve this property as a DOM attribute even if a same-named JS property or custom property exists. The opposite is also true where a DOM attribute no longer exists. To avoid such situations, you are recommended to
+ * 		+ If the element does not have the DOM property {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/hasAttribute}, the operation will not stop, rather it will try to resolve the property as a JS property then a custom property. But suppose this DOM attribute comes into existence because of user action or script execution, next operation will resolve this property as a DOM attribute even if a same-named JS property or custom property exists. The opposite is also true where a DOM attribute no longer exists. To avoid such situations, you are recommended to
  * 			+ predefine the DOM attribute,
  * 				@example `element.class = ""`
  * 			+ use the JS property equivalent
