@@ -29,6 +29,8 @@
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord}
  */
 export interface PropertyChangeEventDetail {
+  /** the element whose attribute changed */
+  target: Node;
   /** the local name of the changed attribute */
   attributeName: string;
   /** the value of the changed attribute before the change, `null` if current mutation initializes the attribute */
@@ -48,6 +50,7 @@ export interface PropertyChangeEventDetail {
  *     + manipulation of related JS property
  *       @example adding a class through `element.classList.add` will trigger an attribute mutation on the `class` attribute
  *
+ * @event PropertyChangeEvent#propertyChange
  * @augments CustomEvent
  */
 export class PropertyChangeEvent extends CustomEvent<PropertyChangeEventDetail> {
@@ -69,6 +72,10 @@ export class PropertyChangeEvent extends CustomEvent<PropertyChangeEventDetail> 
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord}
  */
 export interface CharacterDataChangeEventDetail {
+  /**
+   * the element whose text content changed, either a Text Node or a Element Node whose text content is changed.
+   */
+  target: Node;
   /** the text content of the involved element before the mutation */
   oldValue: string;
   /** the text content of the involved element after the mutation */
@@ -91,6 +98,7 @@ export interface CharacterDataChangeEventDetail {
  *       @example `nodeValue`, user inputting...
  *   + A text content mutation might happen together with a childList mutation, for example, as the result of `innerHTML`. The criterion for whether a childList mutation qualifies as a text content mutation is whether there is any text node added or removed.
  *
+ * @event CharacterDataChangeEvent#characterDataChange
  * @augments CustomEvent
  */
 export class CharacterDataChangeEvent extends CustomEvent<CharacterDataChangeEventDetail> {
@@ -112,6 +120,8 @@ export class CharacterDataChangeEvent extends CustomEvent<CharacterDataChangeEve
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord}
  */
 export interface ChildListChangeEventDetail {
+  /** The node whose children changed */
+  target: Node;
   /** The nodes added. Will be an empty NodeList if no nodes were added. */
   addedNodes: NodeList;
   /** The nodes removed. Will be an empty NodeList if no nodes were removed. */
@@ -125,6 +135,7 @@ export interface ChildListChangeEventDetail {
 /**
  * A custom event corresponds to a child list mutation.
  *
+ * @event ChildListChangeEvent#childListChange
  * @augments CustomEvent
  */
 export class ChildListChangeEvent extends CustomEvent<ChildListChangeEventDetail> {
