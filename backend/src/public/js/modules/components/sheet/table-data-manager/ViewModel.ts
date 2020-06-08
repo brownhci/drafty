@@ -3,6 +3,8 @@ import { MutationReporter, MutationReporterCallback } from "./MutationReporter";
 import { uuidv4  as uuid } from "../../../utils/uuid";
 
 
+type ViewModelBuilder = (element: Element) => ViewModel;
+
 export class ViewModel extends DOMForwardingInstantiation {
   private _mutationReporter: MutationReporter;
 
@@ -119,7 +121,7 @@ export class ViewModel extends DOMForwardingInstantiation {
     return this.forwardingTo_.removeChild(child);
   }
 
-  protected patchWithViewModel(other: ViewModel) {
+  protected patchWithViewModel__(other: ViewModel, noDetach: boolean = false, noAttach: boolean = false) {
     // patch self
     for (const propName of this.propNames_) {
       this[propName] = other[propName];
@@ -130,11 +132,13 @@ export class ViewModel extends DOMForwardingInstantiation {
     let childIndex = 0;
     for (const child of this._children) {
       if (childIndex < numChildren) {
-        child.patchWithViewModel(other[childIndex]);
+        child.patchWithViewModel__(other._children[childIndex], noDetach, noAttach);
       } else {
         // this view model surplus: remove
         this.removeChildByIndex__(childIndex);
-        this.detachChild__(child.forwardingTo_);
+        if (!noDetach) {
+          this.detachChild__(child.forwardingTo_);
+        }
       }
       childIndex++;
     }
@@ -143,7 +147,42 @@ export class ViewModel extends DOMForwardingInstantiation {
     for (; childIndex < numChildren; childIndex++) {
       const viewModel = other._children[childIndex];
       this.insertChild__(viewModel, childIndex);
-      this.attachChild__(viewModel.forwardingTo_, childIndex);
+      if (!noAttach) {
+        this.attachChild__(viewModel.forwardingTo_, childIndex);
+      }
+    }
+  }
+
+  protected patchWithDOM__(other: Element, viewModelBuilders: Array<ViewModelBuilder>, noDetach: boolean = false, noAttach: boolean = false) {
+    // patch self
+    for (const propName of this.propNames_) {
+      this[propName] = other[propName];
+    }
+
+    // patch children
+    const numChildren = other.children.length;
+    let childIndex = 0;
+    for (const child of this._children) {
+      if (childIndex < numChildren) {
+        child.patchWithDOM__(other.children[childIndex], viewModelBuilders.slice(1), noDetach, noAttach);
+      } else {
+        // this view model surplus: remove
+        this.removeChildByIndex__(childIndex);
+        if (!noDetach) {
+          this.detachChild__(child.forwardingTo_);
+        }
+      }
+      childIndex++;
+    }
+
+    // other view model surplus: add
+    for (; childIndex < numChildren; childIndex++) {
+      const child = other.children[childIndex];
+      const viewModel = viewModelBuilders[0](child);
+      this.insertChild__(viewModel, childIndex);
+      if (!noAttach) {
+        this.attachChild__(viewModel.forwardingTo_, childIndex);
+      }
     }
   }
 }
