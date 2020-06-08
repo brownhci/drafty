@@ -126,21 +126,26 @@ export class View {
   }
 
   regenerateView() {
+    const childIndices: Array<number> = Array.from(this._children.keys());
+
+    const sorter = this.sorter;
+    if (sorter) {
+      childIndices.sort((index1, index2) => sorter(this._children[index1], this._children[index2]));
+    }
+
     const filter = this.filter;
-    const filteredChildren: Array<ViewModel> = [];
-    for (const child of this._children) {
-      if (filteredChildren.length === this.limit) {
+    const childrenView: Array<ViewModel> = [];
+    for (const childIndex of childIndices) {
+      if (childrenView.length === this.limit) {
         break;
       }
-      if (filter(child)) {
-        filteredChildren.push(child);
+      const viewModel = this._children[childIndex];
+      if (!filter || filter(viewModel)) {
+        childrenView.push(viewModel);
       }
     }
 
-    const sorter = this.sorter;
-    filteredChildren.sort(sorter);
-
-    this.childrenView = filteredChildren;
+    this.childrenView = childrenView;
     this.shouldRegenerateView = false;
   }
 }
