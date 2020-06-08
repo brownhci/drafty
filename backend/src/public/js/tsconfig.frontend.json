@@ -11,6 +11,7 @@
         "esModuleInterop": true,
         "lib": [
           "ESNext",
+          "ES2019",
           "DOM",
           "DOM.Iterable"
         ]
