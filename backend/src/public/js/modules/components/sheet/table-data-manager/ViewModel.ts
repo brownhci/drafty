@@ -26,6 +26,52 @@ export class ViewModel extends DOMForwardingInstantiation {
     return root.querySelector(`${selectors}[data-${ViewModel._identifierDatasetName}="${identifier}"`);
   }
 
+  static getHierarchyFromElement(element: HTMLElement, root: Document | DocumentFragment | HTMLElement = document): Array<HTMLElement> {
+    if (root === element) {
+      if (ViewModel._identifierDatasetName in element.dataset) {
+        return [element];
+      } else {
+        return [];
+      }
+    }
+
+    const hierarchy: Array<HTMLElement> = [];
+    while (root !== element) {
+      if (!element) {
+        // root is not ancestor of element
+        return null;
+      }
+
+      if (ViewModel._identifierDatasetName in element.dataset) {
+        hierarchy.push(element);
+      }
+
+      element = element.parentElement;
+    }
+
+    if (ViewModel._identifierDatasetName in root.dataset) {
+        hierarchy.push(root);
+    }
+
+    return hierarchy;
+  }
+
+  getViewModelHierarchy(descendant: ViewModel): Array<ViewModel> {
+    const hierarchy = ViewModel.getHierarchyFromElement(descendant.forwardingTo_, this.forwardingTo_);
+    if (!hierarchy || hierarchy.length <= 1) {
+      return null;
+    }
+
+    const viewModels: Array<ViewModel> = [this];
+    // in hierarchy, first element is descendant.forwardingTo_ and last element is this.forwardingTo_
+    for (let i = hierarchy.length - 2; i >= 0; i--) {
+      const identifier = hierarchy[i].dataset[ViewModel._identifierDatasetName];
+      viewModels.push(this._identifierToChild.get(identifier));
+    }
+
+    return viewModels;
+  }
+
   setForwardingTo__(forwardingTo: HTMLElement) {
     if (this.forwardingTo_) {
       delete this.forwardingTo_.dataset[ViewModel._identifierDatasetName];

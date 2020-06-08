@@ -1,8 +1,17 @@
+/**
+ * @module
+ *
+ * This module provide instantiations of Abstraction class:
+ *
+ * 		+ ForwardingInstantiation: allows access/modification to registered properties to be resolved with a registered target `forwardingTo_`. More, specifically, these operations are regulated by a ForwardingPropertyDescriptor, a descriptor which could contain callbacks that receives additional arguments including `forwardingTo_` and the Instantiation instance.
+ * 		+ DOMForwardingInstantiation: extends ForwardingInstantiation with default descriptor that treat registered properties as a DOM attribute or JS property of the forwarding target.
+ */
+
 import { Abstraction, Prop } from "./Abstraction";
 import { getProperty, setProperty } from "../../../dom/properties";
 
 /**
- * Strips the getter-setter pair of functions from PropertyDescriptor so that access functions type annotations can be overiden.
+ * Strips the getter-setter pair of functions from PropertyDescriptor so that access functions type annotations can be overriden.
  *
  * @see {@link https://microsoft.github.io/PowerBI-JavaScript/interfaces/_node_modules_typedoc_node_modules_typescript_lib_lib_es5_d_.propertydescriptor.html PropertyDescriptor} {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty}
  */
@@ -128,7 +137,7 @@ export class ForwardingInstantiation extends Abstraction {
 
 
 /**
- * A DOMForwardingInstantiation forwards acces/modification operarions to an underlying DOM element.
+ * A DOMForwardingInstantiation forwards access/modification operations to an underlying DOM element.
  *
  * The property will be resolved in the following order:
  *
@@ -190,11 +199,11 @@ export class DOMForwardingInstantiation extends ForwardingInstantiation {
   /**
    * @override
    * @public
-   * @param {Record<Prop, Partial<ForwardingInstantiation>>} props - An object contains mapping from Prop to ForwardingPropertyDescriptor.
+   * @param {Record<string, Partial<ForwardingInstantiation>>} props - An object contains mapping from string to ForwardingPropertyDescriptor.
    * @param {boolean} [reset=false] - Whether existing props will be removed.
    * @description __override__ The overriding function will replace falsy descriptor values in `props` with default property descriptor {@link DOMForwardingInstantiation.__fillDefaultDescriptor}.
    */
-  registerProps__(props: Record<Prop, Partial<ForwardingPropertyDescriptor>>, reset: boolean = false) {
+  registerProps__(props: Record<string, Partial<ForwardingPropertyDescriptor>>, reset: boolean = false) {
     super.registerProps__(DOMForwardingInstantiation.__fillDefaultDescriptor(props), reset);
   }
 }
