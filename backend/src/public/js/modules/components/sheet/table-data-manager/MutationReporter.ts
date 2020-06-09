@@ -39,28 +39,30 @@ export type MutationReporterCallback = (mutations: Array<MutationRecord>, observ
 export class MutationReporter extends MutationObserver {
   /** NodeList equivalent of empty array */
   private static readonly emptyNodeList: NodeList = document.createElement("div").querySelectorAll("#empty-nodelist");
+
   /** A mapping from observed targets to their observing configuration (MutationObserverInit) */
   readonly observing: Map<Node, MutationObserverInit> = new Map();
+
   /**
-   * The callback to be invoked when a mutation is observed
+   * The callback to be invoked when mutations are observed. Reassigning this variable will invoke the new callback for future observed mutations.
    *
-   * @callback MutationReporter.callback
-   * @param {Array<MutationRecord>} mutations - An array of MutationRecord objects describing each change that occurred
-   * @param {MutationObserver} observer - The MutationObserver which invoked the callback
+   * @callback MutationReporter.mutationReporterCallback
+   * @see {@link MutationReporterCallback}
    */
-  private callback: MutationCallback;
+  mutationReporterCallback: MutationReporterCallback;
 
   /**
    * Creates a MutationReporter instance.
    *
    * Note:
    *
-   *    + if a callback isn't provided, the default callback will call the {@link MutationReporte#report} method.
+   *    + If a callback isn't provided, the default action is to call the {@link MutationReporte#report} method.
    *
    * @constructs MutationReporter
    */
   constructor(mutationReporterCallback?: MutationReporterCallback) {
-    super(MutationReporter.buildCallback(mutationReporterCallback, () => this));
+    super((mutations, observer) => this.onMutations(mutations, observer));
+    this.mutationReporterCallback = mutationReporterCallback;
   }
 
   /**
@@ -117,7 +119,7 @@ export class MutationReporter extends MutationObserver {
    *
    * The first major step relies on an important assumption:
    *
-   *    removed nodes (added nodes) are consequtive
+   *    removed nodes (added nodes) are consecutive
    *
    * In other words, for one mutation record, there will not be multiple nodes added / removed with nodes in between.
    *
@@ -169,11 +171,33 @@ export class MutationReporter extends MutationObserver {
   }
 
   /**
+   * Determines whether a mutation record with **ChildList** type contains an implicit CharacterData mutation.
+   *
+   * The criterion is whether any added or removed node has any nonempty text content.
+   *
+   * @param {MutationRecord} mutationRecord - A ChildList mutation record.
+   * @return {boolean} Whether the provided mutation contains a text content mutation.
+   */
+  private static hasTextContentMutation(mutationRecord: MutationRecord): boolean {
+    for (const addedNode of mutationRecord.addedNodes) {
+      if (addedNode.textContent) {
+        return true;
+      }
+    }
+    for (const removedNode of mutationRecord.removedNodes) {
+      if (removedNode.textContent) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Mutation Record {@link https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord} emitted by MutationObserver might not best represent its type in the case of CharacterData mutation within ChildList mutation.
    *
    * @example A target's child list might be modified: a Text Node is replaced by another Text Node. In such case, besides child list, this target's text content is also modified.
    *
-   * This function tries to identify such implicit CharacterData mutation from ChildList mutation.
+   * This function tries to identify such implicit CharacterData mutation from ChildList mutation {@link MutationReporter.hasTextContentMutation}.
    *
    * @param {MutationRecord} mutationRecord - A mutation record corresponds to a mutation.
    * @return {Array<MutationRecord>} An one-element array if the record is not corrected, a pair [CharacterData Mutation, ChildList Mutation] if the record is corrected.
@@ -181,15 +205,8 @@ export class MutationReporter extends MutationObserver {
   private static correctMutationRecord(mutationRecord: MutationRecord): Array<MutationRecord> {
     switch (mutationRecord.type) {
       case "childList":
-        for (const addedNode of mutationRecord.addedNodes) {
-          if (addedNode.nodeType === Node.TEXT_NODE) {
-            return [MutationReporter.childListToCharacterData(mutationRecord), mutationRecord];
-          }
-        }
-        for (const removedNode of mutationRecord.removedNodes) {
-          if (removedNode.nodeType === Node.TEXT_NODE) {
-            return [MutationReporter.childListToCharacterData(mutationRecord), mutationRecord];
-          }
+        if (this.hasTextContentMutation(mutationRecord)) {
+          return [MutationReporter.childListToCharacterData(mutationRecord), mutationRecord];
         }
         // fallthrough
       default:
@@ -198,30 +215,32 @@ export class MutationReporter extends MutationObserver {
   }
 
   /**
-   * A function to build a MutationCallback that invokes the provided MutationReporterCallback. More specifically, this function make sure the MutationCallback which is invoked by MutationObserver on desired mutations calls the MutationReporterCallback with additional arguments.
+   * Invokes the registered MutationReporterCallback. More specifically, this function:
+   *
+   *    + is invoked by MutationObserver when desired mutations are observed
+   *    + will invoke MutationReporterCallback with additional arguments including corrected mutation records and the current MutationReporter instance
    *
    * @param {MutationReporterCallback} mutationReporterCallback - A callback that expects additional arguments including the corrected mutations and a MutationReporter instance.
    * @param {() => MutationReporter} thisWrapper - A function that returns a MutationReporter instance.
    * @return {MutationCallback} A callback to be used to initialize the MutationObserver.
    */
-  private static buildCallback(mutationReporterCallback: MutationReporterCallback, thisWrapper: () => MutationReporter): MutationCallback {
-    let callback: MutationCallback;
-
-    if (mutationReporterCallback) {
-      // invokes provided callback
-      callback = (mutations, observer) => {
-        const correctedMutations: Array<MutationRecord> = [];
-        for (const mutation of mutations) {
-          correctedMutations.push(...MutationReporter.correctMutationRecord(mutation));
-        }
-        mutationReporterCallback(correctedMutations, observer, mutations, thisWrapper());
-      };
-    } else {
-      /** default callback: invoke {@link MutationReporter#report} */
-      callback = (mutations) => thisWrapper().report(mutations.reduce((accumulator, mutation) => accumulator.concat(MutationReporter.correctMutationRecord(mutation)), []));
+  private onMutations(mutations: Array<MutationRecord>, observer: MutationObserver) {
+    if (mutations.length === 0) {
+      return;
     }
 
-    return thisWrapper().callback = callback;
+    const correctedMutations: Array<MutationRecord> = [];
+    for (const mutation of mutations) {
+      correctedMutations.push(...MutationReporter.correctMutationRecord(mutation));
+    }
+
+    if (this.mutationReporterCallback) {
+      // invokes provided callback
+      this.mutationReporterCallback(correctedMutations, observer, mutations, this);
+    } else {
+      /** default callback: invoke {@link MutationReporter#report} */
+      this.report(correctedMutations);
+    }
   }
 
   /**
@@ -266,7 +285,9 @@ export class MutationReporter extends MutationObserver {
     const mutations = super.takeRecords();
     this.disconnect(false);
     this.reconnect();
-    this.callback(mutations, this);
+    if (Array.isArray(mutations) && mutations.length > 0) {
+      this.onMutations(mutations, this);
+    }
   }
 
   /**
@@ -297,7 +318,9 @@ export class MutationReporter extends MutationObserver {
     this.disconnect(false);
     callback();
     this.reconnect();
-    this.callback(mutations, this);
+    if (Array.isArray(mutations) && mutations.length > 0) {
+      this.onMutations(mutations, this);
+    }
   }
 
   /**
@@ -324,7 +347,7 @@ export class MutationReporter extends MutationObserver {
           event = new CharacterDataChangeEvent({
             target,
             oldValue: mutation.oldValue,
-            newValue: mutation.target.nodeValue
+            newValue: mutation.target.textContent
           });
           break;
         case "childList":
