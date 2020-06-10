@@ -43,13 +43,15 @@ export interface ForwardingPropertyDescriptor extends DataDescriptor {
  * @augments Abstraction
  */
 export class ForwardingInstantiation extends Abstraction {
+  /** The underlying target to which access and modification to registered properties will be forwarded */
   protected forwardingTo_: any;
 
   /**
    * Creates a ForwardingInstantiation instance.
    *
+   * @public
    * @param {Record<Prop, Partial<ForwardingPropertyDescriptor>} props: An object containing mapping from properties to their descriptors.
-   * @param {any} setForwardingTo - A target to which access/modification operations are forwarded.
+   * @param {any} forwardingTo - A target to which access/modification operations are forwarded.
    * @constructs ForwardingInstantiation
    *
    * @example
@@ -158,6 +160,22 @@ export class ForwardingInstantiation extends Abstraction {
  * @augments ForwardingInstantiation
  */
 export class DOMForwardingInstantiation extends ForwardingInstantiation {
+  /**
+   * Exposes `this.forwardingTo_`
+   * @public
+   */
+  get element_(): HTMLElement {
+    return this.forwardingTo_;
+  }
+
+  /**
+   * Equivalent with `this.setForwardingTo__`
+   * @public
+   */
+  set element_(element: HTMLElement) {
+    this.setForwardingTo__(element);
+  }
+
   /**
    * Creates a default access descriptor that
 	 *
