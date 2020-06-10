@@ -1,23 +1,42 @@
 import { DOMForwardingInstantiation, ForwardingPropertyDescriptor } from "./Instantiation";
 import { MutationReporter, MutationReporterCallback } from "./MutationReporter";
-import { uuidv4  as uuid } from "../../../utils/uuid";
+import { generateUUID  as uuid } from "../../../utils/uuid";
 
 
-type ViewModelBuilder = (element: Element) => ViewModel;
+/**
+ * A function to create a ViewModel from a HTMLElement.
+ * @see {@link ViewModel#constructor}.
+ * @example A builder to create ViewModel abstraction for a `<p>` element
+ *    `(element) => new ViewModel({id: undefined, classList: undefined, textContent: undefined }, element)`
+ */
+type ViewModelBuilder = (element: HTMLElement) => ViewModel;
 
+/**
+ * ViewModel represents an Abstraction equivalent of HTMLElement in that:
+ *
+ *    + ViewModel can have DOM attributes and JS properties through forwarding
+ *    + ViewModel has `parent_` and `_children` and is therefore hierarchical
+ *
+ * Different from HTMLElement, it has these additional capacities:
+ *
+ *    + watch the underlying DOM target for mutations
+ *    + has a auto-generated `identifier_` that is automatically registered or revoked in the underlying DOM target
+ *
+ * @augments DOMForwardingInstantiation
+ */
 export class ViewModel extends DOMForwardingInstantiation {
   /** parent view model where current view model exists as a child */
-  private _parent: ViewModel;
+  parent_: ViewModel;
 
   /** every view model has a unique identifier */
-  private _identifier: string = uuid();
+  readonly identifier_: string;
 
   /**
    * If view model has a forwarding target (DOM element), then the view model identifier will also exists in the element's dataset:
    *
-   *    `element.dataset[ViewModel._identifierDatasetName]`
+   *    `element.dataset[ViewModel.identifierDatasetName_]`
    */
-  static readonly _identifierDatasetName = "_identifier"
+  static readonly identifierDatasetName_ = "identifier_"
 
   protected forwardingTo_: HTMLElement;
 
@@ -27,6 +46,15 @@ export class ViewModel extends DOMForwardingInstantiation {
    * These view models may contain DOM elements that are also children of the DOM element contained by current view model. However, this double (ViewModel, DOM) parent-child relationship is not required. In fact, by disassociating View Model organization from DOM organization, a View Model can manage DOM elements at different regions of the document.
    */
   private _children: Array<ViewModel>;
+
+   /**
+    * An array of builders to create View Model from DOM elements.
+    *
+    * This array is hierarchical in that first builder is suitable for create child view model of current view model, second builder is suitable for creating child view model of current child view model, and so on...
+    *
+    * In other words, `_viewModelBuilders` is a set of blueprints for descendant view models.
+    */
+  private _viewModelBuilders: Array<ViewModelBuilder>;
 
   /** A mapping from identifier to child view model */
   private _identifierToChild: Map<string, ViewModel>;
@@ -38,24 +66,44 @@ export class ViewModel extends DOMForwardingInstantiation {
    * Creates a ViewModel instance.
    *
    * @public
-   * @param {Record<Prop, Partial<ForwardingPropertyDescriptor>} propsToForward: An object containing mapping from properties to their descriptors. {@link Instantiation:ForwardingInstantiation#constructor}
+   * @param {Record<Prop, Partial<ForwardingPropertyDescriptor<ViewModel>>} propsToForward: An object containing mapping from properties to their descriptors. {@link Instantiation:ForwardingInstantiation#constructor}
    * @param {HTMLElement} forwardingTo - A DOM element to which access/modification operations are forwarded. {@link Instantiation:ForwardingInstantiation#constructor}
-   * @param {MutationReporterCallback} [mutationReporterCallback] - A callback to be executed when desired mutation has been observed. If not specified, `this.onMutation__` will be invoked. {@link MutationReporter:MutationReporter#constructor}
+   * @param {MutationReporterCallback} [mutationReporterCallback] - A callback to be executed when desired mutation has been observed. If not specified, `this.onMutation__` will be invoked. {@link MutationReporter:MutationReporter#constructor}.
    * @param {ViewModel} [parent = null] - Parent view model of current view model. Null by default.
    * @param {Array<ViewModel>} [children = []] - View models that are children of current view model.
+   * @param {Array<ViewModelBuilder>} [viewModelBuilders = []] - An array of builders to create View Model from DOM elements. This array is hierarchical in that first builder is suitable for create child view model of current view model, second builder is suitable for creating child view model of current child view model, and so on...
    * @constructs ViewModel
    */
   constructor(
-    propsToForward: Record<string, Partial<ForwardingPropertyDescriptor>>,
+    propsToForward: Record<string, Partial<ForwardingPropertyDescriptor<ViewModel>>>,
     forwardingTo: HTMLElement,
     callback?: MutationReporterCallback,
     parent: ViewModel = null,
-    children: Array<ViewModel> = []
+    children: Array<ViewModel> = [],
+    viewModelBuilders: Array<ViewModelBuilder> = []
   ) {
     super(propsToForward, forwardingTo);
-    this._parent = parent;
+    Object.defineProperty(this, "identifier_", {
+        configurable: false,
+        enumerable: false,
+        value: uuid(),
+        writable: false
+    });
+    Object.defineProperty(this, "parent_", {
+        configurable: false,
+        enumerable: false,
+        value: parent,
+        writable: true
+    });
     this.setChildren__(children);
-    this.__setMutationReporter(callback ? callback : this.onMutation__);
+    Object.defineProperty(this, "_viewModelBuilders", {
+        configurable: false,
+        enumerable: false,
+        value: viewModelBuilders,
+        writable: true
+    });
+
+    this.setMutationReporter__(callback ? callback : this.onMutation__);
   }
 
   /**
@@ -76,7 +124,7 @@ export class ViewModel extends DOMForwardingInstantiation {
     root: Document | DocumentFragment | Element = document,
     selectors: string = ""
   ): HTMLElement {
-    return root.querySelector(`${selectors}[data-${ViewModel._identifierDatasetName}="${identifier}"`);
+    return root.querySelector(`${selectors}[data-${ViewModel.identifierDatasetName_}="${identifier}"`);
   }
 
   /**
@@ -86,10 +134,27 @@ export class ViewModel extends DOMForwardingInstantiation {
    */
   setForwardingTo__(forwardingTo: HTMLElement) {
     if (this.forwardingTo_) {
-      delete this.forwardingTo_.dataset[ViewModel._identifierDatasetName];
+      delete this.forwardingTo_.dataset[ViewModel.identifierDatasetName_];
     }
     super.setForwardingTo__(forwardingTo);
-    this.forwardingTo_.dataset[ViewModel._identifierDatasetName] = this._identifier;
+    this.forwardingTo_.dataset[ViewModel.identifierDatasetName_] = this.identifier_;
+  }
+
+  /**
+   * Exposes `this._children`
+   * @public
+   * @return The child view models of current view model.
+   */
+  get children_(): Array<ViewModel> {
+    return this._children;
+  }
+
+  /**
+   * Equivalent of `this.setChildren__`.
+   * @public
+   */
+  set children_(children: Array<ViewModel>) {
+    this.setChildren__(children);
   }
 
   /**
@@ -97,16 +162,16 @@ export class ViewModel extends DOMForwardingInstantiation {
    *
    * These steps will be performed:
    *
-   *    + previously bound child view models will have their `_parent` nullified
+   *    + previously bound child view models will have their `parent_` nullified
    *    + `this._children` will be replaced by the new array of ViewModel
    *    + `this._identifierToChild` will be replaced by a new Map where entries are from identifiers to new view models
-   *    + every new child view model will have their `_parent` set to current view instance
+   *    + every new child view model will have their `parent_` set to current view instance
    *
    * @param {Array<ViewModel>} children - An array of child view models.
    */
   protected setChildren__(children: Array<ViewModel>) {
     if (this._children) {
-      this._children.forEach(child => child._parent = null);
+      this._children.forEach(child => child.parent_ = null);
     }
 
     Object.defineProperty(this, "_children", {
@@ -123,8 +188,8 @@ export class ViewModel extends DOMForwardingInstantiation {
         writable: true
     });
     children.forEach(child => {
-      child._parent = this;
-      this._identifierToChild.set(child._identifier, child);
+      child.parent_ = this;
+      this._identifierToChild.set(child.identifier_, child);
     });
   }
 
@@ -137,13 +202,14 @@ export class ViewModel extends DOMForwardingInstantiation {
    *    + child view model will be inserted into `this._children` at specified index
    *    + a mapping from identifier to child view model will be added to `this._identifierToChild`
    *
+   * @public
    * @param {ViewModel} viewModel - A child view model to be inserted.
    * @param {number} index - Where the child view model should be inserted. Should be a valid number between [0, this._children.length] where 0 is equivalent of prepending to the start and `this._children.length` is equivalent to appending to the end.
    */
-  protected insertChild__(viewModel: ViewModel, index: number) {
-    viewModel._parent = this;
+  insertChild__(viewModel: ViewModel, index: number) {
+    viewModel.parent_ = this;
     this._children.splice(index, 0, viewModel);
-    this._identifierToChild.set(viewModel._identifier, viewModel);
+    this._identifierToChild.set(viewModel.identifier_, viewModel);
   }
 
   /**
@@ -152,7 +218,7 @@ export class ViewModel extends DOMForwardingInstantiation {
    * These steps will be performed:
    *
    *    + view model at specified index in `this._children` will be removed
-   *    + deleted child view model's `_parent` will be nullified
+   *    + deleted child view model's `parent_` will be nullified
    *    + the mapping from identifier to deleted child view model will be removed from `this._identifierToChild`
    *
    * Note:
@@ -165,8 +231,8 @@ export class ViewModel extends DOMForwardingInstantiation {
    */
   removeChildByIndex__(index: number): ViewModel {
     const [viewModel] = this._children.splice(index, 1);
-    viewModel._parent = null;
-    this._identifierToChild.delete(viewModel._identifier);
+    viewModel.parent_ = null;
+    this._identifierToChild.delete(viewModel.identifier_);
     return viewModel;
   }
 
@@ -187,7 +253,7 @@ export class ViewModel extends DOMForwardingInstantiation {
   }
 
   /**
-   * Removes a child view model from current view model by its identfier.
+   * Removes a child view model from current view model by its identifier.
    *
    * Finds the view model by its identifier from `this._identifierToChild` and calls {@link ViewModel#removeChild__}.
    *
@@ -207,9 +273,10 @@ export class ViewModel extends DOMForwardingInstantiation {
    *
    * Calling this method after a MutationReporter has been bound to current instance will recreate the MutationReporter. Previous bound MutationReporter will be disconnected.
    *
-   * @param {MutationReporterCallback} callback - The callback to be invoked when mutations are observed.
+	 * @public
+   * @param {MutationReporterCallback} callback - The callback to be invoked when mutations are observed. It will be invoked with `this` bound to current view model.
    */
-  private __setMutationReporter(callback: MutationReporterCallback) {
+  setMutationReporter__(callback: MutationReporterCallback) {
     if (this._mutationReporter) {
       this._mutationReporter.disconnect();
     }
@@ -217,7 +284,7 @@ export class ViewModel extends DOMForwardingInstantiation {
     Object.defineProperty(this, "_mutationReporter", {
       configurable: false,
       enumerable: false,
-      value: new MutationReporter(callback),
+      value: new MutationReporter(callback.bind(this)),
       writable: true
     });
   }
@@ -229,6 +296,10 @@ export class ViewModel extends DOMForwardingInstantiation {
    */
   protected onMutation__(mutations: Array<MutationRecord>, observer: MutationObserver, originalMutations: Array<MutationRecord>, reporter: MutationReporter) {
     reporter.report(mutations);
+		if (mutations.some(mutation => mutation.type === "childList")) {
+			// update child view models
+			this.patchWithDOM__(this.element_);
+		}
   }
 
   /**
@@ -249,35 +320,29 @@ export class ViewModel extends DOMForwardingInstantiation {
     this._mutationReporter.observe(target, options);
   }
 
-  /**
-   * Let the bound MutationReporter observe mutations according to provided options for multiple targets.
-   *
-   * @see {@link ViewModel#observe__}
-   */
-  observeMany__(
-    targets: Array<Node>,
-    shouldObserveAttributes: boolean,
-    attributeFilter: Array<string>,
-    shouldObserveCharacterData: boolean,
-    shouldObserveChildList: boolean,
-    shouldObserveSubtree: boolean
-  ) {
-    const options = MutationReporter.createMutationObserverInit(shouldObserveAttributes, shouldObserveCharacterData, shouldObserveChildList, shouldObserveSubtree, attributeFilter);
-    targets.forEach(target => this._mutationReporter.observe(target, options));
-  }
+	/** @see {@link MutationReporter:MutationReporter#unobserve} */
+	unobserve__(target: Node) {
+		this._mutationReporter.unobserve(target);
+	}
+
+	/** @see {@link MutationReporter:MutationReporter#reconnectToExecute} */
+	reconnectToExecute__(callback: () => void) {
+		this._mutationReporter.reconnectToExecute(callback);
+	}
 
   /**
    * Iterate over a range of child view models, applies an operation, and returns an array containing the result.
    *
    * Equivalent of `this._children.slice(begin, end).map(operation)`.
    *
+   * @callback operation
+   * @param {ViewModel} viewModel - The child view model to apply the operation.
+   * @param {number} childIndex - The child index of the current child view model.
+   * @param {number} rangeIndex - The sequential index of current child view model in the range where the operation is applied.
+   * @returns {T} Result of applying the operation on a child view model.
+   *
    * @public
    * @param operation - An operation to be applied to each child view model in the range.
-   *   @callback operation
-   *   @param {ViewModel} viewModel - The child view model to apply the operation.
-   *   @param {number} childIndex - The child index of the current child view model.
-   *   @param {number} rangeIndex - The sequential index of current child view model in the range where the operation is applied.
-   *   @returns {T} Result of applying the operation on a child view model.
    * @param {number} [start = 0] - Where to start applying operation.
    * @param {number} [end = this._children.length] - Before which to end applying operation. The child view model at `end` (if any) will not be applied operation.
    * @returns {Array<T>} The operation application result on the specified range of child view models.
@@ -298,8 +363,12 @@ export class ViewModel extends DOMForwardingInstantiation {
    *      @return {Array<HTMLElement>} Same as `elements`.
    *      change view models' DOM elements
    *      `(viewModel, childIndex, rangeIndex) => viewModel.element_ = elements[rangeIndex]`
+	 *    + @example
+	 *    	@this ViewModel
+	 *    	observe desired mutations on all DOM elements in child view models.
+	 *    	`this.operateOnRange__(viewModel => this.observe__(viewModel.element_, ...))`
    */
-  operateOnRange<T>(operation: (viewModel: ViewModel, childIndex: number, rangeIndex: number) => T, start: number = 0, end: number = this._children.length): Array<T> {
+  operateOnRange__<T>(operation: (viewModel: ViewModel, childIndex: number, rangeIndex: number) => T, start: number = 0, end: number = this._children.length): Array<T> {
     const result: Array<T> = [];
 
     let rangeIndex = 0;
@@ -331,13 +400,15 @@ export class ViewModel extends DOMForwardingInstantiation {
    *
    *
    * @param {ViewModel} other - An view model used to patch current view model.
-   * @param {boolean} [noDetach = false] - Whether surplus DOM elements of `this._children` will be removed from DOM tree.
-   * @param {boolean} [noAttach = false] - Whether surplus DOM elements of `other._children` will be appended
+   * @param {boolean} [noDetach = true] - Whether surplus DOM elements of `this._children` will be removed from DOM tree.
+   * @param {boolean} [noAttach = true] - Whether surplus DOM elements of `other._children` will be appended
    */
-  patchWithViewModel__(other: ViewModel, noDetach: boolean = false, noAttach: boolean = false) {
+  patchWithViewModel__(other: ViewModel, noDetach: boolean = true, noAttach: boolean = true) {
     // patch self
     for (const propName of this.propNames_) {
-      this[propName] = other[propName];
+			if ((this as any)[propName] !== (other as any)[propName]) {
+				(this as any)[propName] = (other as any)[propName];
+			}
     }
 
     // patch children
@@ -368,16 +439,25 @@ export class ViewModel extends DOMForwardingInstantiation {
 
   /**
    * Similar as {@link ViewModel#patchWithViewModel__} where current view model is updated by another DOM element using the in-place-patch algorithms.
+	 *
+	 * Note:
+	 *
+	 * 		+ If the current view model is a partial abstraction of the reference DOM element`other`, then the in-place-patch algorithm might run into live-editing:
+	 * 			@example `other` has two child nodes, current view model is an abstraction of `other` but only has a child view model for the second child node. When calling `this.patchWithDOM__(other)`, second child node will be live edited (because of property forwarding): its registered properties wll be set to those of first child node.
+	 *
+	 * 			To avoid live-editing caused by property forwarding, one can use a cloned node as the reference node
+	 * 			`this.patchWithDOM__(this.element_.cloneNode(true))`
    *
-   * @param {ViewModel} other - An view model used to patch current view model.
-   * @param {Array<ViewModelBuilder>} An array of builders to create View Model from DOM elements. This array is hierarchical in that first builder is suitable for create child view model of current view model, second builder is suitable for creating child view model of current child view model, and so on...
-   * @param {boolean} [noDetach = false] - Whether surplus DOM elements of `this._children` will be removed from DOM tree.
-   * @param {boolean} [noAttach = false] - Whether surplus DOM elements of `other.children` will be appended
+   * @param {HTMLElement} other - A HTML element used to patch current view model.
+   * @param {boolean} [noDetach = true] - Whether surplus DOM elements of `this._children` will be removed from DOM tree.
+   * @param {boolean} [noAttach = true] - Whether surplus DOM elements of `other.children` will be appended
    */
-  patchWithDOM__(other: Element, viewModelBuilders: Array<ViewModelBuilder>, noDetach: boolean = false, noAttach: boolean = false) {
+  patchWithDOM__(other: HTMLElement, noDetach: boolean = true, noAttach: boolean = true) {
     // patch self
     for (const propName of this.propNames_) {
-      this[propName] = other[propName];
+			if ((this as any)[propName] !== (other as any)[propName]) {
+				(this as any)[propName] = (other as any)[propName];
+			}
     }
 
     // patch children
@@ -385,7 +465,7 @@ export class ViewModel extends DOMForwardingInstantiation {
     let childIndex = 0;
     for (const child of this._children) {
       if (childIndex < numChildren) {
-        child.patchWithDOM__(other.children[childIndex], viewModelBuilders.slice(1), noDetach, noAttach);
+        child.patchWithDOM__(other.children[childIndex] as HTMLElement, noDetach, noAttach);
       } else {
         // this view model surplus: remove
         this.removeChildByIndex__(childIndex);
@@ -398,8 +478,8 @@ export class ViewModel extends DOMForwardingInstantiation {
 
     // other view model surplus: add
     for (; childIndex < numChildren; childIndex++) {
-      const child = other.children[childIndex];
-      const viewModel = viewModelBuilders[0](child);
+      const child = other.children[childIndex] as HTMLElement;
+      const viewModel = this._viewModelBuilders[0](child);
       this.insertChild__(viewModel, childIndex);
       if (!noAttach) {
         this.element_.appendChild(viewModel.element_);

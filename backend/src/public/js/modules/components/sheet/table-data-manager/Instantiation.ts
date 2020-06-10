@@ -26,10 +26,12 @@ type AccessFunctions = Pick<PropertyDescriptor, "get" | "set">;
 
 /**
  * Adds the access functions back into the {@link DataDescriptor} but with different annotations: the argument list will end with `forwardingTo` which contains the forwarding target and `thisArgument` which contains the `ForwardingInstantiation` instance.
+ *
+ * @typedef {T extends ForwardingInstantiation} [T = ForwardingInstantiation] - An subclass of ForwardingInstantiation. Represents the type of `thisArgument`.
  */
-export interface ForwardingPropertyDescriptor extends DataDescriptor {
-  get: (forwardingTo: any, thisArgument: ForwardingInstantiation) => any;
-  set: (v: any, forwardingTo: any, thisArgument: ForwardingInstantiation) => void;
+export interface ForwardingPropertyDescriptor<T extends ForwardingInstantiation = ForwardingInstantiation> extends DataDescriptor {
+  get: (forwardingTo: any, thisArgument: T) => any;
+  set: (v: any, forwardingTo: any, thisArgument: T) => void;
 }
 
 /**
@@ -163,6 +165,7 @@ export class DOMForwardingInstantiation extends ForwardingInstantiation {
   /**
    * Exposes `this.forwardingTo_`
    * @public
+   * @return The underlying DOM element of current Abstraction.
    */
   get element_(): HTMLElement {
     return this.forwardingTo_;
@@ -182,10 +185,11 @@ export class DOMForwardingInstantiation extends ForwardingInstantiation {
 	 * 		+ for a [[GET]] operation, attempts to query same-named property from the HTML element that is the forward target {@link getProperty}
 	 * 		+ for a [[SET]] operation, attempts to modify same-named property from the HTML element that is the forward target {@link setProperty}
    *
+   * @public
    * @param {string} property - Name of property.
    * @return {Partial<PropertyDescriptor>} A default partial implementation of ForwardingPropertyDescriptor that provides a getter and setter pair.
    */
-  private static __defaultForwardingDescriptor(property: string): Partial<ForwardingPropertyDescriptor> {
+  static defaultForwardingDescriptor__(property: string): Partial<ForwardingPropertyDescriptor> {
     return {
         get(forwardingTo: HTMLElement): any {
 					return getProperty(forwardingTo, property);
@@ -201,7 +205,7 @@ export class DOMForwardingInstantiation extends ForwardingInstantiation {
 	 *
 	 * More specifically, it iterates through each property, descriptor pair and replace falsy descriptor value with default descriptor.
 	 *
-	 * @see {@link DOMForwardingInstantiation.__defaultForwardingDescriptor}
+	 * @see {@link DOMForwardingInstantiation.defaultForwardingDescriptor__}
 	 * @param {Record<string, Partial<ForwardingPropertyDescriptor>>} props - An object containing mapping from properties to their descriptors.
 	 * @return An object containing mapping from properties to their descriptors where default descriptor has replaced falsy descriptor value.
 	 */
@@ -209,7 +213,7 @@ export class DOMForwardingInstantiation extends ForwardingInstantiation {
     const _props: Record<Prop, Partial<ForwardingPropertyDescriptor>> = {};
     for (const property in props) {
 			const descriptor = props[property];
-			_props[property] = descriptor ? descriptor : this.__defaultForwardingDescriptor(property);
+			_props[property] = descriptor ? descriptor : this.defaultForwardingDescriptor__(property);
     }
     return _props;
 	}
