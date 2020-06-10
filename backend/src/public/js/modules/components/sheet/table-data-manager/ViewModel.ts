@@ -271,6 +271,7 @@ export class ViewModel extends DOMForwardingInstantiation {
    *
    * Equivalent of `this._children.slice(begin, end).map(operation)`.
    *
+   * @public
    * @param operation - An operation to be applied to each child view model in the range.
    *   @callback operation
    *   @param {ViewModel} viewModel - The child view model to apply the operation.
@@ -309,53 +310,31 @@ export class ViewModel extends DOMForwardingInstantiation {
     return result;
   }
 
-  static getHierarchyFromElement(element: HTMLElement, root: Document | DocumentFragment | HTMLElement = document): Array<HTMLElement> {
-    if (root === element) {
-      if (ViewModel._identifierDatasetName in element.dataset) {
-        return [element];
-      } else {
-        return [];
-      }
-    }
-
-    const hierarchy: Array<HTMLElement> = [];
-    while (root !== element) {
-      if (!element) {
-        // root is not ancestor of element
-        return null;
-      }
-
-      if (ViewModel._identifierDatasetName in element.dataset) {
-        hierarchy.push(element);
-      }
-
-      element = element.parentElement;
-    }
-
-    if (ViewModel._identifierDatasetName in root.dataset) {
-        hierarchy.push(root);
-    }
-
-    return hierarchy;
-  }
-
-  getViewModelHierarchy(descendant: ViewModel): Array<ViewModel> {
-    const hierarchy = ViewModel.getHierarchyFromElement(descendant.forwardingTo_, this.forwardingTo_);
-    if (!hierarchy || hierarchy.length <= 1) {
-      return null;
-    }
-
-    const viewModels: Array<ViewModel> = [this];
-    // in hierarchy, first element is descendant.forwardingTo_ and last element is this.forwardingTo_
-    for (let i = hierarchy.length - 2; i >= 0; i--) {
-      const identifier = hierarchy[i].dataset[ViewModel._identifierDatasetName];
-      viewModels.push(this._identifierToChild.get(identifier));
-    }
-
-    return viewModels;
-  }
-
-  protected patchWithViewModel__(other: ViewModel, noDetach: boolean = false, noAttach: boolean = false) {
+  /**
+   * Updates current view model by another view model using the in-place-patch algorithm.
+   *
+   * From the following illustrations describing scenarios different `_children` length, one call tell there are three potential scenarios:
+   *
+   *    + MATCH: there is a child view model and a matching child view model in `other`. In this case, `patchWithViewModel__` will recur on these two view models.
+   *    + SURPLUS (append): there is a child view model in `other` that does not have a matching child view model in `this`. In this case, the child view model will be appended to `this._children`. If `noAttach` is false, the corresponding DOM element will also be appended to `this.element_`.
+   *    + SURPLUS (remove): there is a child view model in `this` that does not have a matching child view model in `other`. In this case, the child view model will be removed from `this._children`. If `noDetach` is false, the corresponding DOM element will also be removed from `this.element_`.
+   *
+   *             MATCH
+   *    this:  [ - - - ]
+   *    other: [ - - - - - - - ]
+   *                   SURPLUS (append)
+   *
+   *                   SURPLUS (remove)
+   *    this:  [ - - - - - - - ]
+   *    other: [ - - - ]
+   *             MATCH
+   *
+   *
+   * @param {ViewModel} other - An view model used to patch current view model.
+   * @param {boolean} [noDetach = false] - Whether surplus DOM elements of `this._children` will be removed from DOM tree.
+   * @param {boolean} [noAttach = false] - Whether surplus DOM elements of `other._children` will be appended
+   */
+  patchWithViewModel__(other: ViewModel, noDetach: boolean = false, noAttach: boolean = false) {
     // patch self
     for (const propName of this.propNames_) {
       this[propName] = other[propName];
@@ -371,23 +350,31 @@ export class ViewModel extends DOMForwardingInstantiation {
         // this view model surplus: remove
         this.removeChildByIndex__(childIndex);
         if (!noDetach) {
-          this.detachChild__(child.forwardingTo_);
+          child.element_.remove();
         }
       }
       childIndex++;
     }
 
-    // other view model surplus: add
+    // other view model surplus: append to the end
     for (; childIndex < numChildren; childIndex++) {
       const viewModel = other._children[childIndex];
       this.insertChild__(viewModel, childIndex);
       if (!noAttach) {
-        this.attachChild__(viewModel.forwardingTo_, childIndex);
+        this.element_.appendChild(viewModel.element_);
       }
     }
   }
 
-  protected patchWithDOM__(other: Element, viewModelBuilders: Array<ViewModelBuilder>, noDetach: boolean = false, noAttach: boolean = false) {
+  /**
+   * Similar as {@link ViewModel#patchWithViewModel__} where current view model is updated by another DOM element using the in-place-patch algorithms.
+   *
+   * @param {ViewModel} other - An view model used to patch current view model.
+   * @param {Array<ViewModelBuilder>} An array of builders to create View Model from DOM elements. This array is hierarchical in that first builder is suitable for create child view model of current view model, second builder is suitable for creating child view model of current child view model, and so on...
+   * @param {boolean} [noDetach = false] - Whether surplus DOM elements of `this._children` will be removed from DOM tree.
+   * @param {boolean} [noAttach = false] - Whether surplus DOM elements of `other.children` will be appended
+   */
+  patchWithDOM__(other: Element, viewModelBuilders: Array<ViewModelBuilder>, noDetach: boolean = false, noAttach: boolean = false) {
     // patch self
     for (const propName of this.propNames_) {
       this[propName] = other[propName];
@@ -403,7 +390,7 @@ export class ViewModel extends DOMForwardingInstantiation {
         // this view model surplus: remove
         this.removeChildByIndex__(childIndex);
         if (!noDetach) {
-          this.detachChild__(child.forwardingTo_);
+          child.element_.remove();
         }
       }
       childIndex++;
@@ -415,9 +402,8 @@ export class ViewModel extends DOMForwardingInstantiation {
       const viewModel = viewModelBuilders[0](child);
       this.insertChild__(viewModel, childIndex);
       if (!noAttach) {
-        this.attachChild__(viewModel.forwardingTo_, childIndex);
+        this.element_.appendChild(viewModel.element_);
       }
     }
   }
-
 }

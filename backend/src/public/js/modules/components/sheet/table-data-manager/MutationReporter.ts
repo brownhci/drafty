@@ -58,6 +58,8 @@ export class MutationReporter extends MutationObserver {
    *
    *    + If a callback isn't provided, the default action is to call the {@link MutationReporte#report} method.
    *
+   * @public
+   * @param {MutationReporterCallback} mutationReporterCallback - A callback to be executed when desired mutation has been observed.
    * @constructs MutationReporter
    */
   constructor(mutationReporterCallback?: MutationReporterCallback) {
@@ -68,6 +70,7 @@ export class MutationReporter extends MutationObserver {
   /**
    * Configures the MutationObserverInit dictionary used in {@link MutationReporter#observe} method.
    *
+   * @public
    * @param {boolean} shouldObserveAttributes - Set to true to watch for changes to the value of attributes on the node or nodes being monitored. Setting this to true also sets `attributeOldValue` to true which records the previous value of any attribute that changes when monitoring the node or nodes for attribute changes.
    * @param {boolean} shouldObserveCharacterData - Set to true to monitor the specified target node or subtree for changes to the character data contained within the node or nodes. Setting this to true also sets `characterDataOldValue ` to true which records the previous value of a node's text whenever the text changes on nodes being monitored.
    * @param {boolean} shouldObserveChildList - Set to true to monitor the target node (and, if `shouldObserveSubtree` is true, its descendants) for the addition of new child nodes or removal of existing child nodes.
@@ -247,6 +250,7 @@ export class MutationReporter extends MutationObserver {
    * Configures the MutationObserver callback to begin receiving notifications of changes to the DOM that match the given options.
    *
    * The difference from {@link https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver/observe} is the observing target and observing options will be stored in `this.observing`.
+   * @public
    */
   observe(target: Node, options: MutationObserverInit) {
     this.observing.set(target, options);
@@ -258,6 +262,7 @@ export class MutationReporter extends MutationObserver {
    *
    * The difference from {@link https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver/disconnect} is the option to clear records in `this.observing`.
    *
+   * @public
    * @param {boolean} [clearMemory = true] - Whether memory of previous observed targets should be cleared.
    */
   disconnect(clearMemory: boolean = true) {
@@ -274,6 +279,7 @@ export class MutationReporter extends MutationObserver {
    *
    *    + If a mutation happens in the very short interval when the observer is restarted to observe the remaining targets, it might be dropped.
    *
+   * @public
    * @param {Node} target - The node to stop watching for mutations. If the node is not observed, nothing will happen. Otherwise, it will no longer be observed.
    */
   unobserve(target: Node) {
@@ -292,6 +298,7 @@ export class MutationReporter extends MutationObserver {
 
   /**
    * Tells the observer to start watching for target mutations according to options for every pair of target and options in `this.observing`.
+   * @public
    */
   reconnect() {
     for (const [node, options] of this.observing) {
@@ -310,6 +317,7 @@ export class MutationReporter extends MutationObserver {
    *
    *    + If a mutation happens in the very short interval when the observer is restarteds, it might be dropped.
    *
+   * @public
    * @param {() => void} callback - A callback to be executed after the observer has disconnected and before the observer is reconnected.
    * @example If needs to reobserve with different options, set the corresponding options in `this.observing` before calling this function.
    */
@@ -326,6 +334,7 @@ export class MutationReporter extends MutationObserver {
   /**
    * For every mutation, dispatches a corresponding event {@link ./CustomEvents} at mutation's target.
    *
+   * @public
    * @param {Array<MutationRecord>} mutations - An array of MutationRecord objects describing each change that occurred.
    * @fires PropertyChangeEvent#propertyChange for attribute mutation
    * @fires CharacterDataChangeEvent#characterDataChange for text content mutation
