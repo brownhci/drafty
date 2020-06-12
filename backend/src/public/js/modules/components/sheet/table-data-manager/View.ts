@@ -1,151 +1,266 @@
-import { ViewModel } from "./ViewModel";
+import { Constructor } from "../../../utils/mixins";
 
 
-type SortingFunction = (vm1: ViewModel, vm2: ViewModel) => number;
-type FilterFunction = (viewModel: ViewModel) => boolean;
-
-interface SortingFunctionWithPriority {
-  sortingFunction: SortingFunction;
-  priority: number;
+export interface View<T> extends Constructor {
+  view__(): Array<T>;
 }
 
-export class View {
-  private _children: Array<ViewModel>;
-  childrenView: Array<ViewModel>;
+type FilterFunction<T> = (item: T) => boolean;
+export function Filtered<T>(superClass: View<T>) {
+  return class Filtered extends superClass {
+    /**
+     * | oldValue | newValue | shouldRegenrateView |
+     * | true     | true     | true          (SET) |
+     * | true     | false    | true         (STAY) |
+     * | false    | true     | true          (SET) |
+     * | false    | false    | false        (STAY) |
+     */
+    private _shouldRegenerateView: boolean;
+    private _shouldRefineView: boolean;
+    private _view: Array<T>;
 
-  shouldRegenerateView: boolean = true;
+    private _sourceLastSnapshot: Array<T>;
 
-  sortingFunctions: Map<any, SortingFunctionWithPriority> = new Map();
-  filterFunctions: Map<any, FilterFunction> = new Map();
+    private _filterFunctions: Map<any, FilterFunction<T>>;
 
-  limit: number = Number.POSITIVE_INFINITY;
-
-  get children(): Array<ViewModel> {
-    if (this.shouldRegenerateView) {
-      this.regenerateView();
-    }
-    return this.childrenView;
-  }
-
-  set children(children: Array<ViewModel>) {
-    this._children = children;
-    this.shouldRegenerateView = true;
-  }
-
-  get sorter(): SortingFunction {
-    const numSortingFunction: number = this.sortingFunctions.size;
-    if (numSortingFunction === 0) {
-      return null;
-    }
-
-    const sortingFunctions = Array.from(this.sortingFunctions);
-    // higher priority sorting function comes first
-    sortingFunctions.sort((s1, s2) => s2[1].priority - s1[1].priority);
-
-    return (viewModel1, viewModel2) => {
-      let sortingFunctionIndex = 0;
-      while (sortingFunctionIndex < numSortingFunction) {
-        const {sortingFunction} = sortingFunctions[sortingFunctionIndex][1];
-        const result: number = sortingFunction(viewModel1, viewModel2);
-        if (result !== 0) {
-          return result;
+    constructor(...args: any[]) {
+      super(...args);
+      Object.defineProperties(this, {
+        _shouldRegenerateView: {
+            configurable: false,
+            enumerable: false,
+            value: true,
+            writable: true
+        },
+        _shouldRefineView: {
+          configurable: false,
+          enumerable: false,
+          value: true,
+          writable: true
+        },
+        _view: {
+          configurable: false,
+          enumerable: false,
+          value: null,
+          writable: true
+        },
+        _sourceLastSnapshot: {
+          configurable: false,
+          enumerable: false,
+          value: null,
+          writable: true
+        },
+        _filterFunctions: {
+          configurable: false,
+          enumerable: false,
+          value: new Map(),
+          writable: true
         }
-
-        sortingFunctionIndex++;
-      }
-      return 0;
-    };
-  }
-
-  addSortingFunction(key: any, sortingFunction: SortingFunction, priority: number = -this.sortingFunctions.size): boolean {
-    this.sortingFunctions.set(key, { sortingFunction, priority });
-    return this.shouldRegenerateView = true;
-  }
-
-  deleteSortingFunction(key: any): boolean {
-    if (this.sortingFunctions.delete(key)) {
-      return this.shouldRegenerateView = true;
+      });
     }
-    return false;
-  }
 
-  clearSortingFunction(): boolean {
-    if (this.sortingFunctions.size === 0) {
+    view__(): Array<T> {
+      if (this._shouldRegenerateView) {
+        this.__regenerateView();
+      }
+      return this._view;
+    }
+
+    private get _source(): Array<T> {
+      const sourceSnapshot = super.view__();
+      if (sourceSnapshot === this._sourceLastSnapshot) {
+        return null;
+      } else {
+        return this._sourceLastSnapshot = sourceSnapshot;
+      }
+    }
+
+    addFilterFunction__(key: any, filterFunction: FilterFunction<T>): boolean {
+      if (this._filterFunctions.get(key) === filterFunction) {
+        return false;
+      }
+
+      this._filterFunctions.set(key, filterFunction);
+      return this._shouldRegenerateView = true;
+    }
+
+    deleteSortingFunction__(key: any): boolean {
+      if (this._filterFunctions.delete(key)) {
+        this._shouldRefineView = false;
+        return this._shouldRegenerateView = true;
+      }
       return false;
     }
 
-    this.sortingFunctions.clear();
-    return this.shouldRegenerateView = true;
-  }
-
-  setSortingFunctionPriority(reordering: Map<any, number>): boolean {
-    let shouldRegenerateView = false;
-
-    for (const [key, newPriority] of reordering) {
-      const { priority, sortingFunction } = this.sortingFunctions.get(key);
-      if (priority !== newPriority) {
-        this.sortingFunctions.set(key, { priority: newPriority, sortingFunction });
-        shouldRegenerateView = true;
+    clearFilterFunction__() {
+      if (this._filterFunctions.size === 0) {
+        return false;
       }
+      this._filterFunctions.clear();
+      this._shouldRefineView = false;
+      return this._shouldRegenerateView = true;
     }
 
-    if (shouldRegenerateView) {
-      return this.shouldRegenerateView = shouldRegenerateView;
-    }
-    return false;
-  }
+    get filter_(): FilterFunction<T> {
+      const numFilterFunction: number = this._filterFunctions.size;
+      if (numFilterFunction === 0) {
+        return null;
+      }
 
-  get filter(): FilterFunction {
-    const numFilterFunction: number = this.filterFunctions.size;
-    if (numFilterFunction === 0) {
-      return null;
+      const filterFunctions = Array.from(this._filterFunctions.values());
+      return (item) => filterFunctions.every(filterFunction => filterFunction(item));
     }
 
-    const filterFunctions = Array.from(this.filterFunctions.values());
-    return (viewModel) => filterFunctions.every(filterFunction => filterFunction(viewModel));
-  }
+    private __regenerateView() {
+      const filter = this.filter_;
 
-  addFilterFunction(key: any, filterFunction: FilterFunction): boolean {
-    this.filterFunctions.set(key, filterFunction);
-    return this.shouldRegenerateView = true;
-  }
+      let source: Array<T> = this._source;
+      if (!source && this._shouldRefineView) {
+        // parent view has not change and filters have only increased since last view generation
+        source = this._view;
+      }
 
-  deleteFilterFunction(key: any): boolean {
-    if (this.filterFunctions.delete(key)) {
-      return this.shouldRegenerateView = true;
+      let view: Array<T> = [];
+      if (filter) {
+        for (const item of source) {
+          if (filter(item)) {
+            view.push(item);
+          }
+        }
+      } else {
+        // no filter is applied
+        view = source;
+      }
+
+      this._view = view;
+      this._shouldRefineView = true;
+      this._shouldRegenerateView = false;
     }
-    return false;
-  }
+  };
+}
 
-  clearFilterFunction() {
-    if (this.filterFunctions.size === 0) {
+type SortingFunction<T> = (e1: T, e2: T) => number;
+interface SortingFunctionWithPriority<T> {
+  sortingFunction: SortingFunction<T>;
+  priority: number;
+}
+export function Sorted<T>(superClass: View<T>) {
+  return class Sorted extends superClass {
+    private _shouldRegenerateView: boolean;
+    private _view: Array<T>;
+
+    private _sortingFunctions: Map<any, SortingFunctionWithPriority<T>>;
+
+    constructor(...args: any[]) {
+      super(...args);
+      Object.defineProperties(this, {
+        _shouldRegenerateView: {
+            configurable: false,
+            enumerable: false,
+            value: true,
+            writable: true
+        },
+        _view: {
+          configurable: false,
+          enumerable: false,
+          value: null,
+          writable: true
+        },
+        _sortingFunctions: {
+          configurable: false,
+          enumerable: false,
+          value: new Map(),
+          writable: true
+        }
+      });
+    }
+
+    view__(): Array<T> {
+      if (this._shouldRegenerateView) {
+        this.__regenerateView();
+      }
+      return this._view;
+    }
+
+    addSortingFunction__(key: any, sortingFunction: SortingFunction<T>, priority: number = -this._sortingFunctions.size): boolean {
+      const existingSortingFunction = this._sortingFunctions.get(key);
+      if (existingSortingFunction && existingSortingFunction.priority === priority && existingSortingFunction.sortingFunction === sortingFunction) {
+        return false;
+      }
+
+      this._sortingFunctions.set(key, { sortingFunction, priority });
+      return this._shouldRegenerateView = true;
+    }
+
+    deleteSortingFunction__(key: any): boolean {
+      if (this._sortingFunctions.delete(key)) {
+        return this._shouldRegenerateView = true;
+      }
       return false;
     }
-    this.filterFunctions.clear();
-    return this.shouldRegenerateView = true;
-  }
 
-  regenerateView() {
-    const childIndices: Array<number> = Array.from(this._children.keys());
+    clearSortingFunction__(): boolean {
+      if (this._sortingFunctions.size === 0) {
+        return false;
+      }
 
-    const sorter = this.sorter;
-    if (sorter) {
-      childIndices.sort((index1, index2) => sorter(this._children[index1], this._children[index2]));
+      this._sortingFunctions.clear();
+      return this._shouldRegenerateView = true;
     }
 
-    const filter = this.filter;
-    const childrenView: Array<ViewModel> = [];
-    for (const childIndex of childIndices) {
-      if (childrenView.length === this.limit) {
-        break;
+    reorderSortingFunction__(reordering: Map<any, number>): boolean {
+      let shouldRegenerateView = false;
+
+      for (const [key, newPriority] of reordering) {
+        const { priority, sortingFunction } = this._sortingFunctions.get(key);
+        if (priority !== newPriority) {
+          this._sortingFunctions.set(key, { priority: newPriority, sortingFunction });
+          shouldRegenerateView = true;
+        }
       }
-      const viewModel = this._children[childIndex];
-      if (!filter || filter(viewModel)) {
-        childrenView.push(viewModel);
+
+      if (shouldRegenerateView) {
+        return this._shouldRegenerateView = shouldRegenerateView;
       }
+      return false;
     }
 
-    this.childrenView = childrenView;
-    this.shouldRegenerateView = false;
-  }
+    get sorter_(): SortingFunction<T> {
+      const numSortingFunction: number = this._sortingFunctions.size;
+      if (numSortingFunction === 0) {
+        return null;
+      }
+
+      const sortingFunctions = Array.from(this._sortingFunctions);
+      // higher priority sorting function comes first
+      sortingFunctions.sort((s1, s2) => s2[1].priority - s1[1].priority);
+
+      return (e1, e2) => {
+        let sortingFunctionIndex = 0;
+        while (sortingFunctionIndex < numSortingFunction) {
+          const {sortingFunction} = sortingFunctions[sortingFunctionIndex][1];
+          const result: number = sortingFunction(e1, e2);
+          if (result !== 0) {
+            return result;
+          }
+
+          sortingFunctionIndex++;
+        }
+        return 0;
+      };
+    }
+
+    private __regenerateView() {
+      const sorter = this.sorter_;
+
+      if (sorter) {
+        const source: Array<T> = super.view__();
+        const indices: Array<number> = Array.from(source.keys());
+        indices.sort((index1, index2) => sorter(source[index1], source[index2]));
+        this._view = indices.map(index => source[index]);
+      }
+
+      this._shouldRegenerateView = false;
+    }
+  };
 }

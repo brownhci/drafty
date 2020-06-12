@@ -150,7 +150,7 @@ export class ViewModel extends DOMForwardingInstantiation {
   }
 
   /**
-   * Equivalent of `this.setChildren__`.
+   * Equivalent of `this.setChildren__` as `this.children__`.
    * @public
    */
   set children_(children: Array<ViewModel>) {
