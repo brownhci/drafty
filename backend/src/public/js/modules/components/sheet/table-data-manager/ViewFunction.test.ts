@@ -1,4 +1,4 @@
-import { FilteredView, SortedView } from "./ViewFunction";
+import { FilteredView, PartialView, SortedView, ViewFunctionChain } from "./ViewFunction";
 
 describe("SortedView", () => {
   test("basic sorting", () => {
@@ -140,5 +140,57 @@ describe("FilteredView", () => {
     expect(fv.view(array)).toEqual([1, 2, 3, 4, 5]);
     expect(fv.clearFilterFunction()).toBe(false);
     expect(fv.view(array)).toEqual([1, 2, 3, 4, 5]);
+  });
+});
+
+describe("PartialView", () => {
+  test("basic partial rendering", () => {
+    const array = Array.from(Array(100).keys());
+    const pv = new PartialView<number>(array, 0, 4, 5);
+    // default view
+    expect(pv.view(array)).toEqual([0, 1, 2, 3, 4]);
+    expect(pv.reachedTop).toBe(true);
+    expect(pv.reachedBottom).toBe(false);
+    expect(pv.numElement).toBe(array.length);
+    expect(pv.windowSize).toBe(5);
+    expect(pv.numElementNotRenderedAbove).toBe(0);
+    expect(pv.numElementNotRenderedBelow).toBe(95);
+    expect(pv.setWindow(0, 4)).toBe(false);
+    expect(pv.view(array)).toEqual([0, 1, 2, 3, 4]);
+    expect(pv.shiftWindow(5)).toBe(true);
+    expect(pv.view(array)).toEqual([5, 6, 7, 8, 9]);
+    expect(pv.shiftWindow(-5)).toBe(true);
+    expect(pv.view(array)).toEqual([0, 1, 2, 3, 4]);
+
+    // reached top
+    expect(pv.shiftWindow(-10)).toBe(false);
+    expect(pv.shiftWindow(0)).toBe(false);
+
+    expect(pv.view([0, 1, 2])).toEqual([0, 1, 2]);
+    expect(pv.maximumWindowSize).toBe(3);
+  });
+});
+
+describe("ViewFunctionChain", () => {
+  test("empty", () => {
+    const vc = new ViewFunctionChain<number>();
+    expect(vc.view([1])).toEqual([1]);
+    expect(vc.view([2])).toEqual([2]);
+  });
+
+  test("chain", () => {
+    const sv = new SortedView<number>();
+    sv.addSortingFunction("desc", (n1, n2) => n2 - n1, 1);
+    const fv = new FilteredView<number>();
+    fv.addFilterFunction("no 1", (n) => n != 1);
+    fv.addFilterFunction("<= 3", (n: number) => n <= 3);
+
+    const vc = new ViewFunctionChain<number>([sv, fv]);
+    expect(vc.view([1, 2, 3, 4, 5])).toEqual([3, 2]);
+    expect((vc.modifyViewFunction(1) as FilteredView<number>).deleteFilterFunction("no 1")).toBe(true);
+    expect(vc.view([1, 2, 3, 4, 5])).toEqual([3, 2, 1]);
+
+    vc.modifyViewFunctions().length = 0;
+    expect(vc.view([1])).toEqual([1]);
   });
 });
