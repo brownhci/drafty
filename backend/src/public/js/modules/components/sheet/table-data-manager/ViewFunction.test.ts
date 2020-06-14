@@ -149,12 +149,12 @@ describe("PartialView", () => {
     const pv = new PartialView<number>(array, 0, 4, 5);
     // default view
     expect(pv.view(array)).toEqual([0, 1, 2, 3, 4]);
-    expect(pv.reachedTop).toBe(true);
-    expect(pv.reachedBottom).toBe(false);
+    expect(pv.reachedStart).toBe(true);
+    expect(pv.reachedEnd).toBe(false);
     expect(pv.numElement).toBe(array.length);
     expect(pv.windowSize).toBe(5);
-    expect(pv.numElementNotRenderedAbove).toBe(0);
-    expect(pv.numElementNotRenderedBelow).toBe(95);
+    expect(pv.numElementNotRenderedBefore).toBe(0);
+    expect(pv.numElementNotRenderedAfter).toBe(95);
     expect(pv.setWindow(0, 4)).toBe(false);
     expect(pv.view(array)).toEqual([0, 1, 2, 3, 4]);
     expect(pv.shiftWindow(5)).toBe(true);

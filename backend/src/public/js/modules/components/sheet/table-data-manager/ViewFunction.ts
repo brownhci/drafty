@@ -1,374 +1,98 @@
-// import { fillerClass, topFillerClass, bottomFillerClass } from "../../../constants/css-classes";
 
+/**
+ * ViewFunction represents an unit in transforming a source view to a target view.
+ *
+ * Some `ViewFunction` implementations in this modules includes:
+ *
+ *    + `FilteredView` which selects elements meeting certain conditions
+ *    + `SortedView` which reorders elements according to some criterion
+ *
+ * @type T: Element type, a view is represented as an array of elements.
+ */
 export interface ViewFunction<T> {
+  /**
+   * The view transformer function which will consume a `source` view and produces a target view of same type.
+   *
+   * @param {Array<T>} source - An array of elements of certain type. Represents the source view. The source view will not be modified.
+   * @return {Array<T>} The transformed view as an array of elements of same type.
+   */
   view(source: Array<T>): Array<T>;
 }
 
-function bound(n: number, lowerBound: number = 0, upperBound: number = Number.POSITIVE_INFINITY) {
+/**
+ * Lowerbound and upperbound a number.
+ *
+ * Equivalent to `min(UPPERBOUND, max(LOWERBOUND, 0))`.
+ *
+ * If `upperBound` is lower than the `lowerBound`, this function will degrade to return `upperBound`.
+ *
+ * @param {number} n - The number to be bounded.
+ * @param {number} [lowerBound = 0] - The lower bound.
+ * @param {number} [upperBound = Number.POSITIVE_INFINITY] - The upper bound.
+ * @returns {number} The bounded number.
+ */
+function bound(n: number, lowerBound: number = 0, upperBound: number = Number.POSITIVE_INFINITY): number {
   return Math.min(upperBound, Math.max(lowerBound, n));
 }
 
-// interface IntersectionObserverOptions {
-//   root?: Element;
-//   rootMargin?: string;
-//   thresholds?: ReadonlyArray<number>;
-// }
-// export class ScrollableView<T> implements ViewFunction<T> {
-//   private lastSource: Array<T>;
-//   private currentView: Array<T>;
-//
-//   private topFillerElement: HTMLElement;
-//   private bottomFillerElement: HTMLElement;
-//
-//   private topFillerObserver: IntersectionObserver;
-//   private bottomFillerObserver: IntersectionObserver;
-//
-//   private topSentinelObserver: IntersectionObserver;
-//   private bottomSentinelObserver: IntersectionObserver;
-//
-//   private elementExtractor: (element: T) => HTMLElement;
-//
-//   private partialRenderingCondition: (source: Array<T>) => boolean;
-//
-//   private get elementHeightEstimate(): number {
-//     if (this.numElementInView === 0) {
-//       return 0;
-//     }
-//     return this.elementExtractor(this.currentView[0]).clientHeight;
-//   }
-//
-//   private defaultViewWindowSize: number = 200;
-//
-//   get numElement(): number {
-//     return this.lastSource.length;
-//   }
-//
-//   get numElementInView(): number {
-//     return this.currentView.length;
-//   }
-//
-//   get viewWindowSize(): number {
-//     return Math.min(this.numElement, this.defaultViewWindowSize);
-//   }
-//
-//   private _numElementNotRenderedAbove: number;
-//   get numElementNotRenderedAbove(): number {
-//     return this._numElementNotRenderedAbove;
-//   }
-//   set numElementNotRenderedAbove(n: number) {
-//     this._numElementNotRenderedAbove = n;
-//     this.topFillerElement.style.height = `${this.fillerTopHeight}px`;
-//   }
-//   get fillerTopHeight(): number {
-//     return this.elementHeightEstimate * this.numElementNotRenderedAbove;
-//   }
-//   get reachedTop(): boolean {
-//     return this.numElementNotRenderedAbove === 0;
-//   }
-//
-//   private _numElementNotRenderedBelow: number;
-//   get numElementNotRenderedBelow(): number {
-//     return this._numElementNotRenderedBelow;
-//   }
-//   set numElementNotRenderedBelow(n: number) {
-//     this._numElementNotRenderedBelow = n;
-//     this.topFillerElement.style.height = `${this.fillerBottomHeight}px`;
-//   }
-//   get fillerBottomHeight(): number {
-//     return this.elementHeightEstimate * this.numElementNotRenderedBelow;
-//   }
-//
-//   get reachedBottom(): boolean {
-//     return this.numElementNotRenderedBelow === 0;
-//   }
-//
-//   get viewStartIndex(): number {
-//     return this.numElementNotRenderedAbove;
-//   }
-//
-//   get shouldPartialRender(): boolean {
-//     if (this.partialRenderingCondition) {
-//       return this.partialRenderingCondition(this.lastSource);
-//     }
-//     return this.numElement >= this.defaultViewWindowSize;
-//   }
-//
-//   get topSentinelIndex(): number {
-//     return bound(Math.floor(this.numElementInView / 4) - 1, 0, this.numElementInView);
-//   }
-//
-//   get topSentinel(): T {
-//     return this.currentView[this.topSentinelIndex];
-//   }
-//
-//   get topSentinelElement(): HTMLElement {
-//     return this.elementExtractor(this.topSentinel);
-//   }
-//
-//   get bottomSentinelIndex(): number {
-//     return bound(Math.floor(this.numElementInView / 4) * 3 - 1, 0, this.numElementInView);
-//   }
-//
-//   get bottomSentinel(): T {
-//     return this.currentView[this.bottomSentinelIndex];
-//   }
-//
-//   get bottomSentinelElement(): HTMLElement {
-//     return this.elementExtractor(this.bottomSentinel);
-//   }
-//
-//   private initializeFiller(initalizer: () => HTMLElement) {
-//     this.topFillerElement = initalizer();
-//     this.bottomFillerElement = initalizer();
-//     this.topFillerElement.classList.add(fillerClass, topFillerClass);
-//     this.bottomFillerElement.classList.add(fillerClass, bottomFillerClass);
-//   }
-//
-//   private mountFiller(target: Element) {
-//     target.insertAdjacentElement("afterbegin", this.topFillerElement);
-//     target.insertAdjacentElement("beforeend", this.bottomFillerElement);
-//   }
-//
-//   private unmountFiller(target: Element) {
-//     Array.from(target.getElementsByClassName(fillerClass)).forEach(element => element.remove());
-//   }
-//
-//   private initializeTopFillerObserver(options?: IntersectionObserverOptions) {
-//     this.topFillerObserver = new IntersectionObserver((entries) => this.onTopFillerReached(entries), options);
-//   }
-//
-//   private initializeBottomFillerObserver(options?: IntersectionObserverOptions) {
-//     this.bottomFillerObserver = new IntersectionObserver((entries) => this.onBottomFillerReached(entries), options);
-//   }
-//
-//   private initializeTopSentinelObserver(options?: IntersectionObserverOptions) {
-//     this.topSentinelObserver = new IntersectionObserver((entries) => this.onTopSentinelReached(entries), options);
-//   }
-//
-//   private initializeBottomSentinelObserver(options?: IntersectionObserverOptions) {
-//     this.bottomSentinelObserver = new IntersectionObserver((entries) => this.onBottomSentinelReached(entries), options);
-//   }
-//
-//   private activateTopFillerObserver() {
-//     this.topFillerObserver.observe(this.topFillerElement);
-//   }
-//
-//   private activateBottomFillerObserver() {
-//     this.bottomFillerObserver.observe(this.bottomFillerElement);
-//   }
-//
-//   private activateTopSentinelObserver() {
-//     this.topSentinelObserver.observe(this.topSentinelElement);
-//   }
-//
-//   private activateBottomSentinelObserver() {
-//     this.bottomSentinelObserver.observe(this.bottomSentinelElement);
-//   }
-//
-//   private activateFillerObservers() {
-//     this.activateTopFillerObserver();
-//     this.activateBottomFillerObserver();
-//   }
-//
-//   private activateSentinelObservers() {
-//     this.activateTopSentinelObserver();
-//     this.activateBottomSentinelObserver();
-//   }
-//
-//   private activateObservers() {
-//     this.activateFillerObservers();
-//     this.activateSentinelObservers();
-//   }
-//
-//   private deactivateTopFillerObserver() {
-//     this.topFillerObserver.unobserve(this.topFillerElement);
-//   }
-//
-//   private deactivateBottomFillerObserver() {
-//     this.bottomFillerObserver.unobserve(this.bottomFillerElement);
-//   }
-//
-//   private deactivateTopSentinelObserver() {
-//     this.topFillerObserver.disconnect();
-//   }
-//
-//   private deactivateBottomSentinelObserver() {
-//     this.bottomFillerObserver.disconnect();
-//   }
-//
-//   private deactivateFillerObservers() {
-//     this.deactivateTopFillerObserver();
-//     this.deactivateBottomFillerObserver();
-//   }
-//
-//   private deactivateSentinelObservers() {
-//     this.deactivateTopSentinelObserver();
-//     this.deactivateBottomFillerObserver();
-//   }
-//
-//   private deactivateObservers() {
-//     this.deactivateFillerObservers();
-//     this.deactivateSentinelObservers();
-//   }
-//
-//   shiftRenderingView(shiftDownAmount: number) {
-//     const isScrollDown: boolean = shiftDownAmount >= 0;
-//     if ((isScrollDown && this.reachedBottom) || (!isScrollDown && this.reachedTop)) {
-//       return;
-//     }
-//
-//     const currentStartIndex = this.viewStartIndex;
-//     const newStartIndex = bound(currentStartIndex + shiftDownAmount, 0, this.numElement);
-//     const newEndIndex = bound(newStartIndex + this.viewWindowSize, 0, this.numElement);
-//     this.setRenderingView(newStartIndex, newEndIndex);
-//   }
-//
-//   setRenderingView(startIndex: number, endIndex: number = startIndex + this.viewWindowSize) {
-//     this.currentView = this.lastSource.slice(startIndex, endIndex);
-//     this.numElementNotRenderedAbove = startIndex;
-//     this.numElementNotRenderedBelow = this.numElement - this.numElementNotRenderedAbove - this.numElementInView;
-//   }
-//
-//   private onFillerReached(entries: Array<IntersectionObserverEntry>) {
-//   }
-//   private onTopFillerReached(entries: Array<IntersectionObserverEntry>) {
-//     if (this.reachedTop) {
-//       return;
-//     }
-//   }
-//   private onBottomFillerReached(entries: Array<IntersectionObserverEntry>) {
-//     if (this.reachedBottom) {
-//       return;
-//     }
-//   }
-//
-//   private onSentinelReached(entries: Array<IntersectionObserverEntry>) {
-//   }
-//   private onTopSentinelReached(entries: Array<IntersectionObserverEntry>) {
-//     if (this.reachedTop) {
-//       return;
-//     }
-//   }
-//   private onBottomSentinelReached(entries: Array<IntersectionObserverEntry>) {
-//     if (this.reachedBottom) {
-//       return;
-//     }
-//   }
-// }
 
-export class PartialView<T> implements ViewFunction<T> {
-  private shouldRegenerateView: boolean = true;
+/**
+ * A function type that determines whether an element from the source view should retain in the target view.
+ *
+ * @param {T} element - An element to be filtered.
+ * @returns {boolean} True if this element should be kept in the target view.
+ */
+type FilterFunction<T> = (element: T) => boolean;
 
-  private lastSource: Array<T>;
-  private currentView: Array<T>;
-
-  private partialViewStartIndex: number;
-  private partialViewEndIndex: number;
-
-  private windowSizeUpperBound: number;
-
-  constructor(source: Array<T> = [], windowStartIndex: number = -1, windowEndIndex: number = -1, windowSizeUpperBound: number = 200) {
-    this.windowSizeUpperBound = windowSizeUpperBound;
-    this.lastSource = source;
-    this.setWindow(windowStartIndex, windowEndIndex);
-    this.regenerateView(source);
-  }
-
-  view(source: Array<T>): Array<T> {
-    this.regenerateView(source);
-    return this.currentView;
-  }
-
-  private regenerateView(source: Array<T>) {
-    if (source === this.lastSource && !this.shouldRegenerateView) {
-      return;
-    }
-
-    this.currentView = source.slice(this.partialViewStartIndex, this.partialViewEndIndex + 1);
-
-    this.lastSource = source;
-    this.shouldRegenerateView = false;
-  }
-
-
-  setWindow(startIndex: number = 0, endIndex: number = startIndex + this.maximumWindowSize): boolean {
-    const newStartIndex = bound(startIndex, 0, this.numElement - 1);
-    const newEndIndex = bound(endIndex, newStartIndex, this.numElement - 1);
-
-    if (newStartIndex === this.partialViewStartIndex && newEndIndex === this.partialViewEndIndex) {
-      return false;
-    }
-
-    this.partialViewStartIndex = newStartIndex;
-    this.partialViewEndIndex = newEndIndex;
-    return this.shouldRegenerateView = true;
-  }
-
-  shiftWindow(shiftDownAmount: number): boolean {
-    if (shiftDownAmount === 0) {
-      return false;
-    }
-
-    const isScrollDown: boolean = shiftDownAmount >= 0;
-    if ((isScrollDown && this.reachedBottom) || (!isScrollDown && this.reachedTop)) {
-      return false;
-    }
-
-    const startIndex = this.partialViewStartIndex + shiftDownAmount;
-    const endIndex = startIndex + this.windowSize - 1;
-    return this.setWindow(startIndex, endIndex);
-  }
-
-  get numElement(): number {
-    return this.lastSource.length;
-  }
-
-  get maximumWindowSize(): number {
-    return Math.min(this.numElement, this.windowSizeUpperBound);
-  }
-
-  get windowSize(): number {
-    return this.partialViewEndIndex - this.partialViewStartIndex + 1;
-  }
-
-  get numElementNotRenderedAbove(): number {
-    return this.partialViewStartIndex;
-  }
-
-  get reachedTop(): boolean {
-    return this.numElementNotRenderedAbove === 0;
-  }
-
-  get numElementNotRenderedBelow(): number {
-    return this.numElement - this.numElementNotRenderedAbove - this.windowSize;
-  }
-
-  get reachedBottom(): boolean {
-    return this.numElementNotRenderedBelow === 0;
-  }
-}
-
-type FilterFunction<T> = (item: T) => boolean;
+/**
+ * Selects elements meeting certain condition(s).
+ */
 export class FilteredView<T> implements ViewFunction<T> {
-  /**
-   * | oldValue | newValue | shouldRegenrateView |
-   * | true     | true     | true          (SET) |
-   * | true     | false    | true         (STAY) |
-   * | false    | true     | true          (SET) |
-   * | false    | false    | false        (STAY) |
-   */
+  /** should target view be regenerated if source view is the same */
   private shouldRegenerateView: boolean = true;
+  /** should target view be regenerated based off the last target view `this.currentView` (making refinement to current view) if target view needs to be regenerated */
   private shouldRefineView: boolean = true;
+  /** previous source view, used to determine whether source view is the same */
   private lastSource: Array<T> = null;
+  /** holds target view */
   private currentView: Array<T>;
 
+  /** A mapping from identifier to filter function */
   private filterFunctions: Map<any, FilterFunction<T>> = new Map();
 
+  /** The aggregate filter function -- ANDing all filter functions */
+  get filter(): FilterFunction<T> {
+    const numFilterFunction: number = this.filterFunctions.size;
+    if (numFilterFunction === 0) {
+      return null;
+    }
+
+    const filterFunctions = Array.from(this.filterFunctions.values());
+    return (item) => filterFunctions.every(filterFunction => filterFunction(item));
+  }
+
+  /**
+   * @public
+   * @override
+   * @description View is lazily generated. In other words, last target view is cached and reused if possible.
+   */
   view(source: Array<T>): Array<T> {
     this.regenerateView(source);
     return this.currentView;
   }
 
+  /**
+   * Regenerates the target view if any of the following conditions are true:
+   *
+   *    + `source` view changed
+   *    + target view should be regenerated -- the filter functions changed
+   *
+   * If both conditions are false, nothing will be done -- same target view will be returned.
+   *
+   * If `source` view does not change and only new filter functions have been added, target view will be generated from last target view. In other words, previous target view will be refined to reduce computation.
+   *
+   * @param {Array<T>} source - An array of elements of certain type representing the source view.
+   */
   private regenerateView(source: Array<T>) {
     if (source === this.lastSource) {
       if (this.shouldRegenerateView && this.shouldRefineView) {
@@ -391,6 +115,18 @@ export class FilteredView<T> implements ViewFunction<T> {
     this.lastSource = source;
   }
 
+  /**
+   * Binds a filter function under a key.
+   *
+   * Will trigger a regeneration of view if different filter function was bound to the key.
+   *
+   * Will cause **refinement** if only filter functions have been added `this.filterFunctions`.
+   *
+   * @public
+   * @param {any} key - An identifier.
+   * @param {FilterFunction<T>} filterFunction - A function to determine whether an element in the source view should be kept in the target view.
+   * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
+   */
   addFilterFunction(key: any, filterFunction: FilterFunction<T>): boolean {
     if (this.filterFunctions.get(key) === filterFunction) {
       return false;
@@ -400,6 +136,15 @@ export class FilteredView<T> implements ViewFunction<T> {
     return this.shouldRegenerateView = true;
   }
 
+  /**
+   * Deletes a filter function bound under given key.
+   *
+   * Will trigger a non-refinement regeneration of view if a filter function is actually deleted.
+   *
+   * @public
+   * @param {any} key - An identifier.
+   * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
+   */
   deleteFilterFunction(key: any): boolean {
     if (this.filterFunctions.delete(key)) {
       this.shouldRefineView = false;
@@ -408,6 +153,14 @@ export class FilteredView<T> implements ViewFunction<T> {
     return false;
   }
 
+  /**
+   * Clears all filter functions.
+   *
+   * Will trigger a non-refinement regeneration of view if there are filter functions removed.
+   *
+   * @public
+   * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
+   */
   clearFilterFunction() {
     if (this.filterFunctions.size === 0) {
       return false;
@@ -416,99 +169,209 @@ export class FilteredView<T> implements ViewFunction<T> {
     this.shouldRefineView = false;
     return this.shouldRegenerateView = true;
   }
-
-  get filter(): FilterFunction<T> {
-    const numFilterFunction: number = this.filterFunctions.size;
-    if (numFilterFunction === 0) {
-      return null;
-    }
-
-    const filterFunctions = Array.from(this.filterFunctions.values());
-    return (item) => filterFunctions.every(filterFunction => filterFunction(item));
-  }
 }
 
-type SortingFunction<T> = (e1: T, e2: T) => number;
-interface SortingFunctionWithPriority<T> {
-  sortingFunction: SortingFunction<T>;
-  priority: number;
-}
-export class SortedView<T> implements ViewFunction<T> {
+
+/**
+ * Selects a window from a view.
+ */
+export class PartialView<T> implements ViewFunction<T> {
+  /** should target view be regenerated if source view is the same */
   private shouldRegenerateView: boolean = true;
 
+  /** previous source view, used to determine whether source view is the same */
   private lastSource: Array<T>;
+  /** holds target view */
   private currentView: Array<T>;
 
-  private sortingFunctions: Map<any, SortingFunctionWithPriority<T>> = new Map();
+  /** start index of the window, inclusive */
+  private partialViewStartIndex: number;
+  /** end index of the window, inclusive */
+  private partialViewEndIndex: number;
 
-  view(source?: Array<T>): Array<T> {
+  /** a hard limit on the length of the window */
+  private windowSizeUpperBound: number;
+
+  /** number of elements in source view. */
+  get numElement(): number {
+    return this.lastSource.length;
+  }
+
+  /** maximum window size -- maximum number of elements in the window */
+  get maximumWindowSize(): number {
+    return Math.min(this.numElement, this.windowSizeUpperBound);
+  }
+
+  /** actual window size - number of elements in target view */
+  get windowSize(): number {
+    return this.partialViewEndIndex - this.partialViewStartIndex + 1;
+  }
+
+  /** number of elements in source view not rendered because they are "before" the window */
+  get numElementNotRenderedBefore(): number {
+    return this.partialViewStartIndex;
+  }
+
+  /** whether the window has reached the left boundary -- it cannot be shifted leftward without shrinking the window length */
+  get reachedStart(): boolean {
+    return this.numElementNotRenderedBefore === 0;
+  }
+
+  /** number of elements in source view not rendered because they are "after" the window */
+  get numElementNotRenderedAfter(): number {
+    return this.numElement - this.numElementNotRenderedBefore - this.windowSize;
+  }
+
+  /** whether the window has reached the right boundary -- it cannot be shifted rightward without shrinking the window length */
+  get reachedEnd(): boolean {
+    return this.numElementNotRenderedAfter === 0;
+  }
+
+  /**
+   * Creates a PartialView instance.
+   *
+   * @public
+   * @param {Array<T>} [source = []] - initial source view.
+   * @param {number} [windowStartIndex = -1] - start index of the window.
+   * @param {number} [windowEndIndex = -1] - end index of the window.
+   * @param {number} [windowSizeUpperBound = Number.POSITIVE_INFINITY] - Maximum window size.
+   * @constructs PartialView<T>
+   */
+  constructor(source: Array<T> = [], windowStartIndex: number = -1, windowEndIndex: number = -1, windowSizeUpperBound: number = Number.POSITIVE_INFINITY) {
+    this.windowSizeUpperBound = windowSizeUpperBound;
+    this.lastSource = source;
+    this.setWindow(windowStartIndex, windowEndIndex);
+    this.regenerateView(source);
+  }
+
+  /**
+   * @public
+   * @override
+   * @description View is lazily generated. In other words, last target view is cached and reused if possible.
+   */
+  view(source: Array<T>): Array<T> {
     this.regenerateView(source);
     return this.currentView;
   }
 
+  /**
+   * Regenerates the target view if any of the following conditions are true:
+   *
+   *    + `source` view changed
+   *    + target view should be regenerated -- window changed
+   *
+   * If both conditions are false, nothing will be done -- same target view will be returned.
+   *
+   * @param {Array<T>} source - An array of elements of certain type representing the source view.
+   */
   private regenerateView(source: Array<T>) {
     if (source === this.lastSource && !this.shouldRegenerateView) {
-      // source has not change and sorting functions have not changed => we can reuse current view
       return;
     }
 
-    const sorter = this.sorter;
-
-    if (sorter) {
-      const indices: Array<number> = Array.from(source.keys());
-      indices.sort((index1, index2) => sorter(source[index1], source[index2]));
-      this.currentView = indices.map(index => source[index]);
-    } else {
-      this.currentView = source;
-    }
+    this.currentView = source.slice(this.partialViewStartIndex, this.partialViewEndIndex + 1);
 
     this.lastSource = source;
     this.shouldRegenerateView = false;
   }
 
-  addSortingFunction(key: any, sortingFunction: SortingFunction<T>, priority: number = -this.sortingFunctions.size): boolean {
-    const existingSortingFunction = this.sortingFunctions.get(key);
-    if (existingSortingFunction && existingSortingFunction.priority === priority && existingSortingFunction.sortingFunction === sortingFunction) {
+  /**
+   * Sets the **window**. Window is defined by two indices -- a start index and an end index. The elements with indices between (inclusive) these two window boundaries will be included in the target view.
+   *
+   * The indices are safe as they will be properly bounded:
+   *
+   *    + `startIndex` will be lowerbounded by 0 and upperbounded by last index in source view.
+   *    + `endIndex` will be lowerbounded by bounded `startIndex` and upperbounded by last index in source view.
+   *
+   * Will trigger a regeneration of view if window boundaries are changed.
+   *
+   * @public
+   * @param {number} [startIndex = 0] - The start index of the window.
+   * @param {number} [endIndex = startIndex + this.maximumWindowSize] - The end index of the window.
+   * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
+   */
+  setWindow(startIndex: number = 0, endIndex: number = startIndex + this.maximumWindowSize): boolean {
+    const newStartIndex = bound(startIndex, 0, this.numElement - 1);
+    const newEndIndex = bound(endIndex, newStartIndex, this.numElement - 1);
+
+    if (newStartIndex === this.partialViewStartIndex && newEndIndex === this.partialViewEndIndex) {
       return false;
     }
 
-    this.sortingFunctions.set(key, { sortingFunction, priority });
+    this.partialViewStartIndex = newStartIndex;
+    this.partialViewEndIndex = newEndIndex;
     return this.shouldRegenerateView = true;
   }
 
-  deleteSortingFunction(key: any): boolean {
-    if (this.sortingFunctions.delete(key)) {
-      return this.shouldRegenerateView = true;
-    }
-    return false;
-  }
-
-  clearSortingFunction(): boolean {
-    if (this.sortingFunctions.size === 0) {
+  /**
+   * Shifts the current window right by some amount.
+   *
+   * Window size will not change unless there is not enough elements to include in the window.
+   *
+   * @example Originally, 3 elements are in the window. After shifting right by 3 elements, only 2 elements will be in the window.
+   *   [- - -]- -
+   *    - - -[- -  ]
+   *
+   * @public
+   * @param {number} shiftRightAmount - The amount to shift the window rightward. If negative, the window will actually be shifted leftward.
+   * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
+   */
+  shiftWindow(shiftRightAmount: number): boolean {
+    if (shiftRightAmount === 0) {
       return false;
     }
 
-    this.sortingFunctions.clear();
-    return this.shouldRegenerateView = true;
-  }
-
-  reorderSortingFunction(reordering: Map<any, number>): boolean {
-    let shouldRegenerateView = false;
-
-    for (const [key, newPriority] of reordering) {
-      const { priority, sortingFunction } = this.sortingFunctions.get(key);
-      if (priority !== newPriority) {
-        this.sortingFunctions.set(key, { priority: newPriority, sortingFunction });
-        shouldRegenerateView = true;
-      }
+    const isShiftRight: boolean = shiftRightAmount >= 0;
+    if ((isShiftRight && this.reachedEnd) || (!isShiftRight && this.reachedStart)) {
+      return false;
     }
 
-    if (shouldRegenerateView) {
-      return this.shouldRegenerateView = shouldRegenerateView;
-    }
-    return false;
+    const startIndex = this.partialViewStartIndex + shiftRightAmount;
+    const endIndex = startIndex + this.windowSize - 1;
+    return this.setWindow(startIndex, endIndex);
   }
+}
 
+
+/**
+ * A function type that orders two elements from source view.
+ *
+ * @param {T} e1 - The first element.
+ * @param {T} e2 - The second element.
+ * @returns {number} A number indicating the comparison result. {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort}
+ */
+type SortingFunction<T> = (e1: T, e2: T) => number;
+
+/**
+ * This interface groups a sorting function with its priority.
+ *
+ * The priority number determines the precedence of sorting functions. The larger the priority number is, the more important it is.
+ *
+ * @example Suppose in terms of priority, S1 > S2 > S3. Then S1 will be first used to order elements. If there is a tie (two elements are equivalent according to S1), their order will then be determined by S2, and possibly by S3 if the comparison result is still a tie.
+ */
+interface SortingFunctionWithPriority<T> {
+  sortingFunction: SortingFunction<T>;
+  priority: number;
+}
+
+/**
+ * Reorders elements according to certain comparison method(s).
+ */
+export class SortedView<T> implements ViewFunction<T> {
+  /** should target view be regenerated if source view is the same */
+  private shouldRegenerateView: boolean = true;
+  /** previous source view, used to determine whether source view is the same */
+  private lastSource: Array<T>;
+  /** holds target view */
+  private currentView: Array<T>;
+
+  /** a mapping from identifier to a sorting function and its priority */
+  private sortingFunctions: Map<any, SortingFunctionWithPriority<T>> = new Map();
+
+  /**
+   * Existing sorting functions will be applied in order of priority -- higher priority sorting function will be used first, lower priority sorting function will be used when the higher priority ones result in tie.
+   * @returns The aggregate sorting function.
+   */
   get sorter(): SortingFunction<T> {
     const numSortingFunction: number = this.sortingFunctions.size;
     if (numSortingFunction === 0) {
@@ -533,43 +396,203 @@ export class SortedView<T> implements ViewFunction<T> {
       return 0;
     };
   }
+
+  /**
+   * @public
+   * @override
+   * @description View is lazily generated. In other words, last target view is cached and reused if possible.
+   */
+  view(source?: Array<T>): Array<T> {
+    this.regenerateView(source);
+    return this.currentView;
+  }
+
+  /**
+   * Regenerates the target view if any of the following conditions are true:
+   *
+   *    + `source` view changed
+   *    + target view should be regenerated -- the sorting function changed
+   *
+   * @param {Array<T>} source - An array of elements of certain type representing the source view.
+   */
+  private regenerateView(source: Array<T>) {
+    if (source === this.lastSource && !this.shouldRegenerateView) {
+      // source has not change and sorting functions have not changed => we can reuse current view
+      return;
+    }
+
+    const sorter = this.sorter;
+
+    if (sorter) {
+      const indices: Array<number> = Array.from(source.keys());
+      indices.sort((index1, index2) => sorter(source[index1], source[index2]));
+      this.currentView = indices.map(index => source[index]);
+    } else {
+      this.currentView = source;
+    }
+
+    this.lastSource = source;
+    this.shouldRegenerateView = false;
+  }
+
+  /**
+   * Binds a sorting function with given priority under a key.
+   *
+   * Will trigger a regeneration of view if different sorting function or same sorting function with a different priority was bound to the key.
+   *
+   * @public
+   * @param {any} key - An identifier.
+   * @param {SortingFunction<T>} sortingFunction - A function to determine how elements from source view should be ordered in the target view.
+   * @param {number} [priority = -this.sortingFunctions.size] - The priority of newly-bound sorting function. The higher the priority, the more important the sorting function. Defaults to the negative of the number of existing sorting function. In other words, default to add a least important sorting function.
+   * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
+   */
+  addSortingFunction(key: any, sortingFunction: SortingFunction<T>, priority: number = -this.sortingFunctions.size): boolean {
+    const existingSortingFunction = this.sortingFunctions.get(key);
+    if (existingSortingFunction && existingSortingFunction.priority === priority && existingSortingFunction.sortingFunction === sortingFunction) {
+      return false;
+    }
+
+    this.sortingFunctions.set(key, { sortingFunction, priority });
+    return this.shouldRegenerateView = true;
+  }
+
+  /**
+   * Deletes a sorting function bound under given key.
+   *
+   * Will trigger a regeneration of view if a sorting function is actually deleted.
+   *
+   * @public
+   * @param {any} key - An identifier.
+   * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
+   */
+  deleteSortingFunction(key: any): boolean {
+    if (this.sortingFunctions.delete(key)) {
+      return this.shouldRegenerateView = true;
+    }
+    return false;
+  }
+
+  /**
+   * Clears all sorting functions.
+   *
+   * Will trigger a regeneration of view if there are filter functions removed.
+   *
+   * @public
+   * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
+   */
+  clearSortingFunction(): boolean {
+    if (this.sortingFunctions.size === 0) {
+      return false;
+    }
+
+    this.sortingFunctions.clear();
+    return this.shouldRegenerateView = true;
+  }
+
+  /**
+   * Assigns a set of sorting function different priority numbers.
+   *
+   * If any sorting function priority is changed, a regeneration of view will be triggered.
+   *
+   * @public
+   * @param {Map<any, number} reordering - A mapping from identifier to new priority number.
+   * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
+   */
+  reorderSortingFunction(reordering: Map<any, number>): boolean {
+    let shouldRegenerateView = false;
+
+    for (const [key, newPriority] of reordering) {
+      const { priority, sortingFunction } = this.sortingFunctions.get(key);
+      if (priority !== newPriority) {
+        this.sortingFunctions.set(key, { priority: newPriority, sortingFunction });
+        shouldRegenerateView = true;
+      }
+    }
+
+    if (shouldRegenerateView) {
+      return this.shouldRegenerateView = shouldRegenerateView;
+    }
+    return false;
+  }
 }
 
+/**
+ * Combines several view functions into an aggregate view function.
+ *
+ * When target view needs to be generated from a source view, the source view will be provided to first view function, whose target view will be provided as source view to the second view function until the last view function's target view be returned as the final target view.
+ */
 export class ViewFunctionChain<T> implements ViewFunction<T> {
+  /** an array of view functions that consist the chain */
   private viewFunctions: Array<ViewFunction<T>>;
-
+  /** should target view be regenerated if source view is the same */
   private shouldRegenerateView: boolean = true;
-
+  /** previous source view, used to determine whether source view is the same */
   private lastSource: Array<T>;
+  /** holds target view */
   private currentView: Array<T>;
 
   constructor(viewFunctions: Array<ViewFunction<T>> = []) {
     this.viewFunctions = viewFunctions;
   }
 
+  /**
+   * @public
+   * @override
+   * @description View is lazily generated. In other words, last target view is cached and reused if possible.
+   */
   view(source: Array<T>): Array<T> {
     this.regenerateView(source);
     return this.currentView;
   }
 
-  modifyViewFunction(index: number): ViewFunction<T> {
-    this.shouldRegenerateView = true;
-    return this.viewFunctions[index];
-  }
-
-  modifyViewFunctions(): Array<ViewFunction<T>> {
-    this.shouldRegenerateView = true;
-    return this.viewFunctions;
-  }
-
+  /**
+   * Regenerates the target view if any of the following conditions are true:
+   *
+   *    + `source` view changed
+   *    + target view should be regenerated -- any view function is inserted, modified, removed. In other words, whether the aggregate view function changed.
+   *
+   * @param {Array<T>} source - An array of elements of certain type representing the source view.
+   */
   private regenerateView(source: Array<T>) {
     if (source === this.lastSource && !this.shouldRegenerateView) {
       return;
     }
 
+    // Target view will be generated by piping the source view through the chain
     this.currentView = this.viewFunctions.reduce((_source, viewFunction) => viewFunction.view(_source), source);
 
     this.lastSource = source;
     this.shouldRegenerateView = false;
+  }
+
+  /**
+   * Retrieves a view function for modification.
+   *
+   * Using this function notifies the ViewFunctionChain that the target view needs to be regenerated due to view function change.
+   *
+   * Will trigger a view regeneration.
+   *
+   * @param {number} index - which view function to retrieve.
+   * @returns {ViewFunction<T>} A view function in the chain.
+   */
+  modifyViewFunction(index: number): ViewFunction<T> {
+    this.shouldRegenerateView = true;
+    return this.viewFunctions[index];
+  }
+
+  /**
+   * Retrieves the entire array of view function for modification.
+   *
+   * Note any permanent change should be committed in-place to the array. Merely assigning the array to another array will not actually change the view function chain.
+   *
+   * Using this function notifies the ViewFunctionChain that the target view needs to be regenerated due to view function change.
+   *
+   * Will trigger a view regeneration.
+   *
+   * @returns {Array<ViewFunction<T>>} The array of view function constitutes the chain.
+   */
+  modifyViewFunctions(): Array<ViewFunction<T>> {
+    this.shouldRegenerateView = true;
+    return this.viewFunctions;
   }
 }
