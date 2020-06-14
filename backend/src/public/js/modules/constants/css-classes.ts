@@ -23,3 +23,7 @@ export const columnLabelClass = "column-label";
 export const columnLabelTextClass = "column-label-text";
 export const columnSearchClass = "column-search";
 export const columnSortButtonClass = "sort-btn";
+
+export const fillerClass = "filler-row";
+export const topFillerClass = "filler-row-top";
+export const bottomFillerClass = "filler-row-bottom";
