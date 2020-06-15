@@ -9,7 +9,7 @@ import { generateUUID  as uuid } from "../../../utils/uuid";
  * @example A builder to create ViewModel abstraction for a `<p>` element
  *    `(element) => new ViewModel({id: undefined, classList: undefined, textContent: undefined }, element)`
  */
-type ViewModelBuilder = (element: HTMLElement) => ViewModel;
+export type ViewModelBuilder = (element: HTMLElement) => ViewModel;
 
 /**
  * ViewModel represents an Abstraction equivalent of HTMLElement in that:
@@ -53,6 +53,8 @@ export class ViewModel extends DOMForwardingInstantiation {
     * This array is hierarchical in that first builder is suitable for create child view model of current view model, second builder is suitable for creating child view model of current child view model, and so on...
     *
     * In other words, `_viewModelBuilders` is a set of blueprints for descendant view models.
+    *
+    * Since `_viewModelBuilders` is hierarchical, it also decides the emulation depth in `patchWithDOM__`. For example, suppose `_viewModelBuilders.length` is 2, then calling `patchWithDOM__` on a `element` will emulate this element's children and grandchildren.
     */
   private _viewModelBuilders: Array<ViewModelBuilder>;
 
@@ -75,8 +77,8 @@ export class ViewModel extends DOMForwardingInstantiation {
    * @constructs ViewModel
    */
   constructor(
-    propsToForward: Record<string, Partial<ForwardingPropertyDescriptor<ViewModel>>>,
-    forwardingTo: HTMLElement,
+    propsToForward: Record<string, Partial<ForwardingPropertyDescriptor<ViewModel>>>= {},
+    forwardingTo?: HTMLElement,
     callback?: MutationReporterCallback,
     parent: ViewModel = null,
     children: Array<ViewModel> = [],
@@ -137,7 +139,9 @@ export class ViewModel extends DOMForwardingInstantiation {
       delete this.forwardingTo_.dataset[ViewModel.identifierDatasetName_];
     }
     super.setForwardingTo__(forwardingTo);
-    this.forwardingTo_.dataset[ViewModel.identifierDatasetName_] = this.identifier_;
+    if (this.forwardingTo_) {
+      this.forwardingTo_.dataset[ViewModel.identifierDatasetName_] = this.identifier_;
+    }
   }
 
   /**
@@ -202,11 +206,13 @@ export class ViewModel extends DOMForwardingInstantiation {
    *    + child view model will be inserted into `this._children` at specified index
    *    + a mapping from identifier to child view model will be added to `this._identifierToChild`
    *
+   * Default to append child at end.
+   *
    * @public
    * @param {ViewModel} viewModel - A child view model to be inserted.
    * @param {number} index - Where the child view model should be inserted. Should be a valid number between [0, this._children.length] where 0 is equivalent of prepending to the start and `this._children.length` is equivalent to appending to the end.
    */
-  insertChild__(viewModel: ViewModel, index: number) {
+  insertChild__(viewModel: ViewModel, index: number = this._children.length) {
     viewModel.parent_ = this;
     this._children.splice(index, 0, viewModel);
     this._identifierToChild.set(viewModel.identifier_, viewModel);
@@ -461,11 +467,26 @@ export class ViewModel extends DOMForwardingInstantiation {
     }
 
     // patch children
-    const numChildren = other.children.length;
+    this.patchChildViewModelsWithDOMElements__(other.children);
+  }
+
+
+  /**
+   * Patches the child view models of current view model using an array of DOM elements. In-place-patch algorithm as documented in {@link ViewModel#patchWithViewModel__} will be used.
+	 * 		+ If the current view model is a partial abstraction of the reference DOM element`other`, then the in-place-patch algorithm might run into live-editing:
+	 * 			@example `other` has two child nodes, current view model is an abstraction of `other` but only has a child view model for the second child node. When calling `this.patchWithDOM__(other)`, second child node will be live edited (because of property forwarding): its registered properties wll be set to those of first child node.
+   *
+   * @param {Array<HTMLElement>} elements - An array of DOM elements to patch curent child view models.
+   * @param {boolean} [noDetach = true] - Whether surplus DOM elements of `this._children` will be removed from DOM tree.
+   * @param {boolean} [noAttach = true] - Whether surplus DOM elements of `other.children` will be appended
+   */
+  patchChildViewModelsWithDOMElements__(elements: Array<HTMLElement> | HTMLCollection, noDetach: boolean = true, noAttach: boolean = true) {
+    // patch children
+    const numChildren = elements.length;
     let childIndex = 0;
     for (const child of this._children) {
       if (childIndex < numChildren) {
-        child.patchWithDOM__(other.children[childIndex] as HTMLElement, noDetach, noAttach);
+        child.patchWithDOM__(elements[childIndex] as HTMLElement, noDetach, noAttach);
       } else {
         // this view model surplus: remove
         this.removeChildByIndex__(childIndex);
@@ -476,9 +497,14 @@ export class ViewModel extends DOMForwardingInstantiation {
       childIndex++;
     }
 
+    if (this._viewModelBuilders.length === 0) {
+      // stop because no blueprints exist for child view model
+      return;
+    }
+
     // other view model surplus: add
     for (; childIndex < numChildren; childIndex++) {
-      const child = other.children[childIndex] as HTMLElement;
+      const child = elements[childIndex] as HTMLElement;
       const viewModel = this._viewModelBuilders[0](child);
       this.insertChild__(viewModel, childIndex);
       if (!noAttach) {
