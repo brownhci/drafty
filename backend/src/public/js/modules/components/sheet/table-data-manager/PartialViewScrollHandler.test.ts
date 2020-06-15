@@ -3,7 +3,7 @@ import { PartialView } from "./ViewFunction";
 
 class PartialViewScrollHandler<T> extends Handler<T> {
   protected syncView() {
-    const view: Array<T> = this.partialView.view(this.source);
+    const view: Array<T> = this.partialView.currentView;
     while (this.partialViewArea.firstChild) {
       this.partialViewArea.lastChild.remove();
     }
@@ -43,7 +43,6 @@ describe("changing view", () => {
     listItem.textContent = i.toString();
     source.push(listItem);
   }
-  const sourceGetter = () => source;
   const elementExtractor = (viewElement: HTMLLIElement) => viewElement;
   const partialView = new PartialView<HTMLLIElement>(source, 0, 9, 10);
   const partialViewArea = document.createElement("ul");
@@ -51,7 +50,6 @@ describe("changing view", () => {
   const scrollTarget = partialViewArea;
   const elementHeight = 100;
   const handler = new PartialViewScrollHandler<HTMLLIElement>({
-    sourceGetter,
     elementExtractor,
     partialView,
     partialViewArea,

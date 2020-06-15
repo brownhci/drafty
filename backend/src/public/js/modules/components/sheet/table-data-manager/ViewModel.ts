@@ -105,7 +105,7 @@ export class ViewModel extends DOMForwardingInstantiation {
         writable: true
     });
 
-    this.setMutationReporter__(callback ? callback : this.onMutation__);
+    this.setMutationReporter__(callback ? callback : (mutations, observer, originalMutations, reporter) => this.onMutation__(mutations, observer, originalMutations, reporter));
   }
 
   /**
@@ -290,7 +290,7 @@ export class ViewModel extends DOMForwardingInstantiation {
     Object.defineProperty(this, "_mutationReporter", {
       configurable: false,
       enumerable: false,
-      value: new MutationReporter(callback.bind(this)),
+      value: new MutationReporter(callback),
       writable: true
     });
   }

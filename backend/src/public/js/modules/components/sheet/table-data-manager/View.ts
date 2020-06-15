@@ -9,7 +9,7 @@ function getScrollParent(element: HTMLElement, includeHidden: boolean = false) {
   const excludeStaticParent = style.position === "absolute";
   const overflowRegex = includeHidden ? /(auto|scroll|hidden)/ : /(auto|scroll)/;
 
-  if (style.position === "fixed") return document.body;
+  if (style.position === "fixed") return document.scrollingElement;
   for (let parent = element; (parent = parent.parentElement);) {
       style = getComputedStyle(parent);
       if (excludeStaticParent && style.position === "static") {
@@ -18,7 +18,7 @@ function getScrollParent(element: HTMLElement, includeHidden: boolean = false) {
       if (overflowRegex.test(style.overflow + style.overflowY + style.overflowX)) return parent;
   }
 
-  return document.body;
+  return document.scrollingElement;
 }
 
 type SourceType = HTMLTemplateElement | DocumentFragment | Node | Array<Node>;
@@ -95,7 +95,6 @@ export class View {
     this.scrollTarget = getScrollParent(this.sourceViewModel.element_);
     this.initializeElementHeight();
     this.scrollHandler = new PartialViewScrollHandler<ViewModel>({
-      sourceGetter: () => this.view,
       elementExtractor: (viewModel: ViewModel) => viewModel.element_,
       partialView: this.partialView,
       partialViewArea: this.sourceViewModel.element_,
@@ -107,11 +106,11 @@ export class View {
   }
 
   startMutationObserver() {
-    this.sourceViewModel.observe__(this.sourceViewModel.element_, false, undefined, false, true, false);
+    // this.sourceViewModel.observe__(this.sourceViewModel.element_, false, undefined, false, true, false);
   }
 
   pauseMutationObserver() {
-    this.sourceViewModel.unobserve__(this.sourceViewModel.element_);
+    // this.sourceViewModel.unobserve__(this.sourceViewModel.element_);
   }
 
   protected onMutation(mutations: Array<MutationRecord>, observer: MutationObserver, originalMutations: Array<MutationRecord>, reporter: MutationReporter) {
@@ -187,3 +186,4 @@ export class View {
     }
   }
 }
+(window as any).View = View;

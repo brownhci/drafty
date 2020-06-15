@@ -18,7 +18,6 @@ enum Direction {
 }
 
 interface PartialViewScrollHandlerOptions<T> {
-  sourceGetter: () => Array<T>;
   elementExtractor: (viewElement: T) => HTMLElement;
   partialView: PartialView<T>;
   partialViewArea: HTMLElement;
@@ -35,11 +34,6 @@ interface PartialViewScrollHandlerOptions<T> {
 
 
 export class PartialViewScrollHandler<T> {
-  protected sourceGetter: () => Array<T>;
-  protected get source(): Array<T> {
-    return this.sourceGetter();
-  }
-
   protected scrollTarget: HTMLElement;
   protected lastScrollPosition: number = 0;
   protected get scrollPosition(): number {
@@ -90,7 +84,7 @@ export class PartialViewScrollHandler<T> {
     return bound(Math.floor(this.partialView.windowSize / 4) - 1, 0, this.partialView.windowSize);
   }
   get topSentinel(): T {
-    return this.partialView.view(this.source)[this.topSentinelIndex];
+    return this.partialView.currentView[this.topSentinelIndex];
   }
   get topSentinelElement(): HTMLElement {
     return this.elementExtractor(this.topSentinel);
@@ -99,7 +93,7 @@ export class PartialViewScrollHandler<T> {
     return bound(Math.floor(this.partialView.windowSize / 4) * 3 - 1, 0, this.partialView.windowSize);
   }
   get bottomSentinel(): T {
-    return this.partialView.view(this.source)[this.bottomSentinelIndex];
+    return this.partialView.currentView[this.bottomSentinelIndex];
   }
   get bottomSentinelElement(): HTMLElement {
     return this.elementExtractor(this.bottomSentinel);
@@ -110,7 +104,6 @@ export class PartialViewScrollHandler<T> {
   protected scrollTimeoutId: number;
 
   constructor(options: PartialViewScrollHandlerOptions<T>) {
-    this.sourceGetter = options.sourceGetter;
     this.elementExtractor = options.elementExtractor;
     this.partialView = options.partialView;
     this.scrollTarget = options.scrollTarget;
@@ -191,6 +184,7 @@ export class PartialViewScrollHandler<T> {
     }
     this.deactivateObservers();
     this.partialView.setWindow(startIndex, endIndex);
+    this.partialView.view(this.partialView.lastSource);
     this.syncView();
     this.activateObservers();
     if (this.afterViewUpdate) {
@@ -199,14 +193,16 @@ export class PartialViewScrollHandler<T> {
   }
 
   protected syncView() {
-    const view: Array<T> = this.partialView.view(this.source);
+    const position = this.scrollPosition;
+    const view: Array<T> = this.partialView.currentView;
+    this.setFillerHeights();
     while (this.partialViewArea.firstChild) {
       this.partialViewArea.lastChild.remove();
     }
     const fragment = new DocumentFragment();
     view.forEach(viewElement => fragment.appendChild(this.elementExtractor(viewElement)));
     this.partialViewArea.appendChild(fragment);
-    this.setFillerHeights();
+    this.scrollTarget.scrollTop = position;
   }
 
   protected calculateStartIndexByScrollAmount(scrollAmount: number = this.scrollPosition) {
@@ -224,13 +220,14 @@ export class PartialViewScrollHandler<T> {
   }
 
   protected sentinelReachedHandler(entries: Array<IntersectionObserverEntry>) {
+    const shiftAmount = Math.floor(this.partialView.maximumWindowSize / 2);
     const scrollDirection: Direction = this.scrollDirection;
 
     entries.forEach(entry => {
       const desiredDirection: Direction = this.topSentinelElement === entry.target ? Direction.Up : Direction.Down;
       if (entry.isIntersecting && entry.intersectionRect.height > 0 && scrollDirection === desiredDirection) {
         // the last element of the first data section is appearing into view
-        const startIndex: number = this.partialView.numElementNotRenderedBefore + scrollDirection === Direction.Up ? -this.partialView.maximumWindowSize : this.partialView.maximumWindowSize;
+        const startIndex: number = this.partialView.numElementNotRenderedBefore + (scrollDirection === Direction.Up ? -shiftAmount : shiftAmount);
         this.setWindow(startIndex);
       }
     });

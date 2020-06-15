@@ -51,9 +51,9 @@ export class FilteredView<T> implements ViewFunction<T> {
   /** should target view be regenerated based off the last target view `this.currentView` (making refinement to current view) if target view needs to be regenerated */
   private shouldRefineView: boolean = true;
   /** previous source view, used to determine whether source view is the same */
-  private lastSource: Array<T> = null;
+  lastSource: Array<T> = null;
   /** holds target view */
-  private currentView: Array<T>;
+  currentView: Array<T>;
 
   /** A mapping from identifier to filter function */
   private filterFunctions: Map<any, FilterFunction<T>> = new Map();
@@ -178,9 +178,9 @@ export class PartialView<T> implements ViewFunction<T> {
   private shouldRegenerateView: boolean = true;
 
   /** previous source view, used to determine whether source view is the same */
-  private lastSource: Array<T>;
+  lastSource: Array<T>;
   /** holds target view */
-  private currentView: Array<T>;
+  currentView: Array<T>;
 
   /** start index of the window, inclusive */
   partialViewStartIndex: number;
@@ -359,9 +359,9 @@ export class SortedView<T> implements ViewFunction<T> {
   /** should target view be regenerated if source view is the same */
   private shouldRegenerateView: boolean = true;
   /** previous source view, used to determine whether source view is the same */
-  private lastSource: Array<T>;
+  lastSource: Array<T>;
   /** holds target view */
-  private currentView: Array<T>;
+  currentView: Array<T>;
 
   /** a mapping from identifier to a sorting function and its priority */
   private sortingFunctions: Map<any, SortingFunctionWithPriority<T>> = new Map();
@@ -525,9 +525,9 @@ export class ViewFunctionChain<T> implements ViewFunction<T> {
   /** should target view be regenerated if source view is the same */
   private shouldRegenerateView: boolean = true;
   /** previous source view, used to determine whether source view is the same */
-  private lastSource: Array<T>;
+  lastSource: Array<T>;
   /** holds target view */
-  private currentView: Array<T>;
+  currentView: Array<T>;
 
   constructor(viewFunctions: Array<ViewFunction<T>> = []) {
     this.viewFunctions = viewFunctions;
