@@ -33,7 +33,7 @@ def databait_1(df, column, label, time_column, time_type):
     best_range = 0
     best_rate = 0
 
-    if time_type == "Year":
+    if time_type == "Years":
         year = now.year
         earliest_year = counts.index[-1]
         # NOTE: is the past 15-20 years still interesting? should we limit it to 5-10?
@@ -44,7 +44,6 @@ def databait_1(df, column, label, time_column, time_type):
             if new/old > best_rate:
                 best_rate = new/old
                 best_range = i
-    print(best_range, best_rate)
     return best_range, best_rate
 
 def databait_2(df, column, label1, label2, time_column, time_type):
@@ -70,6 +69,7 @@ def databait_2(df, column, label1, label2, time_column, time_type):
     bigger = None
     smaller = None
 
+    # TODO: talk through logic about comparing growth
     if time_type == "Year":
         year = now.year
         earliest_year = max(counts1.index[-1], counts2.index[-1])
@@ -92,9 +92,7 @@ def databait_2(df, column, label1, label2, time_column, time_type):
                 else:
                     bigger = label2
                     smaller = label1
-    
-    print(best_range, best_rate, bigger, smaller)
-    return best_range, best_rate, bigger, smaller
+        return best_range, best_rate, bigger, smaller
 
 def databait_3(df, column1, label1, column2, label2, time_column, time_type):
     """
@@ -106,7 +104,6 @@ def databait_3(df, column1, label1, column2, label2, time_column, time_type):
 
     years = small_df[time_column].dropna().astype('int32')
     counts = years.value_counts(sort=False).sort_index(ascending=False)
-    print(counts)
     # TODO: implement error checking in case there is no such data
     now = datetime.datetime.now()
 
@@ -114,7 +111,7 @@ def databait_3(df, column1, label1, column2, label2, time_column, time_type):
     best_range = 0
     best_rate = 0
 
-    if time_type == "Year":
+    if time_type == "Years":
         year = now.year
         earliest_year = counts.index[-1]
         # NOTE: is the past 15-20 years still interesting? should we limit it to 5-10?
@@ -122,11 +119,10 @@ def databait_3(df, column1, label1, column2, label2, time_column, time_type):
         for i in range(5, min(25, year - earliest_year), 5):
             new = counts.loc[counts.index >= year - i].sum()
             old = counts.loc[counts.index < year - i].sum()
-            print(new, old)
+            # print(new, old)
             if new/old > best_rate:
                 best_rate = new/old
                 best_range = i
-    print(best_range, best_rate)
     return best_range, best_rate
 
 def databait_4(df):
@@ -138,6 +134,8 @@ def databait_5(df, column, time_column, time_type, time_point):
     For Databait 5
     Compare the max of a column with the avg of all other values
     """
+    # TODO: error check for cases where there is no data at time_point
+    # TODO: 0 value universities aren't counted
     time_df = df.loc[df[time_column] == time_point]
     labels = time_df[column].dropna()
     counts = labels.value_counts(sort=False)
@@ -146,12 +144,12 @@ def databait_5(df, column, time_column, time_type, time_point):
     max_label = counts.idxmax()
     max_count = counts.max()
     others = counts.drop(labels=max_label)
-    avg = others.mean()
-    delta = max_count - avg / avg
+    avg = others.sum() / len(df[column].unique())
+    delta = max_count / avg
     # return the times by which max is higher than avg (% gets too high)
     return max_label, delta 
 
-def databait_6(df, column, time_column, time_point):
+def databait_6(df, column, time_column, time_type, time_point):
     """
     For Databait 6
     Finds the proportion of a column comprised of the most common value
@@ -166,22 +164,20 @@ def databait_6(df, column, time_column, time_point):
 
     max_label = counts.idxmax()
     max_count = counts.max()
-    return max_label, max_count / counts.count()
+    return max_label, max_count / counts.sum()
 
 def databait_8(df, column1, column2):
     """
     For Databait 8
     Calculates proportion of overlap between two columns with recurring labels
     """
-    c1 = df[column1].dropna().value_counts()
-    c2 = df[column2].dropna().value_counts().index
-    total = 0
+    c1 = df[column1]
+    c2 = df[column2]
     overlap = 0
-    for x in c1.index:
-        if x in c2:
-            overlap += c1[x]
-        total += c1[x]
-    return overlap / total
+    for i in range(len(c1)):
+        if c1[i] == c2[i]:
+            overlap += 1
+    return overlap / len(c1)
 
 
 if __name__ == '__main__':
@@ -192,9 +188,10 @@ if __name__ == '__main__':
                         help='the index column for the pandas dataframe')
     args = parser.parse_args()
     df = get_data(args.csv,args.index)
-    databait_1(df, "University", "Brown University", "JoinYear", "Year")
-    # databait_2(df, "University", "Carnegie Mellon University", "Cornell University", "JoinYear", "Year")
     # databait_1(df, "University", "Brown University", "JoinYear", "Year")
+    # print(databait_3(df, "University", "University of California - Berkeley", "SubField", "Artificial Intelligence", "JoinYear", "Year"))
+    # print(databait_2(df, "University", "Carnegie Mellon University", "Brown University", "JoinYear", "Year"))
     # print(databait_5(df, "University", "JoinYear", "Year", "2016"))
-    # print(databait_8(df, "University", "Bachelors"))
+    # print(databait_6(df, "Gender", "JoinYear", "Year", "2016"))
+    print(databait_8(df, "University", "Bachelors"))
 
