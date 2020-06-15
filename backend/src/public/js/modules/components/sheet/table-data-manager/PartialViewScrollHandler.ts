@@ -21,9 +21,10 @@ interface PartialViewScrollHandlerOptions<T> {
   sourceGetter: () => Array<T>;
   elementExtractor: (viewElement: T) => HTMLElement;
   partialView: PartialView<T>;
+  partialViewArea: HTMLElement;
   scrollTarget: HTMLElement;
   elementHeight: number;
-  partialViewArea: HTMLElement;
+  fillerInitializer?: () => HTMLElement;
   beforeViewUpdate?: (handler: PartialViewScrollHandler<T>) => void;
   afterViewUpdate?: (handler: PartialViewScrollHandler<T>) => void;
   topFillerOptions?: IntersectionObserverOptions;
@@ -34,21 +35,21 @@ interface PartialViewScrollHandlerOptions<T> {
 
 
 export class PartialViewScrollHandler<T> {
-  private sourceGetter: () => Array<T>;
-  private get source(): Array<T> {
+  protected sourceGetter: () => Array<T>;
+  protected get source(): Array<T> {
     return this.sourceGetter();
   }
 
-  private scrollTarget: HTMLElement;
-  private lastScrollPosition: number = 0;
-  private get scrollPosition(): number {
+  protected scrollTarget: HTMLElement;
+  protected lastScrollPosition: number = 0;
+  protected get scrollPosition(): number {
     return this.scrollTarget.scrollTop;
   }
 
   /**
    * store current scroll position and report whether the scroll direction is going upward or downward
    */
-  private get scrollDirection(): Direction {
+  protected get scrollDirection(): Direction {
     const scrollPosition = this.scrollPosition;
     let scrollDirection;
     if (scrollPosition > this.lastScrollPosition) {
@@ -62,22 +63,22 @@ export class PartialViewScrollHandler<T> {
     return scrollDirection;
   }
 
-  private partialView: PartialView<T>;
-  private elementExtractor: (viewElement: T) => HTMLElement;
-  private elementHeight: number;
+  protected partialView: PartialView<T>;
+  protected elementExtractor: (viewElement: T) => HTMLElement;
+  protected elementHeight: number;
 
   get shouldPartialRender(): boolean {
     return this.partialView.numElement > this.partialView.maximumWindowSize;
   }
 
-  private partialViewArea: HTMLElement;
+  protected partialViewArea: HTMLElement;
   beforeViewUpdate: (handler: PartialViewScrollHandler<T>) => void;
   afterViewUpdate: (handler: PartialViewScrollHandler<T>) => void;
 
-  private topFillerElement: HTMLElement;
-  private bottomFillerElement: HTMLElement;
-  private topFillerObserver: IntersectionObserver;
-  private bottomFillerObserver: IntersectionObserver;
+  topFillerElement: HTMLElement;
+  bottomFillerElement: HTMLElement;
+  protected topFillerObserver: IntersectionObserver;
+  protected bottomFillerObserver: IntersectionObserver;
   get topFillerHeight(): number {
     return this.partialView.numElementNotRenderedBefore * this.elementHeight;
   }
@@ -103,8 +104,10 @@ export class PartialViewScrollHandler<T> {
   get bottomSentinelElement(): HTMLElement {
     return this.elementExtractor(this.bottomSentinel);
   }
-  private topSentinelObserver: IntersectionObserver;
-  private bottomSentinelObserver: IntersectionObserver;
+  protected topSentinelObserver: IntersectionObserver;
+  protected bottomSentinelObserver: IntersectionObserver;
+
+  protected scrollTimeoutId: number;
 
   constructor(options: PartialViewScrollHandlerOptions<T>) {
     this.sourceGetter = options.sourceGetter;
@@ -116,13 +119,30 @@ export class PartialViewScrollHandler<T> {
     this.beforeViewUpdate = options.beforeViewUpdate;
     this.afterViewUpdate = options.afterViewUpdate;
 
-    this.initializeFillers();
+    this.initializeScrollEventListener();
+    this.initializeFillers(options.fillerInitializer);
     this.initializeFillerObservers(options.topFillerOptions, options.bottomFillerOptions);
     this.initializeSentinelObservers(options.topSentinelOptions, options.bottomSentinelOptions);
+    this.syncView();
     this.activateObservers();
   }
 
-  private initializeFillers(initializer: () => HTMLElement = () => document.createElement("div")) {
+  protected initializeScrollEventListener() {
+    this.scrollTarget.addEventListener("scroll", () => {
+      if (this.scrollTimeoutId) {
+        window.clearTimeout(this.scrollTimeoutId);
+      }
+      this.scrollTimeoutId = window.setTimeout(() => {
+        const startIndex = this.calculateStartIndexByScrollAmount();
+        if (startIndex < this.partialView.partialViewStartIndex && this.partialView.partialViewEndIndex < startIndex) {
+          // view out of sync
+          this.setWindow(startIndex);
+        }
+      }, 400);
+    }, { passive: true });
+  }
+
+  protected initializeFillers(initializer: () => HTMLElement = () => document.createElement("div")) {
     this.topFillerElement = initializer();
     this.topFillerElement.classList.add(fillerClass, topFillerClass);
     this.partialViewArea.before(this.topFillerElement);
@@ -130,19 +150,26 @@ export class PartialViewScrollHandler<T> {
     this.bottomFillerElement = initializer();
     this.bottomFillerElement.classList.add(fillerClass, bottomFillerClass);
     this.partialViewArea.after(this.bottomFillerElement);
+
+    this.setFillerHeights();
   }
 
-  private initializeFillerObservers(topFillerOptions?: IntersectionObserverOptions, bottomFillerOptions?: IntersectionObserverOptions) {
+  protected setFillerHeights(topFillerHeight: number = this.topFillerHeight, bottomFillerHeight: number = this.bottomFillerHeight) {
+    this.topFillerElement.style.height = `${topFillerHeight}px`;
+    this.bottomFillerElement.style.height = `${bottomFillerHeight}px`;
+  }
+
+  protected initializeFillerObservers(topFillerOptions?: IntersectionObserverOptions, bottomFillerOptions?: IntersectionObserverOptions) {
     this.topFillerObserver = new IntersectionObserver(entries => this.fillerReachedHandler(entries), topFillerOptions);
     this.bottomFillerObserver = new IntersectionObserver(entries => this.fillerReachedHandler(entries), bottomFillerOptions);
   }
 
-  private initializeSentinelObservers(topSentinelOptions?: IntersectionObserverOptions, bottomSentinelOptions?: IntersectionObserverOptions) {
+  protected initializeSentinelObservers(topSentinelOptions?: IntersectionObserverOptions, bottomSentinelOptions?: IntersectionObserverOptions) {
     this.topSentinelObserver = new IntersectionObserver(entries => this.sentinelReachedHandler(entries), topSentinelOptions);
     this.bottomSentinelObserver = new IntersectionObserver(entries => this.sentinelReachedHandler(entries), bottomSentinelOptions);
   }
 
-  private activateObservers() {
+  protected activateObservers() {
     if (this.shouldPartialRender) {
       this.topFillerObserver.observe(this.topFillerElement);
       this.bottomFillerObserver.observe(this.bottomFillerElement);
@@ -151,25 +178,25 @@ export class PartialViewScrollHandler<T> {
     }
   }
 
-  private deactivateObservers() {
+  protected deactivateObservers() {
     this.topFillerObserver.disconnect();
     this.bottomFillerObserver.disconnect();
     this.topSentinelObserver.disconnect();
     this.bottomSentinelObserver.disconnect();
   }
 
-  protected setWindow(startIndex: number, endIndex: number = startIndex + this.partialView.maximumWindowSize) {
+  setWindow(startIndex: number, endIndex: number = startIndex + this.partialView.maximumWindowSize - 1) {
     if (this.beforeViewUpdate) {
       this.beforeViewUpdate(this);
     }
     this.partialView.setWindow(startIndex, endIndex);
-    this.updateView();
+    this.syncView();
     if (this.afterViewUpdate) {
       this.afterViewUpdate(this);
     }
   }
 
-  protected updateView() {
+  protected syncView() {
     const view: Array<T> = this.partialView.view(this.source);
     while (this.partialViewArea.firstChild) {
       this.partialViewArea.lastChild.remove();
@@ -177,21 +204,26 @@ export class PartialViewScrollHandler<T> {
     const fragment = new DocumentFragment();
     view.forEach(viewElement => fragment.appendChild(this.elementExtractor(viewElement)));
     this.partialViewArea.appendChild(fragment);
+    this.setFillerHeights();
   }
 
-  private fillerReachedHandler(entries: Array<IntersectionObserverEntry>) {
+  protected calculateStartIndexByScrollAmount(scrollAmount: number = this.scrollPosition) {
+    const position = bound(scrollAmount - this.topFillerElement.offsetTop, 0);
+    return bound(Math.floor(position / this.elementHeight), 0, this.partialView.numElement);
+  }
+
+  protected fillerReachedHandler(entries: Array<IntersectionObserverEntry>) {
     entries.forEach(entry => {
       if (entry.isIntersecting && entry.intersectionRect.height > 0) {
         this.deactivateObservers();
-        const position = this.scrollPosition - this.topFillerElement.offsetTop;
-        const startIndex = bound(Math.floor(position / this.elementHeight), 0, this.partialView.numElement);
+        const startIndex = this.calculateStartIndexByScrollAmount();
         this.setWindow(startIndex);
         this.activateObservers();
       }
     });
   }
 
-  private sentinelReachedHandler(entries: Array<IntersectionObserverEntry>) {
+  protected sentinelReachedHandler(entries: Array<IntersectionObserverEntry>) {
     const scrollDirection: Direction = this.scrollDirection;
 
     entries.forEach(entry => {
