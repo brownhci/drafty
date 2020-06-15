@@ -40,7 +40,7 @@ export interface ViewFunction<T> {
  * @param {T} element - An element to be filtered.
  * @returns {boolean} True if this element should be kept in the target view.
  */
-type FilterFunction<T> = (element: T) => boolean;
+export type FilterFunction<T> = (element: T) => boolean;
 
 /**
  * Selects elements meeting certain condition(s).
@@ -338,7 +338,7 @@ export class PartialView<T> implements ViewFunction<T> {
  * @param {T} e2 - The second element.
  * @returns {number} A number indicating the comparison result. {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort}
  */
-type SortingFunction<T> = (e1: T, e2: T) => number;
+export type SortingFunction<T> = (e1: T, e2: T) => number;
 
 /**
  * This interface groups a sorting function with its priority.
