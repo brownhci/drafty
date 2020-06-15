@@ -169,7 +169,7 @@ export class PartialViewScrollHandler<T> {
     this.bottomSentinelObserver = new IntersectionObserver(entries => this.sentinelReachedHandler(entries), bottomSentinelOptions);
   }
 
-  protected activateObservers() {
+  activateObservers() {
     if (this.shouldPartialRender) {
       this.topFillerObserver.observe(this.topFillerElement);
       this.bottomFillerObserver.observe(this.bottomFillerElement);
@@ -178,7 +178,7 @@ export class PartialViewScrollHandler<T> {
     }
   }
 
-  protected deactivateObservers() {
+  deactivateObservers() {
     this.topFillerObserver.disconnect();
     this.bottomFillerObserver.disconnect();
     this.topSentinelObserver.disconnect();
@@ -189,8 +189,10 @@ export class PartialViewScrollHandler<T> {
     if (this.beforeViewUpdate) {
       this.beforeViewUpdate(this);
     }
+    this.deactivateObservers();
     this.partialView.setWindow(startIndex, endIndex);
     this.syncView();
+    this.activateObservers();
     if (this.afterViewUpdate) {
       this.afterViewUpdate(this);
     }
@@ -215,10 +217,8 @@ export class PartialViewScrollHandler<T> {
   protected fillerReachedHandler(entries: Array<IntersectionObserverEntry>) {
     entries.forEach(entry => {
       if (entry.isIntersecting && entry.intersectionRect.height > 0) {
-        this.deactivateObservers();
         const startIndex = this.calculateStartIndexByScrollAmount();
         this.setWindow(startIndex);
-        this.activateObservers();
       }
     });
   }
@@ -230,10 +230,8 @@ export class PartialViewScrollHandler<T> {
       const desiredDirection: Direction = this.topSentinelElement === entry.target ? Direction.Up : Direction.Down;
       if (entry.isIntersecting && entry.intersectionRect.height > 0 && scrollDirection === desiredDirection) {
         // the last element of the first data section is appearing into view
-        this.deactivateObservers();
         const startIndex: number = this.partialView.numElementNotRenderedBefore + scrollDirection === Direction.Up ? -this.partialView.maximumWindowSize : this.partialView.maximumWindowSize;
         this.setWindow(startIndex);
-        this.activateObservers();
       }
     });
   }
