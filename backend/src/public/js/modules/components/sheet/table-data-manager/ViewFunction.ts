@@ -1,3 +1,15 @@
+/**
+ * @module
+ *
+ * This module provides functions that transform a source view into a target view, where a view is simply an array of elements.
+ *
+ * These transformations have following properties:
+ *
+ *    + non-destructive: since the source view for a view function might be used elsewhere, the view function provides the guarantee of not modifying the source view.
+ *    + efficient: view generation is avoided as much as possible, especially when same view is provided.
+ *    + chainable: see {@link ViewFunctionChain}. The target view of a view function can be passed as source view for another view function. This chaining is still efficient since view generation is avoided when possible at every view function and at the aggregate view function. Therefore, if a view function in the chain changed while the initial source view does not change, the target views before that changed view function is reused while every view function after it will regenerate its view.
+ */
+
 import { bound } from "../../../utils/math";
 
 
@@ -171,9 +183,9 @@ export class PartialView<T> implements ViewFunction<T> {
   private currentView: Array<T>;
 
   /** start index of the window, inclusive */
-  private partialViewStartIndex: number;
+  partialViewStartIndex: number;
   /** end index of the window, inclusive */
-  private partialViewEndIndex: number;
+  partialViewEndIndex: number;
 
   /** a hard limit on the length of the window */
   private windowSizeUpperBound: number;
