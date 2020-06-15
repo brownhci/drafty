@@ -6,7 +6,8 @@ module.exports = {
     form: "./form.ts",
     main: "./main.ts",
     navbar: "./navbar.ts",
-    sheet: "./sheet.ts"
+    sheet: "./sheet.ts",
+    view: "./modules/components/sheet/table-data-manager/View.ts"
   },
   devtool: "inline-source-map",
   module: {
