@@ -1,7 +1,24 @@
-import pymysql, html, re
+import pymysql, html, re, argparse
+
+def get_db_creds():
+    with open('../backend/.env', 'r') as fh:
+        for line in fh.readlines():
+            kv = line.strip().split('=')
+            k = kv[0]
+            if k == 'DB_USER':
+                dbuser = kv[1]
+            if k == 'DB_PASSWORD':
+                dbpass = kv[1]
+    return dbuser, dbpass
+
+parser = argparse.ArgumentParser(description='Write edit history to csv file.')
+parser.add_argument('--database', default='2300profs',
+                    help='The database to be outputtted')
+args = parser.parse_args()
 
 # Open database connection
-db = pymysql.connect("localhost","gensheet","chi2020","profs" )
+db_user, db_pass = get_db_creds()
+db = pymysql.connect("localhost", db_user, db_pass, args.database)
 
 # prepare a cursor object using cursor() method
 cursor = db.cursor()
@@ -74,8 +91,8 @@ for r in rows:
     idColPrev = idCol
     idRowPrev = idRow
 
-
-with open('professors.csv', 'r+') as f:
+filepath = f'../backend/data_sharing/{args.database}.csv'
+with open(filepath, 'w+') as f:
     final = header + '\n' + body
     f.write(final)
 

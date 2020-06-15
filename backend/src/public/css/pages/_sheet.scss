@@ -25,6 +25,24 @@ $visual-cue-width: 5px;
   white-space: pre;
 }
 
+#noscript-modal {
+  @extend .modal;
+  @extend .d-block;
+  z-index: $zindex-nav + 2;
+  background-color: rgba(0, 0, 0, 0.5);
+  .modal-dialog {
+    @extend .modal-lg;
+    @extend  .modal-dialog-centered;
+
+    .modal-body {
+      @extend .px-4;
+      @extend .pt-4;
+      @extend .pb-2;
+      @extend .text-center;
+    }
+  }
+}
+
 #welcome-screen {
   @extend .modal;
 

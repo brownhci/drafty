@@ -460,6 +460,5 @@ export async function checkReturnPath(req: Request, res: Response, next: NextFun
   if(req.path !== "/favicon.ico") {
     req.session.returnTo = req.path;
   }
-  //console.log('checkReturnPath: ' + req.path);
   next();
 }

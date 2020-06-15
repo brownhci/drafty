@@ -32,6 +32,9 @@ import * as passportConfig from "./config/passport";
 // Create Express server
 const app = express();
 
+// prevent leaking server information
+app.disable("x-powered-by");
+
 // Express configuration
 app.set("port", process.env.PORT || 3000);
 app.set("trust proxy", true); // sw: for production reverse proxy
@@ -63,12 +66,13 @@ const age = days * 24 * 60 * 60 * 1000; // days * hours * minutes * seconds * mi
 
 app.use(session({
     secret: SESSION_SECRET,
-    name: "zomg_this_enhances_security",
+    name: "security_protection",
     resave: false,
     saveUninitialized: true,
     cookie: {
         secure: false, // sw: should be set to true on production server; which means cookies will only be used over https
         httpOnly: true,
+        sameSite: true,
         maxAge: age
     },
     store: new MySQLStore({
@@ -85,9 +89,8 @@ app.use(flash());
 app.use(lusca.csrf());
 app.use(lusca.csp({
   policy: {
-    // TODO remove localhost origin in production
-    //"default-src": "self http://localhost:3000",
-    //"img-src": "*"
+    "default-src": "'self'",
+    "frame-ancestors": "'none'",
   }
 }));
 app.use(lusca.xframe("SAMEORIGIN"));
@@ -142,7 +145,8 @@ app.post("/account/profile", passportConfig.isAuthenticated, userCtrl.postUpdate
 app.post("/account/password", passportConfig.isAuthenticated, userCtrl.postUpdatePassword);
 
 // data sharing
-app.get("/data/:data", dataSharingCtrl.getFile);
+app.get("/data/edithistory", dataSharingCtrl.getEditHistory);
+app.get("/data/csv/:name", dataSharingCtrl.getCSV);
 
 // interactions
 app.post("/click", interactionCtrl.postClick);
@@ -160,7 +164,6 @@ app.post("/suggestions/new", suggestionCtrl.postNewSuggestion);
 
 // sheets
 app.get("/:sheet", userCtrl.checkReturnPath, sheetCtrl.getSheet);
-// app.post("/gen", sheetCtrl.genSheet);
 
 // handle missing pages
 app.get("*", function(req, res) {
