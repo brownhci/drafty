@@ -25,5 +25,5 @@ export const columnSearchClass = "column-search";
 export const columnSortButtonClass = "sort-btn";
 
 export const fillerClass = "filler-row";
-export const topFillerClass = "filler-row-top";
-export const bottomFillerClass = "filler-row-bottom";
+export const startFillerClass = "filler-row-top";
+export const endFillerClass = "filler-row-bottom";
