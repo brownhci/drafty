@@ -4,22 +4,6 @@ import { MutationReporter } from "./MutationReporter";
 import { PartialViewScrollHandler } from "./PartialViewScrollHandler";
 
 
-function getScrollParent(element: HTMLElement, includeHidden: boolean = false) {
-  let style = getComputedStyle(element);
-  const excludeStaticParent = style.position === "absolute";
-  const overflowRegex = includeHidden ? /(auto|scroll|hidden)/ : /(auto|scroll)/;
-
-  if (style.position === "fixed") return document.scrollingElement;
-  for (let parent = element; (parent = parent.parentElement);) {
-      style = getComputedStyle(parent);
-      if (excludeStaticParent && style.position === "static") {
-          continue;
-      }
-      if (overflowRegex.test(style.overflow + style.overflowY + style.overflowX)) return parent;
-  }
-
-  return document.scrollingElement;
-}
 
 type SourceType = HTMLTemplateElement | DocumentFragment | Node | Array<Node>;
 export class View {
@@ -32,9 +16,6 @@ export class View {
   scrollHandler: PartialViewScrollHandler<ViewModel>;
   viewFunctionChain: ViewFunctionChain<ViewModel>;
 
-  scrollTarget: HTMLElement;
-
-  elementHeight: number;
   windowSizeUpperBound: number = 200;
 
   constructor(
@@ -80,7 +61,6 @@ export class View {
     if (this.sourceViewModel.children_.length > 0) {
       const element = this.sourceViewModel.children_[0].element_;
       this.sourceViewModel.element_.appendChild(element);
-      this.elementHeight = element.clientHeight;
     }
   }
 
@@ -89,17 +69,14 @@ export class View {
     this.partialView = new PartialView<ViewModel>(this.source, 0, this.windowSizeUpperBound - 1, this.windowSizeUpperBound);
     this.sortedView = new SortedView<ViewModel>();
     this.viewFunctionChain = new ViewFunctionChain<ViewModel>([this.filteredView, this.sortedView, this.partialView]);
+    this.view;
   }
 
   protected initializeScrollHandler() {
-    this.scrollTarget = getScrollParent(this.sourceViewModel.element_);
     this.initializeElementHeight();
     this.scrollHandler = new PartialViewScrollHandler<ViewModel>({
-      elementExtractor: (viewModel: ViewModel) => viewModel.element_,
       partialView: this.partialView,
-      partialViewArea: this.sourceViewModel.element_,
-      scrollTarget: this.scrollTarget,
-      elementHeight: this.elementHeight,
+      target: this.sourceViewModel.element_,
       beforeViewUpdate: () => this.pauseMutationObserver(),
       afterViewUpdate: () => this.startMutationObserver(),
     });

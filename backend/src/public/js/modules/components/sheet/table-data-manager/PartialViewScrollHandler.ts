@@ -280,9 +280,9 @@ export class PartialViewScrollHandler<T> {
    */
   private endSentinelObserver: IntersectionObserver;
   /**
-   * A timeout id used to debounce the scroll event
+   * A flag used to debounce the scroll event
    */
-  private scrollTimeoutId: number;
+  private ticking: boolean = false;
 
   /**
    * Creates a PartialViewScrollHandler instance.
@@ -394,16 +394,18 @@ export class PartialViewScrollHandler<T> {
   private initializeScrollEventListener() {
     /** @todo try https://developer.mozilla.org/en-US/docs/Web/API/Document/scroll_event for scroll throttling */
     this.scrollTarget.addEventListener("scroll", () => {
-      if (this.scrollTimeoutId) {
-        window.clearTimeout(this.scrollTimeoutId);
-      }
-      this.scrollTimeoutId = window.setTimeout(() => {
-        const startIndex = this.getElementIndexFromScrollAmount();
-        if (startIndex < this.partialView.partialViewStartIndex && this.partialView.partialViewEndIndex < startIndex) {
-          // view out of sync
-          this.setWindow(startIndex);
+      if (!this.ticking) {
+          window.requestAnimationFrame(() => {
+            const startIndex = this.getElementIndexFromScrollAmount();
+            if (startIndex < this.partialView.partialViewStartIndex && this.partialView.partialViewEndIndex < startIndex) {
+              // view out of sync
+              this.setWindow(startIndex);
+            }
+            this.ticking = false;
+          });
+
+          this.ticking = true;
         }
-      }, 400);
     }, { passive: true });
   }
 
