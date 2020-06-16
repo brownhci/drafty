@@ -284,6 +284,20 @@ export class PartialViewScrollHandler<T> {
    */
   private scrollTimeoutId: number;
 
+  /**
+   * Creates a PartialViewScrollHandler instance.
+   *
+   * At minimal, the `option` object should contain:
+   *
+   *    + a `partialView`: used to retrieve target view
+   *    + a `target`: where to render the target view
+   *
+   * @see {@link {PartialViewScrollHandlerOptions} for more details on initialization configuration.
+   *
+   * @public
+   * @param {PartialViewScrollHandlerOptions} options - An option object to initialize the scroll handler.
+   * @constructs PartialViewScrollHandler
+   */
   constructor(options: PartialViewScrollHandlerOptions<T>) {
     this.initializeConvert(options.convert);
     this.partialView = options.partialView;
