@@ -1,16 +1,5 @@
-import { PartialViewScrollHandler as Handler } from "./PartialViewScrollHandler";
+import { PartialViewScrollHandler } from "./PartialViewScrollHandler";
 import { PartialView } from "./ViewFunction";
-
-class PartialViewScrollHandler<T> extends Handler<T> {
-  protected syncView() {
-    const view: Array<T> = this.partialView.currentView;
-    while (this.partialViewArea.firstChild) {
-      this.partialViewArea.lastChild.remove();
-    }
-    view.forEach(viewElement => this.partialViewArea.appendChild(this.elementExtractor(viewElement)));
-    this.setFillerHeights();
-  }
-}
 
 function setupIntersectionObserverMock({
   observe = () => null,
@@ -43,34 +32,28 @@ describe("changing view", () => {
     listItem.textContent = i.toString();
     source.push(listItem);
   }
-  const elementExtractor = (viewElement: HTMLLIElement) => viewElement;
   const partialView = new PartialView<HTMLLIElement>(source, 0, 9, 10);
-  const partialViewArea = document.createElement("ul");
-  document.body.appendChild(partialViewArea);
-  const scrollTarget = partialViewArea;
-  const elementHeight = 100;
+  const target = document.createElement("ul");
+  document.body.appendChild(target);
+  const elementLength = 100;
   const handler = new PartialViewScrollHandler<HTMLLIElement>({
-    elementExtractor,
     partialView,
-    partialViewArea,
-    scrollTarget,
-    elementHeight
+    target,
+    elementLength,
   });
   const range = (startIndex: number) => Array.from(Array(10).keys()).map(v => v + startIndex);
 
   test("set view", () => {
-    expect(handler.shouldPartialRender).toBe(true);
-    expect(handler.topSentinelIndex).toBeGreaterThanOrEqual(0);
-    expect(handler.topSentinelIndex).toBeLessThan(10);
-    expect(handler.bottomSentinelIndex).toBeGreaterThanOrEqual(0);
-    expect(handler.bottomSentinelIndex).toBeLessThan(10);
-    expect(handler.topFillerHeight).toBe(elementHeight * 0);
-    expect(handler.bottomFillerHeight).toBe(elementHeight * (10000 - 10));
-    expect(Array.from(partialViewArea.children).map(child => child.textContent)).toEqual(range(0).map(v => v.toString()));
+    expect(handler.startSentinelIndex).toBeGreaterThanOrEqual(0);
+    expect(handler.startSentinelIndex).toBeLessThan(10);
+    expect(handler.endSentinelIndex).toBeGreaterThanOrEqual(0);
+    expect(handler.endSentinelIndex).toBeLessThan(10);
+    expect(handler.startFillerLength).toBe(elementLength * 0);
+    expect(handler.endFillerLength).toBe(elementLength * (10000 - 10));
+    expect(Array.from(target.children).slice(1, -1).map(child => child.textContent)).toEqual(range(0).map(v => v.toString()));
     handler.setWindow(100);
-    expect(partialViewArea.children.length).toBe(10);
-    expect(Array.from(partialViewArea.children).map(child => child.textContent)).toEqual(range(100).map(v => v.toString()));
-    expect(handler.topFillerHeight).toBe(elementHeight * 100);
-    expect(handler.bottomFillerHeight).toBe(elementHeight * (10000 - 110));
+    expect(Array.from(target.children).slice(1, -1).map(child => child.textContent)).toEqual(range(100).map(v => v.toString()));
+    expect(handler.startFillerLength).toBe(elementLength * 100);
+    expect(handler.endFillerLength).toBe(elementLength * (10000 - 110));
   });
 });
