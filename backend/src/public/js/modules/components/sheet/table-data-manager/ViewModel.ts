@@ -91,6 +91,7 @@ export class ViewModel extends DOMForwardingInstantiation {
         value: uuid(),
         writable: false
     });
+    this.setForwardingTo__(forwardingTo);
     Object.defineProperty(this, "parent_", {
         configurable: false,
         enumerable: false,
