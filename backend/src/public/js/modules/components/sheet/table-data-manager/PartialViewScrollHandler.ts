@@ -392,7 +392,6 @@ export class PartialViewScrollHandler<T> {
    * @listens ScrollEvent
    */
   private initializeScrollEventListener() {
-    /** @todo try https://developer.mozilla.org/en-US/docs/Web/API/Document/scroll_event for scroll throttling */
     this.scrollTarget.addEventListener("scroll", () => {
       if (!this.ticking) {
           window.requestAnimationFrame(() => {
@@ -413,41 +412,34 @@ export class PartialViewScrollHandler<T> {
    * Initializes the filler elements.
    *
    * Filler elements serves as special guard nodes: when they appear in view -- blank section is appearing in the viewport, a target view update is necessary to refill the viewport with content.
-   *
-   * The filler element will be of same element type (same `tagName`) as view element in `this.partialView`. If `this.partialView` is empty, then the element type will be determined from its DOM parent `this.target`.
    */
   private initializeFillers() {
     let tagName: string = "div";
-    if (this.partialView.currentView.length > 0) {
-      const firstViewElement = this.partialView.currentView[0];
-      tagName = this.convert(firstViewElement).tagName;
-    } else {
-      switch (this.target.tagName) {
-        case "ol":
-        case "ul":
-          tagName = "li";
-          break;
-        case "dl":
-          tagName = "dt";
-          break;
-        case "table":
-        case "tbody":
-          tagName = "tr";
-          break;
-        case "tr":
-          tagName = "td";
-          break;
-      }
+    switch (this.target.parentElement.tagName) {
+      case "ol":
+      case "ul":
+        tagName = "li";
+        break;
+      case "dl":
+        tagName = "dt";
+        break;
+      case "table":
+      case "tbody":
+        tagName = "tr";
+        break;
+      case "tr":
+        tagName = "td";
+        break;
     }
 
     this.startFillerElement = document.createElement(tagName);
     this.startFillerElement.classList.add(fillerClass, startFillerClass);
-    this.target.prepend(this.startFillerElement);
+    this.target.before(this.startFillerElement);
     this.initializeStartFillerOffsetTop();
 
     this.endFillerElement = document.createElement(tagName);
     this.endFillerElement.classList.add(fillerClass, endFillerClass);
-    this.target.appendChild(this.endFillerElement);
+    this.target.after(this.endFillerElement);
   }
 
   /**
@@ -573,9 +565,9 @@ export class PartialViewScrollHandler<T> {
   private syncView(newView: Array<T> = this.partialView.currentView) {
     const numViewElement: number = newView.length;
     let elementIndex: number = 0;
-    let currentElement = this.startFillerElement.nextElementSibling;
+    let currentElement = this.target.children[0];
 
-    while (currentElement !== this.endFillerElement) {
+    while (currentElement) {
       const nextElement = currentElement.nextElementSibling;
       if (elementIndex < numViewElement) {
         // has corresponding view element: one-to-one replacement
@@ -594,7 +586,7 @@ export class PartialViewScrollHandler<T> {
       // if there are more view elements than corresponding DOM elements from old view
       for (; elementIndex < numViewElement; elementIndex++) {
         const viewElement: T = newView[elementIndex];
-        this.endFillerElement.before(this.convert(viewElement));
+        this.target.appendChild(this.convert(viewElement));
       }
     }
   }

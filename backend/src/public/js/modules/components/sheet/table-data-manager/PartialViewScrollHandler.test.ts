@@ -50,9 +50,9 @@ describe("changing view", () => {
     expect(handler.endSentinelIndex).toBeLessThan(10);
     expect(handler.startFillerLength).toBe(elementLength * 0);
     expect(handler.endFillerLength).toBe(elementLength * (10000 - 10));
-    expect(Array.from(target.children).slice(1, -1).map(child => child.textContent)).toEqual(range(0).map(v => v.toString()));
+    expect(Array.from(target.children).map(child => child.textContent)).toEqual(range(0).map(v => v.toString()));
     handler.setWindow(100);
-    expect(Array.from(target.children).slice(1, -1).map(child => child.textContent)).toEqual(range(100).map(v => v.toString()));
+    expect(Array.from(target.children).map(child => child.textContent)).toEqual(range(100).map(v => v.toString()));
     expect(handler.startFillerLength).toBe(elementLength * 100);
     expect(handler.endFillerLength).toBe(elementLength * (10000 - 110));
   });
