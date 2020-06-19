@@ -141,11 +141,11 @@ export class PartialViewScrollHandler<T> {
   }
 
   /**
-   * Reports the direction of current scoll.
+   * Reports the direction of current scroll.
    *
    * As a side effect, `this.lastScrollPosition` will be replaced by current scroll position.
    *
-   * @return {Direction} The direction of current scoll.
+   * @return {Direction} The direction of current scroll.
    */
   private get scrollDirection(): Direction {
     const scrollPosition = this.scrollPosition;
@@ -522,36 +522,46 @@ export class PartialViewScrollHandler<T> {
   /**
    * Invokes `this.partialView.setWindow` to change the section of source view that enters into the target view. Window is defined by two indices -- a start index and an end index. The elements with indices between (inclusive) these two window boundaries will be included in the target view.
    *
-   * The following steps will be taken in order:
-   *
-   *    + deactivate all IntersectionObserver
-   *    + set the window
-   *    + [IF A VIEW UPDATE WILL HAPPEN]
-   *        + invoke beforeViewUpdate callback if defined
-   *        + update the view
-   *        + update the DOM
-   *        + invoke afterViewUpdate callback if defined
-   *    + activate all IntersectionObserver
-   *
    * @public
    * @param {number} startIndex - The start index of the new window.
    * @param {number} [endIndex = startIndex + this.partialView.maximumWindowSize] - The end index of the window.
    */
-  setWindow(startIndex: number, endIndex: number = startIndex + this.partialView.maximumWindowSize - 1) {
+  setWindow(
+    startIndex: number,
+    endIndex: number = startIndex + this.partialView.maximumWindowSize - 1,
+  ) {
+    if (this.partialView.setWindow(startIndex, endIndex)) {
+      this.setView(() => this.partialView.view(this.partialView.lastSource));
+    }
+  }
+
+  /**
+   * Updates the rendered view.
+   *
+   * The following steps will be taken in order:
+   *
+   *    + deactivate all IntersectionObserver
+   *    + invoke beforeViewUpdate callback if defined
+   *    + update the view
+   *    + update the DOM
+   *    + invoke afterViewUpdate callback if defined
+   *    + activate all IntersectionObserver
+   *
+   * @param {() => Array<T>} viewFunction - A callback function to generate the new view.
+   */
+  setView(viewFunction: () => Array<T>) {
     this.deactivateObservers();
 
-    if (this.partialView.setWindow(startIndex, endIndex)) {
-      // view generation will happen
-      if (this.beforeViewUpdate) {
-        this.beforeViewUpdate(this.partialView.currentView, this);
-      }
+    // view generation will happen
+    if (this.beforeViewUpdate) {
+      this.beforeViewUpdate(this.partialView.currentView, this);
+    }
 
-      const newView = this.partialView.view(this.partialView.lastSource);
-      this.syncView();
-      this.setFillerLengths();
-      if (this.afterViewUpdate) {
-        this.afterViewUpdate(newView, this);
-      }
+    const newView = viewFunction();
+    this.syncView(newView);
+    this.setFillerLengths();
+    if (this.afterViewUpdate) {
+      this.afterViewUpdate(newView, this);
     }
 
     this.activateObservers();

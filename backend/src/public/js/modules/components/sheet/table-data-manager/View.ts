@@ -4,7 +4,6 @@ import { MutationReporter } from "./MutationReporter";
 import { PartialViewScrollHandler } from "./PartialViewScrollHandler";
 
 
-
 type SourceType = HTMLTemplateElement | DocumentFragment | Node | Array<Node>;
 export class View {
   sourceViewModel: ViewModel;
@@ -18,16 +17,26 @@ export class View {
 
   windowSizeUpperBound: number = 200;
 
+  get source(): Array<ViewModel> {
+    return this.sourceViewModel.children_;
+  }
+
+  get view(): Array<ViewModel> {
+    return this.viewFunctionChain.view(this.source);
+  }
+
   constructor(
     source: SourceType,
     target: HTMLElement) {
-      // eslint-disable-next-line
-      const that = this;
-      const viewModelBuilders: Array<ViewModelBuilder> = [this.childViewModelBuilder];
 
-      this.sourceViewModel = new ViewModel(undefined, target, function (mutations, observer, originalMutations, reporter) {
-        that.onMutation(mutations, observer, originalMutations, reporter);
-      }, undefined, undefined, viewModelBuilders);
+      this.sourceViewModel = new ViewModel(
+        undefined,
+        target,
+        (mutations, observer, originalMutations, reporter) => this.onMutation(mutations, observer, originalMutations, reporter),
+        undefined,
+        undefined,
+        [this.childViewModelBuilder]
+      );
       this.parseSource(source);
       this.initializeViewFunction();
       this.initializeScrollHandler();
@@ -49,31 +58,16 @@ export class View {
     this.sourceViewModel.patchChildViewModelsWithDOMElements__(source as Array<HTMLElement>);
   }
 
-  get source(): Array<ViewModel> {
-    return this.sourceViewModel.children_;
-  }
-
-  get view(): Array<ViewModel> {
-    return this.viewFunctionChain.view(this.source);
-  }
-
-  protected initializeElementHeight() {
-    if (this.sourceViewModel.children_.length > 0) {
-      const element = this.sourceViewModel.children_[0].element_;
-      this.sourceViewModel.element_.appendChild(element);
-    }
-  }
-
   protected initializeViewFunction() {
     this.filteredView = new FilteredView<ViewModel>();
     this.partialView = new PartialView<ViewModel>(this.source, 0, this.windowSizeUpperBound - 1, this.windowSizeUpperBound);
     this.sortedView = new SortedView<ViewModel>();
     this.viewFunctionChain = new ViewFunctionChain<ViewModel>([this.filteredView, this.sortedView, this.partialView]);
+    // set up the first target view
     this.view;
   }
 
   protected initializeScrollHandler() {
-    this.initializeElementHeight();
     this.scrollHandler = new PartialViewScrollHandler<ViewModel>({
       partialView: this.partialView,
       target: this.sourceViewModel.element_,
@@ -83,11 +77,11 @@ export class View {
   }
 
   startMutationObserver() {
-    // this.sourceViewModel.observe__(this.sourceViewModel.element_, false, undefined, false, true, false);
+    this.sourceViewModel.observe__(this.sourceViewModel.element_, false, undefined, false, true, false);
   }
 
   pauseMutationObserver() {
-    // this.sourceViewModel.unobserve__(this.sourceViewModel.element_);
+    this.sourceViewModel.unobserve__(this.sourceViewModel.element_);
   }
 
   protected onMutation(mutations: Array<MutationRecord>, observer: MutationObserver, originalMutations: Array<MutationRecord>, reporter: MutationReporter) {
@@ -118,7 +112,7 @@ export class View {
   }
 
   refreshView() {
-    this.scrollHandler.setWindow(this.partialView.numElementNotRenderedBefore);
+    this.scrollHandler.setView(() => this.view);
   }
 
   addFilterFunction(key: any, filterFunction: FilterFunction<ViewModel>) {
