@@ -139,6 +139,13 @@ export class PartialViewScrollHandler<T> {
       return this.scrollTarget.scrollLeft;
     }
   }
+  private set scrollPosition(position: number) {
+    if (this.scrollAxis === Axis.Vertical) {
+      this.scrollTarget.scrollTop = position;
+    } else { /* horizontal */
+      this.scrollTarget.scrollLeft = position;
+    }
+  }
 
   /**
    * Reports the direction of current scroll.
@@ -558,8 +565,10 @@ export class PartialViewScrollHandler<T> {
     }
 
     const newView = viewFunction();
+    const scrollPosition = this.scrollPosition;
     this.syncView(newView);
     this.setFillerLengths();
+    this.scrollPosition = scrollPosition;
     if (this.afterViewUpdate) {
       this.afterViewUpdate(newView, this);
     }
@@ -574,30 +583,24 @@ export class PartialViewScrollHandler<T> {
    */
   private syncView(newView: Array<T> = this.partialView.currentView) {
     const numViewElement: number = newView.length;
-    let elementIndex: number = 0;
-    let currentElement = this.target.children[0];
-
-    while (currentElement) {
-      const nextElement = currentElement.nextElementSibling;
-      if (elementIndex < numViewElement) {
+    const elements = this.target.children;
+    let elementIndex = 0;
+    for (; elementIndex < numViewElement; elementIndex++) {
+      const viewElement = this.convert(newView[elementIndex]);
+      const element = elements[elementIndex];
+      if (element) {
         // has corresponding view element: one-to-one replacement
-        const viewElement: T = newView[elementIndex];
-        currentElement.replaceWith(this.convert(viewElement));
+        element.replaceWith(viewElement);
       } else {
-        // X has corresponding view element: detach current element from DOM
-        currentElement.remove();
+        // if there are more view elements than corresponding DOM elements from old view
+        this.target.appendChild(viewElement);
       }
-
-      currentElement = nextElement;
-      elementIndex++;
     }
 
-    if (elementIndex < numViewElement) {
-      // if there are more view elements than corresponding DOM elements from old view
-      for (; elementIndex < numViewElement; elementIndex++) {
-        const viewElement: T = newView[elementIndex];
-        this.target.appendChild(this.convert(viewElement));
-      }
+    const numElements = elements.length;
+    for (; elementIndex < numElements; elementIndex++) {
+      // element has corresponding view element: detach element from DOM
+      this.target.lastElementChild.remove();
     }
   }
 

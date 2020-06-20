@@ -15,7 +15,7 @@ export class View {
   scrollHandler: PartialViewScrollHandler<ViewModel>;
   viewFunctionChain: ViewFunctionChain<ViewModel>;
 
-  windowSizeUpperBound: number = 200;
+  windowSizeUpperBound: number = 400;
 
   useCache: boolean = true;
 
