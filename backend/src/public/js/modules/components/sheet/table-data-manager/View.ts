@@ -17,12 +17,16 @@ export class View {
 
   windowSizeUpperBound: number = 200;
 
+  useCache: boolean = true;
+
   get source(): Array<ViewModel> {
     return this.sourceViewModel.children_;
   }
 
   get view(): Array<ViewModel> {
-    return this.viewFunctionChain.view(this.source);
+    const useCache = this.useCache;
+    this.useCache = true;
+    return this.viewFunctionChain.view(this.source, useCache);
   }
 
   constructor(
@@ -93,22 +97,36 @@ export class View {
           continue;
         }
 
-        if (mutation.type !== "childList") {
-          continue;
-        }
-
-        for (const addedNode of mutation.addedNodes) {
-          const viewModel = this.childViewModelBuilder(addedNode as HTMLElement);
-          this.sourceViewModel.insertChild__(viewModel);
-        }
-
-        for (const removedNode of mutation.removedNodes) {
-          const identifier = (removedNode as HTMLElement).dataset[ViewModel.identifierDatasetName_];
-          this.sourceViewModel.removeChildByIdentifier__(identifier);
+        if (mutation.type === "childList") {
+          this.onChildListMutation(mutation);
         }
       }
       this.scrollHandler.activateObservers();
     });
+  }
+
+  private onChildListMutation(mutation: MutationRecord) {
+    for (const removedNode of mutation.removedNodes) {
+      const identifier = (removedNode as HTMLElement).dataset[ViewModel.identifierDatasetName_];
+      this.sourceViewModel.removeChildByIdentifier__(identifier);
+    }
+
+    const addedNodeToChildIndex: Map<Node, number> = new Map();
+    for (const addedNode of mutation.addedNodes) {
+      let childIndex = 0;
+      let child;
+      while ((child = (addedNode as HTMLElement).previousElementSibling)) {
+        childIndex++;
+        if (addedNodeToChildIndex.has(child)) {
+          childIndex += addedNodeToChildIndex.get(child);
+          break;
+        }
+      }
+      addedNodeToChildIndex.set(addedNode, childIndex);
+      const viewModel = this.childViewModelBuilder(addedNode as HTMLElement);
+      this.sourceViewModel.insertChild__(viewModel, childIndex);
+    }
+    this.useCache = false;
   }
 
   refreshView() {

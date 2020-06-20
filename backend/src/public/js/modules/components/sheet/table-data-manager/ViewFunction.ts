@@ -28,9 +28,10 @@ export interface ViewFunction<T> {
    * The view transformer function which will consume a `source` view and produces a target view of same type.
    *
    * @param {Array<T>} source - An array of elements of certain type. Represents the source view. The source view will not be modified.
+   * @param {boolean} useCache - Whether previous target view (cache) can be reused giving same source view and same transformation.
    * @return {Array<T>} The transformed view as an array of elements of same type.
    */
-  view(source: Array<T>): Array<T>;
+  view(source: Array<T>, useCache?: boolean): Array<T>;
 }
 
 
@@ -74,8 +75,8 @@ export class FilteredView<T> implements ViewFunction<T> {
    * @override
    * @description View is lazily generated. In other words, last target view is cached and reused if possible.
    */
-  view(source: Array<T>): Array<T> {
-    this.regenerateView(source);
+  view(source: Array<T>, useCache: boolean = true): Array<T> {
+    this.regenerateView(source, useCache);
     return this.currentView;
   }
 
@@ -90,11 +91,14 @@ export class FilteredView<T> implements ViewFunction<T> {
    * If `source` view does not change and only new filter functions have been added, target view will be generated from last target view. In other words, previous target view will be refined to reduce computation.
    *
    * @param {Array<T>} source - An array of elements of certain type representing the source view.
+   * @param {boolean} useCache - Whether previous target view (cache) can be reused giving same source view and same transformation.
    */
-  private regenerateView(source: Array<T>) {
-    if (source === this.lastSource) {
-      if (this.shouldRegenerateView && this.shouldRefineView) {
-        source = this.currentView;
+  private regenerateView(source: Array<T>, useCache: boolean) {
+    if (useCache && source === this.lastSource) {
+      if (this.shouldRegenerateView) {
+        if (this.shouldRefineView) {
+          source = this.currentView;
+        }
       } else {
         return;
       }
@@ -239,7 +243,7 @@ export class PartialView<T> implements ViewFunction<T> {
     this.windowSizeUpperBound = windowSizeUpperBound;
     this.lastSource = source;
     this.setWindow(windowStartIndex, windowEndIndex);
-    this.regenerateView(source);
+    this.regenerateView(source, false);
   }
 
   /**
@@ -247,8 +251,8 @@ export class PartialView<T> implements ViewFunction<T> {
    * @override
    * @description View is lazily generated. In other words, last target view is cached and reused if possible.
    */
-  view(source: Array<T>): Array<T> {
-    this.regenerateView(source);
+  view(source: Array<T>, useCache: boolean = true): Array<T> {
+    this.regenerateView(source, useCache);
     return this.currentView;
   }
 
@@ -261,9 +265,10 @@ export class PartialView<T> implements ViewFunction<T> {
    * If both conditions are false, nothing will be done -- same target view will be returned.
    *
    * @param {Array<T>} source - An array of elements of certain type representing the source view.
+   * @param {boolean} useCache - Whether previous target view (cache) can be reused giving same source view and same transformation.
    */
-  private regenerateView(source: Array<T>) {
-    if (source === this.lastSource && !this.shouldRegenerateView) {
+  private regenerateView(source: Array<T>, useCache: boolean) {
+    if (useCache && source === this.lastSource && !this.shouldRegenerateView) {
       return;
     }
 
@@ -400,8 +405,8 @@ export class SortedView<T> implements ViewFunction<T> {
    * @override
    * @description View is lazily generated. In other words, last target view is cached and reused if possible.
    */
-  view(source?: Array<T>): Array<T> {
-    this.regenerateView(source);
+  view(source?: Array<T>, useCache: boolean = true): Array<T> {
+    this.regenerateView(source, useCache);
     return this.currentView;
   }
 
@@ -412,9 +417,10 @@ export class SortedView<T> implements ViewFunction<T> {
    *    + target view should be regenerated -- the sorting function changed
    *
    * @param {Array<T>} source - An array of elements of certain type representing the source view.
+   * @param {boolean} useCache - Whether previous target view (cache) can be reused giving same source view and same transformation.
    */
-  private regenerateView(source: Array<T>) {
-    if (source === this.lastSource && !this.shouldRegenerateView) {
+  private regenerateView(source: Array<T>, useCache: boolean) {
+    if (useCache && source === this.lastSource && !this.shouldRegenerateView) {
       // source has not change and sorting functions have not changed => we can reuse current view
       return;
     }
@@ -523,7 +529,7 @@ export class ViewFunctionChain<T> implements ViewFunction<T> {
   /** an array of view functions that consist the chain */
   private viewFunctions: Array<ViewFunction<T>>;
   /** should target view be regenerated if source view is the same */
-  private shouldRegenerateView: boolean = true;
+  shouldRegenerateView: boolean = true;
   /** previous source view, used to determine whether source view is the same */
   lastSource: Array<T>;
   /** holds target view */
@@ -538,8 +544,8 @@ export class ViewFunctionChain<T> implements ViewFunction<T> {
    * @override
    * @description View is lazily generated. In other words, last target view is cached and reused if possible.
    */
-  view(source: Array<T>): Array<T> {
-    this.regenerateView(source);
+  view(source: Array<T>, useCache: boolean = true): Array<T> {
+    this.regenerateView(source, useCache);
     return this.currentView;
   }
 
@@ -550,14 +556,15 @@ export class ViewFunctionChain<T> implements ViewFunction<T> {
    *    + target view should be regenerated -- any view function is inserted, modified, removed. In other words, whether the aggregate view function changed.
    *
    * @param {Array<T>} source - An array of elements of certain type representing the source view.
+   * @param {boolean} useCache - Whether previous target view (cache) can be reused giving same source view and same transformation.
    */
-  private regenerateView(source: Array<T>) {
-    if (source === this.lastSource && !this.shouldRegenerateView) {
+  private regenerateView(source: Array<T>, useCache: boolean) {
+    if (useCache && source === this.lastSource && !this.shouldRegenerateView) {
       return;
     }
 
     // Target view will be generated by piping the source view through the chain
-    this.currentView = this.viewFunctions.reduce((_source, viewFunction) => viewFunction.view(_source), source);
+    this.currentView = this.viewFunctions.reduce((_source, viewFunction) => viewFunction.view(_source, useCache), source);
 
     this.lastSource = source;
     this.shouldRegenerateView = false;
