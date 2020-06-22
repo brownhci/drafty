@@ -1,3 +1,9 @@
+/**
+ * @module
+ *
+ * This module provides a scroll handler that updates rendering view based on scrolling position.
+ */
+
 import { PartialView } from "./ViewFunction";
 import { ViewModel } from "./ViewModel";
 import { bound } from "../../../utils/math";
@@ -173,7 +179,7 @@ export class PartialViewScrollHandler<T> {
   /** @see {@link PartialViewScrollHandlerOptions#convert} */
   private convert: (viewElement: T) => HTMLElement;
   /** @see {@link PartialViewScrollHandlerOptions#elementLength} */
-  private elementLength: number = 0;
+  elementLength: number = 0;
 
   /**
    * Which the source view should be partially rendered.
