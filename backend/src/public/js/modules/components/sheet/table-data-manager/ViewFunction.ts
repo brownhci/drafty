@@ -529,7 +529,7 @@ export class ViewFunctionChain<T> implements ViewFunction<T> {
   /** an array of view functions that consist the chain */
   private viewFunctions: Array<ViewFunction<T>>;
   /** should target view be regenerated if source view is the same */
-  shouldRegenerateView: boolean = true;
+  private shouldRegenerateView: boolean = true;
   /** previous source view, used to determine whether source view is the same */
   lastSource: Array<T>;
   /** holds target view */
