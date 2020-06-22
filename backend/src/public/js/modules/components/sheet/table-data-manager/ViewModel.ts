@@ -9,7 +9,7 @@ import { generateUUID  as uuid } from "../../../utils/uuid";
  * @example A builder to create ViewModel abstraction for a `<p>` element
  *    `(element) => new ViewModel({id: undefined, classList: undefined, textContent: undefined }, element)`
  */
-export type ViewModelBuilder = (element: HTMLElement) => ViewModel;
+export type ViewModelBuilder = (element: HTMLElement, parent?: ViewModel, builders?: ViewModelBuilder | Array<ViewModelBuilder>) => ViewModel;
 
 /**
  * ViewModel represents an Abstraction equivalent of HTMLElement in that:
@@ -48,7 +48,8 @@ export class ViewModel extends DOMForwardingInstantiation {
   private _children: Array<ViewModel>;
 
    /**
-    * An array of builders to create View Model from DOM elements.
+    * A universal builder or an array of builders to create View Model from DOM elements.
+    * If one universal builder is provided, it can also be seen as an infinite array repeating this builder.
     *
     * This array is hierarchical in that first builder is suitable for create child view model of current view model, second builder is suitable for creating child view model of current child view model, and so on...
     *
@@ -56,7 +57,23 @@ export class ViewModel extends DOMForwardingInstantiation {
     *
     * Since `_viewModelBuilders` is hierarchical, it also decides the emulation depth in `patchWithDOM__`. For example, suppose `_viewModelBuilders.length` is 2, then calling `patchWithDOM__` on a `element` will emulate this element's children and grandchildren.
     */
-  private _viewModelBuilders: Array<ViewModelBuilder>;
+  private _viewModelBuilders: ViewModelBuilder | Array<ViewModelBuilder>;
+  /**
+   * @returns {ViewModelBuilder} A builder to create a child view model of current view model from a DOM element.
+   */
+  private get _childViewModelBuilder(): ViewModelBuilder {
+    if (Array.isArray(this._viewModelBuilders)) {
+      const builders = this._viewModelBuilders as Array<ViewModelBuilder>;
+      if (builders.length === 0) {
+        return null;
+      }
+      const builder = this._viewModelBuilders[0];
+      return (element: HTMLElement) => builder(element, this, builders.slice(1));
+    } else {
+      const builder = this._viewModelBuilders as ViewModelBuilder;
+      return (element: HTMLElement) => builder(element, this, builder);
+    }
+  }
 
   /** A mapping from identifier to child view model */
   private _identifierToChild: Map<string, ViewModel>;
@@ -82,7 +99,7 @@ export class ViewModel extends DOMForwardingInstantiation {
     callback?: MutationReporterCallback,
     parent: ViewModel = null,
     children: Array<ViewModel> = [],
-    viewModelBuilders: Array<ViewModelBuilder> = []
+    viewModelBuilders: ViewModelBuilder | Array<ViewModelBuilder> = []
   ) {
     super(propsToForward, forwardingTo);
     Object.defineProperty(this, "identifier_", {
@@ -210,10 +227,16 @@ export class ViewModel extends DOMForwardingInstantiation {
    * Default to append child at end.
    *
    * @public
-   * @param {ViewModel} viewModel - A child view model to be inserted.
+   * @param {ViewModel} child - A child view model to be inserted or a HTMLElement to be transformed into a child view model and inserted.
    * @param {number} index - Where the child view model should be inserted. Should be a valid number between [0, this._children.length] where 0 is equivalent of prepending to the start and `this._children.length` is equivalent to appending to the end.
    */
-  insertChild__(viewModel: ViewModel, index: number = this._children.length) {
+  insertChild__(child: ViewModel | HTMLElement, index: number = this._children.length) {
+    let viewModel: ViewModel;
+    if (child instanceof ViewModel) {
+      viewModel = child;
+    } else { /** @type HTMLElement */
+      viewModel = this._childViewModelBuilder(child);
+    }
     viewModel.parent_ = this;
     this._children.splice(index, 0, viewModel);
     this._identifierToChild.set(viewModel.identifier_, viewModel);
@@ -468,7 +491,7 @@ export class ViewModel extends DOMForwardingInstantiation {
     }
 
     // patch children
-    this.patchChildViewModelsWithDOMElements__(other.children);
+    this.patchChildViewModelsWithDOMElements__(other.children, noDetach, noAttach);
   }
 
 
@@ -498,7 +521,7 @@ export class ViewModel extends DOMForwardingInstantiation {
       childIndex++;
     }
 
-    if (this._viewModelBuilders.length === 0) {
+    if (Array.isArray(this._viewModelBuilders) && this._viewModelBuilders.length === 0) {
       // stop because no blueprints exist for child view model
       return;
     }
@@ -506,7 +529,7 @@ export class ViewModel extends DOMForwardingInstantiation {
     // other view model surplus: add
     for (; childIndex < numChildren; childIndex++) {
       const child = elements[childIndex] as HTMLElement;
-      const viewModel = this._viewModelBuilders[0](child);
+      const viewModel = this._childViewModelBuilder(child);
       this.insertChild__(viewModel, childIndex);
       if (!noAttach) {
         this.element_.appendChild(viewModel.element_);
