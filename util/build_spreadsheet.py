@@ -9,9 +9,6 @@ from atomicwrites import atomic_write
 db_user = 'test'
 db_pass = 'test'
 
-# sw90: number of rows per <template>; the lower the number the better the performance
-NROWS_IN_SECTION = 50
-
 
 sql_col_order = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.columnOrder"
 sql_col_widths = '''
@@ -146,28 +143,17 @@ def build_table_row(rows_iter):
     return f'<tr data-id="{id_unique_id}">{"".join(datarow_cell_iter)}</tr>', rest_rows_iter
 
 
-def build_table_data_section(rows_iter):
-    data_rows = []
-    try:
-        for _ in range(NROWS_IN_SECTION):
-            data_row, rows_iter = build_table_row(rows_iter)
-            data_rows.append(data_row)
-    except StopIteration:
-        rows_iter = None
-    return f'<template><tbody>{"".join(data_rows)}</tbody></template>', rows_iter
-
-
 def build_table_data_sections(cursor):
     cursor.execute(sql_suggestions)
     rows = cursor.fetchall()
     rows_iter = iter(rows)
-    data_sections = []
-    while True:
-        data_section, rows_iter = build_table_data_section(rows_iter)
-        data_sections.append(data_section)
-        if rows_iter is None:
-            break
-    return f'<div id="table-data">{"".join(data_sections)}</div>'
+    data_rows = []
+    try:
+        while True:
+            data_row, rows_iter = build_table_row(rows_iter)
+            data_rows.append(data_row)
+    except StopIteration:
+        return f'<div id="table-data"><template><tbody>{"".join(data_rows)}</tbody></template></div>'
 
 
 def build_table_file(cursor):
@@ -194,15 +180,12 @@ def get_db_creds():
 
 
 if __name__ == '__main__':
-    # python3 build_spreadsheet.py --host localhost --database 2300profs --nrows 40 2300profs.hbs
+    # python3 build_spreadsheet.py --host localhost --database 2300profs 2300profs.hbs
     parser = argparse.ArgumentParser(description='Write database data to table HTML file.')
     parser.add_argument('--host', default='localhost',
                         help='The host of the MySQL database')
     parser.add_argument('--database', default='profs',
                         help='The database to be outputtted')
-    parser.add_argument('--nrows', default=NROWS_IN_SECTION, type=int,
-                        dest='nrows_in_section',
-                        help='how many data row in each section')
     parser.add_argument('outfile',
                         help='where the HTML markup will be written to')
     args = parser.parse_args()
@@ -215,7 +198,6 @@ if __name__ == '__main__':
 
     try:
         with db.cursor() as cursor:
-            NROWS_IN_SECTION = args.nrows_in_section
             filepath = f'../backend/views/partials/sheets/{args.outfile}'
             save_to_file(filepath, cursor)
     except Exception as e:
