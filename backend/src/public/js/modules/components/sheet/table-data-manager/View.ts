@@ -1,7 +1,8 @@
 import { ViewModel } from "./ViewModel";
 import { FilterFunction, FilteredView, PartialView, SortedView, SortingFunction, ViewFunctionChain } from "./ViewFunction";
 import { MutationReporter } from "./MutationReporter";
-import { PartialViewScrollHandler } from "./PartialViewScrollHandler";
+import { PartialViewScrollHandler, Axis } from "./PartialViewScrollHandler";
+import { getViewportHeight, getViewportWidth } from "../../../utils/length";
 
 
 /**
@@ -14,6 +15,16 @@ import { PartialViewScrollHandler } from "./PartialViewScrollHandler";
  */
 type SourceType = HTMLTemplateElement | DocumentFragment | Node | Array<Node>;
 
+/**
+ * A View represents a rendering of elements. The source is provided at initialization which, after undergoing a series of transformations, is rendered at a specified DOM target node.
+ *
+ * Such rendering are responsive in that changes to DOM target will be observed and handled. For example, inserting or deleting a child of DOM target node will cause an insertion or deletion of its abstraction (ViewModel).
+ *
+ * Being a BasicView, it has following limitations:
+ *
+ *    + Its representation is a depth one tree (parent-child) and it will only respond to child mutation.
+ *    + Its transformation consists of a FilteredView, SortedView, and a PartialView and its renderer is a scroll handler.
+ */
 export class BasicView {
   /** organizes source view as a ViewModel, this allows source view to include elements from different regions of DOM or not in DOM */
   protected sourceViewModel: ViewModel;
@@ -35,7 +46,21 @@ export class BasicView {
   /** provides an aggregate transformation from source view to final target view */
   protected viewFunctionChain: ViewFunctionChain<ViewModel>;
 
-  windowSizeUpperBound: number = 400;
+  /**
+   * @returns {number} The maximum number of elements to be rendered.
+   */
+  protected get windowSizeUpperBound(): number {
+    return this.partialView.maximumWindowSize;
+  }
+  /**
+   * Changes the maximum number of elements to be rendered. Will cause rendered view change.
+   *
+   * @param {number} upperBound - A new upper bound for window size.
+   */
+  protected set windowSizeUpperBound(upperBound: number) {
+    this.viewFunctionChain.modifyViewFunction(2);
+    this.partialView.maximumWindowSize = upperBound;
+  }
 
   /**
    * Whether target view needs to be generated from scratch and whether cached intermediate view can be reused.
@@ -76,6 +101,10 @@ export class BasicView {
       this.parseSource(source);
       this.initializeViewFunction();
       this.initializeScrollHandler();
+      // updates to a window size appropriate for window size
+      this.adjustWindowSizeUpperBound();
+      this.refreshView();
+      this.initializeResizeHandler();
       this.monitor();
   }
 
@@ -111,12 +140,45 @@ export class BasicView {
     }
   }
 
+  /** A timeout used to debounce the timeout event */
+  private resizeTimeout: number;
+  /**
+   * Set up a handler for the {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/resize_event resize} event. This handler will adjust the maximum window size so that a smaller screen has a smaller window size while a larger screen has a larger window size.
+   */
+  protected initializeResizeHandler() {
+    window.addEventListener("resize", () => {
+      if (this.resizeTimeout) {
+        window.clearTimeout(this.resizeTimeout);
+      }
+      this.resizeTimeout = window.setTimeout(() => {
+        this.resizeTimeout = null;
+        this.adjustWindowSizeUpperBound();
+      }, 1000);
+    });
+  }
+
+  /**
+   * Adjust `this.windowSizeUpperBound` according to the viewport length.
+   */
+  protected adjustWindowSizeUpperBound() {
+    const elementLength = this.scrollHandler.elementLength;
+    const viewportLength = this.scrollHandler.scrollAxis === Axis.Horizontal ? getViewportWidth() : getViewportHeight();
+    // four times the current viewport height
+    let numElements = Math.max(0, Math.floor(viewportLength / elementLength)) * 4;
+    // round to next number divisible by 10
+    numElements = Math.ceil(numElements / 10) * 10;
+    if (numElements !== this.windowSizeUpperBound) {
+      this.windowSizeUpperBound = numElements;
+    }
+  }
+
   /**
    * Initializes the transformation that converts a source view into a target view.
    */
-  private initializeViewFunction() {
+  protected initializeViewFunction() {
     this.filteredView = new FilteredView<ViewModel>();
-    this.partialView = new PartialView<ViewModel>(this.source, 0, this.windowSizeUpperBound - 1, this.windowSizeUpperBound);
+    // initially only render one element
+    this.partialView = new PartialView<ViewModel>(this.source, 0, 0, 1);
     this.sortedView = new SortedView<ViewModel>();
     this.viewFunctionChain = new ViewFunctionChain<ViewModel>([this.filteredView, this.sortedView, this.partialView]);
     // set up the first target view

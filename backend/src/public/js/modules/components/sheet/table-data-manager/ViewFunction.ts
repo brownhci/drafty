@@ -204,6 +204,20 @@ export class PartialView<T> implements ViewFunction<T> {
     return Math.min(this.numElement, this.windowSizeUpperBound);
   }
 
+  /**
+   * Changes the maximum window size by providing an upper bound. If this upper bound causes the maximum window size to change (more or less elements can be rendered), try to expand the window to be maximum window size.
+   *
+   * @param {number} windowSizeUpperBound - Similar to `this.windowSizeUpperBound`, a hard fixed (compared to the number of elements upper bound which changes when elements are removed or added) upper bound for window size.
+   */
+  set maximumWindowSize(windowSizeUpperBound: number) {
+    const maximumWindowSize = this.maximumWindowSize;
+    this.windowSizeUpperBound = windowSizeUpperBound;
+    if (maximumWindowSize !== this.maximumWindowSize) {
+      // maximum window size changes
+      this.setWindow(this.partialViewStartIndex);
+    }
+  }
+
   /** actual window size - number of elements in target view */
   get windowSize(): number {
     return this.partialViewEndIndex - this.partialViewStartIndex + 1;
@@ -293,7 +307,7 @@ export class PartialView<T> implements ViewFunction<T> {
    * @param {number} [endIndex = startIndex + this.maximumWindowSize] - The end index of the window.
    * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
    */
-  setWindow(startIndex: number = 0, endIndex: number = startIndex + this.maximumWindowSize): boolean {
+  setWindow(startIndex: number = 0, endIndex: number = startIndex + this.maximumWindowSize - 1): boolean {
     const newStartIndex = bound(startIndex, 0, this.numElement - 1);
     const newEndIndex = bound(endIndex, newStartIndex, this.numElement - 1);
 

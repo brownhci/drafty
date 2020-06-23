@@ -35,7 +35,7 @@ enum Direction {
     Stay
 }
 
-enum Axis {
+export enum Axis {
   Horizontal,
   Vertical
 }
@@ -134,7 +134,7 @@ export class PartialViewScrollHandler<T> {
   /** the scrollable container for target view */
   private scrollTarget: HTMLElement;
   /** Which axis to monitor for scrolling */
-  private scrollAxis: Axis;
+  scrollAxis: Axis;
   /** previous scroll position, used to determine the scroll direction */
   private lastScrollPosition: number = 0;
   /** current scroll position */
@@ -595,6 +595,9 @@ export class PartialViewScrollHandler<T> {
       const viewElement = this.convert(newView[elementIndex]);
       const element = elements[elementIndex];
       if (element) {
+        if (element === viewElement) {
+          continue;
+        }
         // has corresponding view element: one-to-one replacement
         element.replaceWith(viewElement);
       } else {
