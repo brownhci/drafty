@@ -415,11 +415,11 @@ function setColumnSorter(columnIndex: number, sortingDirection: SortingDirection
   const buttonElement = getColumnLabelSortButton(getColumnLabel(columnIndex));
   buttonElement.classList.add(clickClass);
 
-  let sorter: SortingFunction<HTMLElement>;
+  let sorter: SortingFunction<HTMLTableRowElement>;
   if (sortingDirection === SortingDirection.ASCENDING) {
-    sorter = (e1, e2) => e1.textContent.localeCompare(e2.textContent);
+    sorter = (r1, r2) => getTableCellText(r1.cells[columnIndex]).localeCompare(getTableCellText(r2.cells[columnIndex]));
   } else {
-    sorter = (e1, e2) => e2.textContent.localeCompare(e1.textContent);
+    sorter = (r1, r2) => getTableCellText(r2.cells[columnIndex]).localeCompare(getTableCellText(r1.cells[columnIndex]));
   }
   tableDataManager.addSortingFunction(columnIndex, sorter, order);
   if (recordColumnSortInteraction) {
