@@ -93,7 +93,7 @@ def build_table_head(cursor, column_widths):
 
 def build_placeholder_table(cursor):
     column_widths = get_column_widths(cursor)
-    return f'<table id="table">{build_colgroup(column_widths)}{build_table_head(cursor, column_widths)}</table>\n'
+    return f'<table id="table">{build_colgroup(column_widths)}{build_table_head(cursor, column_widths)}<tbody id="view"></tbody></table>\n'
 
 
 noneditable_indices = []
@@ -153,7 +153,7 @@ def build_table_data_sections(cursor):
             data_row, rows_iter = build_table_row(rows_iter)
             data_rows.append(data_row)
     except StopIteration:
-        return f'<div id="table-data"><template><tbody>{"".join(data_rows)}</tbody></template></div>'
+        return f'<template id="table-data"><tbody>{"".join(data_rows)}</tbody></template>'
 
 
 def build_table_file(cursor):
