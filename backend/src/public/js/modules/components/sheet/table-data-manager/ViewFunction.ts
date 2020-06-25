@@ -286,6 +286,9 @@ export class PartialView<T> implements ViewFunction<T> {
       return;
     }
 
+    const maximumIndex = source.length - 1;
+    this.partialViewStartIndex = bound(this.partialViewStartIndex, 0, maximumIndex);
+    this.partialViewEndIndex = bound(this.partialViewEndIndex, 0, maximumIndex);
     this.currentView = source.slice(this.partialViewStartIndex, this.partialViewEndIndex + 1);
 
     this.lastSource = source;
