@@ -7,7 +7,7 @@ import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElemen
 import { isTableData, isTableHead, isTableCell, isInput } from "./modules/dom/types";
 import { fuseSelect, initializeFuseSelect, updateFuseSelect } from "./modules/components/sheet/suggestions";
 import { recordCellEdit, recordCellClick, recordCellDoubleClick, recordCellCopy, recordColumnCopy, recordColumnSearch, recordColumnSort } from "./modules/api/record-interactions";
-import { tableElement, tableBodyElement, tableColumnLabels, isColumnAutocompleteOnly, getColumnLabel, getTableDataText, tableScrollContainer, getLongestColumnTextWidth, getColumnLabelSortButton, isColumnLabelSortButton, getTableRow, getTableCellText, getTableCellTextsInColumn, isColumnSearchInput, isTableCellEditable, getColumnSearchInput, isColumnLabel, isFirstTableCell, isLastTableCell, isColumnSearch, getColumnSearch, getTableColElement, isColumnSearchInputFocused, getColumnLabelText } from "./modules/dom/sheet";
+import { tableElement, tableBodyElement, tableColumnLabels, isColumnAutocompleteOnly, getColumnLabel, getTableDataText, tableScrollContainer, getLongestColumnTextWidth, getColumnLabelSortButton, isColumnLabelSortButton, getTableRow, getTableCellText, setTableDataText, getTableCellTextsInColumn, isColumnSearchInput, isTableCellEditable, getColumnSearchInput, isColumnLabel, isFirstTableCell, isLastTableCell, isColumnSearch, getColumnSearch, getTableColElement, isColumnSearchInputFocused, getColumnLabelText } from "./modules/dom/sheet";
 import { getMinimumColumnWidth, updateTableColumnSearchWidth, updateTableCellWidth } from "./modules/components/sheet/column-width";
 import { getIdSuggestion, getIdSuggestionType } from "./modules/api/record-interactions";
 import { TabularView } from "./modules/components/sheet/tabular-view";
@@ -857,34 +857,6 @@ tableCellInputFormInputElement.addEventListener("input", function(event) {
 }, { passive: true});
 
 
-// class TableDataManager {
-//   get topFromPageTop(): number {
-//     return getOffsetFromPageTop(this.topFiller);
-//   }
-  /**
-   * @return {number} How far the bottom of the dataSectionElement is from the top of the page
-   */
-//   get bottomFromPageTop(): number {
-//     return getOffsetFromPageTop(this.bottomFiller);
-//   }
-//
-//   [> sorting <]
-//   getSorters(): Map<number, OrderedTextSorter> {
-//     return this.dataCollection.cellIndexToSorter;
-//   }
-  /**
-   * @param {string} cellid - The id of cell element.
-   * @return {boolean} whether a table cell element specified by `cellid` can appear within rendering view by scrolling
-   */
-//   isCellInPotentialRenderingView(cellid: string): boolean {
-//     if (!cellid) {
-//       return false;
-//     }
-//     return Boolean(this.dataCollection.getDatumByDatumId(cellid));
-//   }
-//
-// }
-
 
 /* this interface is used to detect double click (two clicks within short interval specified by {@link recentTimeLimit} */
 interface ActiveHTMLTableCellElement extends HTMLTableCellElement {
@@ -1466,6 +1438,7 @@ class TableStatusManager {
     const tableCellInputFormTargetElement = this.tableCellInputFormTargetElement;
     const text = tableCellInputFormInputElement.value;
     if (tableCellInputFormTargetElement) {
+			setTableDataText(tableCellInputFormTargetElement, text);
       // call backend api to send user submission
       recordCellEdit(tableCellInputFormTargetElement, text);
     }
