@@ -387,6 +387,22 @@ export class PartialViewScrollHandler<T> {
     if (axis) {
       this.scrollAxis = axis;
     } else {
+      if (this.partialView.currentView.length >= 2) {
+        // check element placement relationship
+        const firstElement = this.convert(this.partialView.currentView[0]);
+        const secondElement = this.convert(this.partialView.currentView[1]);
+        const { x: firstX, y: firstY } = firstElement.getBoundingClientRect();
+        const { x: secondX, y: secondY } = secondElement.getBoundingClientRect();
+        if (firstX === secondX && firstY !== secondY) {
+          this.scrollAxis = Axis.Vertical;
+          return;
+        } else if (firstX !== secondX && firstY === secondY) {
+        this.scrollAxis = Axis.Horizontal;
+          return;
+        }
+      }
+
+      // check existence of scrollbar
       if (this.scrollTarget.scrollHeight > this.scrollTarget.clientHeight) {
         this.scrollAxis = Axis.Vertical;
       } else if (this.scrollTarget.scrollWidth > this.scrollTarget.clientWidth) {

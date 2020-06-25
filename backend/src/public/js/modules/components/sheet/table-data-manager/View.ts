@@ -164,7 +164,7 @@ export class BasicView {
     const elementLength = this.scrollHandler.elementLength;
     const viewportLength = this.scrollHandler.scrollAxis === Axis.Horizontal ? getViewportWidth() : getViewportHeight();
     // four times the current viewport height
-    let numElements = Math.max(0, Math.floor(viewportLength / elementLength)) * 4;
+    let numElements = Math.max(1, Math.floor(viewportLength / elementLength)) * 4;
     // round to next number divisible by 10
     numElements = Math.ceil(numElements / 10) * 10;
     if (numElements !== this.windowSizeUpperBound) {
@@ -178,7 +178,7 @@ export class BasicView {
   protected initializeViewFunction() {
     this.filteredView = new FilteredView<ViewModel>();
     // initially only render one element
-    this.partialView = new PartialView<ViewModel>(this.source, 0, 0, 1);
+    this.partialView = new PartialView<ViewModel>(this.source, 0, 1, 2);
     this.sortedView = new SortedView<ViewModel>();
     this.viewFunctionChain = new ViewFunctionChain<ViewModel>([this.filteredView, this.sortedView, this.partialView]);
     // set up the first target view

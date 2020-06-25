@@ -286,6 +286,8 @@ export class PartialView<T> implements ViewFunction<T> {
       return;
     }
 
+    // if the number of elements in source decreased, trying to shift the window
+    // so that same (close) number of elements are rendered
     const numElements = source.length;
     const maximumIndex = numElements - 1;
 
