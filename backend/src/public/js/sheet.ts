@@ -189,14 +189,15 @@ function modifyColumnSorterContainer(container: HTMLElement, columnIndex: number
 function updateSorterBasedOnSortPanel() {
   const ordering: Map<number, number> = new Map();
 
-  let order = 0;
+  // earlier sorting function in panel has higher priority
+  let order = tableColumnSortPanelColumnSorterContainers.length;
   for (const columnSorterContainer of tableColumnSortPanelColumnSorterContainers) {
     const columnIndex: number = getColumnIndexFromColumnSorterContainer(columnSorterContainer as HTMLElement);
     ordering.set(columnIndex, order);
 
     columnSorterContainer.querySelector(".column-sorter-sortby-text").textContent = order === 0? "Sort by" : "Then by";
 
-    order++;
+    order--;
   }
 
   tableDataManager.reorderSortingFunction(ordering);
@@ -268,7 +269,7 @@ function activateSortPanel(targetElement: HTMLElement) {
 
   // patch sort panel
   const sorters = Array.from(tableDataManager.sortingFunctions);
-  sorters.sort((s1, s2) => s1[1].priority - s2[1].priority);
+  sorters.sort((s1, s2) => s2[1].priority - s1[1].priority);
   const numSorter: number = sorters.length;
 
   let sorterContainerIndex = 0;
