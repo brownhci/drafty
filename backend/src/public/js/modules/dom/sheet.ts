@@ -8,6 +8,8 @@ export const tableElement: HTMLTableElement = document.getElementById("table") a
 export const tableScrollContainer: HTMLElement = tableElement.parentElement;
 /* <thead> */
 export const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
+/* <tbody> */
+export const tableBodyElement: HTMLTableSectionElement = document.getElementById("view") as HTMLTableSectionElement;
 /* <tr>s */
 export const tableRowElements: HTMLCollection = tableElement.rows;
 /* first table row: column labels */
@@ -20,12 +22,18 @@ export const numTableColumns: number = tableColumnLabels.children.length;
 export const columnSearchRowIndex = 1;
 export const tableColumnSearches: HTMLTableRowElement = tableRowElements[columnSearchRowIndex] as HTMLTableRowElement;
 
-/* single table row height */
-export const tableRowHeight = tableColumnLabels.clientHeight;
-
 /* <col>s */
 export const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
 
+export function getTableRow(tableCellElement: HTMLTableCellElement): HTMLTableRowElement {
+  return tableCellElement.parentElement as HTMLTableRowElement;
+}
+export function getRowIndex(tableCellElement: HTMLTableCellElement): number {
+  return getTableRow(tableCellElement).rowIndex;
+}
+export function getRowIndexInSection(tableRowElement: HTMLTableRowElement): number {
+  return tableRowElement.sectionRowIndex;
+}
 
 export function isFirstTableCell(tableCellElement: HTMLTableCellElement): boolean {
   return tableCellElement.cellIndex === 0;

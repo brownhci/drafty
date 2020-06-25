@@ -65,14 +65,14 @@ function recordInteraction(url: string, data: Record<string, any>, responseHandl
     .catch(error => console.error("Network error when posting interaction: ", error));
 }
 
-export function recordCellEdit(tableCellElement: HTMLTableCellElement, textContent: string, callback: (idSuggestion: string) => void) {
+export function recordCellEdit(tableCellElement: HTMLTableCellElement, textContent: string) {
   // supply enough fields to update database entry for table cell
 
   recordInteraction("/suggestions/new", {
     "idUniqueID": getIdUniqueID(tableCellElement),
     "idSuggestion": getIdSuggestion(tableCellElement),
     "suggestion": textContent,
-  }, (response) => response.json().then(idSuggestion => callback(idSuggestion.toString())));
+  });
 }
 
 export function recordCellClick(tableCellElement: HTMLTableCellElement) {

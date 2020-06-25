@@ -367,7 +367,7 @@ export class BasicView {
    * Will update the DOM when the deletion changes the final view.
    *
    * @public
-   * @see {@link ViewFunction:FilteredView#deleteSortingFunction}
+   * @see {@link ViewFunction:SortedView#deleteSortingFunction}
    */
   deleteSortingFunction(key: any) {
     if (this.sortedView.deleteSortingFunction(key)) {
@@ -382,10 +382,25 @@ export class BasicView {
    * Will update the DOM when the deletions change the final view.
    *
    * @public
-   * @see {@link ViewFunction:FilteredView#clearSortingFunction}
+   * @see {@link ViewFunction:SortedView#clearSortingFunction}
    */
   clearSortingFunction() {
     if (this.sortedView.clearSortingFunction()) {
+      this.viewFunctionChain.modifyViewFunctions();
+      this.refreshView();
+    }
+  }
+
+  /**
+   * Assigns a set of sorting function different priority numbers.
+   *
+   * Will update the DOM when the reordering change the final view.
+   *
+   * @public
+   * @see {@link ViewFunction:SortedView#clearSortingFunction}
+   */
+  reorderSortingFunction(reordering: Map<any, number>) {
+    if (this.sortedView.reorderSortingFunction(reordering)) {
       this.viewFunctionChain.modifyViewFunctions();
       this.refreshView();
     }

@@ -366,7 +366,7 @@ export type SortingFunction<T> = (e1: T, e2: T) => number;
  *
  * @example Suppose in terms of priority, S1 > S2 > S3. Then S1 will be first used to order elements. If there is a tie (two elements are equivalent according to S1), their order will then be determined by S2, and possibly by S3 if the comparison result is still a tie.
  */
-interface SortingFunctionWithPriority<T> {
+export interface SortingFunctionWithPriority<T> {
   sortingFunction: SortingFunction<T>;
   priority: number;
 }
@@ -383,7 +383,7 @@ export class SortedView<T> implements ViewFunction<T> {
   currentView: Array<T>;
 
   /** a mapping from identifier to a sorting function and its priority */
-  private sortingFunctions: Map<any, SortingFunctionWithPriority<T>> = new Map();
+  sortingFunctions: Map<any, SortingFunctionWithPriority<T>> = new Map();
 
   /**
    * Existing sorting functions will be applied in order of priority -- higher priority sorting function will be used first, lower priority sorting function will be used when the higher priority ones result in tie.

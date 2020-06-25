@@ -216,6 +216,17 @@ export class ViewModel extends DOMForwardingInstantiation {
   }
 
   /**
+   * Retrieves a child view model by its underlying element.
+   *
+   * @param {HTMLElement} element - An underlying element for a child view model.
+   * @returns {ViewModel} Associated child view model.
+   */
+  getChildByElement__(element: HTMLElement): ViewModel {
+    const identifier = element.dataset[ViewModel.identifierDatasetName_];
+    return this._identifierToChild.get(identifier);
+  }
+
+  /**
    * Inserts a child view model to current view model at specified index.
    *
    * These steps will be performed:

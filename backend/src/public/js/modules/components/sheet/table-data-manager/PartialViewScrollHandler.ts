@@ -626,6 +626,22 @@ export class PartialViewScrollHandler<T> {
   }
 
   /**
+   * Scrolls to the start of an element at specified index.
+   *
+   * An optional offset can be specified to adjust the final scroll position.
+   *
+   * The position is calculated by:
+   *
+   *    elementIndex * elementLength + startFillerOffsetTop + offset
+   *
+   * @param {number} elementIndex - The index of an element to scroll to. It should be a safe index: neither less than 0 nor equal or greater than the number of elements.
+   * @param {number} offset - The amount to adjust the final scroll position. See the formula.
+   */
+  scrollToElementIndex(elementIndex: number, offset: number = 0) {
+    this.scrollPosition = this.elementLength * elementIndex + this.startFillerOffsetTop + offset;
+  }
+
+  /**
    * Called when a filler is reached, which indicates a view update might be necessary as the user has scrolled past all rendered view elements.
    *
    * @callback
