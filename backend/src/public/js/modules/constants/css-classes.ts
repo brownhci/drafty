@@ -2,6 +2,7 @@ export const activeClass = "active";
 export const activeAccompanyClass = "active-accompany";
 export const copiedClass = "copied";
 export const invalidClass = "is-invalid";
+export const clickClass = "clicked";
 
 // Fuse
 
