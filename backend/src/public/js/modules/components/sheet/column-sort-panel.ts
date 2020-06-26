@@ -115,7 +115,7 @@ export function activateSortPanel(targetElement: HTMLElement) {
   const numSorter: number = sorters.length;
 
   let sorterContainerIndex = 0;
-  for (const columnSorterContainer of columnSortPanelColumnSorterContainers) {
+  for (const columnSorterContainer of columnSorterContainers) {
     if (sorterContainerIndex < numSorter) {
       const columnIndex: number = sorters[sorterContainerIndex][0];
       modifyColumnSorterContainer(columnSorterContainer as HTMLElement, columnIndex, sorterContainerIndex);
@@ -149,7 +149,12 @@ function deleteColumnSorter(columnIndex: number) {
   tableDataManager.deleteSortingFunction(columnIndex);
 }
 
-function setColumnSorter(columnIndex: number, sortingDirection: SortingDirection = SortingDirection.ASCENDING, order: number = columnIndex, recordColumnSortInteraction: boolean = true) {
+function setColumnSorter(
+	columnIndex: number,
+	sortingDirection: SortingDirection = SortingDirection.ASCENDING,
+	priority?: number,
+	recordColumnSortInteraction: boolean = true
+) {
   const buttonElement = getColumnLabelSortButton(getColumnLabel(columnIndex));
   buttonElement.classList.add(clickClass);
 
@@ -159,7 +164,7 @@ function setColumnSorter(columnIndex: number, sortingDirection: SortingDirection
   } else {
     sorter = (row1, row2) => getTableCellText(row2.cells[columnIndex]).localeCompare(getTableCellText(row1.cells[columnIndex]));
   }
-  tableDataManager.addSortingFunction(columnIndex, sorter, order);
+  tableDataManager.addSortingFunction(columnIndex, sorter, priority);
   if (recordColumnSortInteraction) {
     recordColumnSort(columnIndex, sortingDirection);
   }
