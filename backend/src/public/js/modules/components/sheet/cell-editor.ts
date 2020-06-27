@@ -19,7 +19,6 @@ class CellEditor {
   private readonly formContainerElement = this.formElement.lastElementChild;
   private readonly formInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
   private readonly inputInvalidFeedbackElement = document.getElementById("table-cell-input-feedback") as HTMLElement;
-  private readonly saveButtonElement = document.getElementById("table-cell-input-save") as HTMLButtonElement;
 
   cellElement: HTMLTableCellElement;
 
@@ -88,12 +87,6 @@ class CellEditor {
   }
 
   private initializeEventListeners() {
-    this.saveButtonElement.addEventListener("click", (event) => {
-      this.closeForm(true);
-      event.preventDefault();
-      event.stopPropagation();
-    });
-
     this.locateCellButtonElement.addEventListener("click", (event) => {
       if (this.isLocateCellActive) {
         const tableRow = getTableRow(this.cellElement);
@@ -369,9 +362,7 @@ class CellEditor {
   private resizeFormToFitText(text: string, slack: number = 0) {
     const textWidth = measureTextWidth(text);
     const width = textWidth + slack;
-    if (width > this.formWidth) {
-      this.formWidth = width;
-    }
+    this.formWidth = width;
   }
 
   /**
@@ -386,7 +377,7 @@ class CellEditor {
     const cellElement = this.cellElement;
     // check validity of edit
     if (isColumnAutocompleteOnly(getColumnLabel(cellElement.cellIndex))) {
-      if (fuseSelect.hasAutocompleteSuggestion(edit)) {
+      if (fuseSelect.hasSuggestion(edit)) {
         this.deactivateInvalidFeedback();
       } else {
         this.activateInvalidFeedback("Value must from Completions");

@@ -389,7 +389,7 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
   if (isTableHead(target)) {
     tableHeadOnMouseMove(target as HTMLTableCellElement, event);
   } else {
-    cellEditor.onMouseMove(event);
+    cellEditor.isRepositioning = false;
   }
   event.stopPropagation();
 }, {passive: true, capture: true});

@@ -8,11 +8,9 @@ export const inputtingClass = "inputting";
 // Fuse
 
 export const fuseSelectRootContainerClass = "fuse-select";
-export const optionContainerWrapperClass = "fuse-select-options-wrapper";
-export const autocompleteSuggestionOptionContainerClass = "autocomplete-suggestions";
-export const previousEditOptionContainerClass = "previous-edits";
+export const autocompleteSuggestionClass = "autocomplete-suggestion";
+export const previousEditClass = "previous-edit";
 export const optionContainerClass = "fuse-select-options";
-export const optionContainerTitleClass = "fuse-select-options-title";
 export const optionClass = "fuse-select-option";
 export const optionPriorityClass = "fuse-select-option-priority";
 export const optionTextClass = "fuse-select-option-text";

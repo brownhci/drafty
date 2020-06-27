@@ -175,6 +175,12 @@ $visual-cue-width: 5px;
           @extend .d-block;
         }
       }
+      #table-cell-input-save {
+        @extend .btn;
+        @extend .btn-primary;
+        @extend .btn-sm;
+        @extend .float-right;
+      }
       & > div {
         @extend .mb-0;
         @extend .px-1;

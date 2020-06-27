@@ -1,5 +1,6 @@
 /**
- * @file input form suggestions
+ * @module
+ * input form suggestions
  */
 
 import { LocalStorageCache } from "../../utils/local-storage";
@@ -12,10 +13,7 @@ export interface Option {
   prevSugg: number;
 }
 
-const autocompleteOptionCache = new LocalStorageCache(5 * 60 * 1000);
-
-const previousEditsKeyName: string = "previousEdit";
-const autocompleteSuggestionsKeyName: string = "autocompleteSuggestions";
+const optionCache = new LocalStorageCache(5 * 60 * 1000);
 
 /**
  * Fetch suggestions from database for a particular table cell.
@@ -38,32 +36,28 @@ async function fetchSuggestions(idSuggestion: number): Promise<Array<Option>> {
 }
 
 /**
- * The suggestions returned from server including
- *   + previous edits (prevSugg === 1)
- *   + autocomplete suggestions (prevSugg === 0)
- * which are identified by the prevSugg value
+ * Suggestions will be filtered (empty string suggestion will be removed) and de-duplicated (only previous edit suggestion will be kept if both present).
  *
  * @param {Array<Option>} suggestions - An array of suggestions returned from the server
- * @returns {Record<string, Array<Option>>} An object containing where previous edits and autocomplete suggestions are separated
+ * @returns {Array<Option>} An array containing the filtered suggestions.
  */
-function parseSuggestions(suggestions: Array<Option>): Record<string, Array<Option>> {
-  const parsedSuggestions: Record<string, Array<Option>> = {
-    [previousEditsKeyName]: [],
-    [autocompleteSuggestionsKeyName]: []
-  };
+function parseSuggestions(suggestions: Array<Option>): Array<Option> {
+  const options: Map<string, Option> = new Map();
 
   for (const suggestion of suggestions) {
-    if (suggestion.prevSugg === 1) {
-      if (suggestion.suggestion !== "") {
-        // avoid empty string showing as previous edit
-        parsedSuggestions[previousEditsKeyName].push(suggestion);
-      }
-    } else {
-      parsedSuggestions[autocompleteSuggestionsKeyName].push(suggestion);
+    const text = suggestion.suggestion;
+    if (text === "") {
+      continue;
+    }
+
+    if (!options.has(text) || options.get(text).prevSugg === 0) {
+      options.set(text, suggestion);
     }
   }
 
-  return parsedSuggestions;
+  const parsedSuggestions = Array.from(options.values());
+	parsedSuggestions.sort((suggestion1, suggestion2) => suggestion1.suggestion.localeCompare(suggestion2.suggestion));
+	return parsedSuggestions;
 }
 
 export const fuseSelect: FuseSelect = new FuseSelect();
@@ -88,24 +82,22 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
  */
 export function updateFuseSelect(idSuggestion: number, idSuggestionType: number, callback: () => void = () => undefined) {
   const idSuggestionTypeString = idSuggestionType.toString();
-  let autocompleteOptions = autocompleteOptionCache.retrieve(idSuggestionTypeString) as Array<Option>;
-  if (!autocompleteOptions) {
+  let options = optionCache.retrieve(idSuggestionTypeString) as Array<Option>;
+  if (!options) {
     // cannot retrieve unexpired autocomplete suggestions from local storage, create an empty placeholder for now
-    autocompleteOptions = [];
+    options = [];
   }
-  fuseSelect.autocompleteOptions = autocompleteOptions;
+  fuseSelect.options = options;
 
-  fuseSelect.editOptions = [];
-  fuseSelect.syncAll();
+  fuseSelect.sync();
 
   fetchSuggestions(idSuggestion).then(suggestions => {
-      const {[previousEditsKeyName]: editOptions, [autocompleteSuggestionsKeyName]: autocompleteOptions} = parseSuggestions(suggestions);
-    autocompleteOptionCache.store(idSuggestionTypeString, autocompleteOptions);
-    fuseSelect.autocompleteOptions = autocompleteOptions;
+    const options = parseSuggestions(suggestions);
+    optionCache.store(idSuggestionTypeString, options);
 
-    fuseSelect.editOptions = editOptions;
-    fuseSelect.syncAll();
+    fuseSelect.options = options;
 
+    fuseSelect.sync();
     callback();
   });
 }

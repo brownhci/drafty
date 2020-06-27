@@ -1,63 +1,62 @@
-.fuse-select-options-wrapper {
+.fuse-select-options {
+  @extend .overflow-auto;
+  @extend .px-0;
   @extend .my-2;
   @extend .d-none;
+  @extend .hide-scrollbar;
+  max-height: 25vh;
+  cursor: pointer;
 
   &.active {
     @extend .d-block;
   }
 
-  &.previous-edits {
-    .fuse-select-options-title {
-      @extend .text-primary;
-    }
-  }
-  .fuse-select-options-title {
-    @extend .d-block;
-    @extend .w-100;
-    @extend .text-center;
-    @extend .text-secondary;
-    @extend .font-weight-bold;
-    @extend .font-size-small;
-  }
-  .fuse-select-options {
-    @extend .overflow-auto;
-    @extend .px-0;
-    max-height: 25vh;
-    cursor: pointer;
+  .fuse-select-option {
+    @extend .progress;
+    @extend .bg-secondary;
+    @extend .my-1;
+    height: 20px !important;
 
-    &.previous-edits {
-      .fuse-select-option {
-        @extend .bg-primary;
+    &.previous-edit {
+      @extend .bg-primary;
+      .fuse-select-option-text {
+        &::after {
+          @extend .font-awesome;
+          @extend .float-right;
+          @extend .mr-2;
+          color: rgba(255, 255, 255, 0.7);
+          content: "\f044";
+        }
+      }
+
+      &:hover .fuse-select-option-text::after {
+        @extend .text-white;
       }
     }
 
-    .fuse-select-option {
-      @extend .progress;
-      @extend .bg-secondary;
-      @extend .my-1;
-      height: 20px !important;
+    &.active, &:hover {
       .fuse-select-option-priority {
-        @extend .progress-bar;
-        @extend .bg-primary;
+        @extend .progress-bar-striped;
       }
       .fuse-select-option-text {
-        @extend .text-white;
-        @extend .text-truncate;
-        @extend .position-absolute;
-        @extend .ml-2;
-        width: 98%;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: $zindex-dropdown;
+        @extend .font-weight-bold;
       }
-      &.active, &:hover {
-        .fuse-select-option-priority {
-          @extend .progress-bar-striped;
-        }
-        .fuse-select-option-text {
-          @extend .font-weight-bold;
-        }
-      }
+    }
+
+    .fuse-select-option-text {
+      @extend .text-white;
+      @extend .text-truncate;
+      @extend .position-absolute;
+      @extend .ml-2;
+      width: 98%;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: $zindex-dropdown;
+    }
+
+    .fuse-select-option-priority {
+      @extend .progress-bar;
+      @extend .bg-primary;
     }
   }
 }
