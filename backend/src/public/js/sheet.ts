@@ -388,18 +388,14 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableHead(target)) {
     tableHeadOnMouseMove(target as HTMLTableCellElement, event);
-  } //else if (isRepositioningTableCellInputForm) {
-  //   tableCellInputFormElementOnMouseMove(event);
-  // }
+  } else {
+    cellEditor.onMouseMove(event);
+  }
   event.stopPropagation();
 }, {passive: true, capture: true});
 tableElement.addEventListener("mouseup", function(event: MouseEvent) {
-  // if (isRepositioningTableCellInputForm) {
-  //   // stop moving the input form editor
-  // tableCellInputFormElementOnMouseUp();
-  // } else {
-    tableHeadOnMouseUp(event);
-  // }
+  cellEditor.isRepositioning = false;
+  tableHeadOnMouseUp(event);
   event.stopPropagation();
 }, {passive: true, capture: true});
 

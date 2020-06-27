@@ -72,7 +72,7 @@ class CellEditor {
   /**
    * A flag used to signal the cell editor is being moved.
    */
-  private isRepositioning: boolean = false;
+  isRepositioning: boolean = false;
 
   constructor() {
     this.initializeEventListeners();
@@ -156,15 +156,7 @@ class CellEditor {
       event.stopPropagation();
     }, {passive: true, capture: true});
 
-    this.formElement.addEventListener("mousemove", (event: MouseEvent) => {
-      if (this.isRepositioning) {
-        const { movementX: xShift, movementY: yShift } = event;
-        // debounce
-        this.formElementXShift += xShift;
-        this.formElementYShift += yShift;
-        this.formElement.style.transform = `translate(${this.formElementXShift}px, ${this.formElementYShift}px)`;
-        }
-    });
+    this.formElement.addEventListener("mousemove", (event: MouseEvent) => this.onMouseMove(event));
 
     this.formElement.addEventListener("mouseup", () => {
       if (this.isRepositioning) {
@@ -172,6 +164,16 @@ class CellEditor {
         this.focusFormInput();
       }
     });
+  }
+
+  onMouseMove(event: MouseEvent) {
+    if (this.isRepositioning) {
+      const { movementX: xShift, movementY: yShift } = event;
+      // debounce
+      this.formElementXShift += xShift;
+      this.formElementYShift += yShift;
+      this.formElement.style.transform = `translate(${this.formElementXShift}px, ${this.formElementYShift}px)`;
+    }
   }
 
   /**
@@ -229,6 +231,7 @@ class CellEditor {
       }
     }
     this.cellElement = null;
+    this.isRepositioning = false;
   }
 
   /**
