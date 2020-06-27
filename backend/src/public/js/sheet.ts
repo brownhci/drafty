@@ -1,111 +1,28 @@
-import { activeClass, activeAccompanyClass, copiedClass, invalidClass } from "./modules/constants/css-classes";
+import { activeClass, activeAccompanyClass, copiedClass } from "./modules/constants/css-classes";
 import "./modules/components/welcome-screen";
 import { hasCopyModifier, clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyTextToCopyBuffer, copyCopyBuffer } from "./modules/utils/copy";
 import { hasTextSelected} from "./modules/utils/selection";
-import { getViewportWidth, getViewportHeight, measureTextWidth } from "./modules/utils/length";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
 import { isTableData, isTableHead, isTableCell, isInput } from "./modules/dom/types";
-import { fuseSelect, initializeFuseSelect, updateFuseSelect } from "./modules/components/sheet/suggestions";
-import { recordCellEdit, recordCellClick, recordCellDoubleClick, recordCellCopy, recordColumnCopy, recordColumnSearch } from "./modules/api/record-interactions";
-import { tableElement, tableBodyElement, tableColumnLabels, isColumnAutocompleteOnly, getColumnLabel, getTableDataText, tableScrollContainer, isColumnLabelSortButton, getTableRow, getTableCellText, setTableDataText, getTableCellTextsInColumn, isColumnSearchInput, isTableCellEditable, getColumnSearchInput, isColumnLabel, isFirstTableCell, isLastTableCell, isColumnSearch, getColumnSearch, getTableColElement, isColumnSearchInputFocused, getColumnLabelText } from "./modules/dom/sheet";
+import { recordCellClick, recordCellDoubleClick, recordCellCopy, recordColumnCopy, recordColumnSearch } from "./modules/api/record-interactions";
+import { tableElement, tableBodyElement, tableColumnLabels, getColumnLabel, getTableDataText, tableScrollContainer, isColumnLabelSortButton, getTableRow, getTableCellText, getTableCellTextsInColumn, isColumnSearchInput, isTableCellEditable, getColumnSearchInput, isColumnLabel, isFirstTableCell, isLastTableCell, isColumnSearch, getColumnSearch, getTableColElement, isColumnSearchInputFocused } from "./modules/dom/sheet";
 import { getMinimumColumnWidth, updateTableColumnSearchWidth, updateTableCellWidth } from "./modules/components/sheet/column-width";
-import { getIdSuggestion, getIdSuggestionType } from "./modules/api/record-interactions";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { FilterFunction } from "./modules/components/sheet/table-data-manager/ViewFunction";
-import { alignElementHorizontally } from "./modules/components/sheet/align";
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
-
+import { cellEditor } from "./modules/components/sheet/cell-editor";
 
 
 // TODO last column resize
 // TODO ARROW KEY not functioning when scrolling off screen
 // TODO add new row
+// TODO completions for Rank do not update when cleared
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
 
 /* which table column is active: a table column is activated when associated head is clicked */
 let activeTableColElement: null | HTMLTableColElement = null;
 
-
-// input editor
-/* input editor element */
-const tableCellInputFormElement: HTMLFormElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
-function isTableCellInputFormActive() {
-  return tableCellInputFormElement.classList.contains(activeClass);
-}
-/* the input element in the input editor */
-const tableCellInputFormInputElement: HTMLInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
-const tableCellInputFormInputInvalidFeedbackElement: HTMLInputElement = document.getElementById("table-cell-input-feedback") as HTMLInputElement;
-const tableCellInputFormInputSaveButtonElement: HTMLButtonElement = document.getElementById("table-cell-input-save") as HTMLButtonElement;
-/* the target element the input editor is associated with */
-
-// input editor location
-/* the location element */
-const tableCellInputFormLocateCellElement: HTMLButtonElement = document.getElementById("locate-cell") as HTMLButtonElement;
-/* the row index element in the location element */
-const tableCellInputFormLocateCellRowElement: HTMLSpanElement = document.getElementById("locate-cell-associated-row") as HTMLSpanElement;
-/* the column index element in the location element */
-const tableCellInputFormLocateCellColElement: HTMLSpanElement = document.getElementById("locate-cell-associated-col") as HTMLSpanElement;
-/* whether the location element is shown in the input editor */
-let tableCellInputFormLocationActive: boolean = false;
-
-const tableCellInputFormInputContainer: HTMLElement = tableCellInputFormLocateCellElement.parentElement;
-
-function activateInvalidFeedback(invalidFeedback: string) {
-  tableCellInputFormInputInvalidFeedbackElement.textContent = invalidFeedback;
-  tableCellInputFormInputInvalidFeedbackElement.classList.add(activeClass);
-  tableCellInputFormInputElement.classList.add(invalidClass);
-}
-function deactivateInvalidFeedback() {
-  tableCellInputFormInputInvalidFeedbackElement.textContent = "";
-  tableCellInputFormInputInvalidFeedbackElement.classList.remove(activeClass);
-  tableCellInputFormInputElement.classList.remove(invalidClass);
-}
-
-function verifyEdit(edit: string, tableCellElement: HTMLTableCellElement): boolean {
-  if (isColumnAutocompleteOnly(getColumnLabel(tableCellElement.cellIndex))) {
-    if (fuseSelect.hasAutocompleteSuggestion(edit)) {
-      deactivateInvalidFeedback();
-    } else {
-      activateInvalidFeedback("Value must from Completions");
-      return false;
-    }
-  }
-  return true;
-}
-
-/**
- * Updates the text inside the input element inside the input editor and resizes the input editor properly.
- *
- * @param {HTMLTableCellElement} targetHTMLTableCellElement - Target HTMLTableCellElement to associate the input editor with.
- * @param {string} input - The text to initialize the input element with.
- */
-function updateTableCellInputFormInput(targetHTMLTableCellElement: HTMLTableCellElement, input?: string) {
-  const text = input === undefined ? getTableDataText(targetHTMLTableCellElement): input;
-  tableCellInputFormInputElement.value = text;
-
-  // resize
-  const minWidth = targetHTMLTableCellElement.offsetWidth;
-  const resizeWidth = measureTextWidth(text) + 120 + 24;
-  const width = Math.max(minWidth, resizeWidth);
-  tableCellInputFormElement.style.width = `${width}px`;
-}
-function updateTableCellInputFormWidthToFitText(textToFit: string) {
-  const textWidth = measureTextWidth(textToFit);
-  const slack = 124;
-  const newWidth = textWidth + slack;
-
-  const formWidth = tableCellInputFormElement.offsetWidth;
-  if (newWidth > formWidth) {
-    tableCellInputFormElement.style.width = `${newWidth}px`;
-  }
-}
-
-  // if(tableCellInputFormInputElement.value.length === 2) {
-  //   if(tableCellInputFormInputElement.value.charAt(0) === tableCellInputFormInputElement.value.charAt(1)) {
-  //     tableCellInputFormInputElement.value = tableCellInputFormInputElement.value.charAt(0);
-  //   }
-  // }
 
 /* visual cue during resize */
 function initializeResizeVisualCue() {
@@ -155,13 +72,6 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
   event.stopPropagation();
 }, true);
 
-
-tableCellInputFormInputSaveButtonElement.addEventListener("click", function(event) {
-   tableStatusManager.quitTableCellInputForm(true);
-   event.preventDefault();
-   event.stopPropagation();
-});
-
 /* keyboard event */
 interface ConsumableKeyboardEvent extends KeyboardEvent {
   consumed?: boolean;
@@ -180,7 +90,8 @@ function copyTableColumnToCopyBuffer(index: number) {
 // paste event
 function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: string) {
   // invoke edit editor
-  tableStatusManager.tableCellInputFormAssignTarget(tableCellElement, text, true);
+	cellEditor.activateForm(tableCellElement);
+	cellEditor.formInput = text;
 }
 function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   if (isTableHead(tableCellElement)) {
@@ -287,43 +198,6 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   }
   event.stopPropagation();
 }, true);
-
-tableCellInputFormElement.addEventListener("keydown", function(event: KeyboardEvent) {
-  if (isTableCellInputFormActive()) {
-    tableStatusManager.tableCellInputFormOnKeyDown(event);
-  }
-});
-
-// mouse event handlers
-let isRepositioningTableCellInputForm = false;
-tableCellInputFormElement.addEventListener("mousedown", function(event: MouseEvent) {
-  tableStatusManager.activateTableCellInputFormLocation();
-  isRepositioningTableCellInputForm = true;
-  event.stopPropagation();
-}, {passive: true, capture: true});
-let tableCellInputFormElementXShift: number = 0;
-let tableCellInputFormElementYShift: number = 0;
-function tableCellInputFormElementOnMouseMove(event: MouseEvent) {
-  const {movementX: xShift, movementY: yShift } = event;
-  // debounce
-  tableCellInputFormElementXShift += xShift;
-  tableCellInputFormElementYShift += yShift;
-  tableCellInputFormElement.style.transform = `translate(${tableCellInputFormElementXShift}px, ${tableCellInputFormElementYShift}px)`;
-}
-tableCellInputFormElement.addEventListener("mousemove", function(event: MouseEvent) {
-  if (isRepositioningTableCellInputForm) {
-    tableCellInputFormElementOnMouseMove(event);
-  }
-});
-function tableCellInputFormElementOnMouseUp() {
-  isRepositioningTableCellInputForm = false;
-  tableCellInputFormInputElement.focus({preventScroll: true});
-}
-tableCellInputFormElement.addEventListener("mouseup", function(event: MouseEvent) {
-  if (isRepositioningTableCellInputForm) {
-    tableCellInputFormElementOnMouseUp();
-  }
-});
 
 
 /* for handling complete searches */
@@ -514,38 +388,20 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableHead(target)) {
     tableHeadOnMouseMove(target as HTMLTableCellElement, event);
-  } else if (isRepositioningTableCellInputForm) {
-    tableCellInputFormElementOnMouseMove(event);
-  }
+  } //else if (isRepositioningTableCellInputForm) {
+  //   tableCellInputFormElementOnMouseMove(event);
+  // }
   event.stopPropagation();
 }, {passive: true, capture: true});
 tableElement.addEventListener("mouseup", function(event: MouseEvent) {
-  if (isRepositioningTableCellInputForm) {
-    // stop moving the input form editor
-  tableCellInputFormElementOnMouseUp();
-  } else {
+  // if (isRepositioningTableCellInputForm) {
+  //   // stop moving the input form editor
+  // tableCellInputFormElementOnMouseUp();
+  // } else {
     tableHeadOnMouseUp(event);
-  }
+  // }
   event.stopPropagation();
 }, {passive: true, capture: true});
-
-
-
-/* submit event */
-tableCellInputFormElement.addEventListener("submit", function(event: Event) {
-  // disable submitting
-  event.stopPropagation();
-  event.preventDefault();
-  return false;
-}, true);
-
-/* input event */
-tableCellInputFormInputElement.addEventListener("input", function(event) {
-  const query: string = tableCellInputFormInputElement.value;
-  fuseSelect.query(query);
-  event.stopPropagation();
-}, { passive: true});
-
 
 
 /* this interface is used to detect double click (two clicks within short interval specified by {@link recentTimeLimit} */
@@ -556,14 +412,6 @@ type CopyTarget = HTMLTableColElement | HTMLTableCellElement;
 
 class TableStatusManager {
   static recentTimeLimit = 1000;
-
-  constructor() {
-    tableCellInputFormLocateCellElement.addEventListener("click", (event: MouseEvent) => {
-      this.restoreTableCellInputFormLocation();
-      event.stopPropagation();
-    });
-
-  }
 
   /** which table cell (either a table head or a table data) element is currently active */
   activeTableCellElementId: string = null;
@@ -677,25 +525,25 @@ class TableStatusManager {
     return tableCellElement === this.activeTableCellElement;
   }
 
-  activeElementOnRepeatedClick(event: MouseEvent) {
+  activeElementOnRepeatedClick() {
     const activeTableCellElement = this.activeTableCellElement;
     if (!activeTableCellElement) {
       return;
     }
     if (isTableData(activeTableCellElement)) {
       if (this.isTableDataLastActivatedRecently()) {
-        this.tableCellInputFormAssignTarget(activeTableCellElement);
+				cellEditor.activateForm(activeTableCellElement);
         activeTableCellElement.lastActiveTimestamp = null;
         recordCellDoubleClick(activeTableCellElement);
       } else {
         this.updateActiveTimestamp();
       }
     } else if (isTableHead(activeTableCellElement)) {
-      this.activeTableHeadOnRepeatedClick(event);
+      this.activeTableHeadOnRepeatedClick();
     }
   }
 
-  activeTableHeadOnRepeatedClick(event: MouseEvent) {
+  activeTableHeadOnRepeatedClick() {
     if (activeTableColElement) {
       // table column is active, deactivate column and focus only on table head
       this.deactivateTableCol();
@@ -794,38 +642,17 @@ class TableStatusManager {
       this.deactivateTableCellElement();
       deactivateSortPanel();
       // remove input form
-      this.deactivateTableCellInputForm();
+      cellEditor.deactivateForm();
     }
 
     this.activateTableCellElement(tableCellElement, undefined, shouldGetFocus);
-  }
-
-  // input editor exit
-  quitTableCellInputForm(saveContent = false) {
-    const activeTableCellElement = this.activeTableCellElement;
-    if (saveContent) {
-      if (verifyEdit(tableCellInputFormInputElement.value, this.tableCellInputFormTargetElement)) {
-        this.saveTableCellInputForm();
-      } else {
-        return;
-      }
-      // move to next cell to allow continuous edit
-      if (activeTableCellElement) {
-        const nextCell = getRightTableCellElement(activeTableCellElement);
-        if (nextCell) {
-          this.updateActiveTableCellElement(nextCell);
-        }
-      }
-    }
-
-    this.tableCellInputFormAssignTarget(null);
   }
 
   /* click event */
   tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
     if (this.isClickOnActiveElement(tableCellElement)) {
       // handle repeated click differently
-      this.activeElementOnRepeatedClick(event);
+      this.activeElementOnRepeatedClick();
     } else {
       this.updateActiveTableCellElement(tableCellElement);
       recordCellClick(tableCellElement);
@@ -886,19 +713,6 @@ class TableStatusManager {
     }
   }
 
-  tableCellInputFormOnKeyDown(event: KeyboardEvent) {
-    switch (event.key) {
-      case "Esc": // IE/Edge specific value
-      case "Escape":
-        this.quitTableCellInputForm(false);
-        break;
-      case "Enter":
-        this.quitTableCellInputForm(true);
-        break;
-    }
-    event.stopPropagation();
-  }
-
   /* restore */
   restoreActiveTableCellElement() {
     const activeTableCellElement = this.activeTableCellElement;
@@ -928,262 +742,24 @@ class TableStatusManager {
   static inputtingClass = "inputting";
   tableCellInputFormTargetElementId: string = null;
 
-  get tableCellInputFormTargetElement(): HTMLTableCellElement {
-    if (!this.tableCellInputFormTargetElementId) {
-      return null;
-    }
-    return document.getElementById(this.tableCellInputFormTargetElementId) as HTMLTableCellElement;
-  }
-
-  set tableCellInputFormTargetElement(tableCellElement: HTMLTableCellElement) {
-    if (tableCellElement) {
-      this.tableCellInputFormTargetElementId = tableCellElement.id;
-    } else {
-      this.tableCellInputFormTargetElementId = null;
-    }
-  }
-
-
-  activateTableCellInputFormLocation() {
-    if (isTableCellInputFormActive() && !tableCellInputFormLocationActive) {
-      tableCellInputFormLocateCellElement.classList.add(activeClass);
-      tableCellInputFormLocationActive = true;
-      // reposition the tableCellInputFormElement
-      const buttonHeight = tableCellInputFormLocateCellElement.offsetHeight;
-      const formTop = parseFloat(tableCellInputFormElement.style.top);
-      tableCellInputFormElement.style.top = `${formTop - buttonHeight}px`;
-    }
-  }
-  deactivateTableCellInputFormLocation() {
-    tableCellInputFormLocateCellElement.classList.remove(activeClass);
-    tableCellInputFormLocationActive = false;
-  }
-
-  updateTableCellInputFormLocation(targetHTMLTableCellElement: HTMLTableCellElement) {
-    // row index
-    /* since recordIndex is 0-based */
-    const elementIndex = tableDataManager.getElementIndex(getTableRow(targetHTMLTableCellElement));
-    tableCellInputFormLocateCellRowElement.textContent = `${elementIndex + 1}`;
-    // column index
-    const colIndex = targetHTMLTableCellElement.cellIndex;
-    const columnLabelText = getColumnLabelText(getColumnLabel(colIndex));
-    tableCellInputFormLocateCellColElement.textContent = columnLabelText;
-  }
-
-  restoreTableCellInputFormLocation() {
-    if (tableCellInputFormLocationActive) {
-      const cell = this.tableCellInputFormTargetElement;
-      const tableRow = getTableRow(cell);
-      if (tableDataManager.isElementInRenderingView(tableRow)) {
-        // cell is in rendering view, only alignment is needed
-        this.alignTableCellInputForm();
-      } else {
-        // cell not in rendering view, need to put cell into rendering view before setting alignment
-        if (tableDataManager.putElementInRenderingView(tableRow)) {
-          this.alignTableCellInputForm();
-        }
-      }
-    }
-  }
-
-  activateTableCellInputForm(targetHTMLTableCellElement: HTMLTableCellElement, getFocus: boolean = true) {
-    // show the form
-    tableCellInputFormElement.classList.add(activeClass);
-
-    // focus the input
-    if (getFocus) {
-      tableCellInputFormInputElement.focus({preventScroll: true});
-    }
-
-    // highlight the table head
-    const cellIndex = targetHTMLTableCellElement.cellIndex;
-    const columnLabel: HTMLTableCellElement = getColumnLabel(cellIndex);
-    if (columnLabel) {
-      columnLabel.classList.add(TableStatusManager.inputtingClass);
-    }
-
-    // highlight the target cell
-    targetHTMLTableCellElement.classList.add(TableStatusManager.inputtingClass);
-    this.tableCellInputFormTargetElement = targetHTMLTableCellElement;
-  }
-
-  /**
-   * @public
-   * Use this function to change the editor associated table cell.
-   */
-  tableCellInputFormAssignTarget(targetHTMLTableCellElement: HTMLTableCellElement, input?: string, getFocus: boolean = true) {
-    // ignore if input on table head
-    if (isTableHead(targetHTMLTableCellElement)) {
-      return;
-    }
-
-    this.deactivateTableCellInputForm();
-    this.deactivateTableCellInputFormLocation();
-
-    tableCellInputFormInputElement.value = "";
-    deactivateInvalidFeedback();
-
-    if (targetHTMLTableCellElement) {
-      if (!isTableCellEditable(targetHTMLTableCellElement)) {
-        return;
-      }
-
-      this.activateTableCellInputForm(targetHTMLTableCellElement, getFocus);
-      updateTableCellInputFormInput(targetHTMLTableCellElement, input);
-
-			// remount the fuse select
-			fuseSelect.mount(element => tableCellInputFormInputContainer.appendChild(element));
-			const columnLabel = getColumnLabel(targetHTMLTableCellElement.cellIndex);
-			updateFuseSelect(getIdSuggestion(targetHTMLTableCellElement), getIdSuggestionType(columnLabel), () => {
-				this.alignTableCellInputForm();
-				// resize form editor
-				updateTableCellInputFormWidthToFitText(fuseSelect.longestText);
-			});
-
-      this.updateTableCellInputFormLocation(targetHTMLTableCellElement);
-			updateTableCellInputFormWidthToFitText(fuseSelect.longestText);
-      this.alignTableCellInputForm();
-    }
-  }
-
-  alignTableCellInputForm(tableCellInputFormLocateCellElementActive: boolean = tableCellInputFormLocationActive) {
-    // reset last shifting
-    tableCellInputFormElement.style.transform = "";
-    tableCellInputFormElementXShift = 0;
-    tableCellInputFormElementYShift = 0;
-
-    // configure placement
-    const targetCellElement = this.tableCellInputFormTargetElement;
-    const cellDimensions = targetCellElement.getBoundingClientRect();
-    const cellHeight = cellDimensions.height;
-    let {top: cellTop, bottom: cellBottom} = cellDimensions;
-    let {width: formWidth, height: formHeight} = tableCellInputFormElement.getBoundingClientRect();
-
-    const verticalScrollBarWidth = tableScrollContainer.offsetWidth - tableScrollContainer.clientWidth;
-    const viewportWidth = getViewportWidth() - verticalScrollBarWidth;
-    const horizontalScrollBarHeight = tableScrollContainer.offsetHeight - tableScrollContainer.clientHeight;
-    const viewportHeight = getViewportHeight() - horizontalScrollBarHeight;
-
-    const topFromPageTopLimit = tableDataManager.startFillerFromPageTop;
-    // the concerned viewport is restricted to the table rows in <tbody>
-    const viewportTopPadding = topFromPageTopLimit;
-    const bottomFromPageTopLimit = Math.max(viewportHeight, tableDataManager.endFillerFromPageTop);
-
-    if (formWidth > viewportWidth) {
-      formWidth = viewportWidth;
-      tableCellInputFormElement.style.width = `${formWidth}px`;
-    }
-
-    /* set horizontal placement */
-    alignElementHorizontally(tableCellInputFormElement, cellDimensions);
-
-    if (formHeight > viewportHeight) {
-      fuseSelect.unmount();
-      formHeight = tableCellInputFormElement.getBoundingClientRect().height;
-    }
-    /**
-     * set vertical placement
-     * two choices for vertical placement
-     *   1. top border (offset by buttonHeight) of form stick to the top border of the target cell
-     *   2. bottom border of form stick to the bottom border of the target cell
-     */
-    const buttonHeight = tableCellInputFormLocateCellElementActive? tableCellInputFormLocateCellElement.offsetHeight: 0;
-
-    const cellTopFromPageTop = targetCellElement.offsetTop;
-    const cellBottomFromPageTop = cellTopFromPageTop + cellHeight;
-    let formTop: number;
-    if (cellTopFromPageTop + formHeight - buttonHeight < bottomFromPageTopLimit) {
-      // option 1
-      if (cellTop < viewportTopPadding) {
-        // top border of form is to the top of the viewport
-        const upShiftAmount: number = viewportTopPadding - cellTop;
-        cellTop += upShiftAmount;
-        tableScrollContainer.scrollTop -= upShiftAmount;
-      } else if (cellTop + formHeight - buttonHeight > viewportHeight) {
-        // bottom border of form is to the bottom of the viewport
-        const downShiftAmount: number = cellTop + formHeight - buttonHeight - viewportHeight;
-        cellTop -= downShiftAmount;
-        tableScrollContainer.scrollTop += downShiftAmount;
-      }
-      formTop = cellTop - buttonHeight;
-    } else if (cellBottomFromPageTop - formHeight + buttonHeight >= topFromPageTopLimit) {
-      // option 2
-      if (cellBottom > viewportHeight) {
-        // bottom border of form is to the bottom of the viewport
-        const downShiftAmount: number = cellBottom - viewportHeight;
-        cellBottom -= downShiftAmount;
-        tableScrollContainer.scrollTop += downShiftAmount;
-      } else if (cellBottom - formHeight + buttonHeight < viewportTopPadding) {
-        // top border of form is to the top of the viewport
-        const upShiftAmount: number = viewportTopPadding - (cellBottom - formHeight + buttonHeight);
-        cellBottom += upShiftAmount;
-        tableScrollContainer.scrollTop -= upShiftAmount;
-      }
-      formTop = cellBottom - formHeight + buttonHeight;
-    }
-    tableCellInputFormElement.style.top = `${formTop}px`;
-  }
-
-  saveTableCellInputForm() {
-    const tableCellInputFormTargetElement = this.tableCellInputFormTargetElement;
-    const text = tableCellInputFormInputElement.value;
-    if (tableCellInputFormTargetElement) {
-			setTableDataText(tableCellInputFormTargetElement, text);
-      // call backend api to send user submission
-      recordCellEdit(tableCellInputFormTargetElement, text);
-    }
-  }
-
-  tableCellInputFormLocationOnScroll() {
-    this.activateTableCellInputFormLocation();
-  }
-
-  deactivateTableCellInputForm() {
-    const tableCellInputFormTargetElement = this.tableCellInputFormTargetElement;
-    if (isTableCellInputFormActive()) {
-      // hide the form
-      tableCellInputFormElement.classList.remove(activeClass);
-
-      // unhighlight the table head
-      const columnLabel: HTMLTableCellElement = tableColumnLabels.querySelector(`.${TableStatusManager.inputtingClass}`);
-      if (columnLabel) {
-        columnLabel.classList.remove(TableStatusManager.inputtingClass);
-      }
-
-      // unhighlight the target cell
-      if (tableCellInputFormTargetElement) {
-        this.tableCellInputFormTargetElement = null;
-      }
-    }
-  }
-
   tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-    this.tableCellInputFormAssignTarget(tableDataElement);
+		cellEditor.activateForm(tableDataElement);
     event.consumed = true;
   }
 
   restoreTableCellInputFormTargetElement() {
-    const tableCellInputFormTargetElement = this.tableCellInputFormTargetElement;
-    if (tableCellInputFormTargetElement) {
-      const getFocus: boolean = !isColumnSearchInputFocused();
-      // form target is in view
-      this.tableCellInputFormAssignTarget(tableCellInputFormTargetElement, undefined, getFocus);
-    } else {
-      if (!isTableCellInputFormActive()) {
-        return;
-      }
+		if (!cellEditor.isActive) {
+			return;
+		}
 
-      const targetCell = this.tableCellInputFormTargetElement;
-      const targetRow = getTableRow(targetCell);
-      if (tableDataManager.isElementInRenderingView(targetRow)) {
-        // row index
-        const elementIndex = tableDataManager.getElementIndex(targetRow);
-        tableCellInputFormLocateCellRowElement.textContent = `${elementIndex + 1}`;
-      } else {
-        // the target element has moved out of view
-        this.tableCellInputFormAssignTarget(null);
-      }
-    }
+		const targetCell = cellEditor.cellElement;
+		const targetRow = getTableRow(targetCell);
+		if (tableDataManager.isElementInRenderingView(targetRow)) {
+			cellEditor.updateLocateCell();
+		} else {
+			// the target element has moved out of view
+			cellEditor.deactivateForm();
+		}
   }
 
   restoreStatus() {
@@ -1193,8 +769,6 @@ class TableStatusManager {
   }
 }
 
-initializeFuseSelect(tableCellInputFormInputElement, (element: HTMLElement) => tableCellInputFormInputContainer.appendChild(element));
-const tableStatusManager: TableStatusManager = new TableStatusManager();
-// const tableDataManager = new TableDataManager(tableElement, document.getElementById("table-data"), tableScrollContainer, tableRowHeight, undefined, () => tableStatusManager.restoreStatus());
-// sort on University A-Z
+export const tableStatusManager: TableStatusManager = new TableStatusManager();
+// initially sort on University A-Z
 tableCellSortButtonOnClick(tableElement.querySelectorAll(".sort-btn")[1] as HTMLButtonElement, false);
