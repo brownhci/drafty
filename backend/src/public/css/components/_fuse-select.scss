@@ -1,7 +1,6 @@
 .fuse-select-options {
   @extend .overflow-auto;
-  @extend .px-0;
-  @extend .my-2;
+  @extend .my-1;
   @extend .d-none;
   @extend .hide-scrollbar;
   max-height: 25vh;
@@ -12,51 +11,37 @@
   }
 
   .fuse-select-option {
-    @extend .progress;
-    @extend .bg-secondary;
-    @extend .my-1;
-    height: 20px !important;
-
+    @extend .rounded;
+    padding: 0 13px;
     &.previous-edit {
-      @extend .bg-primary;
-      .fuse-select-option-text {
-        &::after {
-          @extend .font-awesome;
-          @extend .float-right;
-          @extend .mr-2;
-          color: rgba(255, 255, 255, 0.7);
-          content: "\f044";
-        }
-      }
-
-      &:hover .fuse-select-option-text::after {
-        @extend .text-white;
-      }
-    }
-
-    &.active, &:hover {
-      .fuse-select-option-priority {
-        @extend .progress-bar-striped;
-      }
-      .fuse-select-option-text {
-        @extend .font-weight-bold;
+      .fuse-select-option-text::after {
+        @extend .font-awesome;
+        @extend .float-right;
+        @extend .mr-2;
+        color: rgba(0, 0, 0, 0.7);
+        content: "\f234";
       }
     }
 
     .fuse-select-option-text {
-      @extend .text-white;
+      @extend .text-dark;
       @extend .text-truncate;
-      @extend .position-absolute;
-      @extend .ml-2;
-      width: 98%;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: $zindex-dropdown;
+      b {
+        @extend .text-body;
+      }
     }
 
-    .fuse-select-option-priority {
-      @extend .progress-bar;
+    &:hover {
       @extend .bg-primary;
+      .fuse-select-option-text {
+        @extend .text-light;
+        b {
+          @extend .text-white;;
+        }
+      }
+      .fuse-select-option-text::after {
+        @extend .text-white;
+      }
     }
   }
 }

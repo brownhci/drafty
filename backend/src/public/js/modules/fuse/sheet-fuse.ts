@@ -3,19 +3,11 @@ import { Option } from "../components/sheet/suggestions";
 import { fuseSelectRootContainerClass, autocompleteSuggestionClass, previousEditClass, optionContainerClass, optionClass, optionTextClass } from "../constants/css-classes";
 import { activeClass } from "../constants/css-classes";
 
-interface FuseMatch {
-  item: Option;
-}
-
 /* in memory cache */
 const fuseOptions: Fuse.IFuseOptions<Option> = {
+    includeMatches: true,
     shouldSort: true,
     findAllMatches: true,
-    threshold: 1,
-    location: 0,
-    distance: 100,
-    // maxPatternLength: 32,
-    minMatchCharLength: 1,
     keys: [
       "suggestion"
     ]
@@ -102,16 +94,78 @@ export class FuseSelect {
    * @param {string} q - The user inputted query.
    */
   query(q: string) {
-    const filteredOptions = this.fuse.search(q).map((match: FuseMatch) => match.item);
+    const fuseResult: Array<Fuse.FuseResult<Option>> = this.fuse.search(q);
+    const filteredOptions = fuseResult.map(match => match.item);
 
     if (filteredOptions.length > 0) {
       this.patch(filteredOptions);
+      const optionTextElements = this.optionContainer.querySelectorAll(`.${optionTextClass}`);
+      for (let i = 0; i < optionTextElements.length; i++) {
+        const matches = fuseResult[i].matches;
+        this.highlightMatchCharacter(optionTextElements[i] as HTMLElement, matches);
+      }
+    } else {
+      // render initial options
+      this.sync();
+    }
+  }
+
+  private highlightMatchCharacter(optionTextElement: HTMLElement, matches: ReadonlyArray<Fuse.FuseResultMatch>) {
+    const text = optionTextElement.textContent;
+    const matchedPositions: Set<number> = new Set();
+    for (const match of matches) {
+      for (const indices of match.indices) {
+        const [startIndex, endIndex] = indices;
+        for (let i = startIndex; i <= endIndex; i++) {
+          matchedPositions.add(i);
+        }
+      }
+    }
+
+    optionTextElement.textContent = "";
+    const textLength = text.length;
+    let i = 0;
+    let rangeStart: number = null;
+    // last range's end index (exclusive)
+    let lastRangeEnd: number = 0;
+    while (i < textLength) {
+      if (matchedPositions.has(i)) {
+        if (rangeStart !== null) {
+          // continuation of a matched range
+        } else {
+          // finish a non-matched range
+          const textNode = document.createTextNode(text.slice(lastRangeEnd, i));
+          optionTextElement.appendChild(textNode);
+          rangeStart = i;
+        }
+      } else {
+        if (rangeStart !== null) {
+          // finish a matched range
+          const range = document.createElement("b");
+          range.textContent = text.slice(rangeStart, i);
+          optionTextElement.appendChild(range);
+          rangeStart = null;
+          lastRangeEnd = i;
+        } else {
+          // continuation of a non-matched range
+        }
+      }
+      i++;
+    }
+    if (rangeStart === null) {
+      // last unmatched range
+      const textNode = document.createTextNode(text.slice(lastRangeEnd));
+      optionTextElement.appendChild(textNode);
+    } else {
+      // last matched range
+      const range = document.createElement("b");
+      range.textContent = text.slice(rangeStart);
+      optionTextElement.appendChild(range);
     }
   }
 
   private patch(options: Array<Option>) {
     const optionElements = this.optionContainer.querySelectorAll(`.${optionClass}`);
-
     const numOptions = options.length;
 
     let optionIndex = 0;

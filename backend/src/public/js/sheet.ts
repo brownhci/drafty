@@ -16,7 +16,6 @@ import { cellEditor } from "./modules/components/sheet/cell-editor";
 // TODO last column resize
 // TODO ARROW KEY not functioning when scrolling off screen
 // TODO add new row
-// TODO completions for Rank do not update when cleared
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
 

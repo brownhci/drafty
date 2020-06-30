@@ -60,6 +60,10 @@ class CellEditor {
     this.formElement.style.width = `${Math.max(cellWidth, width)}px`;
   }
 
+  private get buttonHeight(): number {
+    return this.isLocateCellActive? this.locateCellButtonElement.offsetHeight: 0;
+  }
+
   private formElementXShift: number = 0;
   private formElementYShift: number = 0;
 
@@ -205,9 +209,8 @@ class CellEditor {
     if (this.isActive && !this.isLocateCellActive) {
       this.locateCellButtonElement.classList.add(activeClass);
       // reposition the tableCellInputFormElement
-      const buttonHeight = this.locateCellButtonElement.offsetHeight;
       const formTop = parseFloat(this.formElement.style.top);
-      this.formElement.style.top = `${formTop - buttonHeight}px`;
+      this.formElement.style.top = `${formTop - this.buttonHeight}px`;
     }
   }
 
@@ -315,7 +318,7 @@ class CellEditor {
      *   1. top border (offset by buttonHeight) of form stick to the top border of the target cell
      *   2. bottom border of form stick to the bottom border of the target cell
      */
-    const buttonHeight = this.isLocateCellActive? this.locateCellButtonElement.offsetHeight: 0;
+    const buttonHeight = this.buttonHeight;
 
     const cellTopFromPageTop = targetCellElement.offsetTop;
     const cellBottomFromPageTop = cellTopFromPageTop + cellHeight;
