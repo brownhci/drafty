@@ -122,6 +122,7 @@ class CellEditor {
             break;
           case "Enter":
             this.closeForm(true);
+            event.preventDefault();
             break;
         }
         event.stopPropagation();
