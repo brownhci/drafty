@@ -1,7 +1,7 @@
 import { BasicView } from "./table-data-manager/View";
 import { SortingFunctionWithPriority } from "./table-data-manager/ViewFunction";
 import { ViewModel } from "./table-data-manager/ViewModel";
-import { getTableRow, getRowIndexInSection } from "../../dom/sheet";
+import { getRowIndexInSection } from "../../dom/sheet";
 
 
 function getOffsetFromPageTop(element: HTMLElement): number {

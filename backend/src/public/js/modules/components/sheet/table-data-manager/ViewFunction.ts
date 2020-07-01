@@ -395,6 +395,9 @@ export class SortedView<T> implements ViewFunction<T> {
   /** a mapping from identifier to a sorting function and its priority */
   sortingFunctions: Map<any, SortingFunctionWithPriority<T>> = new Map();
 
+  /** denotes the current smallest priority associated with sorting function */
+  private smallestPriority: number = 0;
+
   /**
    * Existing sorting functions will be applied in order of priority -- higher priority sorting function will be used first, lower priority sorting function will be used when the higher priority ones result in tie.
    * @returns The aggregate sorting function.
@@ -471,15 +474,16 @@ export class SortedView<T> implements ViewFunction<T> {
    * @public
    * @param {any} key - An identifier.
    * @param {SortingFunction<T>} sortingFunction - A function to determine how elements from source view should be ordered in the target view.
-   * @param {number} [priority = -this.sortingFunctions.size] - The priority of newly-bound sorting function. The higher the priority, the more important the sorting function. Defaults to the negative of the number of existing sorting function. In other words, default to add a least important sorting function.
+   * @param {number} [priority = this.smallestPriority - 1] - The priority of newly-bound sorting function. The higher the priority, the more important the sorting function. Default to add a least important sorting function.
    * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
    */
-  addSortingFunction(key: any, sortingFunction: SortingFunction<T>, priority: number = -this.sortingFunctions.size): boolean {
+  addSortingFunction(key: any, sortingFunction: SortingFunction<T>, priority: number = this.smallestPriority - 1): boolean {
     const existingSortingFunction = this.sortingFunctions.get(key);
     if (existingSortingFunction && existingSortingFunction.priority === priority && existingSortingFunction.sortingFunction === sortingFunction) {
       return false;
     }
 
+    this.smallestPriority = Math.min(this.smallestPriority, priority);
     this.sortingFunctions.set(key, { sortingFunction, priority });
     return this.shouldRegenerateView = true;
   }
@@ -514,6 +518,7 @@ export class SortedView<T> implements ViewFunction<T> {
     }
 
     this.sortingFunctions.clear();
+    this.smallestPriority = 0;
     return this.shouldRegenerateView = true;
   }
 
@@ -530,6 +535,7 @@ export class SortedView<T> implements ViewFunction<T> {
     let shouldRegenerateView = false;
 
     for (const [key, newPriority] of reordering) {
+    this.smallestPriority = Math.min(this.smallestPriority, newPriority);
       const { priority, sortingFunction } = this.sortingFunctions.get(key);
       if (priority !== newPriority) {
         this.sortingFunctions.set(key, { priority: newPriority, sortingFunction });

@@ -17,6 +17,8 @@ const columnSorterOrderClass = "column-sorter-order";
 const columnSorterDeleteClass = "column-sorter-delete";
 /** A class on a select element that can choose which column current sorter will operate on */
 const columnSorterColumnSelectClass: string = "column-sorter-column-select";
+/** @live */
+const columnSorterColumnSelects: HTMLCollection = document.getElementsByClassName(columnSorterColumnSelectClass);
 /** a class on an element that adjusts the ordering (priority) of current sorter with respect to other sorters */
 const columnSorterReorderGripClass = "column-sorter-reorder-grip";
 const columnSorterClass: string = "column-sorter";
@@ -84,6 +86,23 @@ function modifyColumnSorterContainer(container: HTMLElement, columnIndex: number
   columnSorterColumnSelect.selectedIndex = columnIndex;
 }
 
+function updateDisabledOptions() {
+  const disabledOptionIndices = new Set(tableDataManager.sortingFunctions.keys()) as Set<number>;
+  for (const select of columnSorterColumnSelects) {
+    const options: HTMLOptionsCollection = (select as HTMLSelectElement).options;
+    // re-enable all disabled options
+    for (const disabledOption of select.querySelectorAll("option:disabled")) {
+      if (disabledOptionIndices.has(disabledOption.index);
+      disabledOption.disabled = false;
+    }
+
+    // disable active options
+    for (const optionIndex of disabledOptionIndices) {
+      options[optionIndex].disabled = true;
+    }
+  }
+}
+
 
 /**
  * Changes the ordering of column sorting functions according to the ordering in sort panel.
@@ -137,6 +156,8 @@ export function activateSortPanel(targetElement: HTMLElement) {
   const targetDimensions = targetElement.getBoundingClientRect();
   alignElementHorizontally(columnSortPanel, targetDimensions);
   columnSortPanel.style.top = `${targetDimensions.bottom}px`;
+
+  updateDisabledOptions();
 }
 export function deactivateSortPanel() {
   columnSortPanel.classList.remove(activeClass);
@@ -149,11 +170,15 @@ function deleteColumnSorter(columnIndex: number) {
   tableDataManager.deleteSortingFunction(columnIndex);
 }
 
+function getColumnSorterPriority(columnIndex: number): number {
+  return tableDataManager.sortingFunctions.get(columnIndex).priority;
+}
+
 function setColumnSorter(
-	columnIndex: number,
-	sortingDirection: SortingDirection = SortingDirection.ASCENDING,
-	priority?: number,
-	recordColumnSortInteraction: boolean = true
+  columnIndex: number,
+  sortingDirection: SortingDirection = SortingDirection.ASCENDING,
+  priority?: number,
+  recordColumnSortInteraction: boolean = true
 ) {
   const buttonElement = getColumnLabelSortButton(getColumnLabel(columnIndex));
   buttonElement.classList.add(clickClass);
@@ -172,6 +197,8 @@ function setColumnSorter(
 
 /**
  * Changes the sorting order of a column sorter (a sorting function might sort ascendly or descendingly)
+ *
+ * This sorting function will have same priority.
  */
 function changeColumnSorterSortOrder(
   columnIndex: number,
@@ -179,7 +206,7 @@ function changeColumnSorterSortOrder(
   newSortOrder: SortingDirection = isDescendingSorted(columnLabelSortButton) ? SortingDirection.ASCENDING : SortingDirection.DESCENDING,
   recordColumnSort: boolean = true) {
     columnLabelSortButton.classList.toggle(descendingClass);
-    setColumnSorter(columnIndex, newSortOrder, undefined, recordColumnSort);
+    setColumnSorter(columnIndex, newSortOrder, getColumnSorterPriority(columnIndex), recordColumnSort);
 }
 
 
@@ -222,11 +249,14 @@ columnSortPanel.addEventListener("click", function(event: MouseEvent) {
 function sortPanelColumnSelectOnChange(selectElement: HTMLSelectElement) {
   const columnSorterContainer = getColumnSorterContainerFromChildElement(selectElement);
   const columnIndex: number = getColumnIndexFromColumnSorterContainer(columnSorterContainer);
+  const priority = getColumnSorterPriority(columnIndex);
   deleteColumnSorter(columnIndex);
 
   const selectedIndex = selectElement.selectedIndex;
-  setColumnSorter(selectedIndex);
+  // inherit priority from previous column sorter
+  setColumnSorter(selectedIndex, undefined, priority);
   columnSorterContainer.dataset.columnIndex = selectedIndex.toString();
+  updateDisabledOptions();
 }
 
 columnSortPanel.addEventListener("change", function(event: Event) {
@@ -304,6 +334,7 @@ export function tableCellSortButtonOnClick(buttonElement: HTMLButtonElement, rec
   } else {
     // ascending sort
     setColumnSorter(columnIndex, SortingDirection.ASCENDING, undefined, recordColumnSort);
+    updateDisabledOptions();
   }
 }
 
