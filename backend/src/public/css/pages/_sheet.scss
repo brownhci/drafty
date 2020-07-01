@@ -41,7 +41,7 @@ $resize-color: #B0D0D3;
       @extend .position-absolute;
       @extend .d-none;
       pointer-events: none;
-      background-color: rgba($resize-color, 0.7);
+      background-color: rgba($resize-color, 0.5);
       width: $visual-cue-width !important;
       top: 0;
       left: 0;
@@ -304,6 +304,10 @@ $resize-color: #B0D0D3;
         &.column-label {
           position: sticky;
           top: 0;
+        }
+        &#resize-temporary-column {
+          background-color: transparent !important;
+          @extend .border-0;
         }
         &.column-search {
           position: sticky;

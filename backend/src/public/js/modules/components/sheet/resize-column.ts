@@ -1,17 +1,11 @@
 import { activeClass } from "../../constants/css-classes";
 import { getMinimumColumnWidth, updateTableCellWidth } from "./column-width";
-import { isColumnLabel, isFirstTableCell, isLastTableCell } from "../../dom/sheet";
+import { isColumnLabel, isFirstTableCell, isLastTableCell, tableColumnLabels, tableElement, tableScrollContainer } from "../../dom/sheet";
 import { getLeftTableCellElement, getRightTableCellElement } from "../../dom/navigate";
 
 const distanceConsideredNearToBorder = 10;
 
 const resizeVisualCue: HTMLElement = document.getElementById("resize-visual-cue");
-function activateResizeVisualCue() {
-  resizeVisualCue.classList.add(activeClass);
-}
-function deactivateResizeVisualCue() {
-  resizeVisualCue.classList.remove(activeClass);
-}
 let isResizing: boolean = false;
 let resizeStartX: number = null;
 let tableHeadAtMouseLeft: HTMLTableCellElement;
@@ -20,13 +14,17 @@ let tableHeadAtMouseRight: HTMLTableCellElement;
 const nearLeftBorderClass = "near-left-border";
 const nearRightBorderClass = "near-right-border";
 
+const temporaryTableHead: HTMLTableCellElement = document.createElement("th");
+temporaryTableHead.id = "resize-temporary-column";
+temporaryTableHead.style.width = `500px`;
+
 function setTableHeadAtMouseLeft(tableCellElement: HTMLTableCellElement) {
-	tableHeadAtMouseLeft = tableCellElement;
-	tableCellElement.classList.add(nearRightBorderClass);
+  tableHeadAtMouseLeft = tableCellElement;
+  tableCellElement.classList.add(nearRightBorderClass);
 }
 function setTableHeadAtMouseRight(tableCellElement: HTMLTableCellElement) {
-	tableHeadAtMouseRight = tableCellElement;
-	tableCellElement.classList.add(nearLeftBorderClass);
+  tableHeadAtMouseRight = tableCellElement;
+  tableCellElement.classList.add(nearLeftBorderClass);
 }
 
 function nearElementLeftBorder(element: HTMLElement) {
@@ -35,6 +33,24 @@ function nearElementLeftBorder(element: HTMLElement) {
 function nearElementRightBorder(element: HTMLElement) {
   return element.classList.contains(nearRightBorderClass);
 }
+function isResizingLast() {
+  return tableHeadAtMouseRight === null;
+}
+
+function activateResizeVisualCue() {
+  resizeVisualCue.classList.add(activeClass);
+  if (isResizingLast()) {
+    tableColumnLabels.appendChild(temporaryTableHead);
+    tableScrollContainer.scrollLeft = tableElement.clientWidth;
+  }
+}
+function deactivateResizeVisualCue() {
+  resizeVisualCue.classList.remove(activeClass);
+  if (isResizingLast()) {
+    temporaryTableHead.remove();
+  }
+}
+
 /**
  * Determines the allowed leftmost position for the visual cue. This position is decided by the minimum width for the resize element.
  *
@@ -59,15 +75,15 @@ function repositionResizeVisualCue(resizeElement: HTMLTableCellElement, newXPos:
 }
 
 function resetTableHeadNearMouse() {
-	if (tableHeadAtMouseLeft) {
-		tableHeadAtMouseLeft.classList.remove(nearRightBorderClass);
-		tableHeadAtMouseLeft = null;
-	}
+  if (tableHeadAtMouseLeft) {
+    tableHeadAtMouseLeft.classList.remove(nearRightBorderClass);
+    tableHeadAtMouseLeft = null;
+  }
 
-	if (tableHeadAtMouseRight) {
-		tableHeadAtMouseRight.classList.remove(nearLeftBorderClass);
-		tableHeadAtMouseRight = null;
-	}
+  if (tableHeadAtMouseRight) {
+    tableHeadAtMouseRight.classList.remove(nearLeftBorderClass);
+    tableHeadAtMouseRight = null;
+  }
 }
 
 /**
@@ -77,29 +93,31 @@ function resetTableHeadNearMouse() {
  * @param {MouseEvent} event - The invoking mouse event.
  */
 function handleMouseMoveOnColumnLabel(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
-		resetTableHeadNearMouse();
+    resetTableHeadNearMouse();
     const {left: elementLeft, right: elementRight} = tableCellElement.getBoundingClientRect();
-    const mouseX = event.clientX;
+    const mouseX = event.pageX;
     const distanceFromLeftBorder = mouseX - elementLeft;
     const distanceFromRightBorder = elementRight - mouseX;
     if (distanceFromLeftBorder <= distanceConsideredNearToBorder && distanceFromLeftBorder < distanceFromRightBorder && !isFirstTableCell(tableCellElement)) {
       // near left border
-			setTableHeadAtMouseRight(tableCellElement);
-			setTableHeadAtMouseLeft(getLeftTableCellElement(tableCellElement));
+      setTableHeadAtMouseRight(tableCellElement);
+      setTableHeadAtMouseLeft(getLeftTableCellElement(tableCellElement));
     } else if (distanceFromRightBorder <= distanceConsideredNearToBorder && distanceFromRightBorder <= distanceFromLeftBorder) {
       // near right border
-			setTableHeadAtMouseLeft(tableCellElement);
+      setTableHeadAtMouseLeft(tableCellElement);
 
-      if (!isLastTableCell(tableCellElement)) {
-        // last table column does not have a right border
-				setTableHeadAtMouseRight(getRightTableCellElement(tableCellElement));
+      if (isLastTableCell(tableCellElement)) {
+        // last table column does not have a right element
+        tableHeadAtMouseRight = null;
+      } else {
+        setTableHeadAtMouseRight(getRightTableCellElement(tableCellElement));
       }
     }
 }
 
 export function tableHeadOnMouseMove(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
   if (isResizing) {
-    repositionResizeVisualCue(tableHeadAtMouseLeft, event.clientX);
+    repositionResizeVisualCue(tableHeadAtMouseLeft, event.pageX);
   } else {
     if (!isColumnLabel(tableCellElement)) {
       // ignore mouse moving near borders on elements other than column labels
@@ -113,7 +131,7 @@ export function tableHeadOnMouseDown(tableCellElement: HTMLTableCellElement, eve
   if (isColumnLabel(tableCellElement)) {
     if (nearElementLeftBorder(tableCellElement) || nearElementRightBorder(tableCellElement)) {
       isResizing = true;
-      resizeStartX = event.clientX;
+      resizeStartX = event.pageX;
       repositionResizeVisualCue(tableHeadAtMouseLeft, resizeStartX);
       activateResizeVisualCue();
     }
@@ -122,8 +140,14 @@ export function tableHeadOnMouseDown(tableCellElement: HTMLTableCellElement, eve
 
 export function tableHeadOnMouseUp(event: MouseEvent) {
   if (isResizing) {
-    const resizeEndX = event.clientX;
-    const resizeAmount = resizeEndX - resizeStartX;
+    let resizeAmount: number;
+    if (isResizingLast()) {
+      resizeAmount = event.clientX - tableHeadAtMouseLeft.getBoundingClientRect().right;
+    } else {
+      const resizeEndX = event.pageX;
+      resizeAmount = resizeEndX - resizeStartX;
+    }
+
     if (resizeAmount !== 0) {
       // resizing
       updateTableCellWidth(tableHeadAtMouseLeft, resizeAmount);

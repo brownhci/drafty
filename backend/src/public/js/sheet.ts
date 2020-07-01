@@ -14,8 +14,6 @@ import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } fr
 import { cellEditor } from "./modules/components/sheet/cell-editor";
 import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "./modules/components/sheet/resize-column";
 
-
-// TODO last column resize
 // TODO add new row
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
@@ -55,8 +53,8 @@ function copyTableColumnToCopyBuffer(index: number) {
 // paste event
 function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: string) {
   // invoke edit editor
-	cellEditor.activateForm(tableCellElement);
-	cellEditor.formInput = text;
+  cellEditor.activateForm(tableCellElement);
+  cellEditor.formInput = text;
 }
 function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   if (isTableHead(tableCellElement)) {
@@ -352,7 +350,7 @@ class TableStatusManager {
     }
     if (isTableData(activeTableCellElement)) {
       if (this.isTableDataLastActivatedRecently()) {
-				cellEditor.activateForm(activeTableCellElement);
+        cellEditor.activateForm(activeTableCellElement);
         activeTableCellElement.lastActiveTimestamp = null;
         recordCellDoubleClick(activeTableCellElement);
       } else {
@@ -563,23 +561,23 @@ class TableStatusManager {
   tableCellInputFormTargetElementId: string = null;
 
   tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-		cellEditor.activateForm(tableDataElement);
+    cellEditor.activateForm(tableDataElement);
     event.consumed = true;
   }
 
   restoreTableCellInputFormTargetElement() {
-		if (!cellEditor.isActive) {
-			return;
-		}
+    if (!cellEditor.isActive) {
+      return;
+    }
 
-		const targetCell = cellEditor.cellElement;
-		const targetRow = getTableRow(targetCell);
-		if (tableDataManager.isElementInRenderingView(targetRow)) {
-			cellEditor.updateLocateCell();
-		} else {
-			// the target element has moved out of view
-			cellEditor.deactivateForm();
-		}
+    const targetCell = cellEditor.cellElement;
+    const targetRow = getTableRow(targetCell);
+    if (tableDataManager.isElementInRenderingView(targetRow)) {
+      cellEditor.updateLocateCell();
+    } else {
+      // the target element has moved out of view
+      cellEditor.deactivateForm();
+    }
   }
 
   restoreStatus() {
