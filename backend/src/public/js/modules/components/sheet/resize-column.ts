@@ -16,7 +16,6 @@ const nearRightBorderClass = "near-right-border";
 
 const temporaryTableHead: HTMLTableCellElement = document.createElement("th");
 temporaryTableHead.id = "resize-temporary-column";
-temporaryTableHead.style.width = `500px`;
 
 function setTableHeadAtMouseLeft(tableCellElement: HTMLTableCellElement) {
   tableHeadAtMouseLeft = tableCellElement;
@@ -40,6 +39,7 @@ function isResizingLast() {
 function activateResizeVisualCue() {
   resizeVisualCue.classList.add(activeClass);
   if (isResizingLast()) {
+    temporaryTableHead.style.width = `${tableHeadAtMouseLeft.clientWidth}px`;
     tableColumnLabels.appendChild(temporaryTableHead);
     tableScrollContainer.scrollLeft = tableElement.clientWidth;
   }
