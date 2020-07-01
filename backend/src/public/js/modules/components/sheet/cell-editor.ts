@@ -8,6 +8,7 @@ import { fuseSelect, initializeFuseSelect, updateFuseSelect } from "./suggestion
 import { alignElementHorizontally } from "./align";
 import { activeClass, inputtingClass, invalidClass } from "../../constants/css-classes";
 import { getViewportHeight, getViewportWidth, measureTextWidth } from "../../utils/length";
+import { debounce } from "../../utils/debounce";
 import { getColumnLabel, getColumnLabelText, getTableRow, isColumnAutocompleteOnly, isTableCellEditable, setTableDataText, tableScrollContainer } from "../../dom/sheet";
 import { getRightTableCellElement } from "../../dom/navigate";
 import { getIdSuggestion, getIdSuggestionType, recordCellEdit } from "../../api/record-interactions";
@@ -68,11 +69,6 @@ class CellEditor {
   private formElementYShift: number = 0;
 
   /**
-   * A flag used to debounce the scroll event
-   */
-  private ticking: boolean = false;
-
-  /**
    * A flag used to signal the cell editor is being moved.
    */
   isRepositioning: boolean = false;
@@ -108,16 +104,7 @@ class CellEditor {
       event.stopPropagation();
     });
 
-    tableScrollContainer.addEventListener("scroll", () => {
-      if (!this.ticking) {
-          window.requestAnimationFrame(() => {
-            this.activateLocateCell();
-            this.ticking = false;
-          });
-
-          this.ticking = true;
-        }
-    }, { passive: true });
+    tableScrollContainer.addEventListener("scroll", debounce(() => this.activateLocateCell()), { passive: true });
 
     this.formElement.addEventListener("submit", function(event: Event) {
       // disable submitting

@@ -7,6 +7,7 @@
 import { PartialView } from "./ViewFunction";
 import { ViewModel } from "./ViewModel";
 import { bound } from "../../../utils/math";
+import { debounce } from "../../../utils/debounce";
 import { fillerClass, startFillerClass, endFillerClass } from "../../../constants/css-classes";
 import { getScrollParent } from "../../../dom/scroll";
 
@@ -292,10 +293,6 @@ export class PartialViewScrollHandler<T> {
    * An intersection observer to watch `this.endSentinelElement`: if it enters into view
    */
   private endSentinelObserver: IntersectionObserver;
-  /**
-   * A flag used to debounce the scroll event
-   */
-  private ticking: boolean = false;
 
   /**
    * Creates a PartialViewScrollHandler instance.
@@ -421,20 +418,13 @@ export class PartialViewScrollHandler<T> {
    * @listens ScrollEvent
    */
   private initializeScrollEventListener() {
-    this.scrollTarget.addEventListener("scroll", () => {
-      if (!this.ticking) {
-          window.requestAnimationFrame(() => {
-            const startIndex = this.getElementIndexFromScrollAmount();
-            if (startIndex < this.partialView.partialViewStartIndex && this.partialView.partialViewEndIndex < startIndex) {
-              // view out of sync
-              this.setWindow(startIndex);
-            }
-            this.ticking = false;
-          });
-
-          this.ticking = true;
-        }
-    }, { passive: true });
+    this.scrollTarget.addEventListener("scroll", debounce(() => {
+      const startIndex = this.getElementIndexFromScrollAmount();
+      if (startIndex < this.partialView.partialViewStartIndex && this.partialView.partialViewEndIndex < startIndex) {
+        // view out of sync
+        this.setWindow(startIndex);
+      }
+    }), { passive: true });
   }
 
   /**
