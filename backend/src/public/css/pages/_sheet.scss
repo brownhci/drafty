@@ -1,6 +1,7 @@
 $shadow-width: 3px;
 $resize-shadow-width: 3px;
 $visual-cue-width: 5px;
+$resize-color: #B0D0D3;
 
 %cell-overflow {
     @extend .overflow-hidden;
@@ -40,7 +41,7 @@ $visual-cue-width: 5px;
       @extend .position-absolute;
       @extend .d-none;
       pointer-events: none;
-      background-color: rgba($info, 0.2);
+      background-color: rgba($resize-color, 0.7);
       width: $visual-cue-width !important;
       top: 0;
       left: 0;
@@ -281,8 +282,24 @@ $visual-cue-width: 5px;
         &.near-left-border, &.near-right-border {
           cursor: col-resize;
         }
+        @keyframes barberpole {
+          from { background-position: 0 0; }
+          to   { background-position: 98px 49px; }
+        }
         &.near-right-border {
-          @include vendor-prefix(box-shadow, (inset $resize-shadow-width 0 0 0 $info, inset (-$resize-shadow-width) 0 0 0 $info), webkit ms);
+          background-size: 49px 49px;
+          background-image: linear-gradient(
+            45deg,
+            rgba($resize-color, 0.1)  25%,
+            transparent       25%,
+            transparent       50%,
+            rgba($resize-color, 0.1)  50%,
+            rgba($resize-color, 0.1)  75%,
+            transparent       75%,
+            transparent
+          );
+          animation: barberpole 1s linear infinite;
+          @include vendor-prefix(box-shadow, (inset $resize-shadow-width 0 0 0 $resize-color, inset (-$resize-shadow-width) 0 0 0 $resize-color), webkit ms);
         }
         &.column-label {
           position: sticky;
