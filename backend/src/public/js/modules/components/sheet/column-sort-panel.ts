@@ -111,7 +111,7 @@ function reorderSortingFunctionFromSortPanel() {
   const ordering: Map<number, number> = new Map();
 
   // earlier sorting function in panel has higher priority
-  let order = columnSorterContainers.length;
+  let order = 0;
   for (const columnSorterContainer of columnSorterContainers) {
     const columnIndex: number = getColumnIndexFromColumnSorterContainer(columnSorterContainer as HTMLElement);
     ordering.set(columnIndex, order);
