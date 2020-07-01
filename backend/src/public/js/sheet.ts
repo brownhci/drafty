@@ -2,60 +2,26 @@ import { activeClass, activeAccompanyClass, copiedClass } from "./modules/consta
 import "./modules/components/welcome-screen";
 import { hasCopyModifier, clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyTextToCopyBuffer, copyCopyBuffer } from "./modules/utils/copy";
 import { hasTextSelected} from "./modules/utils/selection";
+import { debounce } from "./modules/utils/debounce";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
 import { isTableData, isTableHead, isTableCell, isInput } from "./modules/dom/types";
 import { recordCellClick, recordCellDoubleClick, recordCellCopy, recordColumnCopy, recordColumnSearch } from "./modules/api/record-interactions";
-import { tableElement, tableBodyElement, tableColumnLabels, getColumnLabel, getTableDataText, tableScrollContainer, isColumnLabelSortButton, getTableRow, getTableCellText, getTableCellTextsInColumn, isColumnSearchInput, isTableCellEditable, getColumnSearchInput, isColumnLabel, isFirstTableCell, isLastTableCell, isColumnSearch, getColumnSearch, getTableColElement, isColumnSearchInputFocused } from "./modules/dom/sheet";
-import { getMinimumColumnWidth, updateTableColumnSearchWidth, updateTableCellWidth } from "./modules/components/sheet/column-width";
+import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, getTableRow, getTableCellText, getTableCellTextsInColumn, isColumnSearchInput, isTableCellEditable, getColumnSearchInput, isColumnLabel, isColumnSearch, getColumnSearch, getTableColElement, isColumnSearchInputFocused } from "./modules/dom/sheet";
+import { updateTableColumnSearchWidth } from "./modules/components/sheet/column-width";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { FilterFunction } from "./modules/components/sheet/table-data-manager/ViewFunction";
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
 import { cellEditor } from "./modules/components/sheet/cell-editor";
+import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "./modules/components/sheet/resize-column";
 
 
 // TODO last column resize
-// TODO ARROW KEY not functioning when scrolling off screen
 // TODO add new row
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
 
 /* which table column is active: a table column is activated when associated head is clicked */
 let activeTableColElement: null | HTMLTableColElement = null;
-
-
-/* visual cue during resize */
-function initializeResizeVisualCue() {
-  const visualCue = document.createElement("div");
-  visualCue.id = "resize-visual-cue";
-  tableScrollContainer.appendChild(visualCue);
-  return visualCue;
-}
-const resizeVisualCue: HTMLElement = initializeResizeVisualCue();
-function resizeVisualCueMininumX(tableCellElement: HTMLTableCellElement) {
-  const elementLeft = tableCellElement.getBoundingClientRect().left;
-  const index = tableCellElement.cellIndex;
-  return elementLeft + getMinimumColumnWidth(index);
-}
-function repositionResizeVisualCue(newXPos: number) {
-  resizeVisualCue.style.left = `${newXPos}px`;
-}
-function updateResizeVisualCuePosition(tableCellElement: HTMLTableCellElement, newXPos: number, nearLeftBorder?: boolean) {
-  let minX: number;
-  if (nearLeftBorder) {
-    minX = resizeVisualCueMininumX(getLeftTableCellElement(tableCellElement));
-  } else {
-    // near right border
-    minX = resizeVisualCueMininumX(tableCellElement);
-  }
-
-  repositionResizeVisualCue(Math.max(minX, newXPos));
-}
-function activateResizeVisualCue() {
-  resizeVisualCue.classList.add(activeClass);
-}
-function deactivateResizeVisualCue() {
-  resizeVisualCue.classList.remove(activeClass);
-}
 
 // events
 
@@ -234,147 +200,6 @@ tableElement.addEventListener("blur", function(event: Event) {
 }, true);
 
 /* mouse events */
-interface ResizableHTMLTableCellElement extends HTMLTableCellElement {
-  atResize?: boolean;
-  nearLeftBorder?: boolean;
-  nearRightBorder?: boolean;
-  startMouseX?: number;
-}
-let tableCellElementUnderMouse: null | ResizableHTMLTableCellElement = null;
-const nearLeftBorderClass = "near-left-border";
-const nearRightBorderClass = "near-right-border";
-function nearElementLeftBorder(element: HTMLElement) {
-  return element.classList.contains(nearLeftBorderClass);
-}
-function nearElementRightBorder(element: HTMLElement) {
-  return element.classList.contains(nearRightBorderClass);
-}
-function removeNearBorderStatus() {
-  for (const element of tableColumnLabels.querySelectorAll(`.${nearLeftBorderClass}`)) {
-    element.classList.remove(nearLeftBorderClass);
-  }
-  for (const element of tableColumnLabels.querySelectorAll(`.${nearRightBorderClass}`)) {
-    element.classList.remove(nearRightBorderClass);
-  }
-}
-const resizingBorderClass = "resize-border";
-function isResizingTableHeadBorder() {
-  return tableColumnLabels.classList.contains(resizingBorderClass);
-}
-function startResizingBorderOnTableHead(tableCellElement: ResizableHTMLTableCellElement, event: MouseEvent) {
-  tableColumnLabels.classList.add(resizingBorderClass);
-  tableCellElement.startMouseX = event.clientX;
-}
-function finishResizingBorderOnTableHead(event: MouseEvent) {
-  const startMouseX = tableCellElementUnderMouse.startMouseX;
-  if (isNaN(startMouseX)) {
-    return;
-  } else {
-    tableCellElementUnderMouse.startMouseX = undefined;
-  }
-  const finishMouseX = event.clientX;
-  const resizeAmount = finishMouseX - startMouseX;
-  if (resizeAmount !== 0) {
-    if (nearElementLeftBorder(tableCellElementUnderMouse)) {
-      updateTableCellWidth(getLeftTableCellElement(tableCellElementUnderMouse), resizeAmount);
-    } else {
-      updateTableCellWidth(tableCellElementUnderMouse, resizeAmount);
-    }
-  }
-}
-function updateTableCellElementUnderMouse(tableCellElement: HTMLTableCellElement) {
-  if (tableCellElementUnderMouse) {
-    removeNearBorderStatus();
-  }
-  tableCellElementUnderMouse = tableCellElement;
-}
-const distanceConsideredNearToBorder = 10;
-/**
- * Handle mouse move near the borders of elements.
- *
- * @param {ResizableHTMLTableCellElement} tableCellElement - An resizable table cell element.
- * @param {MouseEvent} event - The invoking mouse event.
- */
-function handleMouseMoveNearElementBorder(tableCellElement: ResizableHTMLTableCellElement, event: MouseEvent) {
-  if (!isColumnLabel(tableCellElement)) {
-    // ignore mouse moving near borders on elements other than column labels
-    return;
-  }
-  const {left: elementLeft, right: elementRight} = tableCellElement.getBoundingClientRect();
-  const mouseX = event.clientX;
-  const distanceFromLeftBorder = mouseX - elementLeft;
-  const distanceFromRightBorder = elementRight - mouseX;
-  if (distanceFromLeftBorder > distanceConsideredNearToBorder && distanceFromRightBorder > distanceConsideredNearToBorder) {
-    // reset indicator classes if far from both borders
-    removeNearBorderStatus();
-  } else if (distanceFromLeftBorder <= distanceConsideredNearToBorder && distanceFromLeftBorder < distanceFromRightBorder && !isFirstTableCell(tableCellElement)) {
-    // near left border
-    tableCellElement.classList.add(nearLeftBorderClass);
-    getLeftTableCellElement(tableCellElement).classList.add(nearRightBorderClass);
-  } else if (distanceFromRightBorder <= distanceConsideredNearToBorder && distanceFromRightBorder <= distanceFromLeftBorder) {
-    // near right border
-    tableCellElement.classList.add(nearRightBorderClass);
-
-    if (!isLastTableCell(tableCellElement)) {
-      // last tale column does not have a right border
-      getRightTableCellElement(tableCellElement).classList.add(nearLeftBorderClass);
-    }
-  }
-}
-// function tableColumnColorify(columnIndex: number, originalWidth: string = "50%", newWidth: string = "100%", bufferBackgroundColor: string = "#f8f9fa") {
-//   for (const tableCellElement of getTableCellElementsInColumn(columnIndex, false, false)) {
-//     if (isColumnLabel(tableCellElement) || isColumnSearch(tableCellElement)) {
-//       tableCellElement.style.paddingRight = `calc(0.75rem + calc(${newWidth} - ${originalWidth}))`;
-//     }
-//
-//     const currentBackgroundColor: string = getComputedStyle(tableCellElement, null).backgroundColor;
-//     tableCellElement.style.background = `linear-gradient(to right, ${currentBackgroundColor} 0%, ${currentBackgroundColor} ${originalWidth}, ${bufferBackgroundColor} ${originalWidth}, ${bufferBackgroundColor} ${newWidth})`;
-//   }
-// }
-// function tableColumnDecolorify(columnIndex: number) {
-//   for (const tableCellElement of getTableCellElementsInColumn(columnIndex, false, false)) {
-//     if (isColumnSearch(tableCellElement)) {
-//       tableCellElement.style.paddingRight = "";
-//     }
-//
-//     tableCellElement.style.background = "";
-//   }
-// }
-function tableHeadOnMouseMove(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
-  if (isResizingTableHeadBorder()) {
-    // reposition visual cue
-    updateResizeVisualCuePosition(tableCellElementUnderMouse, event.clientX, nearElementLeftBorder(tableCellElementUnderMouse));
-  } else {
-    if (tableCellElement !== tableCellElementUnderMouse) {
-      // different element under mouse move
-      updateTableCellElementUnderMouse(tableCellElement);
-    }
-    // handle mouse move to element border
-    handleMouseMoveNearElementBorder(tableCellElement, event);
-  }
-}
-function tableHeadOnMouseDown(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
-  if (tableCellElementUnderMouse !== tableCellElement) {
-    updateTableCellElementUnderMouse(tableCellElement);
-  }
-
-  // when near a border, start resizing
-  if (isColumnLabel(tableCellElementUnderMouse)) {
-    if (nearElementLeftBorder(tableCellElementUnderMouse) || nearElementRightBorder(tableCellElementUnderMouse)) {
-      startResizingBorderOnTableHead(tableCellElementUnderMouse, event);
-      updateResizeVisualCuePosition(tableCellElementUnderMouse, event.clientX, nearElementLeftBorder(tableCellElementUnderMouse));
-      activateResizeVisualCue();
-    }
-  }
-}
-function tableHeadOnMouseUp(event: MouseEvent) {
-  if (isResizingTableHeadBorder()) {
-    finishResizingBorderOnTableHead(event);
-  }
-  deactivateResizeVisualCue();
-  tableColumnLabels.classList.remove(resizingBorderClass);
-  updateTableCellElementUnderMouse(null);
-}
 // mouse event handlers
 tableElement.addEventListener("mousedown", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
@@ -383,7 +208,7 @@ tableElement.addEventListener("mousedown", function(event: MouseEvent) {
   }
   event.stopPropagation();
 }, {passive: true, capture: true});
-tableElement.addEventListener("mousemove", function(event: MouseEvent) {
+tableElement.addEventListener("mousemove", debounce(function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableHead(target)) {
     tableHeadOnMouseMove(target as HTMLTableCellElement, event);
@@ -391,7 +216,7 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
     cellEditor.isRepositioning = false;
   }
   event.stopPropagation();
-}, {passive: true, capture: true});
+}), {passive: true, capture: true});
 tableElement.addEventListener("mouseup", function(event: MouseEvent) {
   cellEditor.isRepositioning = false;
   tableHeadOnMouseUp(event);
@@ -555,7 +380,7 @@ class TableStatusManager {
       this.updateActiveTimestamp();
     }
     if (shouldGetFocus) {
-      activeTableCellElement.focus({preventScroll: true});
+      activeTableCellElement.focus();
     }
   }
   activateTableHead(shouldGetFocus=true) {

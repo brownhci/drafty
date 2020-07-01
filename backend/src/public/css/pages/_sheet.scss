@@ -281,13 +281,7 @@ $visual-cue-width: 5px;
         &.near-left-border, &.near-right-border {
           cursor: col-resize;
         }
-        &.near-left-border {
-          @include vendor-prefix(box-shadow, inset $resize-shadow-width 0 0 0 $info, webkit ms);
-        }
         &.near-right-border {
-          @include vendor-prefix(box-shadow, inset (-$resize-shadow-width) 0 0 0 $info, webkit ms);
-        }
-        &.near-left-border.near-right-border {
           @include vendor-prefix(box-shadow, (inset $resize-shadow-width 0 0 0 $info, inset (-$resize-shadow-width) 0 0 0 $info), webkit ms);
         }
         &.column-label {
