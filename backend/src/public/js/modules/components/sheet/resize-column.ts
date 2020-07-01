@@ -121,6 +121,7 @@ export function tableHeadOnMouseMove(tableCellElement: HTMLTableCellElement, eve
   } else {
     if (!isColumnLabel(tableCellElement)) {
       // ignore mouse moving near borders on elements other than column labels
+      resetTableHeadNearMouse();
       return;
     }
     handleMouseMoveOnColumnLabel(tableCellElement, event);
