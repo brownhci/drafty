@@ -10,7 +10,7 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
   if (await isValidIdSuggestionType(req) === false) {
     return res.sendStatus(400);
   }
-  const idSuggestionType: string = req.query.idSuggestionType;
+  const idSuggestionType = req.query.idSuggestionType as string;
   const suggestionType: number = Number.parseInt(idSuggestionType);
 
   // valid suggestion type, get suggestions from database
@@ -28,7 +28,7 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
  * get suggestions
  */
 export const getSuggestionsForEdit = async (req: Request, res: Response, next: NextFunction) => {
-  const idSuggestion: number = req.query.idSuggestion;
+  const idSuggestion: number = Number.parseInt(req.query.idSuggestion as string);
 
   // valid suggestion type, get suggestions from database
   const [error, results] = await selectSuggestionsForEdit(idSuggestion);
@@ -51,7 +51,7 @@ export const postNewSuggestion = async (req: Request, res: Response, next: NextF
   const idUniqueID: string = req.body.idUniqueID;
   const idSuggestion: number = Number.parseInt(req.body.idSuggestion);
   const suggestion: string = req.body.suggestion;
-  
+
   const idProfile: number = Number.parseInt(req.session.user.idProfile);
   const idSession: number = req.session.user.idSession;
 
@@ -64,6 +64,6 @@ export const postNewSuggestion = async (req: Request, res: Response, next: NextF
   if (error) {
     return next(error);
   }
-  
+
   return res.status(200).json(results);
 };
