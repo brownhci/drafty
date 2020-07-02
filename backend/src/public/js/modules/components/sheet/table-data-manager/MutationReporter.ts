@@ -1,7 +1,7 @@
 /**
  * @module
  *
- * This modules provides a MutationReporter class that extends MutationObserver which is capable both observing DOM mutation and reporting mutation as custom events.
+ * This modules provides a MutationReporter class that encapsulates MutationObserver which is capable both observing DOM mutation and reporting mutation as custom events.
  */
 
 import { CharacterDataChangeEvent, ChildListChangeEvent, PropertyChangeEvent } from "./CustomEvents";
@@ -33,12 +33,11 @@ export type MutationReporterCallback = (mutations: Array<MutationRecord>, observ
  *    + Creates a MutationObserverInit based on which type(s) of mutations should be observed.
  *    + Identifies a CharacterData mutation from a ChildList mutation.
  *    + More fine-grained control in observing, unobserving one or multiple targets.
- *
- * @augments MutationObserver
  */
-export class MutationReporter extends MutationObserver {
+export class MutationReporter {
   /** NodeList equivalent of empty array */
   private static readonly emptyNodeList: NodeList = document.createElement("div").querySelectorAll("#empty-nodelist");
+  private readonly mutationObserver: MutationObserver;
 
   /** A mapping from observed targets to their observing configuration (MutationObserverInit) */
   readonly observing: Map<Node, MutationObserverInit> = new Map();
@@ -63,7 +62,7 @@ export class MutationReporter extends MutationObserver {
    * @constructs MutationReporter
    */
   constructor(mutationReporterCallback?: MutationReporterCallback) {
-    super((mutations, observer) => this.onMutations(mutations, observer));
+    this.mutationObserver = new MutationObserver((mutations, observer) => this.onMutations(mutations, observer));
     this.mutationReporterCallback = mutationReporterCallback;
   }
 
@@ -254,7 +253,7 @@ export class MutationReporter extends MutationObserver {
    */
   observe(target: Node, options: MutationObserverInit) {
     this.observing.set(target, options);
-    super.observe(target, options);
+    this.mutationObserver.observe(target, options);
   }
 
   /**
@@ -269,7 +268,7 @@ export class MutationReporter extends MutationObserver {
     if (clearMemory) {
       this.observing.clear();
     }
-    super.disconnect();
+    this.mutationObserver.disconnect();
   }
 
   /**
@@ -288,11 +287,11 @@ export class MutationReporter extends MutationObserver {
       return;
     }
 
-    const mutations = super.takeRecords();
+    const mutations = this.mutationObserver.takeRecords();
     this.disconnect(false);
     this.reconnect();
     if (Array.isArray(mutations) && mutations.length > 0) {
-      this.onMutations(mutations, this);
+      this.onMutations(mutations, this.mutationObserver);
     }
   }
 
@@ -302,7 +301,7 @@ export class MutationReporter extends MutationObserver {
    */
   reconnect() {
     for (const [node, options] of this.observing) {
-      super.observe(node, options);
+      this.mutationObserver.observe(node, options);
     }
   }
 
@@ -322,12 +321,12 @@ export class MutationReporter extends MutationObserver {
    * @example If needs to reobserve with different options, set the corresponding options in `this.observing` before calling this function.
    */
   reconnectToExecute(callback: () => void) {
-    const mutations = super.takeRecords();
+    const mutations = this.mutationObserver.takeRecords();
     this.disconnect(false);
     callback();
     this.reconnect();
     if (Array.isArray(mutations) && mutations.length > 0) {
-      this.onMutations(mutations, this);
+      this.onMutations(mutations, this.mutationObserver);
     }
   }
 
