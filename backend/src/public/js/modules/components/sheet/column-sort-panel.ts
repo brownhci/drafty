@@ -92,8 +92,9 @@ function updateDisabledOptions() {
     const options: HTMLOptionsCollection = (select as HTMLSelectElement).options;
     // re-enable all disabled options
     for (const disabledOption of select.querySelectorAll("option:disabled")) {
-      if (disabledOptionIndices.has(disabledOption.index);
-      disabledOption.disabled = false;
+      if (disabledOptionIndices.has((disabledOption as HTMLOptionElement).index)) {
+        (disabledOption as HTMLOptionElement).disabled = false;
+      }
     }
 
     // disable active options
