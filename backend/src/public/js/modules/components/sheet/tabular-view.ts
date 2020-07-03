@@ -15,6 +15,15 @@ function getOffsetFromPageTop(element: HTMLElement): number {
 
 
 export class TabularView extends BasicView {
+  /**
+   * @returns {Array<ViewModel>} The full view before partial rendering (before passing into PartialView.
+   */
+  get fullView(): Array<ViewModel> {
+    // updates view if necessary
+    this.view;
+    return this.partialView.lastSource;
+  }
+
   get startFillerFromPageTop(): number {
     return getOffsetFromPageTop(this.scrollHandler.startFillerElement);
   }

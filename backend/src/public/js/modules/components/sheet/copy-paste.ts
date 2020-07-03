@@ -3,8 +3,8 @@ import { clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyCopyBuffer, copy
 import { hasTextSelected } from "../../utils/selection";
 import { recordCellCopy, recordColumnCopy } from "../../api/record-interactions";
 import { isTableData, isTableHead } from "../../dom/types";
-import { getColumnLabel, getTableCellText, getTableCellTextsInColumn, getTableDataText, isColumnSearch, isColumnSearchInput, isTableCellEditable, tableElement } from "../../dom/sheet";
-import { activeTableCellElement, activeTableColElement } from "../../../sheet";
+import { getColumnLabel, getTableCellText, getTableDataText, isColumnSearch, isColumnSearchInput, isTableCellEditable, tableElement } from "../../dom/sheet";
+import { activeTableCellElement, activeTableColElement, tableDataManager } from "../../../sheet";
 
 const copiedClass = "copied";
 
@@ -30,7 +30,10 @@ function copyCellTextToCopyBuffer(tableCellElement: HTMLTableCellElement) {
 }
 function copyTableColumnToCopyBuffer(index: number) {
   let textToCopy = "";
-  for (const text of getTableCellTextsInColumn(index, true, true)) {
+
+  for (const viewModel of tableDataManager.fullView) {
+    const tableRow = viewModel.element_ as HTMLTableRowElement;
+    const text = tableRow.cells[index].textContent;
     textToCopy += `${text}\n`;
   }
   copyTextToCopyBuffer(textToCopy.trimRight());
