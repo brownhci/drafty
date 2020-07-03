@@ -157,14 +157,14 @@ describe("PartialView", () => {
     expect(pv.numElementNotRenderedAfter).toBe(95);
     expect(pv.setWindow(0, 4)).toBe(false);
     expect(pv.view(array)).toEqual([0, 1, 2, 3, 4]);
-    expect(pv.shiftWindow(5)).toBe(true);
+    expect(pv.shiftWindow(5, true)).toBe(5);
     expect(pv.view(array)).toEqual([5, 6, 7, 8, 9]);
-    expect(pv.shiftWindow(-5)).toBe(true);
+    expect(pv.shiftWindow(-5, true)).toBe(-5);
     expect(pv.view(array)).toEqual([0, 1, 2, 3, 4]);
 
     // reached top
-    expect(pv.shiftWindow(-10)).toBe(false);
-    expect(pv.shiftWindow(0)).toBe(false);
+    expect(pv.shiftWindow(-10, false)).toBeFalsy();
+    expect(pv.shiftWindow(0, false)).toBeFalsy();
 
     expect(pv.view([0, 1, 2])).toEqual([0, 1, 2]);
     expect(pv.maximumWindowSize).toBe(3);
