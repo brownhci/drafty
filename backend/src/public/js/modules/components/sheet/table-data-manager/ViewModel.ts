@@ -314,7 +314,7 @@ export class ViewModel extends DOMForwardingInstantiation {
    *
    * Calling this method after a MutationReporter has been bound to current instance will recreate the MutationReporter. Previous bound MutationReporter will be disconnected.
    *
-	 * @public
+   * @public
    * @param {MutationReporterCallback} callback - The callback to be invoked when mutations are observed. It will be invoked with `this` bound to current view model.
    */
   setMutationReporter__(callback: MutationReporterCallback) {
@@ -337,10 +337,10 @@ export class ViewModel extends DOMForwardingInstantiation {
    */
   protected onMutation__(mutations: Array<MutationRecord>, observer: MutationObserver, originalMutations: Array<MutationRecord>, reporter: MutationReporter) {
     reporter.report(mutations);
-		if (mutations.some(mutation => mutation.type === "childList")) {
-			// update child view models
-			this.patchWithDOM__(this.element_);
-		}
+    if (mutations.some(mutation => mutation.type === "childList")) {
+      // update child view models
+      this.patchWithDOM__(this.element_);
+    }
   }
 
   /**
@@ -361,15 +361,15 @@ export class ViewModel extends DOMForwardingInstantiation {
     this._mutationReporter.observe(target, options);
   }
 
-	/** @see {@link MutationReporter:MutationReporter#unobserve} */
-	unobserve__(target: Node) {
-		this._mutationReporter.unobserve(target);
-	}
+  /** @see {@link MutationReporter:MutationReporter#unobserve} */
+  unobserve__(target: Node) {
+    this._mutationReporter.unobserve(target);
+  }
 
-	/** @see {@link MutationReporter:MutationReporter#reconnectToExecute} */
-	reconnectToExecute__(callback: () => void) {
-		this._mutationReporter.reconnectToExecute(callback);
-	}
+  /** @see {@link MutationReporter:MutationReporter#reconnectToExecute} */
+  reconnectToExecute__(callback: () => void) {
+    this._mutationReporter.reconnectToExecute(callback);
+  }
 
   /**
    * Iterate over a range of child view models, applies an operation, and returns an array containing the result.
@@ -404,10 +404,10 @@ export class ViewModel extends DOMForwardingInstantiation {
    *      @return {Array<HTMLElement>} Same as `elements`.
    *      change view models' DOM elements
    *      `(viewModel, childIndex, rangeIndex) => viewModel.element_ = elements[rangeIndex]`
-	 *    + @example
-	 *    	@this ViewModel
-	 *    	observe desired mutations on all DOM elements in child view models.
-	 *    	`this.operateOnRange__(viewModel => this.observe__(viewModel.element_, ...))`
+   *    + @example
+   *      @this ViewModel
+   *      observe desired mutations on all DOM elements in child view models.
+   *      `this.operateOnRange__(viewModel => this.observe__(viewModel.element_, ...))`
    */
   operateOnRange__<T>(operation: (viewModel: ViewModel, childIndex: number, rangeIndex: number) => T, start: number = 0, end: number = this._children.length): Array<T> {
     const result: Array<T> = [];
@@ -447,9 +447,9 @@ export class ViewModel extends DOMForwardingInstantiation {
   patchWithViewModel__(other: ViewModel, noDetach: boolean = true, noAttach: boolean = true) {
     // patch self
     for (const propName of this.propNames_) {
-			if ((this as any)[propName] !== (other as any)[propName]) {
-				(this as any)[propName] = (other as any)[propName];
-			}
+      if ((this as any)[propName] !== (other as any)[propName]) {
+        (this as any)[propName] = (other as any)[propName];
+      }
     }
 
     // patch children
@@ -480,14 +480,14 @@ export class ViewModel extends DOMForwardingInstantiation {
 
   /**
    * Similar as {@link ViewModel#patchWithViewModel__} where current view model is updated by another DOM element using the in-place-patch algorithms.
-	 *
-	 * Note:
-	 *
-	 * 		+ If the current view model is a partial abstraction of the reference DOM element`other`, then the in-place-patch algorithm might run into live-editing:
-	 * 			@example `other` has two child nodes, current view model is an abstraction of `other` but only has a child view model for the second child node. When calling `this.patchWithDOM__(other)`, second child node will be live edited (because of property forwarding): its registered properties wll be set to those of first child node.
-	 *
-	 * 			To avoid live-editing caused by property forwarding, one can use a cloned node as the reference node
-	 * 			`this.patchWithDOM__(this.element_.cloneNode(true))`
+   *
+   * Note:
+   *
+   *    + If the current view model is a partial abstraction of the reference DOM element`other`, then the in-place-patch algorithm might run into live-editing:
+   *      @example `other` has two child nodes, current view model is an abstraction of `other` but only has a child view model for the second child node. When calling `this.patchWithDOM__(other)`, second child node will be live edited (because of property forwarding): its registered properties wll be set to those of first child node.
+   *
+   *      To avoid live-editing caused by property forwarding, one can use a cloned node as the reference node
+   *      `this.patchWithDOM__(this.element_.cloneNode(true))`
    *
    * @param {HTMLElement} other - A HTML element used to patch current view model.
    * @param {boolean} [noDetach = true] - Whether surplus DOM elements of `this._children` will be removed from DOM tree.
@@ -496,9 +496,9 @@ export class ViewModel extends DOMForwardingInstantiation {
   patchWithDOM__(other: HTMLElement, noDetach: boolean = true, noAttach: boolean = true) {
     // patch self
     for (const propName of this.propNames_) {
-			if ((this as any)[propName] !== (other as any)[propName]) {
-				(this as any)[propName] = (other as any)[propName];
-			}
+      if ((this as any)[propName] !== (other as any)[propName]) {
+        (this as any)[propName] = (other as any)[propName];
+      }
     }
 
     // patch children
@@ -508,8 +508,8 @@ export class ViewModel extends DOMForwardingInstantiation {
 
   /**
    * Patches the child view models of current view model using an array of DOM elements. In-place-patch algorithm as documented in {@link ViewModel#patchWithViewModel__} will be used.
-	 * 		+ If the current view model is a partial abstraction of the reference DOM element`other`, then the in-place-patch algorithm might run into live-editing:
-	 * 			@example `other` has two child nodes, current view model is an abstraction of `other` but only has a child view model for the second child node. When calling `this.patchWithDOM__(other)`, second child node will be live edited (because of property forwarding): its registered properties wll be set to those of first child node.
+   *    + If the current view model is a partial abstraction of the reference DOM element`other`, then the in-place-patch algorithm might run into live-editing:
+   *      @example `other` has two child nodes, current view model is an abstraction of `other` but only has a child view model for the second child node. When calling `this.patchWithDOM__(other)`, second child node will be live edited (because of property forwarding): its registered properties wll be set to those of first child node.
    *
    * @param {Array<HTMLElement>} elements - An array of DOM elements to patch curent child view models.
    * @param {boolean} [noDetach = true] - Whether surplus DOM elements of `this._children` will be removed from DOM tree.

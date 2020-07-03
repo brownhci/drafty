@@ -333,29 +333,54 @@ export class PartialView<T> implements ViewFunction<T> {
   /**
    * Shifts the current window right by some amount.
    *
-   * Window size will not change unless there is not enough elements to include in the window.
+   * + if `preserveWindowSize === true`
+   *     Window size will not change even when it might cause no shifting happens.
+   *     @example Originally, 3 elements are in the window. After trying to shift right by 3 elements, the window still has 3 elements: in order to preserve window size, the window is actually only shifted right 2 elements.
+   *        0 1 2 3 4
+   *       [- - -]- -
+   *        - -[- - -]
+   * + if `preserveWindowSize === false`
+   *     Window size will not change unless there is not enough elements to include in the window after shifting.
    *
-   * @example Originally, 3 elements are in the window. After shifting right by 3 elements, only 2 elements will be in the window.
-   *   [- - -]- -
-   *    - - -[- -  ]
+   *     @example Originally, 3 elements are in the window. After shifting right by 3 elements, only 2 elements will be in the window.
+   *        0 1 2 3 4
+   *       [- - -]- -
+   *        - - -[- -]
    *
    * @public
-   * @param {number} shiftRightAmount - The amount to shift the window rightward. If negative, the window will actually be shifted leftward.
-   * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
+   * @param {number} shiftAmount - The amount to shift the window rightward. If negative, the window will actually be shifted leftward.
+   * @param {boolean} preserveWindowSize - Whether the window size should be preserved at the compromise of not shifting sufficiently or no shifting at all.
+   * @returns {number} The actual amount of shifting. This number also indicates whether this operation will cause a regeneration of view: 0 means no regeneration while non-zero means regeneration needed. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
    */
-  shiftWindow(shiftRightAmount: number): boolean {
-    if (shiftRightAmount === 0) {
-      return false;
+  shiftWindow(shiftAmount: number, preserveWindowSize: boolean): number {
+    if (shiftAmount === 0) {
+      return 0;
     }
 
-    const isShiftRight: boolean = shiftRightAmount >= 0;
-    if ((isShiftRight && this.reachedEnd) || (!isShiftRight && this.reachedStart)) {
-      return false;
+    const shiftTowardsEnd: boolean = shiftAmount >= 0;
+    if ((shiftTowardsEnd && this.reachedEnd) || (!shiftTowardsEnd && this.reachedStart)) {
+      return 0;
     }
 
-    const startIndex = this.partialViewStartIndex + shiftRightAmount;
-    const endIndex = startIndex + this.windowSize - 1;
-    return this.setWindow(startIndex, endIndex);
+    let startIndex, endIndex;
+    if (preserveWindowSize) {
+      if (shiftTowardsEnd) {
+        endIndex = Math.min(this.numElement - 1, this.partialViewEndIndex + shiftAmount);
+        startIndex = Math.max(0, endIndex - this.windowSize + 1);
+      } else {
+        startIndex = Math.max(0, this.partialViewStartIndex + shiftAmount);
+        endIndex = Math.min(this.numElement - 1, startIndex + this.windowSize - 1);
+      }
+    } else {
+      startIndex = this.partialViewStartIndex + shiftAmount;
+      endIndex = startIndex + this.windowSize - 1;
+    }
+    const previousStartIndex = this.partialViewStartIndex;
+    if (this.setWindow(startIndex, endIndex)) {
+      return this.partialViewStartIndex - previousStartIndex;
+    } else {
+      return 0;
+    }
   }
 }
 

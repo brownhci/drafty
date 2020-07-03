@@ -246,8 +246,8 @@ export class BasicView {
     const addedNodeToChildIndex: Map<Node, number> = new Map();
     for (const addedNode of mutation.addedNodes) {
       let childIndex = 0;
-      let child;
-      while ((child = (addedNode as HTMLElement).previousElementSibling)) {
+      let child = addedNode;
+      while ((child = (child as HTMLElement).previousElementSibling)) {
         childIndex++;
         if (addedNodeToChildIndex.has(child)) {
           childIndex += addedNodeToChildIndex.get(child);
