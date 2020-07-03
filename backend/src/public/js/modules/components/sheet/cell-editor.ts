@@ -12,7 +12,7 @@ import { debounce } from "../../utils/debounce";
 import { getColumnLabel, getColumnLabelText, getTableRow, isColumnAutocompleteOnly, isTableCellEditable, setTableDataText, tableScrollContainer } from "../../dom/sheet";
 import { getRightTableCellElement } from "../../dom/navigate";
 import { getIdSuggestion, getIdSuggestionType, recordCellEdit } from "../../api/record-interactions";
-import { tableDataManager, tableStatusManager } from "../../../sheet";
+import { tableDataManager, updateActiveTableCellElement } from "../../../sheet";
 
 class CellEditor {
   private readonly formElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
@@ -228,7 +228,7 @@ class CellEditor {
       if (this.saveEdit()) {
         const cellToActivate = getRightTableCellElement(this.cellElement) || this.cellElement;
         this.deactivateForm();
-        tableStatusManager.updateActiveTableCellElement(cellToActivate);
+        updateActiveTableCellElement(cellToActivate);
       }
     } else {
       this.cellElement.focus({ preventScroll: true });

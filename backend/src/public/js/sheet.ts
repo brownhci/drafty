@@ -1,32 +1,187 @@
 import { activeClass, activeAccompanyClass, copiedClass } from "./modules/constants/css-classes";
 import "./modules/components/welcome-screen";
-import { hasCopyModifier, clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyTextToCopyBuffer, copyCopyBuffer } from "./modules/utils/copy";
-import { hasTextSelected} from "./modules/utils/selection";
-import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
-import { isTableData, isTableHead, isTableCell, isInput } from "./modules/dom/types";
-import { recordCellClick, recordCellDoubleClick, recordCellCopy, recordColumnCopy, recordColumnSearch } from "./modules/api/record-interactions";
-import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, getTableRow, getTableCellText, getTableCellTextsInColumn, isColumnSearchInput, isTableCellEditable, getColumnSearchInput, isColumnLabel, isColumnSearch, getColumnSearch, getTableColElement, isColumnSearchInputFocused } from "./modules/dom/sheet";
+import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "./modules/components/sheet/resize-column";
 import { updateTableColumnSearchWidth } from "./modules/components/sheet/column-width";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { FilterFunction } from "./modules/components/sheet/table-data-manager/ViewFunction";
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
 import { cellEditor } from "./modules/components/sheet/cell-editor";
-import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "./modules/components/sheet/resize-column";
+import { hasCopyModifier, clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyTextToCopyBuffer, copyCopyBuffer } from "./modules/utils/copy";
+import { hasTextSelected} from "./modules/utils/selection";
+import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
+import { isTableData, isTableHead, isTableCell, isInput } from "./modules/dom/types";
+import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, getTableCellText, getTableCellTextsInColumn, isColumnSearchInput, isTableCellEditable, getColumnSearchInput, isColumnLabel, isColumnSearch, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
+import { recordCellClick, recordCellDoubleClick, recordCellCopy, recordColumnCopy, recordColumnSearch } from "./modules/api/record-interactions";
 
 // TODO add new row
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
 
 /* which table column is active: a table column is activated when associated head is clicked */
-let activeTableColElement: null | HTMLTableColElement = null;
+let activeTableColElement: HTMLTableColElement = null;
 
-// events
+/* this interface is used to detect double click (two clicks within short interval specified by {@link recentTimeLimit} */
+interface ActiveHTMLTableCellElement extends HTMLTableCellElement {
+  lastActiveTimestamp?: number;
+}
+const recentTimeLimit: number = 1000;
+let activeTableCellElement: ActiveHTMLTableCellElement = null;
+/* activate */
 
+/**
+ * renew the timestamp on the active table cell element.
+ */
+function updateActiveTimestamp() {
+  activeTableCellElement.lastActiveTimestamp = Date.now();
+}
+function activateTableData(shouldUpdateTimestamp=true, shouldGetFocus=true) {
+  activeTableCellElement.classList.add(activeClass);
+  if (shouldUpdateTimestamp) {
+    updateActiveTimestamp();
+  }
+  if (shouldGetFocus) {
+    activeTableCellElement.focus();
+  }
+}
+function activateTableHead(shouldGetFocus=true) {
+  const index = activeTableCellElement.cellIndex;
+  if (isColumnLabel(activeTableCellElement)) {
+    const columnSearch = getColumnSearch(index);
+    columnSearch.classList.add(activeAccompanyClass);
+  } else if (isColumnSearch(activeTableCellElement)) {
+    const columnLabel = getColumnLabel(index);
+    columnLabel.classList.add(activeAccompanyClass);
+  }
+  activeTableCellElement.classList.add(activeClass);
+  if (shouldGetFocus) {
+    activeTableCellElement.focus({preventScroll: true});
+  }
+}
+function activateTableCol() {
+  const index = activeTableCellElement.cellIndex;
+  const tableColElement = getTableColElement(index);
+  if (tableColElement) {
+    activeTableColElement = tableColElement;
+    activeTableColElement.classList.add(activeClass);
+  }
+}
+function activateTableCellElement(tableCellElement: HTMLTableCellElement, shouldUpdateTimestamp=true, shouldGetFocus=true) {
+  activeTableCellElement = tableCellElement;
+  if (isTableData(tableCellElement)) {
+    activateTableData(shouldUpdateTimestamp, shouldGetFocus);
+    // record whether this table cell is editable
+    isTableCellEditable(tableCellElement);
+  } else if (isTableHead(tableCellElement)) {
+    activateTableHead(shouldGetFocus);
+  }
+}
+/* deactivate */
+function deactivateTableData() {
+  activeTableCellElement.classList.remove(activeClass);
+  activeTableCellElement.lastActiveTimestamp = null;
+}
+function deactivateTableHead() {
+  const index = activeTableCellElement.cellIndex;
+  const columnLabel = getColumnLabel(index);
+  const columnSearch = getColumnSearch(index);
+  columnLabel.classList.remove(activeClass);
+  columnSearch.classList.remove(activeClass);
+  columnLabel.classList.remove(activeAccompanyClass);
+  columnSearch.classList.remove(activeAccompanyClass);
+}
+function deactivateTableCol() {
+  if (activeTableColElement) {
+    activeTableColElement.classList.remove(activeClass);
+    activeTableColElement = null;
+  }
+}
+function deactivateTableCellElement() {
+  if (isTableData(activeTableCellElement)) {
+    deactivateTableData();
+  } else if (isTableHead(activeTableCellElement)) {
+    deactivateTableHead();
+    deactivateTableCol();
+  }
+  activeTableCellElement = null;
+}
 
+function isClickOnActiveElement(tableCellElement: HTMLTableCellElement) {
+  return tableCellElement === activeTableCellElement;
+}
+/**
+ * Use this function to change table cell element to ensure previous active element is properly deactivated
+ */
+export function updateActiveTableCellElement(tableCellElement: HTMLTableCellElement, shouldGetFocus: boolean = true) {
+  if (!tableCellElement) {
+    return;
+  }
+
+  if (activeTableCellElement) {
+    deactivateTableCellElement();
+    deactivateSortPanel();
+    // remove input form
+    cellEditor.deactivateForm();
+  }
+
+  activateTableCellElement(tableCellElement, undefined, shouldGetFocus);
+}
+/**
+ * Whether the table data is activated recently.
+ */
+function isTableDataLastActivatedRecently() {
+  if (activeTableCellElement === null) {
+    return false;
+  }
+
+  if (activeTableCellElement.lastActiveTimestamp === null) {
+    return false;
+  }
+
+  return Date.now() - activeTableCellElement.lastActiveTimestamp <= recentTimeLimit;
+}
+
+function activeTableHeadOnRepeatedClick() {
+  if (activeTableColElement) {
+    // table column is active, deactivate column and focus only on table head
+    deactivateTableCol();
+  } else {
+    // only activate table column at repeated click (after even number of clicks)
+    activateTableCol();
+  }
+}
+function activeElementOnRepeatedClick() {
+  if (!activeTableCellElement) {
+    return;
+  }
+  if (isTableData(activeTableCellElement)) {
+    if (isTableDataLastActivatedRecently()) {
+      cellEditor.activateForm(activeTableCellElement);
+      activeTableCellElement.lastActiveTimestamp = null;
+      recordCellDoubleClick(activeTableCellElement);
+    } else {
+      updateActiveTimestamp();
+    }
+  } else if (isTableHead(activeTableCellElement)) {
+    activeTableHeadOnRepeatedClick();
+  }
+}
+
+function tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
+  if (isClickOnActiveElement(tableCellElement)) {
+    // handle repeated click differently
+    activeElementOnRepeatedClick();
+  } else {
+    updateActiveTableCellElement(tableCellElement);
+    recordCellClick(tableCellElement);
+  }
+  event.preventDefault();
+}
+
+/* click event */
 tableElement.addEventListener("click", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
-    tableStatusManager.tableCellElementOnClick(target as HTMLTableCellElement, event);
+    tableCellElementOnClick(target as HTMLTableCellElement, event);
   } else if (isColumnLabelSortButton(target)) {
     tableCellSortButtonOnClick(target as HTMLButtonElement);
     activateSortPanel(target);
@@ -34,7 +189,21 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
   event.stopPropagation();
 }, true);
 
-/* keyboard event */
+
+type CopyTarget = HTMLTableColElement | HTMLTableCellElement;
+let copyTarget: CopyTarget = null;
+function makeElementCopyTarget(element: HTMLTableCellElement | HTMLTableColElement) {
+  copyTarget = element;
+  element.classList.add(copiedClass);
+}
+
+function removeCurrentCopyTarget() {
+  if (copyTarget) {
+    copyTarget.classList.remove(copiedClass);
+    copyTarget = null;
+  }
+}
+
 interface ConsumableKeyboardEvent extends KeyboardEvent {
   consumed?: boolean;
 }
@@ -48,6 +217,44 @@ function copyTableColumnToCopyBuffer(index: number) {
   }
   copyTextToCopyBuffer(textToCopy.trimRight());
 }
+function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+  if (hasCopyModifier(event)) {
+    removeCurrentCopyTarget();
+    clearCopyBuffer();
+
+    let elementToHighlight;
+    if (activeTableColElement) {
+      // copy entire column
+      const columnIndex: number = activeTableCellElement.cellIndex;
+      copyTableColumnToCopyBuffer(columnIndex);
+      elementToHighlight = activeTableColElement;
+      recordColumnCopy(getColumnLabel(columnIndex));
+    } else if (!(isColumnSearch(tableCellElement))) {
+      if (hasTextSelected(tableCellElement)) {
+        // copy selected part
+        copyCurrentSelectionToCopyBuffer();
+      } else {
+        // copy single table cell
+        copyCellTextToCopyBuffer(tableCellElement);
+      }
+      elementToHighlight = tableCellElement;
+      if (isTableData(tableCellElement)) {
+        // do not record copy on table head element
+        recordCellCopy(tableCellElement);
+      }
+
+      // regain focus
+      elementToHighlight.focus();
+    }
+
+    copyCopyBuffer();
+    makeElementCopyTarget(elementToHighlight);
+    event.consumed = true;
+  }
+  // ignore when only C is pressed
+}
+
+/* keyboard event */
 
 // paste event
 function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: string) {
@@ -69,7 +276,6 @@ function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCellElemen
     });
     event.consumed = true;
   } else {
-    const copyTarget = tableStatusManager.copyTarget;
     if (!copyTarget) {
       return;
     }
@@ -139,17 +345,78 @@ function tableColumnSearchElementOnKeyDown(tableColumnSearchElement: HTMLTableCe
   updateTableColumnSearchWidth(tableColumnSearchElement);
   event.consumed = true;
 }
+
+function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+  cellEditor.activateForm(tableDataElement);
+  event.consumed = true;
+}
 function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
   const tableCellElement: HTMLTableCellElement = event.target as HTMLTableCellElement;
   // ignore if input on table head
   if (isTableData(tableCellElement)) {
-    tableStatusManager.tableDataElementOnInput(tableCellElement, event);
+    tableDataElementOnInput(tableCellElement, event);
+  }
+}
+
+function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+  event.consumed = false;
+  switch (event.key) {
+    case "Down": // IE/Edge specific value
+    case "ArrowDown":
+      updateActiveTableCellElement(getDownTableCellElement(tableCellElement));
+      event.consumed = true;
+      break;
+    case "Up": // IE/Edge specific value
+    case "ArrowUp":
+      updateActiveTableCellElement(getUpTableCellElement(tableCellElement));
+      event.consumed = true;
+      break;
+    case "Left": // IE/Edge specific value
+    case "ArrowLeft":
+      updateActiveTableCellElement(getLeftTableCellElement(tableCellElement));
+      event.consumed = true;
+      break;
+    case "Right": // IE/Edge specific value
+    case "ArrowRight":
+    case "Tab": // handle Tab as a pressing Right arrow
+      updateActiveTableCellElement(getRightTableCellElement(tableCellElement));
+      event.consumed = true;
+      break;
+    case "c": // handle potential CTRL+c or CMD+c
+      tableCellElementOnCopy(tableCellElement, event);
+      break;
+    case "v":
+      tableCellElementOnPasteKeyPressed(tableCellElement, event);
+      break;
+    case "Escape":
+      deactivateSortPanel();
+      // fallthrough
+    case "Alt":
+    case "AltLock":
+    case "CapsLock":
+    case "Control":
+    case "Fn":
+    case "FnLock":
+    case "Hyper":
+    case "Meta":
+    case "NumLock":
+    case "ScrollLock":
+    case "Shift":
+    case "Super":
+    case "Symbol":
+    case "SymbolLock":
+      event.consumed = true;
+  }
+  if (event.consumed) {
+    event.preventDefault();
+  } else {
+    tableCellElementOnInput(event);
   }
 }
 tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
-    tableStatusManager.tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
+    tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
   } else if (isInput(target)) {
     // inputting on column search
     const columnSearch = target.closest("th.column-search");
@@ -220,375 +487,5 @@ tableElement.addEventListener("mouseup", function(event: MouseEvent) {
   event.stopPropagation();
 }, {passive: true, capture: true});
 
-
-/* this interface is used to detect double click (two clicks within short interval specified by {@link recentTimeLimit} */
-interface ActiveHTMLTableCellElement extends HTMLTableCellElement {
-  lastActiveTimestamp?: number;
-}
-type CopyTarget = HTMLTableColElement | HTMLTableCellElement;
-
-class TableStatusManager {
-  static recentTimeLimit = 1000;
-
-  /** which table cell (either a table head or a table data) element is currently active */
-  activeTableCellElementId: string = null;
-  /** which table cell element (either a table head or a table data) was copied */
-  copyTargetId: string = null;
-
-  get copyTarget(): CopyTarget {
-    if (!this.copyTargetId) {
-      return null;
-    }
-    return document.getElementById(this.copyTargetId) as CopyTarget;
-  }
-
-  set copyTarget(copyTarget: CopyTarget) {
-    if (copyTarget) {
-      this.copyTargetId = copyTarget.id;
-    } else {
-      this.copyTargetId = null;
-    }
-  }
-
-  removeCurrentCopyTarget() {
-    const copyTarget: CopyTarget = this.copyTarget;
-    if (copyTarget) {
-      copyTarget.classList.remove(copiedClass);
-      this.copyTarget = null;
-    }
-  }
-
-  makeElementCopyTarget(element: HTMLTableCellElement | HTMLTableColElement) {
-    this.copyTarget = element;
-    element.classList.add(copiedClass);
-  }
-
-  tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-    if (hasCopyModifier(event)) {
-      this.removeCurrentCopyTarget();
-      clearCopyBuffer();
-
-      let elementToHighlight;
-      if (activeTableColElement) {
-        // copy entire column
-        const columnIndex: number = this.activeTableCellElement.cellIndex;
-        copyTableColumnToCopyBuffer(columnIndex);
-        elementToHighlight = activeTableColElement;
-        recordColumnCopy(getColumnLabel(columnIndex));
-      } else if (!(isColumnSearch(tableCellElement))) {
-        if (hasTextSelected(tableCellElement)) {
-          // copy selected part
-          copyCurrentSelectionToCopyBuffer();
-        } else {
-          // copy single table cell
-          copyCellTextToCopyBuffer(tableCellElement);
-        }
-        elementToHighlight = tableCellElement;
-        if (isTableData(tableCellElement)) {
-          // do not record copy on table head element
-          recordCellCopy(tableCellElement);
-        }
-
-        // regain focus
-        elementToHighlight.focus();
-      }
-
-      copyCopyBuffer();
-      this.makeElementCopyTarget(elementToHighlight);
-      event.consumed = true;
-    }
-    // ignore when only C is pressed
-  }
-
-  get activeTableCellElement(): ActiveHTMLTableCellElement {
-    if (!this.activeTableCellElementId) {
-      return null;
-    }
-    return document.getElementById(this.activeTableCellElementId) as ActiveHTMLTableCellElement;
-  }
-
-  set activeTableCellElement(tableCellElement: ActiveHTMLTableCellElement) {
-    if (tableCellElement) {
-      this.activeTableCellElementId = tableCellElement.id;
-    } else {
-      this.activeTableCellElementId = null;
-    }
-  }
-
-  /**
-   * renew the timestamp on the active table cell element.
-   */
-  updateActiveTimestamp() {
-    this.activeTableCellElement.lastActiveTimestamp = Date.now();
-  }
-
-  /**
-   * Whether the table data is activated recently.
-   */
-  isTableDataLastActivatedRecently() {
-    const activeTableCellElement = this.activeTableCellElement;
-    if (activeTableCellElement === null) {
-      return false;
-    }
-
-    if (activeTableCellElement.lastActiveTimestamp === null) {
-      return false;
-    }
-
-    return Date.now() - activeTableCellElement.lastActiveTimestamp <= TableStatusManager.recentTimeLimit;
-  }
-
-  isClickOnActiveElement(tableCellElement: HTMLTableCellElement) {
-    return tableCellElement === this.activeTableCellElement;
-  }
-
-  activeElementOnRepeatedClick() {
-    const activeTableCellElement = this.activeTableCellElement;
-    if (!activeTableCellElement) {
-      return;
-    }
-    if (isTableData(activeTableCellElement)) {
-      if (this.isTableDataLastActivatedRecently()) {
-        cellEditor.activateForm(activeTableCellElement);
-        activeTableCellElement.lastActiveTimestamp = null;
-        recordCellDoubleClick(activeTableCellElement);
-      } else {
-        this.updateActiveTimestamp();
-      }
-    } else if (isTableHead(activeTableCellElement)) {
-      this.activeTableHeadOnRepeatedClick();
-    }
-  }
-
-  activeTableHeadOnRepeatedClick() {
-    if (activeTableColElement) {
-      // table column is active, deactivate column and focus only on table head
-      this.deactivateTableCol();
-    } else {
-      // only activate table column at repeated click (after even number of clicks)
-      this.activateTableCol();
-    }
-  }
-  /* activate */
-  activateTableData(shouldUpdateTimestamp=true, shouldGetFocus=true) {
-    const activeTableCellElement = this.activeTableCellElement;
-    activeTableCellElement.classList.add(activeClass);
-    if (shouldUpdateTimestamp) {
-      this.updateActiveTimestamp();
-    }
-    if (shouldGetFocus) {
-      activeTableCellElement.focus();
-    }
-  }
-  activateTableHead(shouldGetFocus=true) {
-    const activeTableCellElement = this.activeTableCellElement;
-    const index = activeTableCellElement.cellIndex;
-    if (isColumnLabel(activeTableCellElement)) {
-      const columnSearch = getColumnSearch(index);
-      columnSearch.classList.add(activeAccompanyClass);
-    } else if (isColumnSearch(activeTableCellElement)) {
-      const columnLabel = getColumnLabel(index);
-      columnLabel.classList.add(activeAccompanyClass);
-    }
-    activeTableCellElement.classList.add(activeClass);
-    if (shouldGetFocus) {
-      activeTableCellElement.focus({preventScroll: true});
-    }
-  }
-  activateTableCol() {
-    const index = this.activeTableCellElement.cellIndex;
-    const tableColElement = getTableColElement(index);
-    if (tableColElement) {
-      activeTableColElement = tableColElement;
-      activeTableColElement.classList.add(activeClass);
-    }
-  }
-  activateTableCellElement(tableCellElement: HTMLTableCellElement, shouldUpdateTimestamp=true, shouldGetFocus=true) {
-    this.activeTableCellElement = tableCellElement;
-    if (isTableData(tableCellElement)) {
-      this.activateTableData(shouldUpdateTimestamp, shouldGetFocus);
-      // record whether this table cell is editable
-      isTableCellEditable(tableCellElement);
-    } else if (isTableHead(tableCellElement)) {
-      this.activateTableHead(shouldGetFocus);
-    }
-  }
-
-  /* deactivate */
-  deactivateTableData() {
-    const activeTableCellElement = this.activeTableCellElement;
-    activeTableCellElement.classList.remove(activeClass);
-    activeTableCellElement.lastActiveTimestamp = null;
-  }
-  deactivateTableHead() {
-    const index = this.activeTableCellElement.cellIndex;
-    const columnLabel = getColumnLabel(index);
-    const columnSearch = getColumnSearch(index);
-    columnLabel.classList.remove(activeClass);
-    columnSearch.classList.remove(activeClass);
-    columnLabel.classList.remove(activeAccompanyClass);
-    columnSearch.classList.remove(activeAccompanyClass);
-  }
-  deactivateTableCol() {
-    if (activeTableColElement) {
-      activeTableColElement.classList.remove(activeClass);
-      activeTableColElement = null;
-    }
-  }
-  deactivateTableCellElement() {
-    const activeTableCellElement = this.activeTableCellElement;
-    if (isTableData(activeTableCellElement)) {
-      this.deactivateTableData();
-    } else if (isTableHead(activeTableCellElement)) {
-      this.deactivateTableHead();
-      this.deactivateTableCol();
-    }
-    this.activeTableCellElement = null;
-  }
-
-  /**
-   * @public
-   * Use this function to change table cell element to ensure previous active element is properly deactivated
-   */
-  updateActiveTableCellElement(tableCellElement: HTMLTableCellElement | null, shouldGetFocus: boolean = true) {
-    if (!tableCellElement) {
-      return;
-    }
-
-    if (this.activeTableCellElement) {
-      this.deactivateTableCellElement();
-      deactivateSortPanel();
-      // remove input form
-      cellEditor.deactivateForm();
-    }
-
-    this.activateTableCellElement(tableCellElement, undefined, shouldGetFocus);
-  }
-
-  /* click event */
-  tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
-    if (this.isClickOnActiveElement(tableCellElement)) {
-      // handle repeated click differently
-      this.activeElementOnRepeatedClick();
-    } else {
-      this.updateActiveTableCellElement(tableCellElement);
-      recordCellClick(tableCellElement);
-    }
-    event.preventDefault();
-  }
-
-  tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-    event.consumed = false;
-    switch (event.key) {
-      case "Down": // IE/Edge specific value
-      case "ArrowDown":
-        this.updateActiveTableCellElement(getDownTableCellElement(tableCellElement));
-        event.consumed = true;
-        break;
-      case "Up": // IE/Edge specific value
-      case "ArrowUp":
-        this.updateActiveTableCellElement(getUpTableCellElement(tableCellElement));
-        event.consumed = true;
-        break;
-      case "Left": // IE/Edge specific value
-      case "ArrowLeft":
-        this.updateActiveTableCellElement(getLeftTableCellElement(tableCellElement));
-        event.consumed = true;
-        break;
-      case "Right": // IE/Edge specific value
-      case "ArrowRight":
-      case "Tab": // handle Tab as a pressing Right arrow
-        this.updateActiveTableCellElement(getRightTableCellElement(tableCellElement));
-        event.consumed = true;
-        break;
-      case "c": // handle potential CTRL+c or CMD+c
-        this.tableCellElementOnCopy(tableCellElement, event);
-        break;
-      case "v":
-        tableCellElementOnPasteKeyPressed(tableCellElement, event);
-        break;
-      case "Escape":
-        deactivateSortPanel();
-        // fallthrough
-      case "Alt":
-      case "AltLock":
-      case "CapsLock":
-      case "Control":
-      case "Fn":
-      case "FnLock":
-      case "Hyper":
-      case "Meta":
-      case "NumLock":
-      case "ScrollLock":
-      case "Shift":
-      case "Super":
-      case "Symbol":
-      case "SymbolLock":
-        event.consumed = true;
-    }
-    if (event.consumed) {
-      event.preventDefault();
-    } else {
-      tableCellElementOnInput(event);
-    }
-  }
-
-  /* restore */
-  restoreActiveTableCellElement() {
-    const activeTableCellElement = this.activeTableCellElement;
-    if (!activeTableCellElement) {
-      return;
-    }
-
-    if (isTableHead(activeTableCellElement)) {
-      // no need to recover active element since table header is the active element (will not disappear because of scrolling)
-      return;
-    }
-
-    const shouldGetFocus: boolean = !isColumnSearchInputFocused();
-    // active element is in view: tableDataSectionRendered
-    this.activateTableCellElement(activeTableCellElement, false, shouldGetFocus);
-  }
-
-  restoreCopyTarget() {
-    const recoveredCopyTarget = this.copyTarget;
-    if (recoveredCopyTarget) {
-      // copy target is in view
-      this.makeElementCopyTarget(recoveredCopyTarget as HTMLTableCellElement);
-      return;
-    }
-  }
-
-  static inputtingClass = "inputting";
-  tableCellInputFormTargetElementId: string = null;
-
-  tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-    cellEditor.activateForm(tableDataElement);
-    event.consumed = true;
-  }
-
-  restoreTableCellInputFormTargetElement() {
-    if (!cellEditor.isActive) {
-      return;
-    }
-
-    const targetCell = cellEditor.cellElement;
-    const targetRow = getTableRow(targetCell);
-    if (tableDataManager.isElementInRenderingView(targetRow)) {
-      cellEditor.updateLocateCell();
-    } else {
-      // the target element has moved out of view
-      cellEditor.deactivateForm();
-    }
-  }
-
-  restoreStatus() {
-    this.restoreActiveTableCellElement();
-    this.restoreCopyTarget();
-    this.restoreTableCellInputFormTargetElement();
-  }
-}
-
-export const tableStatusManager: TableStatusManager = new TableStatusManager();
 // initially sort on University A-Z
 tableCellSortButtonOnClick(tableElement.querySelectorAll(".sort-btn")[1] as HTMLButtonElement, false);
