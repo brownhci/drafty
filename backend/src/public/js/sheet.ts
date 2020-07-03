@@ -2,7 +2,6 @@ import { activeClass, activeAccompanyClass, copiedClass } from "./modules/consta
 import "./modules/components/welcome-screen";
 import { hasCopyModifier, clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyTextToCopyBuffer, copyCopyBuffer } from "./modules/utils/copy";
 import { hasTextSelected} from "./modules/utils/selection";
-import { debounce } from "./modules/utils/debounce";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
 import { isTableData, isTableHead, isTableCell, isInput } from "./modules/dom/types";
 import { recordCellClick, recordCellDoubleClick, recordCellCopy, recordColumnCopy, recordColumnSearch } from "./modules/api/record-interactions";
@@ -206,15 +205,15 @@ tableElement.addEventListener("mousedown", function(event: MouseEvent) {
   }
   event.stopPropagation();
 }, {passive: true, capture: true});
-tableElement.addEventListener("mousemove", debounce(function(event: MouseEvent) {
+tableElement.addEventListener("mousemove", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableHead(target)) {
     tableHeadOnMouseMove(target as HTMLTableCellElement, event);
   } else {
-    cellEditor.isRepositioning = false;
+    cellEditor.onMouseMove(event);
   }
   event.stopPropagation();
-}), {passive: true, capture: true});
+}, {passive: true, capture: true});
 tableElement.addEventListener("mouseup", function(event: MouseEvent) {
   cellEditor.isRepositioning = false;
   tableHeadOnMouseUp(event);
