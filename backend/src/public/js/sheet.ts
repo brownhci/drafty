@@ -1,31 +1,30 @@
-import { activeClass, activeAccompanyClass, copiedClass } from "./modules/constants/css-classes";
+import { activeClass, activeAccompanyClass } from "./modules/constants/css-classes";
 import "./modules/components/welcome-screen";
 import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "./modules/components/sheet/resize-column";
 import { updateTableColumnSearchWidth } from "./modules/components/sheet/column-width";
+import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from "./modules/components/sheet/copy-paste";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { FilterFunction } from "./modules/components/sheet/table-data-manager/ViewFunction";
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
 import { cellEditor } from "./modules/components/sheet/cell-editor";
-import { hasCopyModifier, clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyTextToCopyBuffer, copyCopyBuffer } from "./modules/utils/copy";
-import { hasTextSelected} from "./modules/utils/selection";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
 import { isTableData, isTableHead, isTableCell, isInput } from "./modules/dom/types";
-import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, getTableCellText, getTableCellTextsInColumn, isColumnSearchInput, isTableCellEditable, getColumnSearchInput, isColumnLabel, isColumnSearch, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
-import { recordCellClick, recordCellDoubleClick, recordCellCopy, recordColumnCopy, recordColumnSearch } from "./modules/api/record-interactions";
+import { tableElement, tableBodyElement, getColumnLabel, isColumnLabelSortButton, getTableCellText, isTableCellEditable, getColumnSearchInput, isColumnLabel, isColumnSearch, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
+import { recordCellClick, recordCellDoubleClick, recordColumnSearch } from "./modules/api/record-interactions";
 
 // TODO add new row
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
 
 /* which table column is active: a table column is activated when associated head is clicked */
-let activeTableColElement: HTMLTableColElement = null;
+export let activeTableColElement: HTMLTableColElement = null;
 
 /* this interface is used to detect double click (two clicks within short interval specified by {@link recentTimeLimit} */
 interface ActiveHTMLTableCellElement extends HTMLTableCellElement {
   lastActiveTimestamp?: number;
 }
 const recentTimeLimit: number = 1000;
-let activeTableCellElement: ActiveHTMLTableCellElement = null;
+export let activeTableCellElement: ActiveHTMLTableCellElement = null;
 /* activate */
 
 /**
@@ -189,120 +188,6 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
   event.stopPropagation();
 }, true);
 
-
-type CopyTarget = HTMLTableColElement | HTMLTableCellElement;
-let copyTarget: CopyTarget = null;
-function makeElementCopyTarget(element: HTMLTableCellElement | HTMLTableColElement) {
-  copyTarget = element;
-  element.classList.add(copiedClass);
-}
-
-function removeCurrentCopyTarget() {
-  if (copyTarget) {
-    copyTarget.classList.remove(copiedClass);
-    copyTarget = null;
-  }
-}
-
-interface ConsumableKeyboardEvent extends KeyboardEvent {
-  consumed?: boolean;
-}
-function copyCellTextToCopyBuffer(tableCellElement: HTMLTableCellElement) {
-  copyTextToCopyBuffer(getTableCellText(tableCellElement));
-}
-function copyTableColumnToCopyBuffer(index: number) {
-  let textToCopy = "";
-  for (const text of getTableCellTextsInColumn(index, true, true)) {
-    textToCopy += `${text}\n`;
-  }
-  copyTextToCopyBuffer(textToCopy.trimRight());
-}
-function tableCellElementOnCopy(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  if (hasCopyModifier(event)) {
-    removeCurrentCopyTarget();
-    clearCopyBuffer();
-
-    let elementToHighlight;
-    if (activeTableColElement) {
-      // copy entire column
-      const columnIndex: number = activeTableCellElement.cellIndex;
-      copyTableColumnToCopyBuffer(columnIndex);
-      elementToHighlight = activeTableColElement;
-      recordColumnCopy(getColumnLabel(columnIndex));
-    } else if (!(isColumnSearch(tableCellElement))) {
-      if (hasTextSelected(tableCellElement)) {
-        // copy selected part
-        copyCurrentSelectionToCopyBuffer();
-      } else {
-        // copy single table cell
-        copyCellTextToCopyBuffer(tableCellElement);
-      }
-      elementToHighlight = tableCellElement;
-      if (isTableData(tableCellElement)) {
-        // do not record copy on table head element
-        recordCellCopy(tableCellElement);
-      }
-
-      // regain focus
-      elementToHighlight.focus();
-    }
-
-    copyCopyBuffer();
-    makeElementCopyTarget(elementToHighlight);
-    event.consumed = true;
-  }
-  // ignore when only C is pressed
-}
-
-/* keyboard event */
-
-// paste event
-function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: string) {
-  // invoke edit editor
-  cellEditor.activateForm(tableCellElement);
-  cellEditor.formInput = text;
-}
-function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  if (isTableHead(tableCellElement)) {
-    return;
-  }
-  if (!hasCopyModifier(event)) {
-    return;
-  }
-  // handle potential CTRL+v or CMD+v
-  if (navigator.clipboard) {
-    navigator.clipboard.readText().then(text => {
-      tableCellElementOnPaste(tableCellElement, text);
-    });
-    event.consumed = true;
-  } else {
-    if (!copyTarget) {
-      return;
-    }
-
-    if (!isTableData(copyTarget)) {
-      return;
-    }
-
-    const text = getTableDataText(copyTarget as HTMLTableCellElement);
-    tableCellElementOnPaste(tableCellElement, text);
-    event.consumed = true;
-  }
-}
-tableElement.addEventListener("paste", function (event: ClipboardEvent) {
-  const pasteContent = event.clipboardData.getData("text");
-  const target: HTMLElement = event.target as HTMLElement;
-  if(isColumnSearchInput(target)) {
-    const targetInput: HTMLInputElement = event.target as HTMLInputElement;
-    targetInput.value = pasteContent;
-    targetInput.dispatchEvent(new Event("input"));
-  } else if (isTableData(target) && isTableCellEditable(target as HTMLTableCellElement)) {
-    tableCellElementOnPaste(target as HTMLTableCellElement, pasteContent);
-  }
-  event.preventDefault();
-  event.stopPropagation();
-}, true);
-
 function updateTableColumnFilter(columnIndex: number, query: string) {
   if (query == "") {
     tableDataManager.deleteFilterFunction(columnIndex);
@@ -325,6 +210,9 @@ function tableColumnSearchElementOnInput(tableColumnSearchInputElement: HTMLInpu
   }, 400);
 }
 
+interface ConsumableKeyboardEvent extends KeyboardEvent {
+  consumed?: boolean;
+}
 function tableColumnSearchElementOnChange(tableColumnSearchInputElement: HTMLInputElement, tableColumnSearchElement: HTMLTableCellElement) {
   recordColumnSearch(tableColumnSearchElement, true);
 }
@@ -383,7 +271,7 @@ function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event
       event.consumed = true;
       break;
     case "c": // handle potential CTRL+c or CMD+c
-      tableCellElementOnCopy(tableCellElement, event);
+      tableCellElementOnCopyKeyPressed(tableCellElement, event);
       break;
     case "v":
       tableCellElementOnPasteKeyPressed(tableCellElement, event);
