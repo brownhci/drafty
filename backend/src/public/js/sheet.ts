@@ -508,6 +508,9 @@ class TableStatusManager {
       case "v":
         tableCellElementOnPasteKeyPressed(tableCellElement, event);
         break;
+      case "Escape":
+        deactivateSortPanel();
+        // fallthrough
       case "Alt":
       case "AltLock":
       case "CapsLock":
