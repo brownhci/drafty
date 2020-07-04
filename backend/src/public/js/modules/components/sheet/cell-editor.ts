@@ -31,6 +31,9 @@ class CellEditor {
   private readonly locateCellColumnElement = document.getElementById("locate-cell-associated-col") as HTMLSpanElement;
   /** whether the location element is shown in the input editor */
 
+  /** a flag indicates whether the form will automatically deactivate when cell is no longer reachable by scrolling */
+  private willFormDeactivateWhenCellNoLongerReachable: boolean = false;
+
   get isActive(): boolean {
     return this.formElement.classList.contains(activeClass);
   }
@@ -221,6 +224,26 @@ class CellEditor {
     this.isRepositioning = false;
   }
 
+  private deactivateFormWhenCellNoLongerReachable() {
+    tableDataManager.afterViewUpdateTaskQueue.tasks.push({
+      work: () => {
+        if (this.isActive) {
+          // form is active
+          const tableRow = getTableRow(this.cellElement);
+          if (tableDataManager.isElementInRenderingView(tableRow)) {
+            // cell in rendering view
+            return;
+          }
+          if (!tableDataManager.isElementInPotentialView(tableRow)) {
+            // cell is no longer reachable by scrolling, hide the form
+            this.deactivateForm();
+          }
+        }
+      },
+      isRecurring: true
+    });
+  }
+
   /**
    * Close the cell editor.
    *
@@ -245,6 +268,12 @@ class CellEditor {
     }
 
     if (cellElement && isTableCellEditable(cellElement)) {
+      if (!this.willFormDeactivateWhenCellNoLongerReachable) {
+        // one-time setup for automatic deactivation of cell editor
+        this.deactivateFormWhenCellNoLongerReachable();
+        this.willFormDeactivateWhenCellNoLongerReachable = true;
+      }
+
       this.cellElement = cellElement;
       this.formElement.classList.add(activeClass);
       this.focusFormInput();

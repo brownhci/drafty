@@ -45,6 +45,15 @@ export class TabularView extends BasicView {
     return element.parentElement === this.sourceViewModel.element_;
   }
 
+  /**
+   * @param {HTMLTableRowElement} element - The element to find.
+   * @returns {boolean} whether the element can be reached by scrolling.
+   */
+  isElementInPotentialView(element: HTMLTableRowElement): boolean {
+    const child: ViewModel = this.sourceViewModel.getChildByElement__(element);
+    return child && this.fullView.includes(child);
+  }
+
   putElementInRenderingView(element: HTMLTableRowElement): boolean {
     const viewModel = this.sourceViewModel.getChildByElement__(element);
     const elementIndex = this.view.indexOf(viewModel);
