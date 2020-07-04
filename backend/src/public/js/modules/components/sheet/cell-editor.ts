@@ -44,7 +44,7 @@ class CellEditor {
   }
   set formInput(value: string) {
     this.formInputElement.value = value;
-    this.resizeFormToFitText(value, 144);
+    this.resizeFormToFitText(value, 108);
   }
 
   private get formWidth(): number {
@@ -254,13 +254,13 @@ class CellEditor {
       // remount the fuse select
       fuseSelect.mount(element => this.mountFuseSelect(element));
       updateFuseSelect(getIdSuggestion(this.cellElement), getIdSuggestionType(columnLabel), () => {
-        this.alignTableCellInputForm();
         // resize form editor
-        this.resizeFormToFitText(fuseSelect.longestText, 124);
+        this.resizeFormToFitText(fuseSelect.longestText, 88);
+        this.alignTableCellInputForm();
       });
 
       this.updateLocateCell();
-      this.resizeFormToFitText(fuseSelect.longestText, 124);
+      this.resizeFormToFitText(fuseSelect.longestText, 88);
       this.alignTableCellInputForm();
     }
   }

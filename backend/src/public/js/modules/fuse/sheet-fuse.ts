@@ -19,8 +19,15 @@ export class FuseSelect {
     return this._options;
   }
   set options(options: Array<Option>) {
+    this.longestText = "";
     this.suggestions = new Set();
-    options.forEach(option => this.suggestions.add(option.suggestion));
+    options.forEach(option => {
+      const suggestion = option.suggestion;
+      this.suggestions.add(suggestion);
+      if (suggestion.length > this.longestText.length) {
+        this.longestText = suggestion;
+      }
+    });
 
     this._options = options;
     this.fuse = new Fuse(this.options, fuseOptions);
@@ -37,7 +44,6 @@ export class FuseSelect {
 
   constructor(options: Array<Option> = []) {
     this.options = options;
-    this.longestText = "";
 
     this.initializeSelect();
   }
@@ -239,9 +245,6 @@ export class FuseSelect {
     optionTextElement.classList.add(optionTextClass);
 
     const text: string = option.suggestion;
-    if (text.length > this.longestText.length) {
-      this.longestText = text;
-    }
 
     optionTextElement.textContent = text;
     optionTextElement.title = text;
