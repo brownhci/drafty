@@ -56,7 +56,7 @@ export class TabularView extends BasicView {
 
   putElementInRenderingView(element: HTMLTableRowElement): boolean {
     const viewModel = this.sourceViewModel.getChildByElement__(element);
-    const elementIndex = this.view.indexOf(viewModel);
+    const elementIndex = this.fullView.indexOf(viewModel);
     if (elementIndex === -1) {
       return false;
     }
