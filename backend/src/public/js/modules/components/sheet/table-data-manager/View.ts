@@ -1,7 +1,8 @@
-import { ViewModel } from "./ViewModel";
-import { FilterFunction, FilteredView, PartialView, SortedView, SortingFunction, ViewFunctionChain } from "./ViewFunction";
 import { MutationReporter } from "./MutationReporter";
 import { PartialViewScrollHandler, Axis } from "./PartialViewScrollHandler";
+import { TaskQueue } from "./TaskQueue";
+import { ViewModel } from "./ViewModel";
+import { FilterFunction, FilteredView, PartialView, SortedView, SortingFunction, ViewFunctionChain } from "./ViewFunction";
 import { getViewportHeight, getViewportWidth } from "../../../utils/length";
 import { debounceWithCooldown } from "../../../utils/debounce";
 
@@ -46,6 +47,11 @@ export class BasicView {
   protected scrollHandler: PartialViewScrollHandler<ViewModel>;
   /** provides an aggregate transformation from source view to final target view */
   protected viewFunctionChain: ViewFunctionChain<ViewModel>;
+
+  /** tasks executed before view update */
+  beforeViewUpdateTaskQueue: TaskQueue = new TaskQueue();
+  /** tasks executed after view update */
+  afterViewUpdateTaskQueue: TaskQueue = new TaskQueue();
 
   /**
    * @returns {number} The maximum number of elements to be rendered.
@@ -101,6 +107,7 @@ export class BasicView {
       );
       this.parseSource(source);
       this.initializeViewFunction();
+      this.initializeTaskQueue();
       this.initializeScrollHandler();
       // updates to a window size appropriate for window size
       this.adjustWindowSizeUpperBound();
@@ -176,6 +183,17 @@ export class BasicView {
     this.view;
   }
 
+  protected initializeTaskQueue() {
+    this.beforeViewUpdateTaskQueue.tasks.push({
+      work: () => this.unmonitor(),
+      isRecurring: true
+    });
+    this.afterViewUpdateTaskQueue.tasks.push({
+      work: () => this.monitor(),
+      isRecurring: true
+    });
+  }
+
   /**
    * Initializes the scroll handler that renders the partial view according to scroll position.
    */
@@ -183,8 +201,8 @@ export class BasicView {
     this.scrollHandler = new PartialViewScrollHandler<ViewModel>({
       partialView: this.partialView,
       target: this.sourceViewModel.element_,
-      beforeViewUpdate: () => this.unmonitor(),
-      afterViewUpdate: () => this.monitor(),
+      beforeViewUpdate: () => this.beforeViewUpdateTaskQueue.work(),
+      afterViewUpdate: () => this.afterViewUpdateTaskQueue.work(),
     });
   }
 

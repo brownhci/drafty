@@ -96,7 +96,10 @@ class CellEditor {
         } else {
           // cell not in rendering view, need to put cell into rendering view before setting alignment
           if (tableDataManager.putElementInRenderingView(tableRow)) {
-            this.alignTableCellInputForm();
+            tableDataManager.afterViewUpdateTaskQueue.tasks.push({
+              work: () => this.alignTableCellInputForm(),
+              isRecurring: false
+            });
           }
         }
       }
