@@ -314,7 +314,7 @@ export class PartialView<T> implements ViewFunction<T> {
    *
    * @public
    * @param {number} [startIndex = 0] - The start index of the window.
-   * @param {number} [endIndex = startIndex + this.maximumWindowSize] - The end index of the window.
+   * @param {number} [endIndex = startIndex + this.maximumWindowSize - 1] - The end index of the window.
    * @returns Whether this operation will cause a regeneration of view. Even this operation does not cause view regeneration, a view regeneration might still happen because of other operations.
    */
   setWindow(startIndex: number = 0, endIndex: number = startIndex + this.maximumWindowSize - 1): boolean {

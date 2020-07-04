@@ -3,6 +3,7 @@ import { FilterFunction, FilteredView, PartialView, SortedView, SortingFunction,
 import { MutationReporter } from "./MutationReporter";
 import { PartialViewScrollHandler, Axis } from "./PartialViewScrollHandler";
 import { getViewportHeight, getViewportWidth } from "../../../utils/length";
+import { debounceWithCooldown } from "../../../utils/debounce";
 
 
 /**
@@ -140,21 +141,11 @@ export class BasicView {
     }
   }
 
-  /** A timeout used to debounce the timeout event */
-  private resizeTimeout: number;
   /**
    * Set up a handler for the {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/resize_event resize} event. This handler will adjust the maximum window size so that a smaller screen has a smaller window size while a larger screen has a larger window size.
    */
   protected initializeResizeHandler() {
-    window.addEventListener("resize", () => {
-      if (this.resizeTimeout) {
-        window.clearTimeout(this.resizeTimeout);
-      }
-      this.resizeTimeout = window.setTimeout(() => {
-        this.resizeTimeout = null;
-        this.adjustWindowSizeUpperBound();
-      }, 1000);
-    });
+    window.addEventListener("resize", debounceWithCooldown(() => this.adjustWindowSizeUpperBound(), 1000));
   }
 
   /**
@@ -264,9 +255,19 @@ export class BasicView {
 
   /**
    * Renders current target view to the page.
+   *
+   * 1. It regenerates the target view to ensure updates (like adding a filter function) are considered
+   * 2. It tries to maximize the window in case the window is decreased due to there wasn't sufficient number of elements previously
+   * 3. It updates the view (target view is regenerated because the window might have changed.
    */
   protected refreshView() {
-    this.scrollHandler.setView(() => this.view);
+    let view = this.view;
+    // tries to maximize the window
+    if (this.partialView.setWindow(this.partialView.partialViewStartIndex)) {
+      // window changed
+      view = this.partialView.view(this.partialView.lastSource);
+    }
+    this.scrollHandler.setView(() => view);
   }
 
   /**
