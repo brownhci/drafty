@@ -1,0 +1,9 @@
+
+# Created by https://www.toptal.com/developers/gitignore/api/code
+# Edit at https://www.toptal.com/developers/gitignore?templates=code
+
+### Code ###
+.vscode/*
+*.code-workspace
+
+# End of https://www.toptal.com/developers/gitignore/api/code
