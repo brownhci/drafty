@@ -1,4 +1,5 @@
 import { getCellInTableRow, getRightTableCellElement } from "./navigate";
+import { isInput } from "./types";
 import { columnLabelClass, columnLabelTextClass, columnSearchClass, columnSortButtonClass } from "../constants/css-classes";
 import { measureTextWidth } from "../utils/length";
 
@@ -80,7 +81,7 @@ export function getColumnSearch(index: number): HTMLTableCellElement {
   return getCellInTableRow(tableColumnSearches, index);
 }
 export function isColumnSearchInput(element: HTMLElement): boolean {
-  return element && isColumnSearch(element.parentElement);
+  return isInput(element) && isColumnSearch(element.parentElement);
 }
 export function getColumnSearchInput(columnSearch: HTMLTableCellElement): HTMLInputElement {
   return columnSearch.querySelector("input");

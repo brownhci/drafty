@@ -1,16 +1,15 @@
+import { recordCellClick, recordCellDoubleClick } from "./modules/api/record-interactions";
 import { activeClass, activeAccompanyClass } from "./modules/constants/css-classes";
 import "./modules/components/welcome-screen";
 import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "./modules/components/sheet/resize-column";
-import { updateTableColumnSearchWidth } from "./modules/components/sheet/column-width";
-import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from "./modules/components/sheet/copy-paste";
-import { TabularView } from "./modules/components/sheet/tabular-view";
-import { FilterFunction } from "./modules/components/sheet/table-data-manager/ViewFunction";
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
 import { cellEditor } from "./modules/components/sheet/cell-editor";
+import "./modules/components/sheet/column-search";
+import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from "./modules/components/sheet/copy-paste";
+import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
-import { isTableData, isTableHead, isTableCell, isInput } from "./modules/dom/types";
-import { tableElement, tableBodyElement, getColumnLabel, isColumnLabelSortButton, getTableCellText, isTableCellEditable, getColumnSearchInput, isColumnLabel, isColumnSearch, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
-import { recordCellClick, recordCellDoubleClick, recordColumnSearch } from "./modules/api/record-interactions";
+import { tableElement, tableBodyElement, getColumnLabel, isColumnLabelSortButton, isTableCellEditable, isColumnLabel, isColumnSearch, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
+import { isTableData, isTableHead, isTableCell } from "./modules/dom/types";
 
 // TODO add new row
 
@@ -188,52 +187,10 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
   event.stopPropagation();
 }, true);
 
-function updateTableColumnFilter(columnIndex: number, query: string) {
-  if (query == "") {
-    tableDataManager.deleteFilterFunction(columnIndex);
-  } else {
-    const queryRegex = new RegExp(query, "i");
-    const filter: FilterFunction<HTMLElement> = element => queryRegex.test(getTableCellText((element as HTMLTableRowElement).cells[columnIndex]));
-    tableDataManager.addFilterFunction(columnIndex, filter);
-  }
-}
-
-let columnSearchFilteringTimeoutId: number | null = null;
-
-function tableColumnSearchElementOnInput(tableColumnSearchInputElement: HTMLInputElement, tableColumnSearchElement: HTMLTableCellElement) {
-  if (columnSearchFilteringTimeoutId) {
-    window.clearTimeout(columnSearchFilteringTimeoutId);
-  }
-  columnSearchFilteringTimeoutId = window.setTimeout(() => {
-    recordColumnSearch(tableColumnSearchElement, false);
-    updateTableColumnFilter(tableColumnSearchElement.cellIndex, tableColumnSearchInputElement.value);
-  }, 400);
-}
 
 interface ConsumableKeyboardEvent extends KeyboardEvent {
   consumed?: boolean;
 }
-function tableColumnSearchElementOnChange(tableColumnSearchInputElement: HTMLInputElement, tableColumnSearchElement: HTMLTableCellElement) {
-  recordColumnSearch(tableColumnSearchElement, true);
-}
-
-function tableColumnSearchElementOnKeyDown(tableColumnSearchElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  // focus on the input
-  const columnSearchInput: HTMLInputElement = getColumnSearchInput(tableColumnSearchElement);
-  const activeElement = document.activeElement;
-  if (activeElement !== columnSearchInput) {
-    // give focus to the column search input
-    columnSearchInput.focus();
-    // update the text
-    columnSearchInput.value = event.key;
-    // update the query regex
-    updateTableColumnFilter(tableColumnSearchElement.cellIndex, columnSearchInput.value);
-  }
-
-  updateTableColumnSearchWidth(tableColumnSearchElement);
-  event.consumed = true;
-}
-
 function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   cellEditor.activateForm(tableDataElement);
   event.consumed = true;
@@ -305,51 +262,10 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
     tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
-  } else if (isInput(target)) {
-    // inputting on column search
-    const columnSearch = target.closest("th.column-search");
-    if (columnSearch) {
-      const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
-      tableColumnSearchElementOnKeyDown(tableColumnSearchElement, event);
-    }
   }
   event.stopPropagation();
 }, true);
 
-
-/* for handling complete searches */
-let lastColumnSearchIndex: number = -1;
-let lastColumnSearchRecorded: boolean = true;
-tableElement.addEventListener("input", function(event: Event) {
-  const target: HTMLElement = event.target as HTMLElement;
-  if (isInput(target)) {
-    // inputting on column search
-    const columnSearch = target.closest("th.column-search");
-    if (columnSearch) {
-      const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
-      lastColumnSearchIndex = tableColumnSearchElement.cellIndex;
-      lastColumnSearchRecorded = false;
-      tableColumnSearchElementOnInput(target as HTMLInputElement, tableColumnSearchElement);
-    }
-  }
-  event.stopPropagation();
-}, true);
-
-tableElement.addEventListener("blur", function(event: Event) {
-  const target: HTMLElement = event.target as HTMLElement;
-  if (isInput(target)) {
-    const columnSearch = target.closest("th.column-search");
-    if (columnSearch) {
-      const tableColumnSearchElement: HTMLTableCellElement = columnSearch as HTMLTableCellElement;
-      // only recording full search when completing a previous partial search
-      if(tableColumnSearchElement.cellIndex === lastColumnSearchIndex && lastColumnSearchRecorded === false) {
-        lastColumnSearchRecorded = true;
-        tableColumnSearchElementOnChange(target as HTMLInputElement, tableColumnSearchElement);
-      }
-    }
-  }
-  event.stopPropagation();
-}, true);
 
 /* mouse events */
 // mouse event handlers
