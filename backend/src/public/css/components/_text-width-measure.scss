@@ -1,0 +1,9 @@
+#text-width-measure {
+  @extend .m-0;
+  @extend .p-0;
+  @extend .position-absolute;
+  @extend .overflow-hidden;
+  height: 0;
+  font: inherit;
+  white-space: pre;
+}

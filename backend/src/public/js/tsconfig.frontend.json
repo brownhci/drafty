@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "module": "ES6",
+        "target": "ES2017",
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "outDir": "../../../dist/public/js",
+        "checkJs": false,
+        "allowJs": true,
+        "baseUrl": "./",
+        "esModuleInterop": true,
+        "lib": [
+          "ESNext",
+          "ES2019",
+          "DOM",
+          "DOM.Iterable"
+        ]
+      },
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts",
+        "**/*.config.js"
+    ]
+}

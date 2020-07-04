@@ -1,0 +1,47 @@
+.fuse-select-options {
+  @extend .overflow-auto;
+  @extend .my-1;
+  @extend .d-none;
+  @extend .hide-scrollbar;
+  max-height: 25vh;
+  cursor: pointer;
+
+  &.active {
+    @extend .d-block;
+  }
+
+  .fuse-select-option {
+    @extend .rounded;
+    padding: 0 13px;
+    &.previous-edit {
+      .fuse-select-option-text::after {
+        @extend .font-awesome;
+        @extend .float-right;
+        @extend .mr-2;
+        color: rgba(0, 0, 0, 0.7);
+        content: "\f234";
+      }
+    }
+
+    .fuse-select-option-text {
+      @extend .text-dark;
+      @extend .text-truncate;
+      b {
+        @extend .text-body;
+      }
+    }
+
+    &:hover {
+      @extend .bg-primary;
+      .fuse-select-option-text {
+        @extend .text-light;
+        b {
+          @extend .text-white;;
+        }
+      }
+      .fuse-select-option-text::after {
+        @extend .text-white;
+      }
+    }
+  }
+}

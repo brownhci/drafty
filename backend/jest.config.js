@@ -1,4 +1,10 @@
-export default {
+const path = require("path");
+
+module.exports = {
+    displayName: {
+      name: "BACKEND",
+      color: "magenta",
+    },
     globals: {
         "ts-jest": {
             tsConfig: "tsconfig.json"
@@ -11,8 +17,9 @@ export default {
     transform: {
         "^.+\\.(ts|tsx)$": "ts-jest"
     },
-    testMatch: [
-        "**/test/**/*.test.(ts|js)"
-    ],
-    testEnvironment: "node"
+    testEnvironment: "node",
+    collectCoverage: true,
+    coverageDirectory: path.join(process.cwd(), "test", "coverage", "backend"),
+    coverageReporters: ["json", "text", "html"],
+    verbose: true
 };

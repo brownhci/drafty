@@ -1,28 +1,13 @@
 $shadow-width: 3px;
 $resize-shadow-width: 3px;
 $visual-cue-width: 5px;
+$resize-color: #B0D0D3;
 
 %cell-overflow {
     @extend .overflow-hidden;
     @extend .text-nowrap;
     @extend .text-break;
     text-overflow: ellipsis;
-}
-
-#clipboard-textarea {
-  @extend .position-absolute;
-  top: -50%;
-  left: -50%;
-}
-
-#text-width-measure {
-  @extend .m-0;
-  @extend .p-0;
-  @extend .position-absolute;
-  @extend .overflow-hidden;
-  height: 0;
-  font: inherit;
-  white-space: pre;
 }
 
 #noscript-modal {
@@ -43,48 +28,6 @@ $visual-cue-width: 5px;
   }
 }
 
-#welcome-screen {
-  @extend .modal;
-
-  &.active {
-    z-index: $zindex-nav + 2;
-    background-color: rgba(0, 0, 0, 0.5);
-    @extend .d-block;
-  }
-
-  .modal-dialog {
-    @extend .modal-lg;
-    @extend  .modal-dialog-centered;
-
-    .modal-body {
-      @extend .px-4;
-      @extend .pt-5;
-      @extend .pb-2;
-      @extend .text-center;
-
-      .fa-edit, .fa-users, .fa-cookie-bite {
-        @extend .mx-1;
-        &:hover {
-          @extend .text-info;
-        }
-      }
-
-      #welcome-screen-research-group {
-        @extend .border-top;
-        @extend .border-bottom;
-        @extend .border-primary;
-        @extend .py-2;
-        @extend .mt-4;
-        @extend .mb-0;
-      }
-    }
-
-    .modal-footer {
-      @extend .border-top-0;
-    }
-  }
-}
-
 #table-container {
   @extend .px-0;
   @extend .position-relative;
@@ -98,7 +41,7 @@ $visual-cue-width: 5px;
       @extend .position-absolute;
       @extend .d-none;
       pointer-events: none;
-      background-color: rgba($info, 0.2);
+      background-color: rgba($resize-color, 0.5);
       width: $visual-cue-width !important;
       top: 0;
       left: 0;
@@ -233,6 +176,12 @@ $visual-cue-width: 5px;
           @extend .d-block;
         }
       }
+      #table-cell-input-save {
+        @extend .btn;
+        @extend .btn-primary;
+        @extend .btn-sm;
+        @extend .float-right;
+      }
       & > div {
         @extend .mb-0;
         @extend .px-1;
@@ -333,18 +282,32 @@ $visual-cue-width: 5px;
         &.near-left-border, &.near-right-border {
           cursor: col-resize;
         }
-        &.near-left-border {
-          @include vendor-prefix(box-shadow, inset $resize-shadow-width 0 0 0 $info, webkit ms);
+        @keyframes barberpole {
+          from { background-position: 0 0; }
+          to   { background-position: 98px 49px; }
         }
         &.near-right-border {
-          @include vendor-prefix(box-shadow, inset (-$resize-shadow-width) 0 0 0 $info, webkit ms);
-        }
-        &.near-left-border.near-right-border {
-          @include vendor-prefix(box-shadow, (inset $resize-shadow-width 0 0 0 $info, inset (-$resize-shadow-width) 0 0 0 $info), webkit ms);
+          background-size: 49px 49px;
+          background-image: linear-gradient(
+            45deg,
+            rgba($resize-color, 0.1)  25%,
+            transparent       25%,
+            transparent       50%,
+            rgba($resize-color, 0.1)  50%,
+            rgba($resize-color, 0.1)  75%,
+            transparent       75%,
+            transparent
+          );
+          animation: barberpole 1s linear infinite;
+          @include vendor-prefix(box-shadow, (inset $resize-shadow-width 0 0 0 $resize-color, inset (-$resize-shadow-width) 0 0 0 $resize-color), webkit ms);
         }
         &.column-label {
           position: sticky;
           top: 0;
+        }
+        &#resize-temporary-column {
+          background-color: transparent !important;
+          @extend .border-0;
         }
         &.column-search {
           position: sticky;

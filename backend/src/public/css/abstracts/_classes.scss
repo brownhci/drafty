@@ -29,3 +29,12 @@
   font-family: 'Font Awesome 5 Free';
   font-weight: 900;
 }
+
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+  &::-webkit-scrollbar {
+    @extend .d-none;
+    width: 0px;  /* Remove scrollbar space */
+  }
+}

@@ -95,7 +95,7 @@ export async function confirmMatchPassword(req: Request) {
 }
 
 export async function isValidIdSuggestionType(req: Request) {
-  const idSuggestionType: string = req.query[idSuggestionTypeFieldName];
+  const idSuggestionType = (req.query[idSuggestionTypeFieldName] as string);
   const suggestionType: number = Number.parseInt(idSuggestionType);
 
   let result;
