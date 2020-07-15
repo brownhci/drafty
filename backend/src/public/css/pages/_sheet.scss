@@ -195,6 +195,7 @@ $resize-color: #B0D0D3;
     @extend .table-striped;
     @extend .mb-0;
     @extend .sticky-top;
+    @extend .border-bottom-0;
     table-layout: fixed;
     border-collapse: collapse;
 
