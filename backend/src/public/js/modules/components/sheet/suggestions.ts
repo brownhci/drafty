@@ -14,6 +14,9 @@ export interface Option {
 }
 
 const optionCache = new LocalStorageCache(5 * 60 * 1000);
+function optionCacheKeyFunction(idSuggestionType: string): string {
+  return `column${idSuggestionType}-suggestions`;
+}
 
 /**
  * Fetch suggestions from database for a particular table cell.
@@ -56,8 +59,8 @@ function parseSuggestions(suggestions: Array<Option>): Array<Option> {
   }
 
   const parsedSuggestions = Array.from(options.values());
-	parsedSuggestions.sort((suggestion1, suggestion2) => suggestion1.suggestion.localeCompare(suggestion2.suggestion));
-	return parsedSuggestions;
+  parsedSuggestions.sort((suggestion1, suggestion2) => suggestion1.suggestion.localeCompare(suggestion2.suggestion));
+  return parsedSuggestions;
 }
 
 export const fuseSelect: FuseSelect = new FuseSelect();
@@ -82,7 +85,7 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
  */
 export function updateFuseSelect(idSuggestion: number, idSuggestionType: number, callback: () => void = () => undefined) {
   const idSuggestionTypeString = idSuggestionType.toString();
-  let options = optionCache.retrieve(idSuggestionTypeString) as Array<Option>;
+  let options = optionCache.retrieve(optionCacheKeyFunction(idSuggestionTypeString)) as Array<Option>;
   if (!options) {
     // cannot retrieve unexpired autocomplete suggestions from local storage, create an empty placeholder for now
     options = [];
@@ -93,7 +96,7 @@ export function updateFuseSelect(idSuggestion: number, idSuggestionType: number,
 
   fetchSuggestions(idSuggestion).then(suggestions => {
     const options = parseSuggestions(suggestions);
-    optionCache.store(idSuggestionTypeString, options);
+    optionCache.store(optionCacheKeyFunction(idSuggestionTypeString), options);
 
     fuseSelect.options = options;
 
