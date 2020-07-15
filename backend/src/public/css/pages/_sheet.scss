@@ -311,10 +311,9 @@ $resize-color: #B0D0D3;
           @extend .border-0;
         }
         &.column-search {
+          @extend .border-bottom-0;
           position: sticky;
           top: 3em;
-        }
-        &.column-search {
           input {
             @extend .w-100;
             @extend .form-control;
