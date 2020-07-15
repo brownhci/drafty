@@ -5,7 +5,7 @@ import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
 import { cellEditor } from "./modules/components/sheet/cell-editor";
 import "./modules/components/sheet/column-search";
-import { activateTableDataContextMenu, contextMenuOnClick, deactivateTableDataContextMenu } from "./modules/components/sheet/contextmenu";
+import { activateTableDataContextMenu, deactivateTableDataContextMenu } from "./modules/components/sheet/contextmenu";
 import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from "./modules/components/sheet/copy-paste";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";

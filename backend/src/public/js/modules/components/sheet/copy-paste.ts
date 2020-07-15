@@ -38,7 +38,7 @@ function copyTableColumnToCopyBuffer(index: number) {
   }
   copyTextToCopyBuffer(textToCopy.trimRight());
 }
-export function copyTableCellElement(tableCellElement: HTMLTableCellElement) {
+export function copyTableCellElement(tableCellElement: HTMLTableCellElement, ignoreSelection: boolean = true) {
   removeCurrentCopyTarget();
   clearCopyBuffer();
 
@@ -48,9 +48,10 @@ export function copyTableCellElement(tableCellElement: HTMLTableCellElement) {
     const columnIndex: number = activeTableCellElement.cellIndex;
     copyTableColumnToCopyBuffer(columnIndex);
     elementToHighlight = activeTableColElement;
+    copyCopyBuffer();
     recordColumnCopy(getColumnLabel(columnIndex));
   } else if (!(isColumnSearch(tableCellElement))) {
-    if (hasTextSelected(tableCellElement)) {
+    if (!ignoreSelection && hasTextSelected(tableCellElement)) {
       // copy selected part
       copyCurrentSelectionToCopyBuffer();
     } else {
@@ -64,15 +65,15 @@ export function copyTableCellElement(tableCellElement: HTMLTableCellElement) {
     }
 
     // regain focus
+    copyCopyBuffer();
     elementToHighlight.focus();
   }
 
-  copyCopyBuffer();
   makeElementCopyTarget(elementToHighlight);
 }
 export function tableCellElementOnCopyKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   if (hasCopyModifier(event)) {
-    copyTableCellElement(tableCellElement);
+    copyTableCellElement(tableCellElement, false);
     event.consumed = true;
   }
   // ignore when only C is pressed
@@ -86,7 +87,7 @@ function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: s
   cellEditor.activateForm(tableCellElement);
   cellEditor.formInput = text;
 }
-export function pasteToTableCellElement(tableCellElement) {
+export function pasteToTableCellElement(tableCellElement: HTMLTableCellElement) {
   if (navigator.clipboard) {
     navigator.clipboard.readText().then(text => {
       tableCellElementOnPaste(tableCellElement, text);

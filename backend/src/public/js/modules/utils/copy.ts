@@ -31,9 +31,6 @@ export function copyCurrentSelectionToCopyBuffer() {
 export function copyCopyBuffer() {
   getCopyBuffer().select();
   document.execCommand("copy");
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(getCopyBuffer().value);
-  }
 }
 
 export function copyElementTextToClipboard(element: HTMLElement) {

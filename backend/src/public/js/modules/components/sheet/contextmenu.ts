@@ -9,7 +9,7 @@ const tableDataContextMenu: HTMLElement = document.getElementById("table-data-co
 const contextMenuClass = "contextmenu";
 
 function getMenuItemAction(element: HTMLElement): string {
-  return element.innerText;
+  return (element.closest("button") as HTMLElement).innerText;
 }
 export function isContextMenuButton(element: HTMLElement) {
   return isButton(element) && element.parentElement.classList.contains(contextMenuClass);
@@ -24,6 +24,7 @@ export function deactivateTableDataContextMenu() {
 
 // event handler
 tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
+  console.log(event.target);
   switch (getMenuItemAction(event.target as HTMLElement)) {
     case "Copy":
       copyTableCellElement(activeTableCellElement);
