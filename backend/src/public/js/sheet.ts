@@ -5,6 +5,7 @@ import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
 import { cellEditor } from "./modules/components/sheet/cell-editor";
 import "./modules/components/sheet/column-search";
+import { activateTableDataContextMenu, contextMenuOnClick, deactivateTableDataContextMenu } from "./modules/components/sheet/contextmenu";
 import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from "./modules/components/sheet/copy-paste";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
@@ -117,7 +118,9 @@ export function updateActiveTableCellElement(tableCellElement: HTMLTableCellElem
   if (activeTableCellElement) {
     deactivateTableCellElement();
     deactivateSortPanel();
-    // remove input form
+    // hide context menu
+    deactivateTableDataContextMenu();
+    // hide input form
     cellEditor.deactivateForm();
   }
 
@@ -188,6 +191,18 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
   event.stopPropagation();
 }, true);
 
+tableElement.addEventListener("contextmenu", function(event: MouseEvent) {
+  const target: HTMLElement = event.target as HTMLElement;
+  if (isTableCell(target)) {
+    // if (isColumnSearch(target)) {
+    // }
+    if (isTableData(target)) {
+      updateActiveTableCellElement(target as HTMLTableCellElement);
+      activateTableDataContextMenu(event);
+      event.preventDefault();
+    }
+  }
+}, true);
 
 interface ConsumableKeyboardEvent extends KeyboardEvent {
   consumed?: boolean;

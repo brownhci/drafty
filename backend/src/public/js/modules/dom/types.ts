@@ -18,6 +18,9 @@ export function isTableBody(element: HTMLElement): boolean {
 export function isInput(element: HTMLElement): boolean {
   return element && element.tagName === "INPUT";
 }
+export function isButton(element: HTMLElement): boolean {
+  return element && element.tagName === "BUTTON";
+}
 export function isTemplate(element: HTMLElement): boolean {
   return element && element.tagName === "TEMPLATE";
 }

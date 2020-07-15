@@ -38,38 +38,41 @@ function copyTableColumnToCopyBuffer(index: number) {
   }
   copyTextToCopyBuffer(textToCopy.trimRight());
 }
-export function tableCellElementOnCopyKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  if (hasCopyModifier(event)) {
-    removeCurrentCopyTarget();
-    clearCopyBuffer();
+export function copyTableCellElement(tableCellElement: HTMLTableCellElement) {
+  removeCurrentCopyTarget();
+  clearCopyBuffer();
 
-    let elementToHighlight;
-    if (activeTableColElement) {
-      // copy entire column
-      const columnIndex: number = activeTableCellElement.cellIndex;
-      copyTableColumnToCopyBuffer(columnIndex);
-      elementToHighlight = activeTableColElement;
-      recordColumnCopy(getColumnLabel(columnIndex));
-    } else if (!(isColumnSearch(tableCellElement))) {
-      if (hasTextSelected(tableCellElement)) {
-        // copy selected part
-        copyCurrentSelectionToCopyBuffer();
-      } else {
-        // copy single table cell
-        copyCellTextToCopyBuffer(tableCellElement);
-      }
-      elementToHighlight = tableCellElement;
-      if (isTableData(tableCellElement)) {
-        // do not record copy on table head element
-        recordCellCopy(tableCellElement);
-      }
-
-      // regain focus
-      elementToHighlight.focus();
+  let elementToHighlight;
+  if (activeTableColElement) {
+    // copy entire column
+    const columnIndex: number = activeTableCellElement.cellIndex;
+    copyTableColumnToCopyBuffer(columnIndex);
+    elementToHighlight = activeTableColElement;
+    recordColumnCopy(getColumnLabel(columnIndex));
+  } else if (!(isColumnSearch(tableCellElement))) {
+    if (hasTextSelected(tableCellElement)) {
+      // copy selected part
+      copyCurrentSelectionToCopyBuffer();
+    } else {
+      // copy single table cell
+      copyCellTextToCopyBuffer(tableCellElement);
+    }
+    elementToHighlight = tableCellElement;
+    if (isTableData(tableCellElement)) {
+      // do not record copy on table head element
+      recordCellCopy(tableCellElement);
     }
 
-    copyCopyBuffer();
-    makeElementCopyTarget(elementToHighlight);
+    // regain focus
+    elementToHighlight.focus();
+  }
+
+  copyCopyBuffer();
+  makeElementCopyTarget(elementToHighlight);
+}
+export function tableCellElementOnCopyKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+  if (hasCopyModifier(event)) {
+    copyTableCellElement(tableCellElement);
     event.consumed = true;
   }
   // ignore when only C is pressed

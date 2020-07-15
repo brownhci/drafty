@@ -1,5 +1,36 @@
 import { tableElement, tableScrollContainer } from "../../dom/sheet";
-import { getViewportWidth } from "../../utils/length";
+import { getViewportWidth, getViewportHeight } from "../../utils/length";
+
+
+export function placeElementInViewport(element: HTMLElement, x: number, y: number) {
+  const { width: elementWidth, height: elementHeight } = element.getBoundingClientRect();
+  // horizontal alignment
+  const viewportWidth = getViewportWidth();
+  if (x + elementWidth < viewportWidth) {
+    // the element can be placed where its left is x
+    element.style.left = `${x}px`;
+  } else if (x - elementWidth >= 0) {
+    // the element can be placed where its right is x
+    element.style.left = `${x - elementWidth}px`;
+  } else {
+    // the element will be placed where its right is at the right of the viewport
+    element.style.left = `${viewportWidth - elementWidth}px`;
+  }
+
+  // vertical alignment
+  const viewportHeight = getViewportHeight();
+  if (y + elementHeight < viewportHeight) {
+    // the element can be placed where its top is y
+    element.style.top = `${y}px`;
+  } else if (y - elementHeight >= 0) {
+    // the element can be placed where its bottom is y
+    element.style.top = `${y - elementHeight}px`;
+  } else {
+    // the element will be placed where its bottom is at the bottom of the viewport
+    element.style.top = `${viewportHeight - elementHeight}px`;
+  }
+}
+
 
 /**
  * Align an element horizontally with respect to targetElement (either align to the left border or right border of targetElement.
@@ -61,4 +92,3 @@ export function alignElementHorizontally(element: HTMLElement, targetDimensions:
 
    element.style.left = `${elementLeft}px`;
 }
-

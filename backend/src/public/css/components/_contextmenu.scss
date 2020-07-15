@@ -1,0 +1,26 @@
+.contextmenu {
+  @extend .shadow;
+  @extend .btn-group-vertical;
+  @extend .position-absolute;
+  @extend .d-none;
+  @extend .border;
+  @extend .bg-light;
+  padding: 0.1rem;
+  z-index: $zindex-popover;
+  &.active {
+    @extend .d-block;
+  }
+  button {
+    @extend .btn;
+    @extend .btn-light;
+    @extend .d-flex;
+    &:focus {
+      @extend .shadow-none;
+    }
+    i {
+      @extend .fa-fw;
+      @extend .mr-1;
+      align-self: center;
+    }
+  }
+}

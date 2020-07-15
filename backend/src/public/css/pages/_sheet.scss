@@ -59,6 +59,7 @@ $resize-color: #B0D0D3;
       @extend .px-2;
       @extend .d-none;
       @extend .border;
+      @extend .shadow;
       z-index: $zindex-nav + 2;
 
       &.active {
@@ -131,7 +132,6 @@ $resize-color: #B0D0D3;
             @extend .text-dark;
           }
         }
-
       }
     }
 
