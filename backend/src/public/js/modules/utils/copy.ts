@@ -5,25 +5,28 @@ import { getTextSelected } from "./selection";
 /** copy **/
 let copyBuffer: HTMLTextAreaElement;
 function getCopyBuffer(): HTMLTextAreaElement {
-	if (!copyBuffer) {
-		// initialize copy buffer
-		copyBuffer = document.createElement("textarea");
-		copyBuffer.id = "copy-buffer";
-		copyBuffer.readOnly = true;
-		copyBuffer.tabIndex = -1;
-		copyBuffer.setAttribute("aria-label", "a textarea to support copy command");
-		document.body.appendChild(copyBuffer);
-	}
+  if (!copyBuffer) {
+    // initialize copy buffer
+    copyBuffer = document.createElement("textarea");
+    copyBuffer.id = "copy-buffer";
+    copyBuffer.readOnly = true;
+    copyBuffer.tabIndex = -1;
+    copyBuffer.setAttribute("aria-label", "a textarea to support copy command");
+    document.body.appendChild(copyBuffer);
+  }
   return copyBuffer;
 }
 export function clearCopyBuffer() {
-  getCopyBuffer().value = "";
+  getCopyBuffer().value = " ";
 }
 export function copyTextToCopyBuffer(text: string) {
+  if (text === "") {
+    text = " ";
+  }
   getCopyBuffer().value = text;
 }
 export function copyCurrentSelectionToCopyBuffer() {
-	copyTextToCopyBuffer(getTextSelected());
+  copyTextToCopyBuffer(getTextSelected());
 }
 export function copyCopyBuffer() {
   getCopyBuffer().select();
