@@ -86,19 +86,11 @@ function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: s
   cellEditor.activateForm(tableCellElement);
   cellEditor.formInput = text;
 }
-export function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  if (isTableHead(tableCellElement)) {
-    return;
-  }
-  if (!hasCopyModifier(event)) {
-    return;
-  }
-  // handle potential CTRL+v or CMD+v
+export function pasteToTableCellElement(tableCellElement) {
   if (navigator.clipboard) {
     navigator.clipboard.readText().then(text => {
       tableCellElementOnPaste(tableCellElement, text);
     });
-    event.consumed = true;
   } else {
     if (!copyTarget) {
       return;
@@ -110,8 +102,18 @@ export function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCel
 
     const text = getTableDataText(copyTarget as HTMLTableCellElement);
     tableCellElementOnPaste(tableCellElement, text);
-    event.consumed = true;
   }
+}
+export function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
+  if (isTableHead(tableCellElement)) {
+    return;
+  }
+  if (!hasCopyModifier(event)) {
+    return;
+  }
+  // handle potential CTRL+v or CMD+v
+  pasteToTableCellElement(tableCellElement);
+  event.consumed = true;
 }
 tableElement.addEventListener("paste", function (event: ClipboardEvent) {
   const pasteContent = event.clipboardData.getData("text");
