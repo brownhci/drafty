@@ -8,7 +8,7 @@ import "./modules/components/sheet/column-search";
 import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from "./modules/components/sheet/copy-paste";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
-import { tableElement, tableBodyElement, getColumnLabel, isColumnLabelSortButton, isTableCellEditable, isColumnLabel, isColumnSearch, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
+import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isTableCellEditable, isColumnLabel, isColumnSearch, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
 import { isTableData, isTableHead, isTableCell } from "./modules/dom/types";
 
 // TODO add new row
@@ -153,6 +153,7 @@ function activeElementOnRepeatedClick() {
   }
   if (isTableData(activeTableCellElement)) {
     if (isTableDataLastActivatedRecently()) {
+      cellEditor.formInput = getTableDataText(activeTableCellElement);
       cellEditor.activateForm(activeTableCellElement);
       activeTableCellElement.lastActiveTimestamp = null;
       recordCellDoubleClick(activeTableCellElement);
