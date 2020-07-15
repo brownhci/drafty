@@ -15,8 +15,8 @@ export function isContextMenuButton(element: HTMLElement) {
   return isButton(element) && element.parentElement.classList.contains(contextMenuClass);
 }
 export function activateTableDataContextMenu(event: MouseEvent) {
-  placeElementInViewport(tableDataContextMenu, event.clientX, event.clientY);
   tableDataContextMenu.classList.add(activeClass);
+  placeElementInViewport(tableDataContextMenu, event.clientX, event.clientY);
 }
 export function deactivateTableDataContextMenu() {
   tableDataContextMenu.classList.remove(activeClass);
