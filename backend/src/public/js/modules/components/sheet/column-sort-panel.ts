@@ -88,16 +88,17 @@ function modifyColumnSorterContainer(container: HTMLElement, columnIndex: number
 
 function updateDisabledOptions() {
   const disabledOptionIndices = new Set(tableDataManager.sortingFunctions.keys()) as Set<number>;
+
   for (const select of columnSorterColumnSelects) {
-    const options: HTMLOptionsCollection = (select as HTMLSelectElement).options;
-    // re-enable all disabled options
     for (const disabledOption of select.querySelectorAll("option:disabled")) {
-      if (disabledOptionIndices.has((disabledOption as HTMLOptionElement).index)) {
+      if (!disabledOptionIndices.has((disabledOption as HTMLOptionElement).index)) {
+        // if an option is disabled in the select and it will no longer be disabled, make it not disabled
         (disabledOption as HTMLOptionElement).disabled = false;
       }
     }
 
     // disable active options
+    const options: HTMLOptionsCollection = (select as HTMLSelectElement).options;
     for (const optionIndex of disabledOptionIndices) {
       options[optionIndex].disabled = true;
     }
