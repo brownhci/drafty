@@ -2,6 +2,8 @@ import { activeClass } from "../../constants/css-classes";
 import { getMinimumColumnWidth, updateTableCellWidth } from "./column-width";
 import { isColumnLabel, isFirstTableCell, isLastTableCell, tableColumnLabels, tableElement, tableScrollContainer } from "../../dom/sheet";
 import { getLeftTableCellElement, getRightTableCellElement } from "../../dom/navigate";
+import { getViewportWidth } from "../../utils/length";
+import { bound } from "../../utils/math";
 
 const distanceConsideredNearToBorder = 10;
 
@@ -39,7 +41,11 @@ function isResizingLast() {
 function activateResizeVisualCue() {
   resizeVisualCue.classList.add(activeClass);
   if (isResizingLast()) {
-    temporaryTableHead.style.width = `${tableHeadAtMouseLeft.clientWidth}px`;
+    const viewportWidth = getViewportWidth();
+    const lastTableHeadWidth = tableHeadAtMouseLeft.clientWidth;
+    const temporaryTableHeadWidth = bound(viewportWidth - lastTableHeadWidth, 0, lastTableHeadWidth);
+
+    temporaryTableHead.style.width = `${temporaryTableHeadWidth}px`;
     tableColumnLabels.appendChild(temporaryTableHead);
     tableScrollContainer.scrollLeft = tableElement.clientWidth;
   }
