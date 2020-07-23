@@ -1,5 +1,6 @@
 import { placeElementInViewport } from "./align";
 import { copyTableCellElement, pasteToTableCellElement } from "./copy-paste";
+import { toggleRowCount } from "./table-foot";
 import { activeClass } from "../../constants/css-classes";
 import { isButton } from "../../dom/types";
 import { activeTableCellElement, activateTableCol } from "../../../sheet";
@@ -32,7 +33,6 @@ export function deactivateColumnLabelContextMenu() {
 
 // event handler
 tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
-  console.log(event.target);
   switch (getMenuItemAction(event.target as HTMLElement)) {
     case "Copy":
       copyTableCellElement(activeTableCellElement);
@@ -48,13 +48,15 @@ tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
   event.stopPropagation();
 }, true);
 columnLabelContextMenu.addEventListener("click", function(event: MouseEvent) {
-  console.log(event.target);
   switch (getMenuItemAction(event.target as HTMLElement)) {
     case "Copy column":
       activateTableCol();
       // fallthrough
     case "Copy":
       copyTableCellElement(activeTableCellElement);
+      break;
+    case "Count":
+      toggleRowCount();
       break;
     case "Distribution":
       break;

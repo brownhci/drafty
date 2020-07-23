@@ -365,6 +365,12 @@ $resize-color: #B0D0D3;
             position: sticky;
             bottom: 0;
           }
+          &.summary {
+            @extend .border-0;
+            th {
+              @extend .border-0;
+            }
+          }
         }
       }
     }

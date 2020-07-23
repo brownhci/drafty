@@ -24,6 +24,10 @@ export class TabularView extends BasicView {
     return this.partialView.lastSource;
   }
 
+  get rowCount(): number {
+    return this.partialView.numElement;
+  }
+
   get startFillerFromPageTop(): number {
     return getOffsetFromPageTop(this.scrollHandler.startFillerElement);
   }

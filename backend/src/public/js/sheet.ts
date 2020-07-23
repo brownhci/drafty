@@ -4,10 +4,10 @@ import "./modules/components/welcome-screen";
 import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "./modules/components/sheet/resize-column";
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
 import { cellEditor } from "./modules/components/sheet/cell-editor";
-import "./modules/components/sheet/row-editor";
 import "./modules/components/sheet/column-search";
 import { activateColumnLabelContextMenu, activateTableDataContextMenu, deactivateColumnLabelContextMenu, deactivateTableDataContextMenu } from "./modules/components/sheet/contextmenu";
 import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from "./modules/components/sheet/copy-paste";
+import { isReportingSummary, isTableFootActive } from "./modules/components/sheet/table-foot";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
 import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, getTableFootCell, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, isTableFootCell, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
@@ -46,14 +46,21 @@ function activateTableHead(shouldGetFocus=true) {
   if (isColumnLabel(activeTableCellElement)) {
     const columnSearch = getColumnSearch(index);
     columnSearch.classList.add(activeAccompanyClass);
-    const tableFootCell = getTableFootCell(index);
-    tableFootCell.classList.add(activeAccompanyClass);
+    if (isTableFootActive() && !isReportingSummary()) {
+      const tableFootCell = getTableFootCell(index);
+      tableFootCell.classList.add(activeAccompanyClass);
+    }
   } else if (isColumnSearch(activeTableCellElement)) {
     const columnLabel = getColumnLabel(index);
     columnLabel.classList.add(activeAccompanyClass);
-    const tableFootCell = getTableFootCell(index);
-    tableFootCell.classList.add(activeAccompanyClass);
+    if (isTableFootActive() && !isReportingSummary()) {
+      const tableFootCell = getTableFootCell(index);
+      tableFootCell.classList.add(activeAccompanyClass);
+    }
   } else if (isTableFootCell(activeTableCellElement)) {
+    if (isReportingSummary()) {
+      return;
+    }
     const columnSearch = getColumnSearch(index);
     columnSearch.classList.add(activeAccompanyClass);
     const columnLabel = getColumnLabel(index);
