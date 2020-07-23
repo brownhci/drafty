@@ -10,8 +10,14 @@ const tableDataContextMenu: HTMLElement = document.getElementById("table-data-co
 const columnLabelContextMenu: HTMLElement = document.getElementById("column-label-contextmenu");
 const contextMenuClass = "contextmenu";
 
-function getMenuItemAction(element: HTMLElement): string {
-  return (element.closest("button") as HTMLElement).innerText;
+function getMenuItem(element: HTMLElement): HTMLButtonElement {
+  return element.closest("button") as HTMLButtonElement;
+}
+function getMenuItemAction(menuItem: HTMLButtonElement): string {
+  return menuItem.innerText;
+}
+function toggleMenuItemActiveState(menuItem: HTMLButtonElement) {
+  menuItem.classList.toggle(activeClass);
 }
 export function isContextMenuButton(element: HTMLElement) {
   return isButton(element) && element.parentElement.classList.contains(contextMenuClass);
@@ -33,7 +39,8 @@ export function deactivateColumnLabelContextMenu() {
 
 // event handler
 tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
-  switch (getMenuItemAction(event.target as HTMLElement)) {
+  const menuItem = getMenuItem(event.target as HTMLElement);
+  switch (getMenuItemAction(menuItem)) {
     case "Copy":
       copyTableCellElement(activeTableCellElement);
       break;
@@ -41,6 +48,7 @@ tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
       pasteToTableCellElement(activeTableCellElement);
       break;
     case "Insert row":
+      toggleMenuItemActiveState(menuItem);
       toggleInsertion();
       break;
   }
@@ -48,7 +56,8 @@ tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
   event.stopPropagation();
 }, true);
 columnLabelContextMenu.addEventListener("click", function(event: MouseEvent) {
-  switch (getMenuItemAction(event.target as HTMLElement)) {
+  const menuItem = getMenuItem(event.target as HTMLElement);
+  switch (getMenuItemAction(menuItem)) {
     case "Copy column":
       activateTableCol();
       // fallthrough
@@ -56,6 +65,7 @@ columnLabelContextMenu.addEventListener("click", function(event: MouseEvent) {
       copyTableCellElement(activeTableCellElement);
       break;
     case "Count":
+      toggleMenuItemActiveState(menuItem);
       toggleRowCount();
       break;
     case "Distribution":
