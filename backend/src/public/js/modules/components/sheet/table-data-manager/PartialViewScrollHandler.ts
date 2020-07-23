@@ -642,9 +642,6 @@ export class PartialViewScrollHandler<T> {
     const numElementToRemove = Math.min(this.partialView.windowSize, Math.abs(shiftAmount));
     if (isShiftTowardsEnd) {
       for (let i = 0; i < numElementToRemove; i++) {
-        if (!this.target.firstElementChild) {
-          console.log(this.target.firstElementChild);
-        }
         this.target.firstElementChild.remove();
       }
       this.setFillerLengths();
@@ -666,10 +663,6 @@ export class PartialViewScrollHandler<T> {
         this.target.insertBefore(viewElement, referenceNode);
       }
       this.setFillerLengths();
-    }
-
-    if (this.target.children.length !== this.partialView.windowSize) {
-      console.log(this.target.children.length);
     }
 
     if (this.afterViewUpdate) {

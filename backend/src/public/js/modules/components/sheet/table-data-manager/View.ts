@@ -49,9 +49,9 @@ export class BasicView {
   protected viewFunctionChain: ViewFunctionChain<ViewModel>;
 
   /** tasks executed before view update */
-  beforeViewUpdateTaskQueue: TaskQueue = new TaskQueue();
+  beforeScrollUpdateTaskQueue: TaskQueue = new TaskQueue();
   /** tasks executed after view update */
-  afterViewUpdateTaskQueue: TaskQueue = new TaskQueue();
+  afterScrollUpdateTaskQueue: TaskQueue = new TaskQueue();
 
   /**
    * @returns {number} The maximum number of elements to be rendered.
@@ -184,11 +184,11 @@ export class BasicView {
   }
 
   protected initializeTaskQueue() {
-    this.beforeViewUpdateTaskQueue.tasks.push({
+    this.beforeScrollUpdateTaskQueue.tasks.push({
       work: () => this.unmonitor(),
       isRecurring: true
     });
-    this.afterViewUpdateTaskQueue.tasks.push({
+    this.afterScrollUpdateTaskQueue.tasks.push({
       work: () => this.monitor(),
       isRecurring: true
     });
@@ -201,8 +201,8 @@ export class BasicView {
     this.scrollHandler = new PartialViewScrollHandler<ViewModel>({
       partialView: this.partialView,
       target: this.sourceViewModel.element_,
-      beforeViewUpdate: () => this.beforeViewUpdateTaskQueue.work(),
-      afterViewUpdate: () => this.afterViewUpdateTaskQueue.work(),
+      beforeViewUpdate: () => this.beforeScrollUpdateTaskQueue.work(),
+      afterViewUpdate: () => this.afterScrollUpdateTaskQueue.work(),
     });
   }
 

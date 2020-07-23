@@ -5,14 +5,13 @@ import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
 import { cellEditor } from "./modules/components/sheet/cell-editor";
 import "./modules/components/sheet/column-search";
-import { activateTableDataContextMenu, deactivateTableDataContextMenu } from "./modules/components/sheet/contextmenu";
+import { activateColumnLabelContextMenu, activateTableDataContextMenu, deactivateColumnLabelContextMenu, deactivateTableDataContextMenu } from "./modules/components/sheet/contextmenu";
 import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from "./modules/components/sheet/copy-paste";
+import { isReportingSummary, isTableFootActive } from "./modules/components/sheet/table-foot";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
-import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isTableCellEditable, isColumnLabel, isColumnSearch, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
+import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, getTableFootCell, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, isTableFootCell, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
 import { isTableData, isTableHead, isTableCell } from "./modules/dom/types";
-
-// TODO add new row
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
 
@@ -47,7 +46,23 @@ function activateTableHead(shouldGetFocus=true) {
   if (isColumnLabel(activeTableCellElement)) {
     const columnSearch = getColumnSearch(index);
     columnSearch.classList.add(activeAccompanyClass);
+    if (isTableFootActive() && !isReportingSummary()) {
+      const tableFootCell = getTableFootCell(index);
+      tableFootCell.classList.add(activeAccompanyClass);
+    }
   } else if (isColumnSearch(activeTableCellElement)) {
+    const columnLabel = getColumnLabel(index);
+    columnLabel.classList.add(activeAccompanyClass);
+    if (isTableFootActive() && !isReportingSummary()) {
+      const tableFootCell = getTableFootCell(index);
+      tableFootCell.classList.add(activeAccompanyClass);
+    }
+  } else if (isTableFootCell(activeTableCellElement)) {
+    if (isReportingSummary()) {
+      return;
+    }
+    const columnSearch = getColumnSearch(index);
+    columnSearch.classList.add(activeAccompanyClass);
     const columnLabel = getColumnLabel(index);
     columnLabel.classList.add(activeAccompanyClass);
   }
@@ -56,7 +71,7 @@ function activateTableHead(shouldGetFocus=true) {
     activeTableCellElement.focus({preventScroll: true});
   }
 }
-function activateTableCol() {
+export function activateTableCol() {
   const index = activeTableCellElement.cellIndex;
   const tableColElement = getTableColElement(index);
   if (tableColElement) {
@@ -83,10 +98,13 @@ function deactivateTableHead() {
   const index = activeTableCellElement.cellIndex;
   const columnLabel = getColumnLabel(index);
   const columnSearch = getColumnSearch(index);
+  const tableFootCell = getTableFootCell(index);
   columnLabel.classList.remove(activeClass);
   columnSearch.classList.remove(activeClass);
+  tableFootCell.classList.remove(activeClass);
   columnLabel.classList.remove(activeAccompanyClass);
   columnSearch.classList.remove(activeAccompanyClass);
+  tableFootCell.classList.remove(activeAccompanyClass);
 }
 function deactivateTableCol() {
   if (activeTableColElement) {
@@ -120,6 +138,7 @@ export function updateActiveTableCellElement(tableCellElement: HTMLTableCellElem
     deactivateSortPanel();
     // hide context menu
     deactivateTableDataContextMenu();
+    deactivateColumnLabelContextMenu();
     // hide input form
     cellEditor.deactivateForm();
   }
@@ -194,8 +213,11 @@ tableElement.addEventListener("click", function(event: MouseEvent) {
 tableElement.addEventListener("contextmenu", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
-    // if (isColumnSearch(target)) {
-    // }
+    if (isColumnLabel(target)) {
+      updateActiveTableCellElement(target as HTMLTableCellElement);
+      activateColumnLabelContextMenu(event);
+      event.preventDefault();
+    }
     if (isTableData(target)) {
       updateActiveTableCellElement(target as HTMLTableCellElement);
       activateTableDataContextMenu(event);

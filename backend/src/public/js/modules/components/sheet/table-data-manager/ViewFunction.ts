@@ -10,6 +10,7 @@
  *    + chainable: see {@link ViewFunctionChain}. The target view of a view function can be passed as source view for another view function. This chaining is still efficient since view generation is avoided when possible at every view function and at the aggregate view function. Therefore, if a view function in the chain changed while the initial source view does not change, the target views before that changed view function is reused while every view function after it will regenerate its view.
  */
 
+import { TaskQueue } from "./TaskQueue";
 import { bound } from "../../../utils/math";
 
 
@@ -54,7 +55,20 @@ export class FilteredView<T> implements ViewFunction<T> {
   /** previous source view, used to determine whether source view is the same */
   lastSource: Array<T> = null;
   /** holds target view */
-  currentView: Array<T>;
+  private _currentView: Array<T>;
+  get currentView(): Array<T> {
+    return this._currentView;
+  }
+  set currentView(view: Array<T>) {
+    this.beforeViewUpdateTaskQueue.work();
+    this._currentView = view;
+    this.afterViewUpdateTaskQueue.work();
+  }
+
+  /** tasks executed before view update */
+  beforeViewUpdateTaskQueue: TaskQueue = new TaskQueue();
+  /** tasks executed after view update */
+  afterViewUpdateTaskQueue: TaskQueue = new TaskQueue();
 
   /** A mapping from identifier to filter function */
   private filterFunctions: Map<any, FilterFunction<T>> = new Map();
@@ -184,7 +198,20 @@ export class PartialView<T> implements ViewFunction<T> {
   /** previous source view, used to determine whether source view is the same */
   lastSource: Array<T>;
   /** holds target view */
-  currentView: Array<T>;
+  private _currentView: Array<T>;
+  get currentView(): Array<T> {
+    return this._currentView;
+  }
+  set currentView(view: Array<T>) {
+    this.beforeViewUpdateTaskQueue.work();
+    this._currentView = view;
+    this.afterViewUpdateTaskQueue.work();
+  }
+
+  /** tasks executed before view update */
+  beforeViewUpdateTaskQueue: TaskQueue = new TaskQueue();
+  /** tasks executed after view update */
+  afterViewUpdateTaskQueue: TaskQueue = new TaskQueue();
 
   /** start index of the window, inclusive */
   partialViewStartIndex: number;
@@ -415,7 +442,21 @@ export class SortedView<T> implements ViewFunction<T> {
   /** previous source view, used to determine whether source view is the same */
   lastSource: Array<T>;
   /** holds target view */
-  currentView: Array<T>;
+  /** holds target view */
+  private _currentView: Array<T>;
+  get currentView(): Array<T> {
+    return this._currentView;
+  }
+  set currentView(view: Array<T>) {
+    this.beforeViewUpdateTaskQueue.work();
+    this._currentView = view;
+    this.afterViewUpdateTaskQueue.work();
+  }
+
+  /** tasks executed before view update */
+  beforeViewUpdateTaskQueue: TaskQueue = new TaskQueue();
+  /** tasks executed after view update */
+  afterViewUpdateTaskQueue: TaskQueue = new TaskQueue();
 
   /** a mapping from identifier to a sorting function and its priority */
   sortingFunctions: Map<any, SortingFunctionWithPriority<T>> = new Map();
@@ -588,7 +629,20 @@ export class ViewFunctionChain<T> implements ViewFunction<T> {
   /** previous source view, used to determine whether source view is the same */
   lastSource: Array<T>;
   /** holds target view */
-  currentView: Array<T>;
+  private _currentView: Array<T>;
+  get currentView(): Array<T> {
+    return this._currentView;
+  }
+  set currentView(view: Array<T>) {
+    this.beforeViewUpdateTaskQueue.work();
+    this._currentView = view;
+    this.afterViewUpdateTaskQueue.work();
+  }
+
+  /** tasks executed before view update */
+  beforeViewUpdateTaskQueue: TaskQueue = new TaskQueue();
+  /** tasks executed after view update */
+  afterViewUpdateTaskQueue: TaskQueue = new TaskQueue();
 
   constructor(viewFunctions: Array<ViewFunction<T>> = []) {
     this.viewFunctions = viewFunctions;

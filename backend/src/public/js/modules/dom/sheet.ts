@@ -11,11 +11,14 @@ export const tableScrollContainer: HTMLElement = tableElement.parentElement;
 export const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
 /* <tbody> */
 export const tableBodyElement: HTMLTableSectionElement = document.getElementById("view") as HTMLTableSectionElement;
+/* <tfoot> */
+export const tableFootElement: HTMLTableSectionElement = tableElement.tFoot;
 /* <tr>s */
 export const tableRowElements: HTMLCollection = tableElement.rows;
 /* first table row: column labels */
 export const columnLabelRowIndex: number = 0;
 export const tableColumnLabels: HTMLTableRowElement = tableRowElements[columnLabelRowIndex] as HTMLTableRowElement;
+export const tableFootRow = tableFootElement.firstElementChild as HTMLTableRowElement;
 
 export const numTableColumns: number = tableColumnLabels.children.length;
 
@@ -48,7 +51,7 @@ export function isColumnLabel(element: HTMLElement): boolean {
 export function getColumnLabel(index: number): HTMLTableCellElement {
   return getCellInTableRow(tableColumnLabels, index);
 }
-function* getColumnLabels() {
+export function* getColumnLabels() {
   for (const columnLabel of getTableCellElementsInRow(tableColumnLabels)) {
     yield columnLabel;
   }
@@ -97,6 +100,12 @@ export function isColumnSearchFilled(columnSearch: HTMLTableCellElement): boolea
 }
 export function isColumnAutocompleteOnly(columnLabel: HTMLTableCellElement) {
   return columnLabel.dataset.autocompleteOnly === "true";
+}
+export function getTableFootCell(index: number): HTMLTableCellElement {
+  return getCellInTableRow(tableFootRow, index);
+}
+export function isTableFootCell(element: HTMLElement): boolean {
+  return element && element.parentElement === tableFootRow;
 }
 export function* getTableCellElementsInRow(tableRowElement: HTMLTableRowElement) {
   yield* tableRowElement.cells;
