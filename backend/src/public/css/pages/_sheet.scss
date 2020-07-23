@@ -366,9 +366,9 @@ $resize-color: #B0D0D3;
             bottom: 0;
           }
           &.summary {
-            @extend .border-0;
             th {
-              @extend .border-0;
+              @extend .border-left-0;
+              @extend .border-right-0;
             }
           }
         }
