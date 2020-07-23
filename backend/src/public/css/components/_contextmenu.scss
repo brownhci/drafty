@@ -14,6 +14,9 @@
     @extend .btn;
     @extend .btn-light;
     @extend .d-flex;
+    &:hover {
+      @extend .text-primary;
+    }
     &:focus {
       @extend .shadow-none;
     }
