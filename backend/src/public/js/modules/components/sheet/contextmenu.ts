@@ -6,15 +6,22 @@ import { isButton } from "../../dom/types";
 import { activeTableCellElement, activateTableCol } from "../../../sheet";
 
 
+
 const tableDataContextMenu: HTMLElement = document.getElementById("table-data-contextmenu");
 const columnLabelContextMenu: HTMLElement = document.getElementById("column-label-contextmenu");
 const contextMenuClass = "contextmenu";
+
+export const insertRowMenuItem: HTMLButtonElement = document.getElementById("menuitem-insert-row") as HTMLButtonElement;
+export const countMenuItem: HTMLButtonElement = document.getElementById("menuitem-count") as HTMLButtonElement;
 
 function getMenuItem(element: HTMLElement): HTMLButtonElement {
   return element.closest("button") as HTMLButtonElement;
 }
 function getMenuItemAction(menuItem: HTMLButtonElement): string {
   return menuItem.innerText;
+}
+function deactivateMenuItem(menuItem: HTMLButtonElement) {
+  menuItem.classList.remove(activeClass);
 }
 function toggleMenuItemActiveState(menuItem: HTMLButtonElement) {
   menuItem.classList.toggle(activeClass);
@@ -48,6 +55,7 @@ tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
       pasteToTableCellElement(activeTableCellElement);
       break;
     case "Insert row":
+      deactivateMenuItem(countMenuItem);
       toggleMenuItemActiveState(menuItem);
       toggleInsertion();
       break;
@@ -65,6 +73,7 @@ columnLabelContextMenu.addEventListener("click", function(event: MouseEvent) {
       copyTableCellElement(activeTableCellElement);
       break;
     case "Count":
+      deactivateMenuItem(insertRowMenuItem);
       toggleMenuItemActiveState(menuItem);
       toggleRowCount();
       break;
