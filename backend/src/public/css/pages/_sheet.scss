@@ -227,7 +227,7 @@ $resize-color: #B0D0D3;
       }
     }
 
-    thead {
+    thead, tfoot {
       @extend .thead-light;
       tr {
         &#column-label-row {
@@ -351,6 +351,19 @@ $resize-color: #B0D0D3;
           }
           &:hover::after {
             content: "\f0c5";
+          }
+        }
+      }
+    }
+    tfoot {
+      @extend .d-none;
+      &.active {
+        display: table-footer-group !important;
+        tr {
+          @extend .thead-light;
+          th {
+            position: sticky;
+            bottom: 0;
           }
         }
       }

@@ -64,7 +64,7 @@ def build_column_label_cell(row, column_index):
         noneditable_indices.append(column_index)
         content_editable = 'contenteditable="false"'
     free_edit = 'false' if row['isFreeEdit'] else 'true'
-    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" data-autocomplete-only="{free_edit}" tabindex="-1" class="column-label" {content_editable}><span class="column-label-text">{colname}</span><button class="sort-btn"><span class="sr-only sr-only-focusable">Sort</span></button></th>\n'
+    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" data-autocomplete-only="{free_edit}" tabindex="-1" scope="col" class="column-label" {content_editable}><span class="column-label-text">{colname}</span><button class="sort-btn"><span class="sr-only sr-only-focusable">Sort</span></button></th>\n'
 
 
 def build_column_labels_row(cursor):
@@ -87,13 +87,21 @@ def build_column_search_row():
     return f'\n<tr id="column-search-row">\n{"".join(search_input.format(column_search_index=i) for i, row in enumerate(rows))}\n</tr>\n'
 
 
-def build_table_head(cursor, column_widths):
+def build_table_head(cursor):
     return f'<thead>{build_column_labels_row(cursor)}{build_column_search_row()}</thead>\n'
+
+
+def build_table_foot_cell():
+    return '<th scope="col" tabindex="-1"></th>'
+
+
+def build_table_foot():
+    return f'<tfoot><tr>{"".join(build_table_foot_cell() for column_index in range(num_columns))}</tr></tfoot>'
 
 
 def build_placeholder_table(cursor):
     column_widths = get_column_widths(cursor)
-    return f'<table id="table">{build_colgroup(column_widths)}{build_table_head(cursor, column_widths)}<tbody id="view"></tbody></table>\n'
+    return f'<table id="table">{build_colgroup(column_widths)}{build_table_head(cursor)}<tbody id="view"></tbody>{build_table_foot()}</table>\n'
 
 
 noneditable_indices = []

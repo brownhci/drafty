@@ -56,6 +56,8 @@ columnLabelContextMenu.addEventListener("click", function(event: MouseEvent) {
     case "Copy":
       copyTableCellElement(activeTableCellElement);
       break;
+    case "Distribution":
+      break;
   }
   deactivateColumnLabelContextMenu();
   event.stopPropagation();
