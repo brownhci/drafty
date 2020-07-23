@@ -3,7 +3,7 @@ import { clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyCopyBuffer, copy
 import { hasTextSelected } from "../../utils/selection";
 import { recordCellCopy, recordColumnCopy } from "../../api/record-interactions";
 import { isTableData, isTableHead } from "../../dom/types";
-import { getColumnLabel, getTableCellText, getTableDataText, isColumnSearch, isColumnSearchInput, isTableCellEditable, tableElement } from "../../dom/sheet";
+import { getColumnLabel, getTableCellText, getTableDataText, isColumnLabel, isColumnSearchInput, isTableCellEditable, tableElement } from "../../dom/sheet";
 import { activeTableCellElement, activeTableColElement, tableDataManager } from "../../../sheet";
 
 const copiedClass = "copied";
@@ -50,7 +50,8 @@ export function copyTableCellElement(tableCellElement: HTMLTableCellElement, ign
     elementToHighlight = activeTableColElement;
     copyCopyBuffer();
     recordColumnCopy(getColumnLabel(columnIndex));
-  } else if (!(isColumnSearch(tableCellElement))) {
+    makeElementCopyTarget(elementToHighlight);
+  } else if (isTableData(tableCellElement) || isColumnLabel(tableCellElement)) {
     if (!ignoreSelection && hasTextSelected(tableCellElement)) {
       // copy selected part
       copyCurrentSelectionToCopyBuffer();
@@ -67,9 +68,8 @@ export function copyTableCellElement(tableCellElement: HTMLTableCellElement, ign
     // regain focus
     copyCopyBuffer();
     elementToHighlight.focus();
+    makeElementCopyTarget(elementToHighlight);
   }
-
-  makeElementCopyTarget(elementToHighlight);
 }
 export function tableCellElementOnCopyKeyPressed(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   if (hasCopyModifier(event)) {
