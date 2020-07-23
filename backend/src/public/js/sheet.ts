@@ -243,17 +243,41 @@ function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
   }
 }
 
+function tableCellElementOnUpKeyPressed(tableCellElement: HTMLTableCellElement) {
+  let upElement = getUpTableCellElement(tableCellElement);
+  if (!upElement) {
+    if (isTableFootCell(tableCellElement) && isTableFootActive() && isInserting()) {
+      // jump to table footer cell
+      upElement = getColumnSearch(tableCellElement.cellIndex);
+    }
+  }
+
+  updateActiveTableCellElement(upElement);
+}
+
+function tableCellElementOnDownKeyPressed(tableCellElement: HTMLTableCellElement) {
+  let downElement = getDownTableCellElement(tableCellElement);
+  if (!downElement) {
+    if (isColumnSearch(tableCellElement) && isTableFootActive() && isInserting()) {
+      // jump to table footer cell
+      downElement = getTableFootCell(tableCellElement.cellIndex);
+    }
+  }
+
+  updateActiveTableCellElement(downElement);
+}
+
 function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   event.consumed = false;
   switch (event.key) {
     case "Down": // IE/Edge specific value
     case "ArrowDown":
-      updateActiveTableCellElement(getDownTableCellElement(tableCellElement));
+      tableCellElementOnDownKeyPressed(tableCellElement);
       event.consumed = true;
       break;
     case "Up": // IE/Edge specific value
     case "ArrowUp":
-      updateActiveTableCellElement(getUpTableCellElement(tableCellElement));
+      tableCellElementOnUpKeyPressed(tableCellElement);
       event.consumed = true;
       break;
     case "Left": // IE/Edge specific value
