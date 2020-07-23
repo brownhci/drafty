@@ -23,11 +23,9 @@ export function isInserting(): boolean {
   return tableFootRow.classList.contains(insertClass);
 }
 function activateForInsertion() {
-  if (isReportingSummary()) {
-    summaryCell.colSpan = 1;
-    summaryCell.textContent = "";
-    deactivateTableFoot();
-  }
+  summaryCell.colSpan = 1;
+  summaryCell.textContent = "";
+  deactivateTableFoot();
 
   activateTableFoot();
   tableFootRow.classList.add(insertClass);
