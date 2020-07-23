@@ -13,20 +13,42 @@ export function deactivateTableFoot() {
 }
 
 export function isTableFootActive(): boolean {
-  return  tableFootRow.classList.contains(activeClass);
+  return  tableFootElement.classList.contains(activeClass);
 }
-export function reportSummary(summary: string) {
-  tableFootRow.classList.add(summaryClass);
-  tableFootRow.firstElementChild.textContent = summary;
-}
+
+
+/* report summary in table foot */
 export function isReportingSummary(): boolean {
     return tableFootRow.classList.contains(summaryClass);
+}
+function updateRowCount() {
+  reportSummary(`Count: ${tableDataManager.rowCount}`);
 }
 export function toggleRowCount() {
   if (isReportingSummary()) {
     deactivateTableFoot();
   } else {
     activateTableFoot();
-    reportSummary(`Count: ${tableDataManager.rowCount}`);
+    updateRowCount();
   }
+}
+let firstTimeReportSummary: boolean = true;
+function autoupdateSummary() {
+  if (firstTimeReportSummary) {
+    firstTimeReportSummary = false;
+    tableDataManager.afterScrollUpdateTaskQueue.tasks.push({
+      work: () => {
+        // update count if necessary
+        if (isTableFootActive() && isReportingSummary()) {
+          updateRowCount();
+        }
+      },
+      isRecurring: true
+    });
+  }
+}
+export function reportSummary(summary: string) {
+  autoupdateSummary();
+  tableFootRow.classList.add(summaryClass);
+  tableFootRow.firstElementChild.textContent = summary;
 }

@@ -99,7 +99,7 @@ class CellEditor {
         } else {
           // cell not in rendering view, need to put cell into rendering view before setting alignment
           if (tableDataManager.putElementInRenderingView(tableRow)) {
-            tableDataManager.afterViewUpdateTaskQueue.tasks.push({
+            tableDataManager.afterScrollUpdateTaskQueue.tasks.push({
               work: () => this.alignTableCellInputForm(),
               isRecurring: false
             });
@@ -225,7 +225,7 @@ class CellEditor {
   }
 
   private deactivateFormWhenCellNoLongerReachable() {
-    tableDataManager.afterViewUpdateTaskQueue.tasks.push({
+    tableDataManager.afterScrollUpdateTaskQueue.tasks.push({
       work: () => {
         if (this.isActive) {
           // form is active
