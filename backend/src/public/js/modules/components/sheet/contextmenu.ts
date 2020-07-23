@@ -1,6 +1,6 @@
 import { placeElementInViewport } from "./align";
 import { copyTableCellElement, pasteToTableCellElement } from "./copy-paste";
-import { toggleRowCount } from "./table-foot";
+import { toggleInsertion, toggleRowCount } from "./table-foot";
 import { activeClass } from "../../constants/css-classes";
 import { isButton } from "../../dom/types";
 import { activeTableCellElement, activateTableCol } from "../../../sheet";
@@ -41,7 +41,7 @@ tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
       pasteToTableCellElement(activeTableCellElement);
       break;
     case "Insert row":
-      // TODO insert new row
+      toggleInsertion();
       break;
   }
   deactivateTableDataContextMenu();

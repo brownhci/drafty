@@ -92,7 +92,7 @@ def build_table_head(cursor):
 
 
 def build_table_foot_cell():
-    return '<th scope="col" tabindex="-1"></th>'
+    return '<th scope="col" tabindex="-1"><input type="text"></th>'
 
 
 def build_table_foot():

@@ -371,6 +371,12 @@ $resize-color: #B0D0D3;
               @extend .border-right-0;
             }
           }
+          &.insert {
+            input {
+              @extend .w-100;
+              @extend .form-control;
+            }
+          }
         }
       }
     }

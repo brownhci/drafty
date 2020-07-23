@@ -7,7 +7,7 @@ import { cellEditor } from "./modules/components/sheet/cell-editor";
 import "./modules/components/sheet/column-search";
 import { activateColumnLabelContextMenu, activateTableDataContextMenu, deactivateColumnLabelContextMenu, deactivateTableDataContextMenu } from "./modules/components/sheet/contextmenu";
 import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from "./modules/components/sheet/copy-paste";
-import { isReportingSummary, isTableFootActive } from "./modules/components/sheet/table-foot";
+import { isInserting, isTableFootActive } from "./modules/components/sheet/table-foot";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
 import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, getTableFootCell, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, isTableFootCell, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
@@ -46,19 +46,19 @@ function activateTableHead(shouldGetFocus=true) {
   if (isColumnLabel(activeTableCellElement)) {
     const columnSearch = getColumnSearch(index);
     columnSearch.classList.add(activeAccompanyClass);
-    if (isTableFootActive() && !isReportingSummary()) {
+    if (isTableFootActive() && isInserting()) {
       const tableFootCell = getTableFootCell(index);
       tableFootCell.classList.add(activeAccompanyClass);
     }
   } else if (isColumnSearch(activeTableCellElement)) {
     const columnLabel = getColumnLabel(index);
     columnLabel.classList.add(activeAccompanyClass);
-    if (isTableFootActive() && !isReportingSummary()) {
+    if (isTableFootActive() && isInserting()) {
       const tableFootCell = getTableFootCell(index);
       tableFootCell.classList.add(activeAccompanyClass);
     }
   } else if (isTableFootCell(activeTableCellElement)) {
-    if (isReportingSummary()) {
+    if (!isInserting()) {
       return;
     }
     const columnSearch = getColumnSearch(index);
@@ -101,10 +101,12 @@ function deactivateTableHead() {
   const tableFootCell = getTableFootCell(index);
   columnLabel.classList.remove(activeClass);
   columnSearch.classList.remove(activeClass);
-  tableFootCell.classList.remove(activeClass);
   columnLabel.classList.remove(activeAccompanyClass);
   columnSearch.classList.remove(activeAccompanyClass);
-  tableFootCell.classList.remove(activeAccompanyClass);
+  if (tableFootCell) {
+    tableFootCell.classList.remove(activeClass);
+    tableFootCell.classList.remove(activeAccompanyClass);
+  }
 }
 function deactivateTableCol() {
   if (activeTableColElement) {
