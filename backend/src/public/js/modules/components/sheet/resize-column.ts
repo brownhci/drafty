@@ -5,7 +5,7 @@ import { getLeftTableCellElement, getRightTableCellElement } from "../../dom/nav
 import { getViewportWidth } from "../../utils/length";
 import { bound } from "../../utils/math";
 
-const distanceConsideredNearToBorder = 10;
+const distanceConsideredNearToBorder = 5;
 
 const resizeVisualCue: HTMLElement = document.getElementById("resize-visual-cue");
 let isResizing: boolean = false;
