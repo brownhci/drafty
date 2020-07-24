@@ -165,6 +165,17 @@ $resize-color: #B0D0D3;
             @extend .font-weight-bold;
           }
         }
+        #locate-cell-explanation {
+          @extend .d-none;
+        }
+        &:hover {
+          #locate-cell-icon, #locate-cell-row-col {
+            @extend .d-none;
+          }
+          #locate-cell-explanation {
+            @extend .d-inline-block;
+          }
+        }
         &.active {
           @extend .d-inline-block;
         }
