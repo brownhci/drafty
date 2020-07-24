@@ -3,6 +3,9 @@ $resize-shadow-width: 3px;
 $visual-cue-width: 5px;
 $resize-color: #B0D0D3;
 
+$border-top: inset 0px 1px 0px 0px $table-border-color;
+$border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0px 0px $table-border-color;
+
 %cell-overflow {
     @extend .overflow-hidden;
     @extend .text-nowrap;
@@ -141,6 +144,7 @@ $resize-color: #B0D0D3;
       @extend .bg-light;
       @extend .border;
       @extend .py-1;
+      @extend .shadow;
       top: 0;
       left: 0;
       max-width: 90vw;
@@ -334,6 +338,7 @@ $resize-color: #B0D0D3;
         }
         &.column-search {
           @extend .border-bottom-0;
+          @include vendor-prefix(box-shadow, $border-top-bottom, webkit ms);
           position: sticky;
           top: 3em;
           input {
@@ -386,6 +391,7 @@ $resize-color: #B0D0D3;
           th {
             position: sticky;
             bottom: 0;
+            @include vendor-prefix(box-shadow, $border-top, webkit ms);
           }
           &.summary {
             th {
