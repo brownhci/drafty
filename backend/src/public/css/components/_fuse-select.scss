@@ -14,12 +14,8 @@
     @extend .rounded;
     padding: 0 13px;
     &.previous-edit {
-      .fuse-select-option-text::after {
-        @extend .font-awesome;
-        @extend .float-right;
-        @extend .mr-2;
-        color: rgba(0, 0, 0, 0.7);
-        content: "\f234";
+      .fuse-select-option-text {
+        color: $orange !important;
       }
     }
 
@@ -33,14 +29,17 @@
 
     &:hover {
       @extend .bg-primary;
+      &.previous-edit {
+        background-color: $orange !important;
+        .fuse-select-option-text {
+          @extend .text-light;
+        }
+      }
       .fuse-select-option-text {
         @extend .text-light;
         b {
           @extend .text-white;;
         }
-      }
-      .fuse-select-option-text::after {
-        @extend .text-white;
       }
     }
   }

@@ -86,7 +86,7 @@ class CellEditor {
   }
 
   private mountFuseSelect(element: HTMLElement) {
-    this.formContainerElement.appendChild(element);
+    this.formContainerElement.insertBefore(element, this.formContainerElement.lastElementChild);
   }
 
   private initializeEventListeners() {

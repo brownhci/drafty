@@ -182,6 +182,17 @@ $resize-color: #B0D0D3;
         @extend .btn-sm;
         @extend .float-right;
       }
+      #input-form-legend {
+        @extend .font-size-small;
+        @extend .font-weight-lighter;
+        @extend .text-right;
+        span:nth-child(2) {
+          @extend .text-muted;
+        }
+        span:nth-child(3) {
+          color: $orange;
+        }
+      }
       & > div {
         @extend .mb-0;
         @extend .px-1;
