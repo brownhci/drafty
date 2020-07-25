@@ -148,6 +148,11 @@ export class FilteredView<T> implements ViewFunction<T> {
       return false;
     }
 
+    if (this.filterFunctions.has(key)) {
+      // when there is already an existing different filter function registered under the same key, the view needs to be regenerated rather than refined
+      this.shouldRefineView = false;
+    }
+
     this.filterFunctions.set(key, filterFunction);
     return this.shouldRegenerateView = true;
   }
