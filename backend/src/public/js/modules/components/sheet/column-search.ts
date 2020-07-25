@@ -35,7 +35,6 @@ tableElement.addEventListener("input", debounce((event: Event) => {
 }), true);
 
 
-
 /* handling complete searches */
 tableElement.addEventListener("blur", function(event: Event) {
   const target: HTMLElement = event.target as HTMLElement;

@@ -3,14 +3,21 @@
  * As the name implies, this module provides autocomplete suggestions for a column. Therefore, it is different from {@link ./suggestions.ts} in that it does not bias a specific cell.
  */
 import { alignElementHorizontally, placeElementAdjacently } from "./align";
-import { updateFuseSelect } from "./suggestions";
+import { fetchSuggestions, Option } from "./suggestions";
 import { getIdSuggestion, getIdSuggestionType } from "../../api/record-interactions";
 import { activeClass } from "../../constants/css-classes";
 import { getCellInTableRow } from "../../dom/navigate";
 import { getColumnLabel } from "../../dom/sheet";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 import { measureTextWidth } from "../../utils/length";
+import { LocalStorageCache } from "../../utils/local-storage";
 import { tableDataManager } from "../../../sheet";
+
+
+const optionCache = new LocalStorageCache(5 * 60 * 1000);
+function optionCacheKeyFunction(idSuggestionType: string): string {
+  return `column${idSuggestionType}-suggestions`;
+}
 
 class ColumnSuggestions {
   private container: HTMLElement = document.getElementById("column-suggestions");
@@ -67,12 +74,38 @@ class ColumnSuggestions {
     this.container.classList.remove(activeClass);
   }
 
+  private parseSuggestions(suggestions: Array<Option>): Array<Option> {
+    const parsedSuggestions = suggestions.filter(suggestion => suggestion.prevSugg === 0);
+  parsedSuggestions.sort((suggestion1, suggestion2) => suggestion1.suggestion.localeCompare(suggestion2.suggestion));
+  return parsedSuggestions;
+  }
+
   private updateFuseSelect() {
     const columnLabel = getColumnLabel(this.target.cellIndex);
-    const idSuggestionType = getIdSuggestionType(columnLabel);
-    const row = tableDataManager.fullView[0].element_ as HTMLTableRowElement;
+    const idSuggestionTypeString = getIdSuggestionType(columnLabel).toString();
+    let options = optionCache.retrieve(optionCacheKeyFunction(idSuggestionTypeString)) as Array<Option>;
+    if (!options) {
+      // cannot retrieve unexpired autocomplete suggestions from local storage, create an empty placeholder for now
+      options = [];
+    }
+    this.fuseSelect.options = options;
+    this.fuseSelect.sync();
+    this.align();
+
+    const row = tableDataManager.source[0].element_ as HTMLTableRowElement;
     const idSuggestion = getIdSuggestion(getCellInTableRow(row, this.target.cellIndex));
-    updateFuseSelect(this.fuseSelect, idSuggestion, idSuggestionType, () => this.align());
+    fetchSuggestions(idSuggestion).then(suggestions => {
+      const options = this.parseSuggestions(suggestions);
+      optionCache.store(optionCacheKeyFunction(idSuggestionTypeString), options);
+
+      if (options.length === 0) {
+        this.deactivate();
+      } else {
+        this.fuseSelect.options = options;
+        this.fuseSelect.sync();
+        this.align();
+      }
+    });
   }
 
   private align() {

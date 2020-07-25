@@ -15,7 +15,10 @@ export interface Option {
 
 const optionCache = new LocalStorageCache(5 * 60 * 1000);
 function optionCacheKeyFunction(idSuggestionType: string): string {
-  return `column${idSuggestionType}-suggestions`;
+  return `column${idSuggestionType}-cell-suggestions`;
+}
+function getColumnSuggestions(idSuggestionType: string): Array<Option> {
+  return optionCache.retrieve(optionCacheKeyFunction(idSuggestionType)) as Array<Option>;
 }
 
 /**
@@ -25,7 +28,7 @@ function optionCacheKeyFunction(idSuggestionType: string): string {
  * @param {number} idSuggestion - The id suggestion of a particular table cell.
  * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Option objects.
  */
-async function fetchSuggestions(idSuggestion: number): Promise<Array<Option>> {
+export async function fetchSuggestions(idSuggestion: number): Promise<Array<Option>> {
   const url = getEditSuggestionURL(idSuggestion);
   try {
     const response = await fetch(url);
@@ -87,7 +90,7 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
  */
 export function updateFuseSelect(fuseSelect: FuseSelect, idSuggestion: number, idSuggestionType: number, callback: () => void = () => undefined) {
   const idSuggestionTypeString = idSuggestionType.toString();
-  let options = optionCache.retrieve(optionCacheKeyFunction(idSuggestionTypeString)) as Array<Option>;
+  let options = getColumnSuggestions(idSuggestionTypeString);
   if (!options) {
     // cannot retrieve unexpired autocomplete suggestions from local storage, create an empty placeholder for now
     options = [];
