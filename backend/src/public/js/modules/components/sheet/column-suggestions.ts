@@ -61,13 +61,10 @@ class ColumnSuggestions {
   }
 
   activate(target: HTMLTableCellElement) {
-    this.container.classList.add(activeClass);
-
     this.target = target;
     this.inputElement = target.querySelector("input");
 
     this.updateFuseSelect();
-    this.align();
   }
 
 
@@ -104,6 +101,7 @@ class ColumnSuggestions {
       } else {
         this.fuseSelect.options = options;
         this.fuseSelect.sync();
+        this.container.classList.add(activeClass);
         this.align();
       }
     });
