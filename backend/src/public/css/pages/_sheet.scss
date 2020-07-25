@@ -139,20 +139,9 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
     }
 
     #table-cell-input-form {
-      @extend .position-absolute;
-      @extend .d-none;
-      @extend .bg-light;
-      @extend .border;
-      @extend .py-1;
-      @extend .shadow;
-      top: 0;
-      left: 0;
+      @extend .float-window;
       max-width: 90vw;
-      z-index: $zindex-popover;
       cursor: move;
-      &.active {
-        @extend .d-inline-block;
-      }
       #locate-cell {
         @extend .btn;
         @extend .btn-primary;

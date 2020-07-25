@@ -38,3 +38,18 @@
     width: 0px;  /* Remove scrollbar space */
   }
 }
+
+.float-window {
+  @extend .position-absolute;
+  @extend .d-none;
+  @extend .bg-light;
+  @extend .border;
+  @extend .py-1;
+  @extend .shadow;
+  top: 0;
+  left: 0;
+  z-index: $zindex-popover;
+  &.active {
+    @extend .d-inline-block;
+  }
+}

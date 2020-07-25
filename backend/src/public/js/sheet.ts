@@ -5,13 +5,14 @@ import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
 import { cellEditor } from "./modules/components/sheet/cell-editor";
 import "./modules/components/sheet/column-search";
+import { columnSuggestions } from "./modules/components/sheet/column-suggestions";
 import { activateColumnLabelContextMenu, activateTableDataContextMenu, deactivateColumnLabelContextMenu, deactivateTableDataContextMenu } from "./modules/components/sheet/contextmenu";
 import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from "./modules/components/sheet/copy-paste";
 import { isInserting, isTableFootActive } from "./modules/components/sheet/table-foot";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
 import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, getTableFootCell, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, isTableFootCell, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
-import { isTableData, isTableHead, isTableCell } from "./modules/dom/types";
+import { isInput, isTableData, isTableHead, isTableCell } from "./modules/dom/types";
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
 
@@ -330,6 +331,14 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   event.stopPropagation();
 }, true);
 
+
+tableElement.addEventListener("focus", function(event: FocusEvent) {
+  const target = event.target as HTMLElement;
+  if (isInput(target) && isTableHead(target.parentElement)) {
+    columnSuggestions.activate(target.parentElement as HTMLTableCellElement);
+  }
+  event.stopPropagation();
+}, true);
 
 /* mouse events */
 // mouse event handlers

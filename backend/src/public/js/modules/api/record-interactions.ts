@@ -23,7 +23,7 @@ export function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
   }
   return null;
 }
-export function getIdSearchType() {
+export function getIdSearchType(): number {
   return 1;
 }
 

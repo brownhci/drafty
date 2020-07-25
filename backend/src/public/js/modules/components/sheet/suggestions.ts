@@ -63,14 +63,15 @@ function parseSuggestions(suggestions: Array<Option>): Array<Option> {
   return parsedSuggestions;
 }
 
-export const fuseSelect: FuseSelect = new FuseSelect();
-export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod: (element: HTMLElement) => void) {
+export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod: (element: HTMLElement) => void): FuseSelect {
+  const fuseSelect = new FuseSelect();
   fuseSelect.handleClickOnOption((text: string) => {
     inputElement.value = text;
     inputElement.dispatchEvent(new Event("input"));
     inputElement.focus();
   });
   fuseSelect.mount(mountMethod);
+  return fuseSelect;
 }
 
 /**
@@ -78,12 +79,13 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
  * Otherwise, fetch suggestions from database and store the fetched suggestions in local storage.
  *
  * @async
+ * @param {FuseSelect} fuseSelect - The FuseSelect instance to be updated.
  * @param {string} idSuggestion - @see sheet.ts:getIdSuggestion
  * @param {string} idSuggestionType - @see sheet.ts:getIdSuggestionType
  * @param {string} callback - A callback executed after the fetched suggestions are used.
 
  */
-export function updateFuseSelect(idSuggestion: number, idSuggestionType: number, callback: () => void = () => undefined) {
+export function updateFuseSelect(fuseSelect: FuseSelect, idSuggestion: number, idSuggestionType: number, callback: () => void = () => undefined) {
   const idSuggestionTypeString = idSuggestionType.toString();
   let options = optionCache.retrieve(optionCacheKeyFunction(idSuggestionTypeString)) as Array<Option>;
   if (!options) {

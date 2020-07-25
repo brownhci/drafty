@@ -4,7 +4,8 @@
  * Input editor are a floating window that offers user the ability to edit table cell.
  */
 
-import { fuseSelect, initializeFuseSelect, updateFuseSelect } from "./suggestions";
+import { FuseSelect } from "../../fuse/sheet-fuse";
+import { initializeFuseSelect, updateFuseSelect } from "./suggestions";
 import { alignElementHorizontally } from "./align";
 import { activeClass, inputtingClass, invalidClass } from "../../constants/css-classes";
 import { getViewportHeight, getViewportWidth, measureTextWidth } from "../../utils/length";
@@ -34,6 +35,8 @@ class CellEditor {
   /** a flag indicates whether the form will automatically deactivate when cell is no longer reachable by scrolling */
   private willFormDeactivateWhenCellNoLongerReachable: boolean = false;
 
+  fuseSelect: FuseSelect;
+
   get isActive(): boolean {
     return this.formElement.classList.contains(activeClass);
   }
@@ -59,8 +62,7 @@ class CellEditor {
    * @param {number} width - A new width to set.
    */
   private set formWidth(width: number) {
-    const cell = this.cellElement;
-    const cellWidth = cell ? this.cellElement.offsetWidth : 0;
+    const cellWidth = this.cellElement ? this.cellElement.offsetWidth : 0;
     this.formElement.style.width = `${Math.max(cellWidth, width)}px`;
   }
 
@@ -78,7 +80,7 @@ class CellEditor {
 
   constructor() {
     this.initializeEventListeners();
-    initializeFuseSelect(this.formInputElement, element => this.mountFuseSelect(element));
+    this.fuseSelect = initializeFuseSelect(this.formInputElement, element => this.mountFuseSelect(element));
   }
 
   private focusFormInput() {
@@ -136,7 +138,7 @@ class CellEditor {
     });
 
     this.formInputElement.addEventListener("input", (event) => {
-      fuseSelect.query(this.formInput);
+      this.fuseSelect.query(this.formInput);
       event.stopPropagation();
     }, { passive: true});
 
@@ -284,15 +286,15 @@ class CellEditor {
       }
 
       // remount the fuse select
-      fuseSelect.mount(element => this.mountFuseSelect(element));
-      updateFuseSelect(getIdSuggestion(this.cellElement), getIdSuggestionType(columnLabel), () => {
+      this.fuseSelect.mount(element => this.mountFuseSelect(element));
+      updateFuseSelect(this.fuseSelect, getIdSuggestion(this.cellElement), getIdSuggestionType(columnLabel), () => {
         // resize form editor
-        this.resizeFormToFitText(fuseSelect.longestText, 88);
+        this.resizeFormToFitText(this.fuseSelect.longestText, 88);
         this.alignTableCellInputForm();
       });
 
       this.updateLocateCell();
-      this.resizeFormToFitText(fuseSelect.longestText, 88);
+      this.resizeFormToFitText(this.fuseSelect.longestText, 88);
       this.alignTableCellInputForm();
     }
   }
@@ -329,7 +331,7 @@ class CellEditor {
     alignElementHorizontally(this.formElement, cellDimensions);
 
     if (formHeight > viewportHeight) {
-      fuseSelect.unmount();
+      this.fuseSelect.unmount();
       formHeight = this.formElement.getBoundingClientRect().height;
     }
     /**
@@ -400,7 +402,7 @@ class CellEditor {
     const cellElement = this.cellElement;
     // check validity of edit
     if (isColumnAutocompleteOnly(getColumnLabel(cellElement.cellIndex))) {
-      if (fuseSelect.hasSuggestion(edit)) {
+      if (this.fuseSelect.hasSuggestion(edit)) {
         this.deactivateInvalidFeedback();
       } else {
         this.activateInvalidFeedback("Value must from Completions");
