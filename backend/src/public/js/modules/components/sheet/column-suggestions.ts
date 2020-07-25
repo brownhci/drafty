@@ -9,6 +9,7 @@ import { activeClass } from "../../constants/css-classes";
 import { getCellInTableRow } from "../../dom/navigate";
 import { getColumnLabel, tableElement } from "../../dom/sheet";
 import { FuseSelect } from "../../fuse/sheet-fuse";
+import { debounce } from "../../utils/debounce";
 import { measureTextWidth } from "../../utils/length";
 import { LocalStorageCache } from "../../utils/local-storage";
 import { tableDataManager } from "../../../sheet";
@@ -26,6 +27,11 @@ class ColumnSuggestions {
   private inputElement: HTMLInputElement;
 
   private fuseSelect: FuseSelect = new FuseSelect();
+
+  get isActive(): boolean {
+    return this.container.classList.contains(activeClass);
+  }
+
 
   private get containerWidth(): number {
     return this.container.offsetWidth;
@@ -53,11 +59,20 @@ class ColumnSuggestions {
 
     tableElement.addEventListener("focus", (event: Event) => {
       const target = event.target as HTMLInputElement;
-      if (target !== this.inputElement) {
+      if (this.isActive && target !== this.inputElement) {
         // another element receives focus
         this.deactivate();
       }
     }, true);
+
+    tableElement.addEventListener("input", debounce((event: Event) => {
+      const target = event.target as HTMLElement;
+      if (this.isActive && target === this.inputElement) {
+        // the input to which suggestion window is attached is receiving input, filter the suggestions
+        this.fuseSelect.query(this.inputElement.value);
+        this.align();
+      }
+    }), true);
   }
 
   activate(target: HTMLTableCellElement) {
