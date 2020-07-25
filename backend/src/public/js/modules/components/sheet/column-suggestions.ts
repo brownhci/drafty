@@ -7,7 +7,7 @@ import { fetchSuggestions, Option } from "./suggestions";
 import { getIdSuggestion, getIdSuggestionType } from "../../api/record-interactions";
 import { activeClass } from "../../constants/css-classes";
 import { getCellInTableRow } from "../../dom/navigate";
-import { getColumnLabel } from "../../dom/sheet";
+import { getColumnLabel, tableElement } from "../../dom/sheet";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 import { measureTextWidth } from "../../utils/length";
 import { LocalStorageCache } from "../../utils/local-storage";
@@ -26,8 +26,6 @@ class ColumnSuggestions {
   private inputElement: HTMLInputElement;
 
   private fuseSelect: FuseSelect = new FuseSelect();
-
-  private onBlur = () => this.deactivate();
 
   private get containerWidth(): number {
     return this.container.offsetWidth;
@@ -52,18 +50,21 @@ class ColumnSuggestions {
       }
     });
     this.fuseSelect.mount(element => this.container.appendChild(element));
+
+    tableElement.addEventListener("focus", (event: Event) => {
+      const target = event.target as HTMLInputElement;
+      if (target !== this.inputElement) {
+        // another element receives focus
+        this.deactivate();
+      }
+    }, true);
   }
 
   activate(target: HTMLTableCellElement) {
     this.container.classList.add(activeClass);
 
     this.target = target;
-    if (this.inputElement) {
-      this.inputElement.removeEventListener("blur", this.onBlur);
-
-    }
     this.inputElement = target.querySelector("input");
-    this.inputElement.addEventListener("blur", this.onBlur);
 
     this.updateFuseSelect();
     this.align();
