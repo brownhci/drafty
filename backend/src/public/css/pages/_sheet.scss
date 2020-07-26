@@ -395,6 +395,14 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
             @extend .d-none;
           }
         }
+        &.cellcopy, &.columncopy {
+          th {
+            @extend .text-center;
+            @extend .text-info;
+            @extend .font-size-large;
+            @extend .bg-white;
+          }
+        }
         th {
           @extend .position-sticky;
           @include vendor-prefix(box-shadow, $border-top, webkit ms);

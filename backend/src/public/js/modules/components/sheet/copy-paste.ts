@@ -1,4 +1,5 @@
 import { cellEditor } from "./cell-editor";
+import { StatusMode, tableFoot } from "./table-foot";
 import { clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyCopyBuffer, copyTextToCopyBuffer, hasCopyModifier } from "../../utils/copy";
 import { hasTextSelected } from "../../utils/selection";
 import { recordCellCopy, recordColumnCopy } from "../../api/record-interactions";
@@ -50,6 +51,7 @@ export function copyTableCellElement(tableCellElement: HTMLTableCellElement, ign
     elementToHighlight = activeTableColElement;
     copyCopyBuffer();
     recordColumnCopy(getColumnLabel(columnIndex));
+    tableFoot.setStatusTimeout(StatusMode.ColumnCopy, 1000);
     makeElementCopyTarget(elementToHighlight);
   } else if (isTableData(tableCellElement) || isColumnLabel(tableCellElement)) {
     if (!ignoreSelection && hasTextSelected(tableCellElement)) {
@@ -63,6 +65,8 @@ export function copyTableCellElement(tableCellElement: HTMLTableCellElement, ign
     if (isTableData(tableCellElement)) {
       // do not record copy on table head element
       recordCellCopy(tableCellElement);
+      // report in table footer that a cell was copied
+      tableFoot.setStatusTimeout(StatusMode.CellCopy, 1000);
     }
 
     // regain focus

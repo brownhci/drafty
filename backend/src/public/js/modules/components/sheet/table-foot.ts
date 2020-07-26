@@ -11,6 +11,10 @@ export enum StatusMode {
   Insertion = "insertion",
   /** `statusTableRow` is used for reporting row count */
   RowCount = "rowcount",
+  /** `statusTableRow` is used for reporting cell copy */
+  CellCopy = "cellcopy",
+  /** `statusTableRow` is used for reporting column copy */
+  ColumnCopy = "columncopy",
   /** `statusTableRow` is not used for anything */
   Idle = "idle"
 }
@@ -57,7 +61,7 @@ class TableFoot {
         case StatusMode.Insertion:
           this.insertionTableRow.classList.remove(activeClass);
           break;
-        case StatusMode.RowCount:
+        case StatusMode.RowCount, StatusMode.CellCopy, StatusMode.ColumnCopy:
           this.statusTableCell.textContent = "";
           break;
       }
@@ -69,6 +73,12 @@ class TableFoot {
           break;
         case StatusMode.RowCount:
           this.updateRowCount();
+          break;
+        case StatusMode.CellCopy:
+          this.statusTableCell.textContent = "A cell copied";
+          break;
+        case StatusMode.ColumnCopy:
+          this.statusTableCell.textContent = "A column copied";
           break;
       }
     }
