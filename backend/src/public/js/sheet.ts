@@ -66,9 +66,6 @@ function activateTableHead(shouldGetFocus=true) {
     columnSearch.classList.add(activeAccompanyClass);
     const columnLabel = getColumnLabel(index);
     columnLabel.classList.add(activeAccompanyClass);
-  } else if (activeTableCellElement.parentElement === tableFoot.statusTableRow) {
-    // ignore click on status table row cell
-    return;
   }
 
   activeTableCellElement.classList.add(activeClass);
@@ -195,6 +192,11 @@ function activeElementOnRepeatedClick() {
 }
 
 function tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
+  if (tableCellElement.parentElement === tableFoot.statusTableRow) {
+    // ignore click on status table row cell
+    return;
+  }
+
   if (isClickOnActiveElement(tableCellElement)) {
     // handle repeated click differently
     activeElementOnRepeatedClick();
