@@ -91,6 +91,7 @@ app.use(lusca.csp({
   policy: {
     "default-src": "'self'",
     "frame-ancestors": "'none'",
+    "img-src": "'self' data:"
   }
 }));
 app.use(lusca.xframe("SAMEORIGIN"));
