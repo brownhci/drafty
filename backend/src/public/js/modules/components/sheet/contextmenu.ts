@@ -117,6 +117,7 @@ class MenuItem {
 }
 
 // menu items
+// IMPORTANT a new menu item needs also be registered here
 export const columnLabelButtons = columnLabelContextMenu.children;
 export const columnLabelCopyMenuItem = new MenuItem(columnLabelButtons[0] as HTMLButtonElement);
 export const columnLabelCopyColumnMenuItem = new MenuItem(columnLabelButtons[1] as HTMLButtonElement);
@@ -125,9 +126,10 @@ export const columnLabelCountMenuItem = new MenuItem(columnLabelButtons[3] as HT
 export const columnLabelDistributionMenuItem = new MenuItem(columnLabelButtons[4] as HTMLButtonElement);
 
 export const tableDataButtons = tableDataContextMenu.children;
-export const tableDataCopyMenuItem = new MenuItem(tableDataButtons[0] as HTMLButtonElement);
-export const tableDataPasteMenuItem = new MenuItem(tableDataButtons[1] as HTMLButtonElement);
-export const tableDataInsertRowMenuItem = new MenuItem(tableDataButtons[2] as HTMLButtonElement);
+export const tableDataEditMenuItem = new MenuItem(tableDataButtons[0] as HTMLButtonElement);
+export const tableDataCopyMenuItem = new MenuItem(tableDataButtons[1] as HTMLButtonElement);
+export const tableDataPasteMenuItem = new MenuItem(tableDataButtons[2] as HTMLButtonElement);
+export const tableDataInsertRowMenuItem = new MenuItem(tableDataButtons[3] as HTMLButtonElement);
 
 /* set up alias and conflicts */
 columnLabelInsertRowMenuItem.addToAlias(tableDataInsertRowMenuItem);
