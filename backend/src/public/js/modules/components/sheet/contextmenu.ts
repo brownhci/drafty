@@ -1,4 +1,5 @@
 import { placeElementInViewport } from "./align";
+import { cellEditor } from "./cell-editor";
 import { copyTableCellElement, pasteToTableCellElement } from "./copy-paste";
 import { StatusMode, tableFoot } from "./table-foot";
 import { activeClass } from "../../constants/css-classes";
@@ -141,6 +142,9 @@ export function isContextMenuButton(element: HTMLElement) {
 tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
   const menuItem = MenuItem.find(event.target as HTMLElement);
   switch (menuItem.action) {
+    case "Edit":
+      cellEditor.activateForm(activeTableCellElement);
+      break;
     case "Copy":
       copyTableCellElement(activeTableCellElement);
       break;
