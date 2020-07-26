@@ -63,7 +63,10 @@ class TableFoot {
         case StatusMode.Insertion:
           this.insertionTableRow.classList.remove(activeClass);
           break;
-        case StatusMode.RowCount, StatusMode.CellCopy, StatusMode.ColumnCopy, StatusMode.CellEditorHelp:
+        case StatusMode.RowCount:
+        case StatusMode.CellCopy:
+        case StatusMode.ColumnCopy:
+        case StatusMode.CellEditorHelp:
           this.statusTableCell.textContent = "";
           break;
       }
