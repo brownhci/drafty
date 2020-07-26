@@ -57,6 +57,9 @@ class TableFoot {
         case StatusMode.Insertion:
           this.insertionTableRow.classList.remove(activeClass);
           break;
+        case StatusMode.RowCount:
+          this.statusTableCell.textContent = "";
+          break;
       }
 
       // handle switching to new status mode
@@ -76,6 +79,8 @@ class TableFoot {
   get isInserting(): boolean {
     return this.statusMode === StatusMode.Insertion;
   }
+
+  private timeout: number;
 
   constructor() {
     this.statusTableCell.colSpan = numTableColumns;
@@ -99,6 +104,24 @@ class TableFoot {
     } else {
       this.statusMode = mode;
     }
+  }
+
+  /**
+   * Set to a specified status for a certain period of time. After this period of time,
+   *    the status will be restored to `StatusMode.Idle` status.
+   *
+   * If after the status has updated and before the status is restored, another call to `setStatusTimeout`
+   *    happens, table footer will be set to the new status and its status will be restored after the
+   *    new timeout expires.
+   *
+   * @param {StatusMode} statusMode - A status mode to set to.
+   * @param {number} timeout - See the timeout argument in {@link Window.setTimeout}.
+   *    This defines how long the table footer will be in the specified status.
+   */
+  setStatusTimeout(statusMode: StatusMode, timeout: number) {
+    this.statusMode = statusMode;
+    window.clearTimeout(this.timeout);
+    this.timeout = window.setTimeout(() => this.statusMode = StatusMode.Idle, timeout);
   }
 }
 

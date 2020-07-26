@@ -8,10 +8,10 @@ import "./modules/components/sheet/column-search";
 import { columnSuggestions } from "./modules/components/sheet/column-suggestions";
 import { activateColumnLabelContextMenu, activateTableDataContextMenu, deactivateColumnLabelContextMenu, deactivateTableDataContextMenu } from "./modules/components/sheet/contextmenu";
 import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from "./modules/components/sheet/copy-paste";
-import { isInserting, isTableFootActive } from "./modules/components/sheet/table-foot";
+import { tableFoot } from "./modules/components/sheet/table-foot";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
-import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, getTableFootCell, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, isTableFootCell, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
+import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
 import { isInput, isTableData, isTableHead, isTableCell } from "./modules/dom/types";
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
@@ -47,19 +47,19 @@ function activateTableHead(shouldGetFocus=true) {
   if (isColumnLabel(activeTableCellElement)) {
     const columnSearch = getColumnSearch(index);
     columnSearch.classList.add(activeAccompanyClass);
-    if (isTableFootActive() && isInserting()) {
-      const tableFootCell = getTableFootCell(index);
+    if (tableFoot.isInserting) {
+      const tableFootCell = tableFoot.insertionTableRow.cells[index];
       tableFootCell.classList.add(activeAccompanyClass);
     }
   } else if (isColumnSearch(activeTableCellElement)) {
     const columnLabel = getColumnLabel(index);
     columnLabel.classList.add(activeAccompanyClass);
-    if (isTableFootActive() && isInserting()) {
-      const tableFootCell = getTableFootCell(index);
+    if (tableFoot.isInserting) {
+      const tableFootCell = tableFoot.insertionTableRow.cells[index];
       tableFootCell.classList.add(activeAccompanyClass);
     }
-  } else if (isTableFootCell(activeTableCellElement)) {
-    if (!isInserting()) {
+  } else if (activeTableCellElement.parentElement === tableFoot.insertionTableRow) {
+    if (!tableFoot.isInserting) {
       return;
     }
     const columnSearch = getColumnSearch(index);
@@ -99,7 +99,7 @@ function deactivateTableHead() {
   const index = activeTableCellElement.cellIndex;
   const columnLabel = getColumnLabel(index);
   const columnSearch = getColumnSearch(index);
-  const tableFootCell = getTableFootCell(index);
+  const tableFootCell = tableFoot.insertionTableRow.cells[index];
   columnLabel.classList.remove(activeClass);
   columnSearch.classList.remove(activeClass);
   columnLabel.classList.remove(activeAccompanyClass);
@@ -247,7 +247,7 @@ function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
 function tableCellElementOnUpKeyPressed(tableCellElement: HTMLTableCellElement) {
   let upElement = getUpTableCellElement(tableCellElement);
   if (!upElement) {
-    if (isTableFootCell(tableCellElement) && isTableFootActive() && isInserting()) {
+    if (tableFoot.isInserting) {
       // jump to table footer cell
       upElement = getColumnSearch(tableCellElement.cellIndex);
     }
@@ -257,11 +257,16 @@ function tableCellElementOnUpKeyPressed(tableCellElement: HTMLTableCellElement) 
 }
 
 function tableCellElementOnDownKeyPressed(tableCellElement: HTMLTableCellElement) {
+  if (tableCellElement.parentElement === tableFoot.insertionTableRow) {
+    // prevent moving down when `tableCellElement` belongs to `insertionTableRow` since next table row is `tableFoot.statusTableRow`
+    return;
+  }
+
   let downElement = getDownTableCellElement(tableCellElement);
   if (!downElement) {
-    if (isColumnSearch(tableCellElement) && isTableFootActive() && isInserting()) {
+    if (isColumnSearch(tableCellElement) && tableFoot.isInserting) {
       // jump to table footer cell
-      downElement = getTableFootCell(tableCellElement.cellIndex);
+      downElement = tableFoot.insertionTableRow.cells[tableCellElement.cellIndex];
     }
   }
 

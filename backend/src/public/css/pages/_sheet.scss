@@ -318,7 +318,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
           @include vendor-prefix(box-shadow, (inset $resize-shadow-width 0 0 0 $resize-color, inset (-$resize-shadow-width) 0 0 0 $resize-color), webkit ms);
         }
         &.column-label {
-          position: sticky;
+          @extend .position-sticky;
           top: 0;
         }
         &#resize-temporary-column {
@@ -328,7 +328,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
         &.column-search {
           @extend .border-bottom-0;
           @include vendor-prefix(box-shadow, $border-top-bottom, webkit ms);
-          position: sticky;
+          @extend .position-sticky;
           top: 3em;
           input {
             @extend .w-100;
@@ -372,28 +372,34 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
       }
     }
     tfoot {
-      @extend .d-none;
-      &.active {
-        display: table-footer-group !important;
-        tr {
-          @extend .thead-light;
+      tr:nth-child(1) { // insertion table row
+        @extend .thead-light;
+        @extend .d-none;
+        &.active {
+          display: table-row !important;
+        }
+        th {
+          @extend .position-sticky;
+          @include vendor-prefix(box-shadow, $border-top, webkit ms);
+          bottom: 49px;
+          input {
+            @extend .w-100;
+            @extend .form-control;
+          }
+        }
+      }
+
+      tr:nth-child(2) { // status table row
+        &.idle {
           th {
-            position: sticky;
-            bottom: 0;
-            @include vendor-prefix(box-shadow, $border-top, webkit ms);
+            @extend .d-none;
           }
-          &.summary {
-            th {
-              @extend .border-left-0;
-              @extend .border-right-0;
-            }
-          }
-          &.insert {
-            input {
-              @extend .w-100;
-              @extend .form-control;
-            }
-          }
+        }
+        th {
+          @extend .position-sticky;
+          @include vendor-prefix(box-shadow, $border-top, webkit ms);
+          height: 50px;
+          bottom: 0;
         }
       }
     }

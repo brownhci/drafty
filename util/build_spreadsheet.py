@@ -96,7 +96,7 @@ def build_table_foot_cell():
 
 
 def build_table_foot():
-    return f'<tfoot><tr>{"".join(build_table_foot_cell() for column_index in range(num_columns))}</tr></tfoot>'
+    return f'<tfoot><tr>{"".join(build_table_foot_cell() for column_index in range(num_columns))}</tr><tr><th scope="col" tabindex="-1"></th></tr></tfoot>'
 
 
 def build_placeholder_table(cursor):
