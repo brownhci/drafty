@@ -1,3 +1,6 @@
+import { isTableCell } from "./types";
+
+
 /* from child to parent */
 
 /**
@@ -8,6 +11,22 @@
  */
 export function getEnclosingTableRow(element: HTMLElement): HTMLTableRowElement {
   return element.closest("tr") as HTMLTableRowElement;
+}
+
+/**
+ * Find the table cell that encloses the specified element (including the element itself).
+ *
+ * @param {HTMLElement} element - An HTML Element that is the descendant of a table cell.
+ * @return {HTMLTableCellElement} An table cell element that is closest to current element in its ancestor tree.
+ */
+export function getEnclosingTableCell(element: HTMLElement): HTMLTableCellElement {
+  while (element) {
+    if (isTableCell(element)) {
+      return element as HTMLTableCellElement;
+    }
+    element = element.parentElement;
+  }
+  return null;
 }
 
 /* from parent to child */

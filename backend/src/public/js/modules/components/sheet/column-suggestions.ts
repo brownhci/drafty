@@ -6,13 +6,14 @@ import { alignElementHorizontally, placeElementAdjacently } from "./align";
 import { fetchSuggestions, Option } from "./suggestions";
 import { getIdSuggestion, getIdSuggestionType } from "../../api/record-interactions";
 import { activeClass } from "../../constants/css-classes";
-import { getCellInTableRow } from "../../dom/navigate";
+import { getCellInTableRow, getEnclosingTableCell } from "../../dom/navigate";
 import { getColumnLabel, tableElement } from "../../dom/sheet";
+import { isInput } from "../../dom/types";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 import { debounce } from "../../utils/debounce";
 import { measureTextWidth } from "../../utils/length";
 import { LocalStorageCache } from "../../utils/local-storage";
-import { tableDataManager } from "../../../sheet";
+import { tableDataManager, updateActiveTableCellElement } from "../../../sheet";
 
 
 const optionCache = new LocalStorageCache(5 * 60 * 1000);
@@ -58,10 +59,18 @@ class ColumnSuggestions {
     this.fuseSelect.mount(element => this.container.appendChild(element));
 
     tableElement.addEventListener("focus", (event: Event) => {
-      const target = event.target as HTMLInputElement;
+      const target = event.target as HTMLElement;
+
       if (this.isActive && target !== this.inputElement) {
         // another element receives focus
         this.deactivate();
+      }
+
+      if (isInput(target)) {
+        const tableCellElement = getEnclosingTableCell(target);
+        if (tableCellElement) {
+          updateActiveTableCellElement(tableCellElement, false);
+        }
       }
     }, true);
 
