@@ -409,6 +409,22 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
           height: 50px;
           bottom: 0;
         }
+
+        button#confirm-newrow, button#discard-newrow {
+          @extend .btn;
+          @extend .position-absolute;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+
+        button#confirm-newrow {
+          @extend .btn-success;
+          right: $table-cell-padding;
+        }
+        button#discard-newrow {
+          @extend .btn-danger;
+          left: $table-cell-padding;
+        }
       }
     }
   }

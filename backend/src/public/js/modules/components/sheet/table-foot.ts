@@ -1,5 +1,5 @@
 import { activeClass } from "../../constants/css-classes";
-import { numTableColumns, tableFootElement } from "../../dom/sheet";
+import { numTableColumns, tableElement, tableFootElement } from "../../dom/sheet";
 import { tableDataManager } from ".././../../sheet";
 
 
@@ -24,6 +24,9 @@ export enum StatusMode {
 class TableFoot {
   /** insertion table row is used to insert a new table row */
   insertionTableRow = tableFootElement.firstElementChild as HTMLTableRowElement;
+
+  private insertionInputs: HTMLCollection = this.insertionTableRow.getElementsByTagName("input");
+
   /**
    * status table row is either
    *    1. report summary related to entire table like row count
@@ -62,6 +65,8 @@ class TableFoot {
       switch (this.statusMode) {
         case StatusMode.Insertion:
           this.insertionTableRow.classList.remove(activeClass);
+          this.insertionConfirmButton.remove();
+          this.insertionDiscardButton.remove();
           break;
         case StatusMode.RowCount:
         case StatusMode.CellCopy:
@@ -75,6 +80,8 @@ class TableFoot {
       switch (mode) {
         case StatusMode.Insertion:
           this.insertionTableRow.classList.add(activeClass);
+          this.statusTableCell.appendChild(this.insertionDiscardButton);
+          this.statusTableCell.appendChild(this.insertionConfirmButton);
           break;
         case StatusMode.RowCount:
           this.updateRowCount();
@@ -100,14 +107,44 @@ class TableFoot {
 
   private timeout: number;
 
+  /** show in the status table row, used for confirming inserting the new row */
+  private insertionConfirmButton: HTMLButtonElement = document.createElement("button");
+  /** show in the status table row, used for discarding the data inputted for the new row */
+  private insertionDiscardButton: HTMLButtonElement = document.createElement("button");
+
   constructor() {
     this.statusTableCell.colSpan = numTableColumns;
     // Idle is the initial mode, supplement its class
     this.statusTableRow.classList.add(StatusMode.Idle);
+
+    // button initialization
+    this.insertionConfirmButton.type = "button";
+    this.insertionConfirmButton.id = "confirm-newrow";
+    this.insertionConfirmButton.textContent = "Confirm";
+    this.insertionDiscardButton.type = "button";
+    this.insertionDiscardButton.id = "discard-newrow";
+    this.insertionDiscardButton.textContent = "Discard";
+
+    tableElement.addEventListener("click", (event: MouseEvent) => {
+      const target: HTMLElement = event.target as HTMLElement;
+      if (this.isInserting) {
+        if (target === this.insertionDiscardButton) {
+          this.discardInputValues();
+        } else if (target === this.insertionConfirmButton) {
+          // TODO confirm
+        }
+      }
+    }, true);
   }
 
   private updateRowCount() {
     this.statusTableCell.textContent = `Count: ${tableDataManager.rowCount}`;
+  }
+
+  private discardInputValues() {
+    for (const inputElement of this.insertionInputs) {
+      (inputElement as HTMLInputElement).value = "";
+    }
   }
 
   /**
@@ -137,6 +174,11 @@ class TableFoot {
    *    This defines how long the table footer will be in the specified status.
    */
   setStatusTimeout(statusMode: StatusMode, timeout: number) {
+    if (this.isInserting) {
+      // disable status update when inserting a new row
+      return;
+    }
+
     this.statusMode = statusMode;
     window.clearTimeout(this.timeout);
     this.timeout = window.setTimeout(() => this.statusMode = StatusMode.Idle, timeout);
