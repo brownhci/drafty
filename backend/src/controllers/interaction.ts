@@ -5,7 +5,13 @@ import { insertClick, insertDoubleClick, insertCopyCell, insertCopyColumn, inser
  * POST /new-row
  * Add new row
  *
- * @param {Array<string>} req.body.rowValues
+ * @param {Record<number, string>} req.body.rowValues - A mapping from idSuggestionType to its value
+ * @return {Record<number | string, number>}
+ *
+ *    {
+ *        "idUniqueID": <idUniqueID>,
+ *        <idSuggestionType>: <idSuggestion>
+ *    }
  */
 export const postNewRow = (req: Request, res: Response, next: NextFunction) => {
   // check for errors
