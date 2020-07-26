@@ -1,6 +1,6 @@
 import { placeElementInViewport } from "./align";
 import { copyTableCellElement, pasteToTableCellElement } from "./copy-paste";
-import { toggleInsertion, toggleRowCount } from "./table-foot";
+import { StatusMode, tableFoot } from "./table-foot";
 import { activeClass } from "../../constants/css-classes";
 import { isButton } from "../../dom/types";
 import { activeTableCellElement, activateTableCol } from "../../../sheet";
@@ -149,7 +149,7 @@ tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
       break;
     case "Insert row":
       menuItem.toggle();
-      toggleInsertion();
+      tableFoot.toggle(StatusMode.Insertion);
       break;
   }
   deactivateTableDataContextMenu();
@@ -166,11 +166,11 @@ columnLabelContextMenu.addEventListener("click", function(event: MouseEvent) {
       break;
     case "Insert row":
       menuItem.toggle();
-      toggleInsertion();
+      tableFoot.toggle(StatusMode.Insertion);
       break;
     case "Count":
       menuItem.toggle();
-      toggleRowCount();
+      tableFoot.toggle(StatusMode.RowCount);
       break;
     case "Distribution":
       break;

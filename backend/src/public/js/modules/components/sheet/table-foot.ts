@@ -1,102 +1,105 @@
 import { activeClass } from "../../constants/css-classes";
-import { numTableColumns, tableFootElement, tableFootRow } from "../../dom/sheet";
-import { isInput } from "../../dom/types";
+import { numTableColumns, tableFootElement } from "../../dom/sheet";
 import { tableDataManager } from ".././../../sheet";
 
 
-const summaryClass = "summary";
-const insertClass = "insert";
-const summaryCell = (tableFootRow.firstElementChild as HTMLTableCellElement);
-function activateTableFoot() {
-  tableFootElement.classList.add(activeClass);
-}
-export function deactivateTableFoot() {
-  tableFootElement.classList.remove(activeClass);
-  tableFootRow.classList.remove(summaryClass);
-  tableFootRow.classList.remove(insertClass);
-}
-
-export function isTableFootActive(): boolean {
-  return  tableFootElement.classList.contains(activeClass);
-}
-export function isInserting(): boolean {
-  return tableFootRow.classList.contains(insertClass);
-}
-function activateForInsertion() {
-  summaryCell.colSpan = 1;
-  summaryCell.textContent = "";
-  deactivateTableFoot();
-
-  activateTableFoot();
-  tableFootRow.classList.add(insertClass);
-  // transform to `numTableColumns` <td> each containing an input
-  if (!isInput(summaryCell.firstElementChild as HTMLElement)) {
-    const inputElement = document.createElement("input");
-    inputElement.type = "text";
-    summaryCell.appendChild(inputElement);
-  }
-  const numCells = tableFootRow.cells.length;
-  for (let cellIndex = numCells; cellIndex < numTableColumns; cellIndex++) {
-    tableFootRow.appendChild(summaryCell.cloneNode(true));
-  }
-}
-export function toggleInsertion() {
-  if (isInserting()) {
-    deactivateTableFoot();
-  } else {
-    activateForInsertion();
-  }
+/**
+ * Describes what `statusTableRow` is used for
+ */
+export enum StatusMode {
+  /** `statusTableRow` is used for assisting `insertionTableRow` */
+  Insertion = "insertion",
+  /** `statusTableRow` is used for reporting row count */
+  RowCount = "rowcount",
+  /** `statusTableRow` is not used for anything */
+  Idle = "idle"
 }
 
-/* report summary in table foot */
-export function isReportingSummary(): boolean {
-    return tableFootRow.classList.contains(summaryClass);
-}
-function updateRowCount() {
-  summaryCell.textContent = `Count: ${tableDataManager.rowCount}`;
-}
-let firstTimeReportSummary: boolean = true;
-function autoupdateSummary() {
-  if (firstTimeReportSummary) {
-    firstTimeReportSummary = false;
-    tableDataManager.afterScrollUpdateTaskQueue.tasks.push({
-      work: () => {
-        // update count if necessary
-        if (isTableFootActive() && isReportingSummary()) {
-          updateRowCount();
-        }
-      },
-      isRecurring: true
-    });
+class TableFoot {
+  /** insertion table row is used to insert a new table row */
+  insertionTableRow = tableFootElement.firstElementChild as HTMLTableRowElement;
+  /**
+   * status table row is either
+   *    1. report summary related to entire table like row count
+   *    2. show Confirm and Cancel buttons for table row insertion
+   */
+  statusTableRow = tableFootElement.lastElementChild as HTMLTableRowElement;
+  private statusTableCell: HTMLTableCellElement = this.statusTableRow.cells[0];
+  private _statusMode: StatusMode = StatusMode.Idle;
+  private firstTime: boolean = true;
+  get statusMode(): StatusMode {
+    return this._statusMode;
   }
-}
-function activateForSummary() {
-  if (isInserting()) {
-    // clear children of first <td>
-    while (summaryCell.firstElementChild) {
-      summaryCell.lastElementChild.remove();
+  set statusMode(mode: StatusMode) {
+    if (this.firstTime) {
+      this.firstTime = false;
+      tableDataManager.afterScrollUpdateTaskQueue.tasks.push({
+        work: () => {
+          switch (this.statusMode) {
+            case StatusMode.RowCount:
+              this.updateRowCount();
+              break;
+          }
+        },
+        isRecurring: true
+      });
     }
-    deactivateTableFoot();
+
+    if (mode !== this.statusMode) {
+      // set to a different status mode
+
+      // switching class associated with `this.statusTableRow`
+      this.statusTableRow.classList.remove(this.statusMode);
+      this.statusTableRow.classList.add(mode);
+
+      // handle switching from previous status mode
+      switch (this.statusMode) {
+        case StatusMode.Insertion:
+          this.insertionTableRow.classList.remove(activeClass);
+          break;
+      }
+
+      // handle switching to new status mode
+      switch (mode) {
+        case StatusMode.Insertion:
+          this.insertionTableRow.classList.add(activeClass);
+          break;
+        case StatusMode.RowCount:
+          this.updateRowCount();
+          break;
+      }
+    }
+
+    this._statusMode = mode;
   }
 
-  activateTableFoot();
-  autoupdateSummary();
-  tableFootRow.classList.add(summaryClass);
-  // transform to a single <td> that spans over all columns
-
-  summaryCell.colSpan = numTableColumns;
-  const numCells = tableFootRow.cells.length;
-  for (let cellIndex = 1; cellIndex < numCells; cellIndex++) {
-    tableFootRow.lastElementChild.remove();
+  get isInserting(): boolean {
+    return this.statusMode === StatusMode.Insertion;
   }
 
-  updateRowCount();
+  constructor() {
+    this.statusTableCell.colSpan = numTableColumns;
+    // Idle is the initial mode, supplement its class
+    this.statusTableRow.classList.add(StatusMode.Idle);
+  }
+
+  private updateRowCount() {
+    this.statusTableCell.textContent = `Count: ${tableDataManager.rowCount}`;
+  }
+
+  /**
+   * If the table foot is at specified mode, set its mode to `StatusMode.Idle`.
+   * Otherwise, set to specified mode.
+   *
+   * @param {StatusMode} mode - A usage mode to be toggled.
+   */
+  toggle(mode: StatusMode) {
+    if (this.statusMode === mode) {
+      this.statusMode = StatusMode.Idle;
+    } else {
+      this.statusMode = mode;
+    }
+  }
 }
 
-export function toggleRowCount() {
-  if (isReportingSummary()) {
-    deactivateTableFoot();
-  } else {
-    activateForSummary();
-  }
-}
+export const tableFoot = new TableFoot();
