@@ -124,7 +124,7 @@ export function recordColumnSearch(columnSearch: HTMLTableCellElement, isFullSea
   const columnIndex: number = columnSearch.cellIndex;
   const columnLabel: HTMLTableCellElement = getColumnLabel(columnIndex);
   const columnSearchInput: HTMLInputElement = getColumnSearchInput(columnSearch);
-  const matchedValues = [...new Set(getTableCellTextsInColumn(columnIndex, true, true))].join("|");
+  const matchedValues = Array.from(new Set(getTableCellTextsInColumn(columnIndex, true, true))).join("|");
   /*
     const idSuggestionType: number|string
     const isMulti: number

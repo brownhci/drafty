@@ -4,10 +4,12 @@ import { insertClick, insertDoubleClick, insertCopyCell, insertCopyColumn, inser
 /**
  * POST /new-row
  * Add new row
+ *
+ * @param {Array<string>} req.body.rowValues
  */
 export const postNewRow = (req: Request, res: Response, next: NextFunction) => {
   // check for errors
-  // TODO
+  const rowvalues = req.body.rowValues;
   try {
     return res.sendStatus(200);
   } catch (error) {
@@ -26,7 +28,7 @@ export const postClick = (req: Request, res: Response, next: NextFunction) => {
   const idSession = req.session.user.idSession;
   const idSuggestion = req.body.idSuggestion;
   const rowvalues = req.body.rowValues;
-  try {  
+  try {
     insertClick(idSession, idSuggestion, rowvalues);
   return res.sendStatus(200);
   } catch (error) {
@@ -165,7 +167,7 @@ export const postCopyCell = (req: Request, res: Response, next: NextFunction) =>
 export const postCopyColumn = (req: Request, res: Response, next: NextFunction) => {
   const idSession = req.session.user.idSession;
   const idSuggestionType: number|string = req.body.idSuggestionType;
-  
+
   try {
     insertCopyColumn(idSession,idSuggestionType);
   return res.sendStatus(200);

@@ -91,12 +91,17 @@ def build_table_head(cursor):
     return f'<thead>{build_column_labels_row(cursor)}{build_column_search_row()}</thead>\n'
 
 
-def build_table_foot_cell():
-    return '<th scope="col" tabindex="-1"><input type="text"></th>'
+# make FullName (index 0) and University (index 1) required fields for new row insertion
+required_column_indices = {0, 1}
+
+
+def build_table_foot_cell(column_index):
+    required_str = " required" if column_index in required_column_indices else ""
+    return f'<th scope="col" tabindex="-1"><input type="text"{required_str}></th>'
 
 
 def build_table_foot():
-    return f'<tfoot><tr>{"".join(build_table_foot_cell() for column_index in range(num_columns))}</tr><tr><th scope="col" tabindex="-1"></th></tr></tfoot>'
+    return f'<tfoot><tr>{"".join(build_table_foot_cell(column_index) for column_index in range(num_columns))}</tr><tr><th scope="col" tabindex="-1"></th></tr></tfoot>'
 
 
 def build_placeholder_table(cursor):

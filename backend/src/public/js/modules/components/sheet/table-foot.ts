@@ -193,7 +193,7 @@ class TableFoot {
     const inputValue = inputElement.value;
     const columnLabel = getColumnLabel(columnIndex);
     const isInputRequired = this.isRequiredInput(inputElement);
-    if (isInputRequired && inputValue !== "") {
+    if (isInputRequired && inputValue === "") {
       // this input must be filled, but it is left unfilled
       this.reportInvalidInput(inputElement, "This field is required");
       return false;
