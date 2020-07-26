@@ -15,6 +15,8 @@ export enum StatusMode {
   CellCopy = "cellcopy",
   /** `statusTableRow` is used for reporting column copy */
   ColumnCopy = "columncopy",
+  /** `statusTableRow` is used for showing help related to cell editor */
+  CellEditorHelp = "celleditor-help",
   /** `statusTableRow` is not used for anything */
   Idle = "idle"
 }
@@ -61,7 +63,7 @@ class TableFoot {
         case StatusMode.Insertion:
           this.insertionTableRow.classList.remove(activeClass);
           break;
-        case StatusMode.RowCount, StatusMode.CellCopy, StatusMode.ColumnCopy:
+        case StatusMode.RowCount, StatusMode.CellCopy, StatusMode.ColumnCopy, StatusMode.CellEditorHelp:
           this.statusTableCell.textContent = "";
           break;
       }
@@ -79,6 +81,9 @@ class TableFoot {
           break;
         case StatusMode.ColumnCopy:
           this.statusTableCell.textContent = "A column copied";
+          break;
+        case StatusMode.CellEditorHelp:
+          this.statusTableCell.innerHTML = "Press <kbd>Enter</kbd> to save edit, <kbd>ESC</kbd> to discard edit";
           break;
       }
     }

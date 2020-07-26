@@ -4,6 +4,7 @@
  * Input editor are a floating window that offers user the ability to edit table cell.
  */
 
+import { StatusMode, tableFoot } from "./table-foot";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 import { initializeFuseSelect, updateFuseSelect } from "./suggestions";
 import { alignElementHorizontally } from "./align";
@@ -77,6 +78,8 @@ class CellEditor {
    * A flag used to signal the cell editor is being moved.
    */
   isRepositioning: boolean = false;
+
+  numTimesHelpWasShown: number = 0;
 
   constructor() {
     this.initializeEventListeners();
@@ -296,6 +299,30 @@ class CellEditor {
       this.updateLocateCell();
       this.resizeFormToFitText(this.fuseSelect.longestText, 88);
       this.alignTableCellInputForm();
+      this.showHelpWhenInactivityReached();
+    }
+  }
+
+  /**
+   * If the cell editor is open while no activity taken for some period of time, show help tip.
+   *
+   * Inactivity criterion:
+   *    + `this.cellElement` does not change
+   *    + `this.formInput` does not change
+   */
+  private showHelpWhenInactivityReached() {
+    if (this.isActive && this.numTimesHelpWasShown < 5) {
+      const cellElement = this.cellElement;
+      const formInput = this.formInput;
+      window.setTimeout(() => {
+        if (this.isActive && this.cellElement === cellElement && this.formInput === formInput) {
+          // inactivity
+          tableFoot.setStatusTimeout(StatusMode.CellEditorHelp, 5000);
+          this.numTimesHelpWasShown++;
+        } else {
+          this.showHelpWhenInactivityReached();
+        }
+      }, (5 + this.numTimesHelpWasShown * 3) * 1000);
     }
   }
 
