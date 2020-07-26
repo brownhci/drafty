@@ -149,6 +149,7 @@ app.get("/data/edithistory", dataSharingCtrl.getEditHistory);
 app.get("/data/csv/:name", dataSharingCtrl.getCSV);
 
 // interactions
+app.post("/newrow", interactionCtrl.postNewRow);
 app.post("/click", interactionCtrl.postClick);
 app.post("/click-double", interactionCtrl.postClickDouble);
 app.post("/sort", interactionCtrl.postSort);

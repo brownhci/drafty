@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from "../dom/navigate";
 import { isTableData } from "../dom/types";
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from "../dom/sheet";
-import { postCellClickURL, postCellDoubleClickURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL } from "./endpoints";
+import { postCellClickURL, postCellDoubleClickURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL } from "./endpoints";
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector("input[name='_csrf']");
 
@@ -30,7 +30,7 @@ export function getIdSearchType(): number {
 /**
  * This corresponds to the `multiSearchValues` field in database which is represented as
  * idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
- * where two pipes `||` separates diffrent column search and `|` separates information about a column search
+ * where two pipes `||` separates different column search and `|` separates information about a column search
  */
 function getSearchValues(): string {
   const searchValues = [];
@@ -84,6 +84,10 @@ export function recordCellClick(tableCellElement: HTMLTableCellElement) {
     const idSuggestion = getIdSuggestion(tableCellElement);
     recordInteraction(postCellClickURL(), {idSuggestion, rowValues});
   }
+}
+
+export function recordRowInsertion(rowValues: Array<string>) {
+  recordInteraction(postNewRowURL(), { rowValues });
 }
 
 export function recordCellDoubleClick(tableCellElement: HTMLTableCellElement) {

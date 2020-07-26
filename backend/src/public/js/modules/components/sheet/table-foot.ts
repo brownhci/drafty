@@ -1,4 +1,5 @@
 import { activeClass } from "../../constants/css-classes";
+import { recordRowInsertion } from "../../api/record-interactions";
 import { numTableColumns, tableElement, tableFootElement } from "../../dom/sheet";
 import { tableDataManager } from ".././../../sheet";
 
@@ -25,7 +26,7 @@ class TableFoot {
   /** insertion table row is used to insert a new table row */
   insertionTableRow = tableFootElement.firstElementChild as HTMLTableRowElement;
 
-  private insertionInputs: HTMLCollection = this.insertionTableRow.getElementsByTagName("input");
+  private insertionInputs: Array<HTMLInputElement> = Array.from(this.insertionTableRow.getElementsByTagName("input"));
 
   /**
    * status table row is either
@@ -120,7 +121,7 @@ class TableFoot {
     // button initialization
     this.insertionConfirmButton.type = "button";
     this.insertionConfirmButton.id = "confirm-newrow";
-    this.insertionConfirmButton.textContent = "Confirm";
+    this.insertionConfirmButton.textContent = "Insert Row";
     this.insertionDiscardButton.type = "button";
     this.insertionDiscardButton.id = "discard-newrow";
     this.insertionDiscardButton.textContent = "Discard";
@@ -131,7 +132,7 @@ class TableFoot {
         if (target === this.insertionDiscardButton) {
           this.discardInputValues();
         } else if (target === this.insertionConfirmButton) {
-          // TODO confirm
+          recordRowInsertion(this.getInputValues());
         }
       }
     }, true);
@@ -141,9 +142,13 @@ class TableFoot {
     this.statusTableCell.textContent = `Count: ${tableDataManager.rowCount}`;
   }
 
+  private getInputValues(): Array<string> {
+    return this.insertionInputs.map(inputElement => inputElement.value);
+  }
+
   private discardInputValues() {
     for (const inputElement of this.insertionInputs) {
-      (inputElement as HTMLInputElement).value = "";
+      inputElement.value = "";
     }
   }
 

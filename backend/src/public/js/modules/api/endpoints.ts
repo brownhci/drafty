@@ -20,7 +20,9 @@ export function getEditSuggestionURL(idSuggestion: number) {
 
 
 // interactions
-
+export function postNewRowURL() {
+  return "/newrow";
+}
 
 export function postCellClickURL() {
   return "/click";
