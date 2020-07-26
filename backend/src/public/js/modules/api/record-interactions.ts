@@ -86,8 +86,8 @@ export function recordCellClick(tableCellElement: HTMLTableCellElement) {
   }
 }
 
-export function recordRowInsertion(rowValues: Array<string>) {
-  recordInteraction(postNewRowURL(), { rowValues });
+export function recordRowInsertion(rowValues: Array<string>, successHandler: (response: Response) => void = () => undefined) {
+  recordInteraction(postNewRowURL(), { rowValues }, successHandler);
 }
 
 export function recordCellDoubleClick(tableCellElement: HTMLTableCellElement) {

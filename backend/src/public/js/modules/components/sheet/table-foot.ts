@@ -12,6 +12,8 @@ import { tableDataManager } from ".././../../sheet";
 export enum StatusMode {
   /** `statusTableRow` is used for assisting `insertionTableRow` */
   Insertion = "insertion",
+  /** `statusTableRow` is used for reporting a new row has been inserted */
+  InsertionSuccess = "insertion-success",
   /** `statusTableRow` is used for reporting row count */
   RowCount = "rowcount",
   /** `statusTableRow` is used for reporting cell copy */
@@ -76,6 +78,7 @@ class TableFoot {
           this.insertionDiscardButton.remove();
           this.statusTableCell.textContent = "";
           break;
+        case StatusMode.InsertionSuccess:
         case StatusMode.RowCount:
         case StatusMode.CellCopy:
         case StatusMode.ColumnCopy:
@@ -100,6 +103,9 @@ class TableFoot {
           break;
         case StatusMode.ColumnCopy:
           this.statusTableCell.textContent = "A column copied";
+          break;
+        case StatusMode.InsertionSuccess:
+          this.statusTableCell.textContent = "A new row has been inserted";
           break;
         case StatusMode.CellEditorHelp:
           this.statusTableCell.innerHTML = "Press <kbd>Enter</kbd> to save edit, <kbd>ESC</kbd> to discard edit";
@@ -141,7 +147,7 @@ class TableFoot {
           this.discardInputValues();
         } else if (target === this.insertionConfirmButton) {
           if (this.isValidInsertion) {
-            recordRowInsertion(this.getInputValues());
+            recordRowInsertion(this.getInputValues(), () => this.setStatusTimeout(StatusMode.InsertionSuccess, 1000));
           }
         }
       }
@@ -238,8 +244,8 @@ class TableFoot {
    *    This defines how long the table footer will be in the specified status.
    */
   setStatusTimeout(statusMode: StatusMode, timeout: number) {
-    if (this.isInserting) {
-      // disable status update when inserting a new row
+    if (this.isInserting && statusMode !== StatusMode.InsertionSuccess) {
+      // disable status update when inserting a new row unless for reporting insertion success
       return;
     }
 

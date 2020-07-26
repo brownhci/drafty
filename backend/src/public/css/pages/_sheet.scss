@@ -395,7 +395,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
             @extend .d-none;
           }
         }
-        &.cellcopy, &.columncopy, &.celleditor-help {
+        &.cellcopy, &.columncopy, &.celleditor-help, &.insertion-success {
           th {
             @extend .text-center;
             @extend .text-info;
