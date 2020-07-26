@@ -1,6 +1,8 @@
-import { activeClass } from "../../constants/css-classes";
+import { columnSuggestions } from "./column-suggestions";
+import { activeClass, disabledClass, invalidClass } from "../../constants/css-classes";
 import { recordRowInsertion } from "../../api/record-interactions";
-import { numTableColumns, tableElement, tableFootElement } from "../../dom/sheet";
+import { getColumnLabel, isColumnAutocompleteOnly, numTableColumns, tableElement, tableFootElement } from "../../dom/sheet";
+import { isInput } from "../../dom/types";
 import { tableDataManager } from ".././../../sheet";
 
 
@@ -27,6 +29,10 @@ class TableFoot {
   insertionTableRow = tableFootElement.firstElementChild as HTMLTableRowElement;
 
   private insertionInputs: Array<HTMLInputElement> = Array.from(this.insertionTableRow.getElementsByTagName("input"));
+
+  private get isValidInsertion(): boolean {
+    return !this.insertionTableRow.querySelector(`.${invalidClass}`);
+  }
 
   /**
    * status table row is either
@@ -68,6 +74,7 @@ class TableFoot {
           this.insertionTableRow.classList.remove(activeClass);
           this.insertionConfirmButton.remove();
           this.insertionDiscardButton.remove();
+          this.statusTableCell.textContent = "";
           break;
         case StatusMode.RowCount:
         case StatusMode.CellCopy:
@@ -83,6 +90,7 @@ class TableFoot {
           this.insertionTableRow.classList.add(activeClass);
           this.statusTableCell.appendChild(this.insertionDiscardButton);
           this.statusTableCell.appendChild(this.insertionConfirmButton);
+          this.insertionInputs.forEach((inputElement, columnIndex) => this.verifyInputValue(columnIndex));
           break;
         case StatusMode.RowCount:
           this.updateRowCount();
@@ -132,7 +140,19 @@ class TableFoot {
         if (target === this.insertionDiscardButton) {
           this.discardInputValues();
         } else if (target === this.insertionConfirmButton) {
-          recordRowInsertion(this.getInputValues());
+          if (this.isValidInsertion) {
+            recordRowInsertion(this.getInputValues());
+          }
+        }
+      }
+    }, true);
+
+    tableElement.addEventListener("blur", (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (isInput(target) && this.isInserting) {
+        const columnIndex = this.insertionInputs.indexOf(target as HTMLInputElement);
+        if (columnIndex >= 0) {
+          this.verifyInputValue(columnIndex);
         }
       }
     }, true);
@@ -147,9 +167,48 @@ class TableFoot {
   }
 
   private discardInputValues() {
-    for (const inputElement of this.insertionInputs) {
-      inputElement.value = "";
+    for (let columnIndex = 0; columnIndex < this.insertionInputs.length; columnIndex++) {
+      this.insertionInputs[columnIndex].value = "";
+      this.verifyInputValue(columnIndex);
     }
+  }
+
+  private isRequiredInput(inputElement: HTMLInputElement): boolean {
+    return inputElement.required;
+  }
+
+  private reportInvalidInput(inputElement: HTMLInputElement, reason: string) {
+    inputElement.classList.add(invalidClass);
+    this.insertionConfirmButton.classList.add(disabledClass);
+  }
+
+  private async verifyInputValue(columnIndex: number): Promise<boolean> {
+    const inputElement = this.insertionInputs[columnIndex];
+    const inputValue = inputElement.value;
+    const columnLabel = getColumnLabel(columnIndex);
+    const isInputRequired = this.isRequiredInput(inputElement);
+    if (isInputRequired && inputValue !== "") {
+      // this input must be filled, but it is left unfilled
+      this.reportInvalidInput(inputElement, "This field is required");
+      return false;
+    }
+
+    if (isColumnAutocompleteOnly(columnLabel)) {
+      if (!isInputRequired && inputValue === "") {
+        // empty input is accepted no non-required autocomplete-only input
+      } else if (!await columnSuggestions.hasSuggestion(inputValue, columnIndex, inputElement)) {
+        // this input's value should come from suggestion
+        this.reportInvalidInput(inputElement, "Value must from Completions");
+        return false;
+      }
+    }
+
+    inputElement.classList.remove(invalidClass);
+    if (this.isValidInsertion) {
+      // every input has passed verification
+      this.insertionConfirmButton.classList.remove(disabledClass);
+    }
+    return true;
   }
 
   /**

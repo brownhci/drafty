@@ -130,6 +130,34 @@ class ColumnSuggestions {
     alignElementHorizontally(this.container, targetDimensions);
     placeElementAdjacently(this.container, targetDimensions);
   }
+
+  /**
+   * Checks whether a provided suggestion is one of the column suggestions for the specified column.
+   *
+   * @param {string} suggestion - The suggestion to test.
+   * @param {number} columnIndex - The index of the column whose suggestions are tested.
+   * @param {HTMLInputElement} [inputElement] - If the provided suggestion comes from a <input> element, provides the input so that if the current column suggestions window is attached to the specified input, the test can be shortened to simply searching the suggestion in `this.fuseSelect`.
+   */
+  async hasSuggestion(suggestion: string, columnIndex: number, inputElement?: HTMLInputElement): Promise<boolean> {
+    if (inputElement && this.inputElement === inputElement) {
+      return this.fuseSelect.hasSuggestion(suggestion);
+    }
+
+    const columnLabel = getColumnLabel(columnIndex);
+    const idSuggestionTypeString = getIdSuggestionType(columnLabel).toString();
+    const options = optionCache.retrieve(optionCacheKeyFunction(idSuggestionTypeString)) as Array<Option>;
+    if (options) {
+      return options.some(option => option.suggestion === suggestion);
+    } else {
+      const row = tableDataManager.source[0].element_ as HTMLTableRowElement;
+      const idSuggestion = getIdSuggestion(getCellInTableRow(row, columnIndex));
+      return fetchSuggestions(idSuggestion).then(suggestions => {
+        const options = this.parseSuggestions(suggestions);
+        optionCache.store(optionCacheKeyFunction(idSuggestionTypeString), options);
+        return options.some(option => option.suggestion === suggestion);
+      });
+    }
+  }
 }
 
 export const columnSuggestions = new ColumnSuggestions();

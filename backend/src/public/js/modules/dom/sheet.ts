@@ -97,6 +97,11 @@ export function isColumnSearchFilled(columnSearch: HTMLTableCellElement): boolea
   }
   return getColumnSearchInput(columnSearch).value !== "";
 }
+/**
+ * Check whether new cell value for this column is restricted to column suggestions. In other words, whether user custom value is prohibited.
+ *
+ * @param {HTMLTableCellElement} columnLabel - The column label of the column to check.
+ */
 export function isColumnAutocompleteOnly(columnLabel: HTMLTableCellElement) {
   return columnLabel.dataset.autocompleteOnly === "true";
 }

@@ -1,4 +1,5 @@
 export const activeClass = "active";
+export const disabledClass = "disabled";
 export const activeAccompanyClass = "active-accompany";
 export const invalidClass = "is-invalid";
 export const clickClass = "clicked";
@@ -16,7 +17,6 @@ export const optionTextClass = "fuse-select-option-text";
 
 
 // sheet
-
 
 export const columnLabelClass = "column-label";
 export const columnLabelTextClass = "column-label-text";
