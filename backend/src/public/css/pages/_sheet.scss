@@ -318,6 +318,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
           @include vendor-prefix(box-shadow, (inset $resize-shadow-width 0 0 0 $resize-color, inset (-$resize-shadow-width) 0 0 0 $resize-color), webkit ms);
         }
         &.column-label {
+          // patch for Chrome
           @extend .position-sticky;
           top: 0;
         }
@@ -328,6 +329,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
         &.column-search {
           @extend .border-bottom-0;
           @include vendor-prefix(box-shadow, $border-top-bottom, webkit ms);
+          // patch for Chrome
           @extend .position-sticky;
           top: 3em;
           input {
@@ -384,6 +386,8 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
       }
     }
     tfoot {
+      @extend .position-sticky;
+      bottom: 0;
       tr:nth-child(1) { // insertion table row
         @extend .thead-light;
         @extend .d-none;
@@ -391,6 +395,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
           display: table-row !important;
         }
         th {
+          // patch for Chrome
           @extend .position-sticky;
           @include vendor-prefix(box-shadow, $border-top, webkit ms);
           bottom: 49px;
@@ -450,6 +455,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
         }
         th {
           @extend .text-center;
+          // patch for Chrome
           @extend .position-sticky;
           @include vendor-prefix(box-shadow, $border-top, webkit ms);
           height: 50px;

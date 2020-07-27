@@ -38,7 +38,7 @@ class MenuItem {
   readonly conflicts: Set<MenuItem> = new Set();
 
   get action(): string {
-    return this.item.innerText;
+    return this.item.innerText.trim();
   }
 
   constructor(item: HTMLButtonElement, alias: Iterable<MenuItem> = [], conflicts: Iterable<MenuItem> = []) {
