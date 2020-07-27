@@ -346,6 +346,18 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
           @include vendor-prefix(box-shadow, inset 0 0 0 $shadow-width $primary, webkit ms);
         }
 
+        &.insertion {
+          background-color: rgba($success, 0.1);
+          &::after {
+            @extend .font-awesome;
+            @extend .text-success;
+            @extend .float-right;
+          }
+          &:hover::after {
+            content: "\f4ff";
+          }
+        }
+
         &.pasted {
           background-color: rgba($primary, 0.1);
           &::after {

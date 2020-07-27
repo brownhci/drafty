@@ -307,9 +307,11 @@ class TableFoot {
 
   private prepareNewRow(idUniqueID: number, idSuggestions: Array<number>, cellValues: Array<string>): HTMLTableRowElement {
     if (!this.newRowTemplate) {
-      this.newRowTemplate = tableDataManager.source[0].element_ as HTMLTableRowElement;
+      this.newRowTemplate = tableDataManager.source[0].element_.cloneNode(true) as HTMLTableRowElement;
       delete this.newRowTemplate.dataset[ViewModel.identifierDatasetName_];
-      this.newRowTemplate.classList.add(StatusMode.Insertion);
+      for (const cellElement of this.newRowTemplate.cells) {
+        cellElement.classList.add(StatusMode.Insertion);
+      }
     }
 
     const row = this.newRowTemplate.cloneNode(true) as HTMLTableRowElement;
