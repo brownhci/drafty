@@ -407,7 +407,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
             @extend .d-none;
           }
         }
-        &.cellcopy, &.columncopy, &.celleditor-help, &.insertion-success, &.insertion-verification {
+        &.cellcopy, &.columncopy, &.celleditor-help, &.insertion-verification {
           th {
             @extend .font-size-large;
             @extend .bg-white;
@@ -418,15 +418,19 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
             @extend .text-info;
           }
         }
+        &.insertion-success, &.insertion-failure {
+          th {
+            @extend .font-size-large;
+            @extend .text-white;
+          }
+        }
         &.insertion-success {
           th {
-            @extend .text-success;
+            @extend .bg-success;
           }
         }
         &.insertion-failure {
           th {
-            @extend .font-size-large;
-            @extend .text-white;
             @extend .bg-danger;
           }
         }
