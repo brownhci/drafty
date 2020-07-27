@@ -47,7 +47,18 @@ function getSearchValues(): string {
 }
 
 // Record Interaction
-function recordInteraction(url: string, data: Record<string, any>, responseHandler: (response: Response) => void = () => undefined) {
+type ResponseHandler = (response: Response) => void;
+/**
+ * @param {string} url - The server endpoint at which the interaction will be recorded.
+ * @param {Record<any, any>} data - The data object sent in the post request.
+ * @param {ResponseHandler} [successHandler = () => undefined] - The handler when response reports success.
+ * @param {ResponseHandler} [failureHandler = console.error(`${response.status}: ${response.statusText}`)] - The handler when response reports failure. Defaults to log the error.
+ */
+function recordInteraction(
+  url: string,
+  data: Record<any, any>,
+  successHandler: ResponseHandler = () => undefined,
+  failureHandler: ResponseHandler = response => console.error(`${response.status}: ${response.statusText}`)) {
   data["_csrf"] = tableCellInputFormCSRFInput.value;
 
   fetch(url, {
@@ -57,10 +68,11 @@ function recordInteraction(url: string, data: Record<string, any>, responseHandl
     },
     body: JSON.stringify(data),
   }).then(response => {
-      if (!response.ok) {
-        console.error(`${response.status}: ${response.statusText}`);
+      if (response.ok) {
+        successHandler(response);
+      } else {
+        failureHandler(response);
       }
-      responseHandler(response);
     })
     .catch(error => console.error("Network error when posting interaction: ", error));
 }
@@ -86,8 +98,8 @@ export function recordCellClick(tableCellElement: HTMLTableCellElement) {
   }
 }
 
-export function recordRowInsertion(rowValues: Array<string>, successHandler: (response: Response) => void = () => undefined) {
-  recordInteraction(postNewRowURL(), { rowValues }, successHandler);
+export function recordRowInsertion(rowValues: Array<string>, idSuggestionTypes: Array<number>, successHandler?: ResponseHandler, failureHandler?: ResponseHandler) {
+  recordInteraction(postNewRowURL(), { newRowValues: rowValues, newRowFields: idSuggestionTypes }, successHandler, failureHandler);
 }
 
 export function recordCellDoubleClick(tableCellElement: HTMLTableCellElement) {

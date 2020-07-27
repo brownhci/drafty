@@ -395,11 +395,36 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
             @extend .d-none;
           }
         }
-        &.cellcopy, &.columncopy, &.celleditor-help, &.insertion-success {
+        &.cellcopy, &.columncopy, &.celleditor-help, &.insertion-success, &.insertion-verification {
           th {
-            @extend .text-info;
             @extend .font-size-large;
             @extend .bg-white;
+          }
+        }
+        &.cellcopy, &.columncopy, &.celleditor-help, &.insertion-verification {
+          th {
+            @extend .text-info;
+          }
+        }
+        &.insertion-success {
+          th {
+            @extend .text-success;
+          }
+        }
+        &.insertion-failure {
+          th {
+            @extend .font-size-large;
+            @extend .text-white;
+            @extend .bg-danger;
+          }
+        }
+        &.insertion-verification {
+          th {
+            @extend .text-info;
+            .spinner-grow {
+              @extend .mr-2;
+              @extend .align-middle;
+            }
           }
         }
         &.rowcount {

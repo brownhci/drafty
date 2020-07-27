@@ -1,7 +1,8 @@
 import { columnSuggestions } from "./column-suggestions";
+import { columnLabelInsertRowMenuItem } from "./contextmenu";
 import { activeClass, disabledClass, invalidClass } from "../../constants/css-classes";
-import { recordRowInsertion } from "../../api/record-interactions";
-import { getColumnLabel, isColumnAutocompleteOnly, numTableColumns, tableElement, tableFootElement } from "../../dom/sheet";
+import { getIdSuggestionType, recordRowInsertion } from "../../api/record-interactions";
+import { getColumnLabels, getColumnLabel, isColumnAutocompleteOnly, numTableColumns, tableElement, tableFootElement } from "../../dom/sheet";
 import { isInput } from "../../dom/types";
 import { tableDataManager } from ".././../../sheet";
 
@@ -12,8 +13,12 @@ import { tableDataManager } from ".././../../sheet";
 export enum StatusMode {
   /** `statusTableRow` is used for assisting `insertionTableRow` */
   Insertion = "insertion",
+  /** `statusTableRow` is used for reporting a new row has been submitted to backend for verification */
+  InsertionVerification = "insertion-verification",
   /** `statusTableRow` is used for reporting a new row has been inserted */
   InsertionSuccess = "insertion-success",
+  /** `statusTableRow` is used for reporting some error that happened during insertion */
+  InsertionFailure = "insertion-failure",
   /** `statusTableRow` is used for reporting row count */
   RowCount = "rowcount",
   /** `statusTableRow` is used for reporting cell copy */
@@ -35,6 +40,8 @@ class TableFoot {
   private get isValidInsertion(): boolean {
     return !this.insertionTableRow.querySelector(`.${invalidClass}`);
   }
+
+  private idSuggestionTypes: Array<number> = [];
 
   /**
    * status table row is either
@@ -78,7 +85,9 @@ class TableFoot {
           this.insertionDiscardButton.remove();
           this.statusTableCell.textContent = "";
           break;
+        case StatusMode.InsertionVerification:
         case StatusMode.InsertionSuccess:
+        case StatusMode.InsertionFailure:
         case StatusMode.RowCount:
         case StatusMode.CellCopy:
         case StatusMode.ColumnCopy:
@@ -104,8 +113,24 @@ class TableFoot {
         case StatusMode.ColumnCopy:
           this.statusTableCell.textContent = "A column copied";
           break;
+        case StatusMode.InsertionFailure:
+          this.statusTableCell.textContent = "Row insertion failure";
+          break;
         case StatusMode.InsertionSuccess:
+          // deactivate contextmenu insert row menu item since insertion has finished
+          columnLabelInsertRowMenuItem.deactivate();
+          // previously inputted cell values has been saved
+          this.discardInputValues();
           this.statusTableCell.textContent = "A new row has been inserted";
+          break;
+        case StatusMode.InsertionVerification:
+          this.statusTableCell.innerHTML = `
+          <span>
+            <span class="spinner-grow spinner-grow-sm" role="status">
+            </span>
+            <span>New row is being verified...</span>
+          </span>
+          `;
           break;
         case StatusMode.CellEditorHelp:
           this.statusTableCell.innerHTML = "Press <kbd>Enter</kbd> to save edit, <kbd>ESC</kbd> to discard edit";
@@ -134,6 +159,11 @@ class TableFoot {
     // Idle is the initial mode, supplement its class
     this.statusTableRow.classList.add(StatusMode.Idle);
 
+    // initialize idSuggestionTypes
+    for (const columnLabel of getColumnLabels()) {
+      this.idSuggestionTypes.push(getIdSuggestionType(columnLabel));
+    }
+
     // status row initialization
     /* button initialization */
     this.insertionConfirmButton.type = "button";
@@ -152,7 +182,8 @@ class TableFoot {
           this.discardInputValues();
         } else if (target === this.insertionConfirmButton) {
           if (this.isValidInsertion) {
-            recordRowInsertion(this.getInputValues(), () => this.setStatusTimeout(StatusMode.InsertionSuccess, 1000));
+            this.statusMode = StatusMode.InsertionVerification;
+            recordRowInsertion(this.getInputValues(), this.idSuggestionTypes, () => this.setStatusTimeout(StatusMode.InsertionSuccess, 1000), () => this.setStatusTimeout(StatusMode.InsertionFailure, 1000, StatusMode.Insertion));
           }
         }
       }
@@ -251,25 +282,24 @@ class TableFoot {
 
   /**
    * Set to a specified status for a certain period of time. After this period of time,
-   *    the status will be restored to `StatusMode.Idle` status.
+   *    the status will be restored to status specified by restoreTo.
    *
-   * If after the status has updated and before the status is restored, another call to `setStatusTimeout`
-   *    happens, table footer will be set to the new status and its status will be restored after the
-   *    new timeout expires.
+   * If after the status has updated and before the status is restored, another call to `setStatusTimeout` happens, table footer will be set to the new status and its status will be restored after the new timeout expires.
    *
    * @param {StatusMode} statusMode - A status mode to set to.
    * @param {number} timeout - See the timeout argument in {@link Window.setTimeout}.
+   * @param {StatusMode} [restoreTo = StatusMode.Idle] - The status to restore to after timeout has expired.
    *    This defines how long the table footer will be in the specified status.
    */
-  setStatusTimeout(statusMode: StatusMode, timeout: number) {
-    if (this.isInserting && statusMode !== StatusMode.InsertionSuccess) {
+  setStatusTimeout(statusMode: StatusMode, timeout: number, restoreTo: StatusMode = StatusMode.Idle) {
+    if (this.isInserting && statusMode) {
       // disable status update when inserting a new row unless for reporting insertion success
       return;
     }
 
     this.statusMode = statusMode;
     window.clearTimeout(this.timeout);
-    this.timeout = window.setTimeout(() => this.statusMode = StatusMode.Idle, timeout);
+    this.timeout = window.setTimeout(() => this.statusMode = restoreTo, timeout);
   }
 }
 
