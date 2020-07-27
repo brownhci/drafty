@@ -432,7 +432,7 @@ class CellEditor {
       if (this.fuseSelect.hasSuggestion(edit)) {
         this.deactivateInvalidFeedback();
       } else {
-        this.activateInvalidFeedback("Value must from Completions");
+        this.activateInvalidFeedback("Value must come from suggestions");
         return false;
       }
     }

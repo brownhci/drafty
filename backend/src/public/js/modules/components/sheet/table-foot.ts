@@ -124,6 +124,8 @@ class TableFoot {
 
   /** show in the status table row, used for confirming inserting the new row */
   private insertionConfirmButton: HTMLButtonElement = document.createElement("button");
+  /** show in the status table row, used for show the error associated with the active input */
+  private insertionErrorMessage: HTMLElement = document.createElement("span");
   /** show in the status table row, used for discarding the data inputted for the new row */
   private insertionDiscardButton: HTMLButtonElement = document.createElement("button");
 
@@ -132,13 +134,16 @@ class TableFoot {
     // Idle is the initial mode, supplement its class
     this.statusTableRow.classList.add(StatusMode.Idle);
 
-    // button initialization
+    // status row initialization
+    /* button initialization */
     this.insertionConfirmButton.type = "button";
     this.insertionConfirmButton.id = "confirm-newrow";
     this.insertionConfirmButton.textContent = "Insert Row";
     this.insertionDiscardButton.type = "button";
     this.insertionDiscardButton.id = "discard-newrow";
     this.insertionDiscardButton.textContent = "Discard";
+    /* error message initialization */
+    this.insertionErrorMessage.id = "newrow-error";
 
     tableElement.addEventListener("click", (event: MouseEvent) => {
       const target: HTMLElement = event.target as HTMLElement;
@@ -160,6 +165,17 @@ class TableFoot {
         if (columnIndex >= 0) {
           this.verifyInputValue(columnIndex);
         }
+      }
+    }, true);
+
+    tableElement.addEventListener("focus", (event: Event) => {
+      const target = event.target as HTMLElement;
+
+      if (this.isInserting && isInput(target) && target.classList.contains(invalidClass) && this.insertionTableRow.contains(target)) {
+        this.insertionErrorMessage.textContent = target.dataset.errorMessage;
+        this.statusTableCell.appendChild(this.insertionErrorMessage);
+      } else {
+        this.insertionErrorMessage.remove();
       }
     }, true);
   }
@@ -185,6 +201,7 @@ class TableFoot {
 
   private reportInvalidInput(inputElement: HTMLInputElement, reason: string) {
     inputElement.classList.add(invalidClass);
+    inputElement.dataset.errorMessage = reason;
     this.insertionConfirmButton.classList.add(disabledClass);
   }
 
@@ -204,12 +221,13 @@ class TableFoot {
         // empty input is accepted no non-required autocomplete-only input
       } else if (!await columnSuggestions.hasSuggestion(inputValue, columnIndex, inputElement)) {
         // this input's value should come from suggestion
-        this.reportInvalidInput(inputElement, "Value must from Completions");
+        this.reportInvalidInput(inputElement, "Value must come from suggestions");
         return false;
       }
     }
 
     inputElement.classList.remove(invalidClass);
+    delete inputElement.dataset.errorMessage;
     if (this.isValidInsertion) {
       // every input has passed verification
       this.insertionConfirmButton.classList.remove(disabledClass);

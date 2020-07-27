@@ -397,13 +397,18 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
         }
         &.cellcopy, &.columncopy, &.celleditor-help, &.insertion-success {
           th {
-            @extend .text-center;
             @extend .text-info;
             @extend .font-size-large;
             @extend .bg-white;
           }
         }
+        &.rowcount {
+          th {
+            @extend .text-left;
+          }
+        }
         th {
+          @extend .text-center;
           @extend .position-sticky;
           @include vendor-prefix(box-shadow, $border-top, webkit ms);
           height: 50px;
@@ -424,6 +429,14 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
         button#discard-newrow {
           @extend .btn-danger;
           left: $table-cell-padding;
+        }
+
+        #newrow-error {
+          @extend .text-white;
+          @extend .bg-danger;
+          @extend .px-4;
+          @extend .py-2;
+          @extend .rounded;
         }
       }
     }
