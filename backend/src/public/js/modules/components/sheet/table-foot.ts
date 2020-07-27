@@ -1,7 +1,7 @@
 import { columnSuggestions } from "./column-suggestions";
 import { columnLabelInsertRowMenuItem } from "./contextmenu";
 import { ViewModel } from "./table-data-manager/ViewModel";
-import { activeClass, disabledClass, invalidClass } from "../../constants/css-classes";
+import { activeClass, disabledClass, invalidClass, userEditClass } from "../../constants/css-classes";
 import { getIdSuggestionType, recordRowInsertion, setIdSuggestion, setIdUniqueID } from "../../api/record-interactions";
 import { getColumnLabels, getColumnLabel, isColumnAutocompleteOnly, numTableColumns, tableElement, tableFootElement } from "../../dom/sheet";
 import { isInput } from "../../dom/types";
@@ -310,7 +310,7 @@ class TableFoot {
       this.newRowTemplate = tableDataManager.source[0].element_.cloneNode(true) as HTMLTableRowElement;
       delete this.newRowTemplate.dataset[ViewModel.identifierDatasetName_];
       for (const cellElement of this.newRowTemplate.cells) {
-        cellElement.classList.add(StatusMode.Insertion);
+        cellElement.classList.add(userEditClass);
       }
     }
 

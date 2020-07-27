@@ -8,7 +8,7 @@ import { StatusMode, tableFoot } from "./table-foot";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 import { initializeFuseSelect, updateFuseSelect } from "./suggestions";
 import { alignElementHorizontally } from "./align";
-import { activeClass, inputtingClass, invalidClass } from "../../constants/css-classes";
+import { activeClass, inputtingClass, invalidClass, userEditClass } from "../../constants/css-classes";
 import { getViewportHeight, getViewportWidth, measureTextWidth } from "../../utils/length";
 import { debounce } from "../../utils/debounce";
 import { getColumnLabel, getColumnLabelText, getTableRow, isColumnAutocompleteOnly, isTableCellEditable, setTableDataText, tableScrollContainer } from "../../dom/sheet";
@@ -439,6 +439,8 @@ class CellEditor {
 
     if (cellElement) {
       setTableDataText(cellElement, edit);
+      // mark this cell as user edited
+      cellElement.classList.add(userEditClass);
       // call backend api to send user submission
       recordCellEdit(cellElement, edit);
     }

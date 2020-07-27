@@ -4,6 +4,8 @@ export const activeAccompanyClass = "active-accompany";
 export const invalidClass = "is-invalid";
 export const clickClass = "clicked";
 export const inputtingClass = "inputting";
+/** a cell has userEditClass when it is inserted, modified by current user in current session */
+export const userEditClass = "user-edit";
 
 // Fuse
 
