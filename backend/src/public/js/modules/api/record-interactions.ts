@@ -13,8 +13,14 @@ const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector("in
 export function getIdUniqueID(tableCellElement: HTMLTableCellElement): number {
   return Number.parseInt(getEnclosingTableRow(tableCellElement).dataset.id);
 }
+export function setIdUniqueID(tableRowElement: HTMLTableRowElement, idUniqueID: number) {
+  tableRowElement.dataset.id = idUniqueID.toString();
+}
 export function getIdSuggestion(tableCellElement: HTMLTableCellElement): number {
   return Number.parseInt(tableCellElement.id);
+}
+export function setIdSuggestion(tableCellElement: HTMLTableCellElement, idSuggestion: number) {
+  return tableCellElement.id = idSuggestion.toString();
 }
 export function getIdSuggestionType(columnLabel: HTMLTableCellElement) {
   const idSuggestionType = columnLabel.dataset.idSuggestionType;

@@ -19,7 +19,12 @@ export const postNewRow = (req: Request, res: Response, next: NextFunction) => {
   // check for errors
   const rowvalues = req.body.rowValues;
   try {
-    return res.sendStatus(200);
+    // TODO change stub
+    return res.status(200).json({
+      idUniqueID: 100000,
+      newRowIds: [1000000, 1000001, 1000002, 1000003, 1000004, 1000005, 1000006],
+      newRowFields: [1, 2, 3, 5, 7, 8, 9]
+    });
   } catch (error) {
     return res.sendStatus(400);
   }

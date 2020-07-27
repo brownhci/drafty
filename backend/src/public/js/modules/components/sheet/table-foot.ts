@@ -1,7 +1,8 @@
 import { columnSuggestions } from "./column-suggestions";
 import { columnLabelInsertRowMenuItem } from "./contextmenu";
+import { ViewModel } from "./table-data-manager/ViewModel";
 import { activeClass, disabledClass, invalidClass } from "../../constants/css-classes";
-import { getIdSuggestionType, recordRowInsertion } from "../../api/record-interactions";
+import { getIdSuggestionType, recordRowInsertion, setIdSuggestion, setIdUniqueID } from "../../api/record-interactions";
 import { getColumnLabels, getColumnLabel, isColumnAutocompleteOnly, numTableColumns, tableElement, tableFootElement } from "../../dom/sheet";
 import { isInput } from "../../dom/types";
 import { tableDataManager } from ".././../../sheet";
@@ -42,6 +43,7 @@ class TableFoot {
   }
 
   private idSuggestionTypes: Array<number> = [];
+  private idSuggestionTypeToColumnIndex: Map<number, number> = new Map();
 
   /**
    * status table row is either
@@ -153,6 +155,8 @@ class TableFoot {
   private insertionErrorMessage: HTMLElement = document.createElement("span");
   /** show in the status table row, used for discarding the data inputted for the new row */
   private insertionDiscardButton: HTMLButtonElement = document.createElement("button");
+  /** the HTML template for new row */
+  private newRowTemplate: HTMLTableRowElement;
 
   constructor() {
     this.statusTableCell.colSpan = numTableColumns;
@@ -160,8 +164,11 @@ class TableFoot {
     this.statusTableRow.classList.add(StatusMode.Idle);
 
     // initialize idSuggestionTypes
+    let columnIndex = 0;
     for (const columnLabel of getColumnLabels()) {
-      this.idSuggestionTypes.push(getIdSuggestionType(columnLabel));
+      const idSuggestionType: number = getIdSuggestionType(columnLabel);
+      this.idSuggestionTypes.push(idSuggestionType);
+      this.idSuggestionTypeToColumnIndex.set(idSuggestionType, columnIndex++);
     }
 
     // status row initialization
@@ -183,7 +190,18 @@ class TableFoot {
         } else if (target === this.insertionConfirmButton) {
           if (this.isValidInsertion) {
             this.statusMode = StatusMode.InsertionVerification;
-            recordRowInsertion(this.getInputValues(), this.idSuggestionTypes, () => this.setStatusTimeout(StatusMode.InsertionSuccess, 1000), () => this.setStatusTimeout(StatusMode.InsertionFailure, 1000, StatusMode.Insertion));
+            const cellValues: Array<string> = this.getInputValues();
+            recordRowInsertion(
+              cellValues,
+              this.idSuggestionTypes,
+              (response: Response) => response.json().then(data => {
+                const idUniqueID: number = data.idUniqueID;
+                const idSuggestions: Array<number> = this.reorderIdSuggestions(data.newRowIds, data.newRowFields);
+                const newRow: HTMLTableRowElement = this.prepareNewRow(idUniqueID, idSuggestions, cellValues);
+                this.insertNewRow(newRow);
+                this.setStatusTimeout(StatusMode.InsertionSuccess, 1000);
+              }),
+              () => this.setStatusTimeout(StatusMode.InsertionFailure, 1000, StatusMode.Insertion));
           }
         }
       }
@@ -264,6 +282,50 @@ class TableFoot {
       this.insertionConfirmButton.classList.remove(disabledClass);
     }
     return true;
+  }
+
+  /**
+   * Every column has an `idSuggestionType` (stored within its column label) and every cell has an `idSuggestion` (stored directly in the cell). This function reorders the provided `idSuggestions` such that the `idSuggestion` of the cell in the first column comes first, `idSuggestion` of the cell in the second column comes second, and so on.
+   *
+   * @param {Array<number>} idSuggestions - An array of `idSuggestion`s to be reordered.
+   * @param {Array<number>} idSuggestionTypes - An array of `idSuggestionType`s used for reorder criterion since the table has a mapping between `idSuggestionType` and which column it is.
+   * @return {Array<number>} The array of `idSuggestion`s reordered with respect to the column ordering.
+   */
+  private reorderIdSuggestions(idSuggestions: Array<number>, idSuggestionTypes: Array<number>): Array<number> {
+    // reorder `idSuggestions`
+    const columnIndexToIdSuggestion: Map<number, number> = new Map();
+    for (let i = 0; i < idSuggestionTypes.length; i++) {
+      const columnIndex = this.idSuggestionTypeToColumnIndex.get(idSuggestionTypes[i]);
+      columnIndexToIdSuggestion.set(columnIndex, idSuggestions[i]);
+    }
+    const reorderedIdSuggestions: Array<number> = [];
+    for (let columnIndex = 0; columnIndex < numTableColumns; columnIndex++) {
+      reorderedIdSuggestions.push(columnIndexToIdSuggestion.get(columnIndex));
+    }
+    return reorderedIdSuggestions;
+  }
+
+  private prepareNewRow(idUniqueID: number, idSuggestions: Array<number>, cellValues: Array<string>): HTMLTableRowElement {
+    if (!this.newRowTemplate) {
+      this.newRowTemplate = tableDataManager.source[0].element_ as HTMLTableRowElement;
+      delete this.newRowTemplate.dataset[ViewModel.identifierDatasetName_];
+      this.newRowTemplate.classList.add(StatusMode.Insertion);
+    }
+
+    const row = this.newRowTemplate.cloneNode(true) as HTMLTableRowElement;
+    setIdUniqueID(row, idUniqueID);
+    const cells = row.cells;
+    for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
+      const cell = cells[cellIndex];
+      setIdSuggestion(cell, idSuggestions[cellIndex]);
+      cell.textContent = cellValues[cellIndex];
+    }
+
+    return row;
+  }
+
+  private insertNewRow(row: HTMLTableRowElement) {
+    tableDataManager.addElement(row);
   }
 
   /**

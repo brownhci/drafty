@@ -272,6 +272,41 @@ export class BasicView {
   }
 
   /**
+   * Manipulate `this.source` and refresh the view.
+   *
+   * @param {() => void} manipulation - An function that modifies the source.
+   */
+  protected manipulateSource(manipulation: () => void) {
+    this.scrollHandler.deactivateObservers();
+    this.sourceViewModel.reconnectToExecute__(manipulation);
+    this.scrollHandler.activateObservers();
+    this.useCache = false;
+    this.refreshView();
+  }
+
+  /**
+   * Adds a view element into `this.source`  and refresh the current view.
+   *
+   * @see {@link BasicView#manipulateSource}
+   *
+   * @param {HTMLElement | ViewModel} element - A view element to be added.
+   */
+  addElement(element: HTMLElement | ViewModel) {
+    this.manipulateSource(() => this.sourceViewModel.insertChild__(element));
+  }
+
+  /**
+   * Removes a view element from `this.source`  and refresh the current view.
+   *
+   * @see {@link BasicView#manipulateSource}
+   *
+   * @param {HTMLElement | ViewModel} element - A view element to be removed.
+   */
+  removeElement(element: HTMLElement) {
+    this.manipulateSource(() => this.sourceViewModel.removeChildByIdentifier__(element.dataset[ViewModel.identifierDatasetName_]));
+  }
+
+  /**
    * Renders current target view to the page.
    *
    * 1. It regenerates the target view to ensure updates (like adding a filter function) are considered
