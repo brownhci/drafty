@@ -178,8 +178,6 @@ columnLabelContextMenu.addEventListener("click", function(event: MouseEvent) {
       menuItem.toggle();
       tableFoot.toggle(StatusMode.RowCount);
       break;
-    case "Distribution":
-      break;
   }
   deactivateColumnLabelContextMenu();
   event.stopPropagation();
