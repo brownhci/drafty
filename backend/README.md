@@ -112,4 +112,4 @@ Supporting libraries used:
   Node-sass is a library that provides binding for Node.js to LibSass, the C version of the popular stylesheet preprocessor, Sass.
 
 ## Contact
-[Zhengyi Peng](mailto:zhengyi_peng@brown.edu)
+[Shaun Wallace](mailto:shaun_wallace@brown.edu)
