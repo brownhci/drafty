@@ -293,8 +293,8 @@ describe("observe all children", () => {
   });
 
   test("observe all attribute change", done => {
-    let victim1: HTMLElement;
-    let victim3: HTMLElement;
+    const victim1: HTMLElement = target.children[1] as HTMLElement;
+    const victim3: HTMLElement = target.children[0] as HTMLElement;
     const mockCallback = jest.fn((event: PropertyChangeEvent) => {
       const { target, attributeName, oldAttributeValue } = event.detail;
       expect(oldAttributeValue).toBeFalsy();
@@ -313,14 +313,12 @@ describe("observe all children", () => {
     Array.from(target.children).forEach(child => reporter.observe(child, options));
 
     // captured
-    victim1 = target.children[1] as HTMLElement;
     victim1.classList.add("active");
 
     reporter.unobserve(target.children[2]);
     // ignored
     target.children[2].classList.add("active");
 
-    victim3 = target.children[0] as HTMLElement;
     // captured
     victim3.classList.add("active");
   });
