@@ -7,7 +7,7 @@ import { LocalStorageCache } from "../../utils/local-storage";
 import { getColumnSuggestionURL, getEditSuggestionURL } from "../../api/endpoints";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 
-interface Option {
+export interface Option {
   suggestion: string;
   confidence: number;
   prevSugg: number;

@@ -1,7 +1,9 @@
 import Fuse from "./fuse";
-import { Option } from "../components/sheet/suggestions";
+import { Option as Opt } from "../components/sheet/suggestions";
 import { fuseSelectRootContainerClass, autocompleteSuggestionClass, previousEditClass, optionContainerClass, optionClass, optionTextClass } from "../constants/css-classes";
 import { activeClass } from "../constants/css-classes";
+
+type Option = Partial<Opt>;
 
 /* in memory cache */
 const fuseOptions: Fuse.IFuseOptions<Option> = {
