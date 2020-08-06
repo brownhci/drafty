@@ -18,6 +18,9 @@ export function getEditSuggestionURL(idSuggestion: number) {
   return `/suggestions/foredit?idSuggestion=${idSuggestion}`;
 }
 
+export function getColumnSuggestionURL(idSuggestionType: number) {
+  return `/suggestions?idSuggestionType=${idSuggestionType}`;
+}
 
 // interactions
 export function postNewRowURL() {

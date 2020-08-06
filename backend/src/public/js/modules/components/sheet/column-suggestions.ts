@@ -3,18 +3,21 @@
  * As the name implies, this module provides autocomplete suggestions for a column. Therefore, it is different from {@link ./suggestions.ts} in that it does not bias a specific cell.
  */
 import { alignElementHorizontally, placeElementAdjacently } from "./align";
-import { fetchSuggestions, Option } from "./suggestions";
-import { getIdSuggestion, getIdSuggestionType } from "../../api/record-interactions";
+import { fetchColumnSuggestions } from "./suggestions";
+import { getIdSuggestionType } from "../../api/record-interactions";
 import { activeClass } from "../../constants/css-classes";
-import { getCellInTableRow, getEnclosingTableCell } from "../../dom/navigate";
+import { getEnclosingTableCell } from "../../dom/navigate";
 import { getColumnLabel, tableElement } from "../../dom/sheet";
 import { isInput } from "../../dom/types";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 import { debounce } from "../../utils/debounce";
 import { measureTextWidth } from "../../utils/length";
 import { LocalStorageCache } from "../../utils/local-storage";
-import { tableDataManager, updateActiveTableCellElement } from "../../../sheet";
+import { updateActiveTableCellElement } from "../../../sheet";
 
+interface Option {
+  suggestion: string;
+}
 
 const optionCache = new LocalStorageCache(5 * 60 * 1000);
 function optionCacheKeyFunction(idSuggestionType: string): string {
@@ -97,14 +100,14 @@ class ColumnSuggestions {
   }
 
   private parseSuggestions(suggestions: Array<Option>): Array<Option> {
-    const parsedSuggestions = suggestions.filter(suggestion => suggestion.prevSugg === 0);
-  parsedSuggestions.sort((suggestion1, suggestion2) => suggestion1.suggestion.localeCompare(suggestion2.suggestion));
-  return parsedSuggestions;
+    suggestions.sort((suggestion1, suggestion2) => suggestion1.suggestion.localeCompare(suggestion2.suggestion));
+    return suggestions;
   }
 
   private updateFuseSelect() {
     const columnLabel = getColumnLabel(this.target.cellIndex);
-    const idSuggestionTypeString = getIdSuggestionType(columnLabel).toString();
+    const idSuggestionType: number = getIdSuggestionType(columnLabel);
+    const idSuggestionTypeString = idSuggestionType.toString();
     let options = optionCache.retrieve(optionCacheKeyFunction(idSuggestionTypeString)) as Array<Option>;
     if (!options) {
       // cannot retrieve unexpired autocomplete suggestions from local storage, create an empty placeholder for now
@@ -114,9 +117,7 @@ class ColumnSuggestions {
     this.fuseSelect.sync();
     this.align();
 
-    const row = tableDataManager.source[0].element_ as HTMLTableRowElement;
-    const idSuggestion = getIdSuggestion(getCellInTableRow(row, this.target.cellIndex));
-    fetchSuggestions(idSuggestion).then(suggestions => {
+    fetchColumnSuggestions(idSuggestionType).then(suggestions => {
       const options = this.parseSuggestions(suggestions);
       optionCache.store(optionCacheKeyFunction(idSuggestionTypeString), options);
 
@@ -158,9 +159,8 @@ class ColumnSuggestions {
     if (options) {
       return options.some(option => option.suggestion === suggestion);
     } else {
-      const row = tableDataManager.source[0].element_ as HTMLTableRowElement;
-      const idSuggestion = getIdSuggestion(getCellInTableRow(row, columnIndex));
-      return fetchSuggestions(idSuggestion).then(suggestions => {
+      const idSuggestionType = getIdSuggestionType(columnLabel);
+      return fetchColumnSuggestions(idSuggestionType).then(suggestions => {
         const options = this.parseSuggestions(suggestions);
         optionCache.store(optionCacheKeyFunction(idSuggestionTypeString), options);
         return options.some(option => option.suggestion === suggestion);

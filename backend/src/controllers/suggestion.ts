@@ -24,7 +24,7 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
 
 
 /**
- * GET /suggestions?idSuggestionType=...
+ * GET /suggestions/foredit?idSuggestion=...
  * get suggestions
  */
 export const getSuggestionsForEdit = async (req: Request, res: Response, next: NextFunction) => {

@@ -4,10 +4,10 @@
  */
 
 import { LocalStorageCache } from "../../utils/local-storage";
-import { getEditSuggestionURL } from "../../api/endpoints";
+import { getColumnSuggestionURL, getEditSuggestionURL } from "../../api/endpoints";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 
-export interface Option {
+interface Option {
   suggestion: string;
   confidence: number;
   prevSugg: number;
@@ -21,6 +21,27 @@ function getColumnSuggestions(idSuggestionType: string): Array<Option> {
   return optionCache.retrieve(optionCacheKeyFunction(idSuggestionType)) as Array<Option>;
 }
 
+
+/**
+ * Fetch column suggestions from database. The difference between column suggestions and edit suggestions is that column suggestions do not tie to a specific table cell.
+ *
+ * @async
+ * @param {number} idSuggestionType - The id suggestion type of a table column {@link ../../api/record-interactions.ts#getIdSuggestionType}.
+ * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Option objects.
+ */
+export async function fetchColumnSuggestions(idSuggestion: number): Promise<Array<Option>> {
+  const url = getColumnSuggestionURL(idSuggestion);
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      return null;
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Network error when fetching column suggestions", error);
+  }
+}
+
 /**
  * Fetch suggestions from database for a particular table cell.
  *
@@ -28,7 +49,7 @@ function getColumnSuggestions(idSuggestionType: string): Array<Option> {
  * @param {number} idSuggestion - The id suggestion of a particular table cell.
  * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Option objects.
  */
-export async function fetchSuggestions(idSuggestion: number): Promise<Array<Option>> {
+export async function fetchEditSuggestions(idSuggestion: number): Promise<Array<Option>> {
   const url = getEditSuggestionURL(idSuggestion);
   try {
     const response = await fetch(url);
@@ -99,7 +120,7 @@ export function updateFuseSelect(fuseSelect: FuseSelect, idSuggestion: number, i
 
   fuseSelect.sync();
 
-  fetchSuggestions(idSuggestion).then(suggestions => {
+  fetchEditSuggestions(idSuggestion).then(suggestions => {
     const options = parseSuggestions(suggestions);
     optionCache.store(optionCacheKeyFunction(idSuggestionTypeString), options);
 
