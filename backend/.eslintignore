@@ -8,3 +8,5 @@ coverage/*
 /src/public/js/**/*.js
 # custom definition files
 /src/types/
+# configuration files
+**/jest.config.js
