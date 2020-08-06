@@ -11,7 +11,7 @@ import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } f
 import { tableFoot } from "./modules/components/sheet/table-foot";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
-import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
+import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isColumnSearchInput, isTableCellEditable, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
 import { isInput, isTableData, isTableHead, isTableCell } from "./modules/dom/types";
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
@@ -338,6 +338,20 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
     tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
+  } else if (isColumnSearchInput(target)) {
+    if (event.key === "Escape") {
+      // ESC pressed on column search
+      if (columnSuggestions.isActive) {
+        columnSuggestions.deactivate();
+        event.preventDefault();
+      }
+      // when column search suggestions window is not active, execute the default action to clear the search query
+    } else {
+      if (!columnSuggestions.isActive) {
+        // activate column suggestions when new character is typed
+        columnSuggestions.activate(target.parentElement as HTMLTableCellElement);
+      }
+    }
   }
   event.stopPropagation();
 }, true);
