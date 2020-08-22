@@ -1,12 +1,13 @@
 import { db,logDbErr } from "./mysql";
-//import { tableName as sugggestionTableName, idSuggestionType as idSuggestionTypeFieldName, suggestionText as suggestionTextFieldName } from "../models/suggestionTypeValues";
-//import { tableName as suggestionTypeTableName, name as nameTableFieldName } from "../models/suggestionType";
 
-//idSuggestion, suggestion, idProfile
-//const stmtProcedureEdit: string = "SET @id = ?; CALL new_suggestion(@id,?,?); SELECT @id AS idSuggestion;";
+/*
+* var used idSuggestion, suggestion, idProfile
+*/
 const stmtProcedureEdit: string = "SET @p0=?; SET @p1=?; SET @p2=?; CALL new_suggestion(@p0, @p1, @p2, @p3); SELECT @p0 AS idSuggestion, @p3 AS isNewSuggestion;";
 
-//idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
+/*
+* idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
+*/
 const stmtProcedureEditSuggestions: string = "CALL insert_edit_suggestions(?, ?, ?, ?, ?, ?, ?);";
 
 const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)";
@@ -63,7 +64,7 @@ export async function insertRowId(callback: CallableFunction) {
  */
 export async function selectSuggestionsForEdit(idSuggestion: number) {
   try {
-      const [results, fields] = await db.query(stmtSelectSuggestionsForEdit, [idSuggestion,idSuggestion,idSuggestion]);
+      const [results] = await db.query(stmtSelectSuggestionsForEdit, [idSuggestion,idSuggestion,idSuggestion]);
       return [null, results];
   } catch (error) {
       logDbErr(error, "error during selectSuggestionsForEdit", "warn");
@@ -79,7 +80,6 @@ export async function selectSuggestionsForEdit(idSuggestion: number) {
  */
 export async function getSuggestionsWithSuggestionType(idSuggestionType: number) {
   try {
-    // const [results] = await db.query("select ?? AS suggestion from ?? where ?? = ?", [suggestionTextFieldName, sugggestionTableName, idSuggestionTypeFieldName, idSuggestionType]);
     // only pull by idSuggestionType; add GROUP BY to reduce duplicates, and apply a default sorting
     const [results] = await db.query(stmtSelectSuggestionsWithSuggestionType, [idSuggestionType]);
     return [null, results];

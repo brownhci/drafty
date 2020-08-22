@@ -50,6 +50,9 @@ export function isColumnLabel(element: HTMLElement): boolean {
 export function getColumnLabel(index: number): HTMLTableCellElement {
   return getCellInTableRow(tableColumnLabels, index);
 }
+export function* getTableCellElementsInRow(tableRowElement: HTMLTableRowElement) {
+  yield* tableRowElement.cells;
+}
 export function* getColumnLabels() {
   for (const columnLabel of getTableCellElementsInRow(tableColumnLabels)) {
     yield columnLabel;
@@ -104,9 +107,6 @@ export function isColumnSearchFilled(columnSearch: HTMLTableCellElement): boolea
  */
 export function isColumnAutocompleteOnly(columnLabel: HTMLTableCellElement) {
   return columnLabel.dataset.autocompleteOnly === "true";
-}
-export function* getTableCellElementsInRow(tableRowElement: HTMLTableRowElement) {
-  yield* tableRowElement.cells;
 }
 export function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
   if (tableCellElement.contentEditable === "false") {

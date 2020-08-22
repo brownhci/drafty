@@ -178,7 +178,7 @@ export const postCopyCell = (req: Request, res: Response) => {
  *
  * @param {number} req.body.idSuggestionType
  */
-export const postCopyColumn = (req: Request, res: Response, next: NextFunction) => {
+export const postCopyColumn = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
   const idSuggestionType: number|string = req.body.idSuggestionType;
 

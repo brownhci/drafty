@@ -105,20 +105,17 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
     [passwordFieldName]: password,
   };
 
-  // sw: we should just update their anonymous user profile instead
-  // const [error, results] = await createUser(newUser);
-  const [error, results] = await updateUserNewSignup(email, password, req.session.user.idProfile);
+  const [error] = await updateUserNewSignup(email, password, req.session.user.idProfile);
   if (error) {
     return next(error);
   }
-
-  // need to update session
-
+  
   // successful insertion
   req.logIn(newUser, (err) => {
     if (err) {
       return next(err);
     }
+    // need to update session
     req.session.user.isAuth = true;
     req.session.isAuth = true;
     res.redirect(req.session.returnTo || "/");
