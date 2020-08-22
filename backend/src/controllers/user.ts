@@ -4,7 +4,7 @@ import moment from "moment";
 import passport from "passport";
 import logger from "../util/logger";
 import { Request, Response, NextFunction } from "express";
-import { UserModel, idFieldName, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
+import { UserModel, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
 import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup } from "../database/user";
 import { emailExists, emailNotTaken, isValidUsername, checkPasswordLength, confirmMatchPassword } from "../validation/validators";
 import { encryptPassword } from "../util/encrypt";
@@ -165,6 +165,9 @@ export const getAccount = (req: Request, res: Response) => {
 /**
  * POST /account/profile
  * Update profile information.
+ * 
+ * TODO implement
+ * 
  */
 export const postUpdateProfile = async (req: Request, res: Response, next: NextFunction) => {
   // TODO implement this
@@ -199,6 +202,8 @@ export const postUpdateProfile = async (req: Request, res: Response, next: NextF
   // // successful update
   // req.flash("success", { msg: "Profile information has been updated." });
   // res.redirect("/account");
+
+  next();
 };
 
 /**
@@ -407,6 +412,7 @@ export const getSeenWelcome = (req: Request, res: Response) => {
  */
 export const postSeenWelcome = (req: Request, res: Response) => {
   req.session.user.seenWelcome = req.body.seenWelcome; // should be 0 or 1
+  return res.status(200);
 };
 
 /**

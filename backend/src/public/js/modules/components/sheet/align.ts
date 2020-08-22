@@ -1,6 +1,6 @@
 import { tableElement, tableScrollContainer } from "../../dom/sheet";
 import { getViewportWidth, getViewportHeight } from "../../utils/length";
-import { tableDataManager } from "../../../sheet";
+//import { tableDataManager } from "../../../sheet"; // sw: not used
 
 
 export function placeElementInViewport(element: HTMLElement, x: number, y: number) {

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { insertClick, insertDoubleClick, insertCopyCell, insertCopyColumn, insertSearch, insertSearchMulti, insertSort } from "../database/interaction";
+import { insertClick, insertDoubleClick, insertCopyCell, insertCopyColumn, insertSearch, insertSort } from "../database/interaction";
 
 /**
  * POST /new-row
@@ -15,9 +15,10 @@ import { insertClick, insertDoubleClick, insertCopyCell, insertCopyColumn, inser
  *        "newRowFields": Array<idSuggestionType>
  *    }
  */
-export const postNewRow = (req: Request, res: Response, next: NextFunction) => {
+export const postNewRow = (req: Request, res: Response) => {
   // check for errors
   const rowvalues = req.body.rowValues;
+  console.log("postNewRow: " + rowvalues);
   try {
     // TODO change stub
     return res.status(200).json({
@@ -37,7 +38,7 @@ export const postNewRow = (req: Request, res: Response, next: NextFunction) => {
  * @param {number} req.body.idSuggestion
  * @param {Array<string>} req.body.rowValues
  */
-export const postClick = (req: Request, res: Response, next: NextFunction) => {
+export const postClick = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
   const idSuggestion = req.body.idSuggestion;
   const rowvalues = req.body.rowValues;
@@ -55,7 +56,7 @@ export const postClick = (req: Request, res: Response, next: NextFunction) => {
  * @param {number} req.body.idSuggestion
  * @param {Array<string>} req.body.rowValues
  */
-export const postClickDouble = (req: Request, res: Response, next: NextFunction) => {
+export const postClickDouble = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
   const idSuggestion = req.body.idSuggestion;
   const rowvalues = req.body.rowValues;
@@ -76,7 +77,7 @@ export const postClickDouble = (req: Request, res: Response, next: NextFunction)
  * @param {number} req.body.isTrigger
  * @param {number} req.body.isMulti
  */
-export const postSort = (req: Request, res: Response, next: NextFunction) => {
+export const postSort = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
   const idSuggestionType: number|string = req.body.idSuggestionType;
   const isAsc: number = req.body.isAsc;
@@ -102,7 +103,7 @@ export const postSort = (req: Request, res: Response, next: NextFunction) => {
  * (pipe delimited)-> idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
  * @param {string} req.body.multiSearchValues
  */
-export const postSearchPartial = (req: Request, res: Response, next: NextFunction) => {
+export const postSearchPartial = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
   const idSuggestionType: number|string = req.body.idSuggestionType;
 
@@ -133,7 +134,7 @@ export const postSearchPartial = (req: Request, res: Response, next: NextFunctio
  * (pipe delimited)-> idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
  * @param {string} req.body.multiSearchValues
  */
-export const postSearchFull = (req: Request, res: Response, next: NextFunction) => {
+export const postSearchFull = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
   const idSuggestionType: number|string = req.body.idSuggestionType;
 
@@ -160,7 +161,7 @@ export const postSearchFull = (req: Request, res: Response, next: NextFunction) 
  *
  * @param {number} req.body.idSuggestion
 */
-export const postCopyCell = (req: Request, res: Response, next: NextFunction) => {
+export const postCopyCell = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
   const idSuggestion: number|string = req.body.idSuggestion;
   try {

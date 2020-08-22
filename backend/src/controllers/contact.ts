@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+//import nodemailer from "nodemailer"; // sw - unused
 import { Request, Response } from "express";
 import { sendMail, userFeedbackEmailAccount } from "../util/email";
 import { fieldNonEmpty, isValidEmail } from "../validation/validators";

@@ -7,7 +7,7 @@ import lusca from "lusca";
 import flash from "express-flash";
 import path from "path";
 import passport from "passport";
-import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, SESSION_SECRET } from "./util/secrets";
+import { DB_HOST, DB_USER, DB_PASSWORD, SESSION_SECRET } from "./util/secrets";
 
 // Create session file store
 // import sessionFileStore from "session-file-store";

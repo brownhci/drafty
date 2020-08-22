@@ -3,7 +3,7 @@ import { findUserByField } from "../database/user";
 import { Request } from "express";
 import { body, validationResult } from "express-validator";
 import { idSuggestionType as idSuggestionTypeFieldName } from "../models/suggestion";
-import { idSuggestionTypeLowerBound, idSuggestionTypeUpperBound, names } from "../models/suggestionType";
+import { idSuggestionTypeLowerBound, idSuggestionTypeUpperBound } from "../models/suggestionType";
 
 export const emailValidationFailure = "emailValidationFailure";
 export const passwordValidationFailure = "passwordValidationFailure";
@@ -26,7 +26,7 @@ export async function emailNotTaken(req: Request) {
     return true;
   }
 
-  if (!user) {
+  if (!user || error) {
     // QueryError
     req.flash("errors", { msg: "Internal server error, please contact developer from help page" });
     return false;
@@ -46,7 +46,7 @@ export async function emailExists(req: Request) {
     return false;
   }
 
-  if (!user) {
+  if (!user || error) {
     // QueryError
     req.flash("errors", { msg: "Internal server error, please contact developer from help page" });
     return false;
