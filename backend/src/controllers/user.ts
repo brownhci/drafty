@@ -415,7 +415,7 @@ export const postSeenWelcome = (req: Request, res: Response) => {
 export async function checkSessionUser(req: Request, res: Response, next: NextFunction) {
   if (await !req.session.user) {
     if(req.user) {
-      console.log(req.sessionID + " :: NO USER but there is a passport :: " + req.user);
+      logger.debug(req.sessionID + " :: NO USER but there is a passport :: " + req.user);
     }
     // sw: only place to create a new idProfile - this will get triggered before any login
     req.session.user = {
@@ -428,11 +428,11 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
       lastInteraction: Date.now(),
       failedLoginAttempts: 0
     };
-    console.log("NEW Profile created! " + req.sessionID + " :: " + req.session.user.idProfile);
+    logger.debug("NEW Profile created! " + req.sessionID + " :: " + req.session.user.idProfile);
     next();
   } else {
-    // console.log(req.sessionID + " :: " + req.session.user.idProfile + " :: " + req.session.user.isAuth  + " :: " + req.session.isAuth);
-    // console.log(req.user); // sw: this is created by passport
+    // logger.debug(req.sessionID + " :: " + req.session.user.idProfile + " :: " + req.session.user.isAuth  + " :: " + req.session.isAuth);
+    // logger.debug(req.user); // sw: this is created by passport
     next();
   }
 }
@@ -443,8 +443,8 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
 const heartbeat = 20 * 60000; // mins * 60000 milliseconds
 export async function checkSessionId(req: Request, res: Response, next: NextFunction) {
   const interactionTime = Date.now();
-  //console.log(await req.session.user.lastInteraction + ' == ' + interactionTime);
-  //console.log(interactionTime - await req.session.user.lastInteraction);
+  //logger.debug(await req.session.user.lastInteraction + ' == ' + interactionTime);
+  //logger.debug(interactionTime - await req.session.user.lastInteraction);
   if(((interactionTime - await req.session.user.lastInteraction) > heartbeat) || (await req.session.user.idSession === -1)) {
     req.session.user.idSession = await createSessionDB(req.session.user.idProfile,req.sessionID);
   }
