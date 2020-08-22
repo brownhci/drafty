@@ -20,7 +20,7 @@ export const getEditHistory = (req: Request, res: Response) => {
  * 
  * /data/csv/:name?auth=:name_drafty2015
  * 
- * http://localhost:3000/data/csv/2300profs?2300profs_drafty2015
+ * http://localhost:3000/data/csv/2300profs/2300profs_93318b344889ccef41d46b5f83d63de5
  * 
  */
 export const getCSV = (req: Request, res: Response) => {
