@@ -16,12 +16,14 @@ newSuggestions = {}
 sql_check_db_exists = "SELECT count(*) as ct FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME LIKE %s"
 sql_col_order = "SELECT * FROM SuggestionType st ORDER BY st.columnOrder"  
 
-sql_insert_row = "INSERT INTO UniqueId VALUES() "
-sql_insert_suggestion = "INSERT INTO Suggestions"
+sql_insert_row = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1) "
+sql_insert_suggestion = "INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (?, ?, ?, 2, ?, 10);" # sw: 2 is the system user idProfile
 
 # UTIL functions
 
 def get_db_creds():
+    dbuser = ''
+    dbpass = ''
     with open('../backend/.env', 'r') as fh:
         for line in fh.readlines():
             kv = line.strip().split('=')
