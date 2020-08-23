@@ -188,7 +188,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
       }
       #input-form-legend {
         @extend .font-size-small;
-        @extend .font-weight-lighter;
+        //@extend .font-weight-lighter;
         @extend .text-right;
         span:nth-child(2) {
           @extend .text-muted;
@@ -196,6 +196,11 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
         span:nth-child(3) {
           color: $orange;
         }
+      }
+      #input-form-legend-orange {
+        @extend .font-size-small;
+        @extend .text-right;
+        color: $orange;
       }
       & > div {
         @extend .mb-0;
