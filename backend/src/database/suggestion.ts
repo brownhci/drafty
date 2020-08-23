@@ -23,18 +23,13 @@ const stmtSelectSuggestionsForEdit: string = "SELECT suggestion, 1 as prevSugg F
  */
 export async function newSuggestion(idSuggestion: number, suggestion: string, idProfile: number, idSession: number, idInteractionType: number, idEntryType: number, mode: string) {
   try {
-      //console.log("\n before stmtProcedureEdit");
-      //console.log(idSuggestion, suggestion, idProfile, idSession, idInteractionType, idEntryType, mode);
-      
       const [results] = await db.query(stmtProcedureEdit, [idSuggestion,suggestion,idProfile]);
 
       //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
       const idSuggestionPrev = idSuggestion;
       const pos = Object.keys(results).pop(); // get last 
       const idSuggestionChosen = (results as any)[pos][0]["idSuggestion"]; // sw: this is bc of how procedures return data
-      
-      //console.log("\n\n before stmtProcedureEditSuggestions: ",idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode,"\n\n");
-      // getting error that COLUMN suggestion cannot be null
+
       db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode, idProfile]);
 
       return [null, idSuggestionChosen];
@@ -47,13 +42,13 @@ export async function newSuggestion(idSuggestion: number, suggestion: string, id
 /**
  * save new row
  */
-export async function insertRowId(callback: CallableFunction) {
+export async function insertRowId() {
     try {
-        const [results, fields] = await db.query(stmtInsertUniqueId);
-        callback(null, results, fields);
+        const [results] = await db.query(stmtInsertUniqueId);
+        return [null, results];
     } catch (error) {
         logDbErr(error, "error during insert row (UniqueID)", "warn");
-        callback(error);
+        return error;
     }
 }
 
