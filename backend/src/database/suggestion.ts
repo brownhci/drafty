@@ -53,7 +53,7 @@ export async function newSuggestion(idSuggestion: number, suggestion: string, id
  * save new row
  * 
  ***/
-export async function insertRowId() {
+export async function insertNewRowId() {
     try {
         const [results] = await db.query(stmtInsertUniqueId);
         return [null, results];

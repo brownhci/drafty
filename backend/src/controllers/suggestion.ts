@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getSuggestionsWithSuggestionType, newSuggestion, selectSuggestionsForEdit, insertRowId } from "../database/suggestion";
+import { getSuggestionsWithSuggestionType, newSuggestion, selectSuggestionsForEdit, insertNewRowId, insertInteractionAndEdit, insertNewRowSuggestion, insertNewRowSuggestionUserCredit } from "../database/suggestion";
 import { isValidIdSuggestionType } from "../validation/validators";
 
 /**
@@ -83,33 +83,30 @@ export const postNewSuggestion = async (req: Request, res: Response, next: NextF
  *    }
  */
 export const postNewRow = async (req: Request, res: Response) => {
+  const idProfile: number = Number.parseInt(req.session.user.idProfile);
+  const idSession: number = req.session.user.idSession;
+
+  const idInteractionType = 6; // 6 = editRecord
+  const idEntryType = 2; // 2 = EditOnline
+  const mode = "normal"; // normal is default
+
   const rowValues = req.body.rowValues;
   const rowFields = req.body.rowFields;
   console.log("postNewRow: " + rowValues);
   console.log("postNewRow: " + rowFields);
   try {
-    const idUniqueID = await getNewUniqueID();
-    //const idInteraction = await getIdInteraction();
-    //const idEdit = await getIdEdit();
+    const idUniqueID = await getNewUniqueId();
+    const idEdit = await getIdEdit(idSession,idInteractionType,idEntryType,mode);
 
     const newRowIds: number[] = [];
     const newRowFields: number[] = [];
     for(var i = 0; i < rowFields.length; ++i ) {
-      const val = rowValues[i] + 1;
-      const field = rowFields[i] + 1;
-      console.log(val,field);
-
-      // need a new procedure since we know the uniqueId
-      // double-check how we record new rows
-
-      /*
-      
-      1. insert uniqueId
-      2. insert edit
-      3. insert all edits
-        3a. 
-
-      */
+      const newSuggestion = rowValues[i] + 1;
+      const newIdSuggestionType = rowFields[i] + 1; 
+      const idSuggestion = await insertNewRowSuggestion(newSuggestion, idEdit, idProfile, newIdSuggestionType, idUniqueID);
+      insertNewRowSuggestionUserCredit(idProfile, idUniqueID);
+      newRowIds.push(idSuggestion);
+      newRowFields.push(newIdSuggestionType);
     }
 
     return res.status(200).json({
@@ -122,8 +119,16 @@ export const postNewRow = async (req: Request, res: Response) => {
   }
 };
 
-const getNewUniqueID = async () => {
-  const [error,results] = await insertRowId();
+const getNewUniqueId = async () => {
+  const [error,results] = await insertNewRowId();
+  if (error) {
+    return error;
+  }
+  return results.insertId;
+};
+
+const getIdEdit = async (idSession: number,idInteractionType: number,idEntryType: number,mode: string) => {
+  const [error,results] = await insertInteractionAndEdit(idSession,idInteractionType,idEntryType,mode);
   if (error) {
     return error;
   }
