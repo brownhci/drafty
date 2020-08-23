@@ -100,7 +100,7 @@ export const postNewRow = async (req: Request, res: Response) => {
 
     const newRowIds: number[] = [];
     const newRowFields: number[] = [];
-    for(var i = 0; i < rowFields.length; ++i ) {
+    for(let i = 0; i < rowFields.length; ++i ) {
       const newSuggestion = rowValues[i] + 1;
       const newIdSuggestionType = rowFields[i] + 1; 
       const idSuggestion = await insertNewRowSuggestion(newSuggestion, idEdit, idProfile, newIdSuggestionType, idUniqueID);
