@@ -9,7 +9,7 @@
 --
 
 DELIMITER $$
-CREATE PROCEDURE new_suggestion_from_new_row(
+CREATE PROCEDURE new_suggestion_new_row(
     IN  suggestion_var VARCHAR(1000),
     IN idEdit_var INT,
     IN idProfile_var INT,
@@ -26,14 +26,26 @@ START TRANSACTION;
     --- get new idSuggestion
     SET idSuggestion_var = (SELECT LAST_INSERT_ID());
 
-    --- insert last updated - idProfile
-    INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, idSuggestionType_var, idUniqueId_var, idProfile_var, idProfile_var, confidence_var);
-
-    --- insert last updated by - CURRENT_TIMESTAMP
-    INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, idSuggestionType_var, idUniqueId_var, idProfile_var, CURRENT_TIMESTAMP, confidence_var);
-
     --- insert into edit_suggestions
     INSERT INTO Edit_Suggestion (idEdit,idSuggestion,isPrevSuggestion,isNew,isChosen) VALUES (idEdit_var,idSuggestion_var,0,1,1);
+COMMIT;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE new_user_credit_suggestion_new_row(
+    IN idProfile_var INT,
+    IN idUniqueId_var INT
+)
+BEGIN
+    DECLARE confidence_var INT DEFAULT 1;
+
+START TRANSACTION;
+    --- insert last updated - idProfile
+    INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, (SELECT idSuggestionType FROM SuggestionType WHERE idDataType = 5), idUniqueId_var, idProfile_var, idProfile_var, confidence_var);
+
+    --- insert last updated by - CURRENT_TIMESTAMP
+    INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, (SELECT idSuggestionType FROM SuggestionType WHERE idDataType = 6), idUniqueId_var, idProfile_var, CURRENT_TIMESTAMP, confidence_var);
 COMMIT;
 END$$
 DELIMITER ;
