@@ -2,7 +2,7 @@
 -- 1. first create new row; return idUniqueId
 -- 2. create interaction and edit, return idEdit
 --
--- LOOP - new suggestions
+-- LOOP - new suggestions in code
 -- 
 -- 3. (PROCEDURE) create new suggestions and edit_suggestion, return idSuggestion
 -- 4. (PROCEDURE) create suggestions for user and last_updated
@@ -10,7 +10,7 @@
 
 DELIMITER $$
 CREATE PROCEDURE new_suggestion_new_row(
-    IN  suggestion_var VARCHAR(1000),
+    IN suggestion_var VARCHAR(1000),
     IN idEdit_var INT,
     IN idProfile_var INT,
     IN idSuggestionType_var INT,

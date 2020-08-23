@@ -89,6 +89,9 @@ export const postNewRow = async (req: Request, res: Response) => {
   console.log("postNewRow: " + rowFields);
   try {
     const idUniqueID = await getNewUniqueID();
+    //const idInteraction = await getIdInteraction();
+    //const idEdit = await getIdEdit();
+
     const newRowIds: number[] = [];
     const newRowFields: number[] = [];
     for(var i = 0; i < rowFields.length; ++i ) {
@@ -98,6 +101,15 @@ export const postNewRow = async (req: Request, res: Response) => {
 
       // need a new procedure since we know the uniqueId
       // double-check how we record new rows
+
+      /*
+      
+      1. insert uniqueId
+      2. insert edit
+      3. insert all edits
+        3a. 
+
+      */
     }
 
     return res.status(200).json({

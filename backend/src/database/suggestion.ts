@@ -12,6 +12,15 @@ const stmtProcedureEditSuggestions: string = "CALL insert_edit_suggestions(?, ?,
 
 const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)";
 
+//INSERT INTO Edit (idInteraction, idEntryType, mode) VALUES (insert_interaction(idSession_var,idInteractionType_var), idEntryType_var, mode_var);
+const stmtInsertInteractionAndEdit: string = "INSERT INTO Edit (idInteraction, idEntryType, mode) VALUES (insert_interaction(?,?), ?, ?);";
+
+// suggestion_var, idEdit_var, idProfile_var, idSuggestionType_var, idUniqueId_var
+const stmtInsertNewRowSuggestion: string = "CALL new_suggestion_new_row(?, ?, ?, ?, ?, ?);";
+
+//idProfile_var, idUniqueId_var
+const stmtInsertNewRowSuggestionUserCredit: string = "CALL new_user_credit_suggestion_new_row(?, ?);";
+
 const stmtSelectSuggestionsWithSuggestionType: string = "SELECT suggestion FROM Suggestions WHERE idSuggestionType = ? AND active = 1 GROUP BY suggestion ORDER BY suggestion asc";
 const stmtSelectSuggestionsForEdit: string = "SELECT suggestion, 1 as prevSugg FROM Suggestions  WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = ?) "
                                           + " UNION "
@@ -39,9 +48,11 @@ export async function newSuggestion(idSuggestion: number, suggestion: string, id
   }
 }
 
-/**
+/***
+ * 
  * save new row
- */
+ * 
+ ***/
 export async function insertRowId() {
     try {
         const [results] = await db.query(stmtInsertUniqueId);
@@ -52,6 +63,50 @@ export async function insertRowId() {
     }
 }
 
+/***
+*
+* Only used for New Row
+* @returns results contain idEdit
+*
+***/
+export async function insertInteractionAndEdit(idSession: number, idInteractionType: number, idEntryType: number, mode: string) {
+  try {
+    const [results] = await db.query(stmtInsertInteractionAndEdit, [idSession, idInteractionType, idEntryType, mode]);
+    return [null, results];
+  } catch (error) {
+      logDbErr(error, "error during insertInteractionAndEdit", "warn");
+      return error;
+  }
+}
+
+/***
+*
+* Only used for New Row
+* @returns results contain idSuggestion
+*
+***/
+export async function insertNewRowSuggestion(suggestion: string, idEdit: number, idProfile: number, idSuggestionType: number, idUniqueId: number) {
+  try {
+    const [results] = await db.query(stmtInsertNewRowSuggestion, [suggestion, idEdit, idProfile, idSuggestionType, idUniqueId]);
+    return [null, results];
+  } catch (error) {
+      logDbErr(error, "error during insertNewRowSuggestion", "warn");
+      return error;
+  }
+}
+
+/***
+*
+* Only used for New Row
+*
+***/
+export async function insertNewRowSuggestionUserCredit(idProfile: number, idUniqueId: number) {
+  try {
+    db.query(stmtInsertNewRowSuggestionUserCredit, [idProfile, idUniqueId]);
+  } catch (error) {
+      logDbErr(error, "error during insertNewRowSuggestion", "warn");
+  }
+}
 
 /**
  * get prev suggestions and all suggestion type values for edit modal
@@ -83,33 +138,3 @@ export async function getSuggestionsWithSuggestionType(idSuggestionType: number)
     return [error];
   }
 }
-
-// TODO POTENTIAL The following implementation pulls from SuggestionType instead of SuggestionTypeValues, could be used in the future for correct user suggestion
-// export async function getSuggestionsWithSuggestionType(idSuggestionType: string, onlyActiveSuggestions = true, suggestionNonEmpty = true) {
-//   const suggestionType: number = Number.parseInt(idSuggestionType);
-//   const matchNameField = Number.isNaN(suggestionType);
-//   const name = idSuggestionType;
-//
-//   const stmtSelSuggestions = `SELECT ??, max(??) as ?? FROM ?? WHERE${onlyActiveSuggestions ? " ?? = 1 AND " : ""}${suggestionNonEmpty ? " ?? != '' AND " : ""} ${matchNameField ? "?? IN (SELECT ?? from ?? WHERE ?? = ?)" : "?? = ?"} GROUP BY ?? ORDER BY max(??) DESC, ??;`;
-//   try {
-//     const values: Array<number | string> = [suggestion, confidence, confidence, suggestionTableName];
-//     if (onlyActiveSuggestions) {
-//       values.push(active);
-//     }
-//     if (suggestionNonEmpty) {
-//       values.push(suggestion);
-//     }
-//     if (matchNameField) {
-//       values.push(idSuggestionTypeFieldName, idSuggestionTypeFieldName, suggestionTypeTableName, nameTableFieldName, name);
-//     } else {
-//       values.push(idSuggestionTypeFieldName, suggestionType);
-//     }
-//
-//     values.push(suggestion, confidence, suggestion);
-//     const [results] = await db.query(stmtSelSuggestions, values);
-//     return [null, results];
-//   } catch (error) {
-//     logDbErr(error, "error during fetching suggestions", "warn");
-//     return [error];
-//   }
-// }
