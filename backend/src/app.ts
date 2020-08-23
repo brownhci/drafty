@@ -150,7 +150,6 @@ app.get("/data/edithistory", dataSharingCtrl.getEditHistory);
 app.get("/data/csv/:name/:token", dataSharingCtrl.getCSV);
 
 // interactions
-app.post("/newrow", interactionCtrl.postNewRow);
 app.post("/click", interactionCtrl.postClick);
 app.post("/click-double", interactionCtrl.postClickDouble);
 app.post("/sort", interactionCtrl.postSort);
@@ -160,6 +159,7 @@ app.post("/copy-cell", interactionCtrl.postCopyCell);
 app.post("/copy-column", interactionCtrl.postCopyColumn);
 
 // suggestions
+app.post("/newrow", suggestionCtrl.postNewRow);
 app.get("/suggestions", suggestionCtrl.getSuggestions);
 app.get("/suggestions/foredit", suggestionCtrl.getSuggestionsForEdit);
 app.post("/suggestions/new", suggestionCtrl.postNewSuggestion);

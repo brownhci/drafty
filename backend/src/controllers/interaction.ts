@@ -1,35 +1,5 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { insertClick, insertDoubleClick, insertCopyCell, insertCopyColumn, insertSearch, insertSort } from "../database/interaction";
-
-/**
- * POST /new-row
- * Add new row
- *
- * @param {Array<String>} req.body.newRowValues - Contains each value for the new row stored in an array.
- * @param {Array<number>} req.body.newRowFields - Contains the idSuggestionType for each corresponding value in newRowValues.
- * @return {Record<string, number | Array<number> | Array<string>}
- *
- *    {
- *        "idUniqueID": <idUniqueID>,
- *        "newRowIds": Array<idSuggestion>,
- *        "newRowFields": Array<idSuggestionType>
- *    }
- */
-export const postNewRow = (req: Request, res: Response) => {
-  // check for errors
-  const rowvalues = req.body.rowValues;
-  console.log("postNewRow: " + rowvalues);
-  try {
-    // TODO change stub
-    return res.status(200).json({
-      idUniqueID: 100000,
-      newRowIds: [1000000, 1000001, 1000002, 1000003, 1000004, 1000005, 1000006],
-      newRowFields: [1, 2, 3, 5, 7, 8, 9]
-    });
-  } catch (error) {
-    return res.sendStatus(400);
-  }
-};
 
 /**
  * POST /click
