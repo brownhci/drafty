@@ -3,6 +3,7 @@ import crypto from "crypto";
 import moment from "moment";
 import passport from "passport";
 import logger from "../util/logger";
+import process from "../util/process";
 import { Request, Response, NextFunction } from "express";
 import { UserModel, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
 import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup } from "../database/user";
@@ -11,6 +12,7 @@ import { encryptPassword } from "../util/encrypt";
 import { sendMail, userPasswordResetEmailAccount } from "../util/email";
 import { makeRenderObject } from "../config/handlebars-helpers";
 import "../config/passport";
+import { throws } from "assert";
 
 /**
  * GET /login
@@ -60,11 +62,9 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
  * Log out.
  */
 export const logout = async (req: Request, res: Response) => {
-  // sw: what happens to the express-session here?
   /*
   req.logout(); // this should destroy the cookie
   */
-
   req.logout();
   req.session.user.isAuth = false;
   req.session.isAuth = false;
@@ -88,38 +88,42 @@ export const getSignup = (req: Request, res: Response) => {
  * Create a new local account.
  */
 export const postSignup = async (req: Request, res: Response, next: NextFunction) => {
-  // check for errors
-  if (await isValidUsername(req) === false ||
+  try {
+    // check for errors
+    if (await isValidUsername(req) === false ||
       await checkPasswordLength(req) === false ||
       await confirmMatchPassword(req) === false ||
       await emailNotTaken(req) === false
-  ) {
+    ) {
       return res.redirect("/signup");
-  }
-
-  const email = req.body.email;
-  const password: string = await encryptPassword(req.body.password);
-  // creates new user
-  const newUser = {
-    [emailFieldName]: email,
-    [passwordFieldName]: password,
-  };
-
-  const [error] = await updateUserNewSignup(email, password, req.session.user.idProfile);
-  if (error) {
-    return next(error);
-  }
-  
-  // successful insertion
-  req.logIn(newUser, (err) => {
-    if (err) {
-      return next(err);
     }
-    // need to update session
-    req.session.user.isAuth = true;
-    req.session.isAuth = true;
-    res.redirect(req.session.returnTo || "/");
-  });
+
+    const email = req.body.email;
+    const password: string = await encryptPassword(req.body.password);
+    // creates new user
+    const newUser = {
+      [emailFieldName]: email,
+      [passwordFieldName]: password,
+    };
+
+    const [error] = await updateUserNewSignup(email, password, req.session.user.idProfile);
+    if (error) {
+      return next(error);
+    }
+
+    // successful insertion
+    req.logIn(newUser, (err) => {
+      if (err) {
+        return next(err);
+      }
+      // need to update session
+      req.session.user.isAuth = true;
+      req.session.isAuth = true;
+      res.redirect(req.session.returnTo || "/");
+    });
+  } catch(err) {
+      logger.error(err);
+  }
 };
 
 /**
@@ -133,13 +137,15 @@ export async function createAnonUser() {
     [emailFieldName]: email,
     [passwordFieldName]: password,
   };
-
-  const [error, results] = await createUser(newUser);
-  if (error) {
-    return error;
+  try{
+    const [error, results] = await createUser(newUser);
+    if(error) {
+      throws;
+    }
+    return results.insertId;
+  } catch(err) {
+      logger.error(err);
   }
-  
-  return results.insertId;
 }
 
 /**
