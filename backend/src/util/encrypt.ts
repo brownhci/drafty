@@ -1,9 +1,14 @@
 import bcrypt from "bcrypt";
+import logger from "../util/logger";
 
 const saltRounds = 10;
 
 export async function encryptPassword(password: string) {
-  return await bcrypt.hash(password, saltRounds);
+  try {
+    return await bcrypt.hash(password, saltRounds);
+  } catch(err) {
+      logger.error(err);
+  }
 }
 
 /**
@@ -16,5 +21,9 @@ export async function encryptPassword(password: string) {
  *    A boolean representing whether two passwords matches.
  */
 export async function comparePassword(candidatePassword: string, passwordHash: string) {
-  return await bcrypt.compare(candidatePassword, passwordHash);
+  try {
+    return await bcrypt.compare(candidatePassword, passwordHash);
+  } catch(err) {
+      logger.error(err);
+  }
 }
