@@ -297,8 +297,9 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
           @extend .text-white;
         }
         &.active-accompany {
-          @extend .bg-secondary;
-          @extend .text-white;
+          // disable highlighting in accompany cells
+          // @extend .bg-secondary;
+          // @extend .text-white;
         }
         &.near-left-border, &.near-right-border {
           cursor: col-resize;
