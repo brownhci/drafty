@@ -26,4 +26,11 @@ module.exports = {
     filename: "[name].js",
     path: path.join(process.cwd(), "dist", "public", "js", "bundles"),
   },
+  /* // sw: https://webpack.js.org/guides/code-splitting/
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+  },
+  */ 
 };
