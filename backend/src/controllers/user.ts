@@ -135,6 +135,10 @@ export async function createAnonUser() {
   };
 
   const [error, results] = await createUser(newUser);
+  if (error) {
+    return error;
+  }
+  
   return results.insertId;
 }
 

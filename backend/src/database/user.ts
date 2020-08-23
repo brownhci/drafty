@@ -56,8 +56,8 @@ export async function findUserByField(fieldName: string, fieldValue: string | nu
  */
 export async function createUser(user: Partial<UserModel>) {
   try {
-    const [results, fields] = await db.query(stmtInsertUser, [tableName, user]);
-    return [null, results, fields];
+    const [results] = await db.query(stmtInsertUser, [tableName, user]);
+    return [null, results];
   } catch (error) {
     logDbErr(error, "error during creating user", "warn");
     return [error];
