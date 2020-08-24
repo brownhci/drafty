@@ -468,7 +468,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
           bottom: 0;
         }
 
-        button#confirm-newrow, button#discard-newrow {
+        button#confirm-newrow, button#discard-newrow, button#close-newrow {
           @extend .btn;
           @extend .position-absolute;
           top: 50%;
@@ -480,6 +480,10 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
           right: $table-cell-padding;
         }
         button#discard-newrow {
+          @extend .btn-danger;
+          left: 6rem;
+        }
+        button#close-newrow {
           @extend .btn-danger;
           left: $table-cell-padding;
         }

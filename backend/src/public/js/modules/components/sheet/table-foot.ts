@@ -85,6 +85,7 @@ class TableFoot {
           this.insertionTableRow.classList.remove(activeClass);
           this.insertionConfirmButton.remove();
           this.insertionDiscardButton.remove();
+          this.insertionCloseButton.remove();
           this.statusTableCell.textContent = "";
           break;
         case StatusMode.InsertionVerification:
@@ -102,6 +103,7 @@ class TableFoot {
       switch (mode) {
         case StatusMode.Insertion:
           this.insertionTableRow.classList.add(activeClass);
+          this.statusTableCell.appendChild(this.insertionCloseButton);
           this.statusTableCell.appendChild(this.insertionDiscardButton);
           this.statusTableCell.appendChild(this.insertionConfirmButton);
           this.insertionInputs.forEach((inputElement, columnIndex) => this.verifyInputValue(columnIndex));
@@ -155,6 +157,8 @@ class TableFoot {
   private insertionErrorMessage: HTMLElement = document.createElement("span");
   /** show in the status table row, used for discarding the data inputted for the new row */
   private insertionDiscardButton: HTMLButtonElement = document.createElement("button");
+  /** show in the status table row, used for closing the table footer */
+  private insertionCloseButton: HTMLButtonElement = document.createElement("button");
   /** the HTML template for new row */
   private newRowTemplate: HTMLTableRowElement;
 
@@ -179,6 +183,9 @@ class TableFoot {
     this.insertionDiscardButton.type = "button";
     this.insertionDiscardButton.id = "discard-newrow";
     this.insertionDiscardButton.textContent = "Discard";
+    this.insertionCloseButton.type = "button";
+    this.insertionCloseButton.id = "close-newrow";
+    this.insertionCloseButton.textContent = "Close";
     /* error message initialization */
     this.insertionErrorMessage.id = "newrow-error";
 
@@ -203,6 +210,10 @@ class TableFoot {
               }),
               () => this.setStatusTimeout(StatusMode.InsertionFailure, 1000, StatusMode.Insertion));
           }
+        } else if (target === this.insertionCloseButton) {
+          // deactivate contextmenu insert row menu item since insertion has finished
+          columnLabelInsertRowMenuItem.deactivate();
+          this.statusMode = StatusMode.Idle;
         }
       }
     }, true);
