@@ -129,6 +129,49 @@ START TRANSACTION;
 COMMIT;
 END$$
 
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_suggestion_new_row`(
+    IN suggestion_var VARCHAR(1000),
+    IN idEdit_var INT,
+    IN idProfile_var INT,
+    IN idSuggestionType_var INT,
+    IN idUniqueId_var INT,
+    OUT idSuggestion INT
+)
+BEGIN
+	DECLARE idSuggestion_var INT;
+    DECLARE confidence_var INT DEFAULT 1;
+
+START TRANSACTION;  
+    
+    INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, idSuggestionType_var, idUniqueId_var, idProfile_var, suggestion_var, confidence_var);
+    
+    SET idSuggestion_var = (SELECT LAST_INSERT_ID());
+
+    
+    INSERT INTO Edit_NewRow (idEdit,idSuggestion) VALUES (idEdit_var,idSuggestion_var);
+COMMIT;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_user_credit_suggestion_new_row`(
+    IN idProfile_var INT,
+    IN idUniqueId_var INT
+)
+BEGIN
+    DECLARE confidence_var INT DEFAULT 1;
+
+START TRANSACTION;
+    
+    INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, (SELECT idSuggestionType FROM SuggestionType WHERE idDataType = 5), idUniqueId_var, idProfile_var, idProfile_var, confidence_var);
+
+    
+    INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, (SELECT idSuggestionType FROM SuggestionType WHERE idDataType = 6), idUniqueId_var, idProfile_var, CURRENT_TIMESTAMP, confidence_var);
+COMMIT;
+END$$
+DELIMITER ;
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `new_suggestion` (INOUT `idSuggestion_var` INT, IN `suggestion_var` VARCHAR(1000), IN `idProfile_var` INT, OUT `isNewSuggestion` INT)  BEGIN
     DECLARE sugg_unchanged INT DEFAULT 0;
     DECLARE sugg_exists INT DEFAULT 0;
