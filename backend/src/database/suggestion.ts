@@ -104,7 +104,7 @@ export async function insertNewRowSuggestionUserCredit(idProfile: number, idUniq
   try {
     db.query(stmtInsertNewRowSuggestionUserCredit, [idProfile, idUniqueId]);
   } catch (error) {
-      logDbErr(error, "error during insertNewRowSuggestion", "warn");
+      logDbErr(error, "error during insertNewRowSuggestionUserCredit", "warn");
   }
 }
 

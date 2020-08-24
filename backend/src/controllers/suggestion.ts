@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { getSuggestionsWithSuggestionType, newSuggestion, selectSuggestionsForEdit, insertNewRowId, insertInteractionAndEdit, insertNewRowSuggestion, insertNewRowSuggestionUserCredit } from "../database/suggestion";
 import { isValidIdSuggestionType } from "../validation/validators";
+import logger from "../util/logger";
 
 /**
  * GET /suggestions?idSuggestionType=...
@@ -90,10 +91,11 @@ export const postNewRow = async (req: Request, res: Response) => {
   const idEntryType = 2; // 2 = EditOnline
   const mode = "normal"; // normal is default
 
-  const rowValues = req.body.rowValues;
-  const rowFields = req.body.rowFields;
-  console.log("postNewRow: " + rowValues);
-  console.log("postNewRow: " + rowFields);
+  const rowValues = req.body.newRowValues;
+  const rowFields = req.body.newRowFields;
+
+  console.log("postNewRow - rowValues: " + rowValues);
+  console.log("postNewRow - rowFields: " + rowFields);
   try {
     const idUniqueID = await getNewUniqueId();
     const idEdit = await getIdEdit(idSession,idInteractionType,idEntryType,mode);
