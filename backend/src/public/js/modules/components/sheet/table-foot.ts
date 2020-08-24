@@ -179,13 +179,22 @@ class TableFoot {
     /* button initialization */
     this.insertionConfirmButton.type = "button";
     this.insertionConfirmButton.id = "confirm-newrow";
-    this.insertionConfirmButton.textContent = "Insert Row";
+    this.insertionConfirmButton.textContent = "Save Row";
+
     this.insertionDiscardButton.type = "button";
     this.insertionDiscardButton.id = "discard-newrow";
-    this.insertionDiscardButton.textContent = "Discard";
+    const insertionDiscardScreenReaderText = document.createElement("span");
+    insertionDiscardScreenReaderText.textContent = "Discard";
+    insertionDiscardScreenReaderText.classList.add("sr-only", "sr-only-focusable");
+    this.insertionDiscardButton.appendChild(insertionDiscardScreenReaderText);
+
     this.insertionCloseButton.type = "button";
     this.insertionCloseButton.id = "close-newrow";
-    this.insertionCloseButton.textContent = "Close";
+    const insertionCloseScreenReaderText = document.createElement("span");
+    insertionCloseScreenReaderText.textContent = "Close";
+    insertionCloseScreenReaderText.classList.add("sr-only", "sr-only-focusable");
+    this.insertionCloseButton.appendChild(insertionCloseScreenReaderText);
+
     /* error message initialization */
     this.insertionErrorMessage.id = "newrow-error";
 
