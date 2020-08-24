@@ -27,7 +27,7 @@ START TRANSACTION;
     SET idSuggestion_var = (SELECT LAST_INSERT_ID());
 
     --- insert into edit_suggestions
-    INSERT INTO Edit_Suggestion (idEdit,idSuggestion,isPrevSuggestion,isNew,isChosen) VALUES (idEdit_var,idSuggestion_var,0,1,1);
+    INSERT INTO Edit_NewRow (idEdit,idSuggestion) VALUES (idEdit_var,idSuggestion_var);
 COMMIT;
 END$$
 DELIMITER ;
