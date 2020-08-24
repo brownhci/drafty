@@ -16,7 +16,7 @@ const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VA
 const stmtInsertInteractionAndEdit: string = "INSERT INTO Edit (idInteraction, idEntryType, mode) VALUES (insert_interaction(?,?), ?, ?) ";
 
 // suggestion_var, idEdit_var, idProfile_var, idSuggestionType_var, idUniqueId_var
-const stmtInsertNewRowSuggestion: string = "CALL new_suggestion_new_row(?, ?, ?, ?, ?) ";
+const stmtInsertNewRowSuggestion: string = "SET @p0=?; SET @p1=?; SET @p2=?; SET @p3=?; SET @p4=?; CALL new_suggestion_new_row(@p0, @p1, @p2, @p3, @p4, @p5);  SELECT @p5 AS idSuggestion_new;";
 
 //idProfile_var, idUniqueId_var
 const stmtInsertNewRowSuggestionUserCredit: string = "CALL new_user_credit_suggestion_new_row(?, ?) ";
@@ -88,13 +88,19 @@ export async function insertInteractionAndEdit(idSession: number, idInteractionT
 ***/
 export async function insertNewRowSuggestion(suggestion: string, idEdit: number, idProfile: number, idSuggestionType: number, idUniqueId: number) {
   try {
-    console.log("stmtInsertNewRowSuggestion: ", "suggestion", suggestion, "idEdit", idEdit, "idProfile", idProfile, "idSuggestionType", idSuggestionType, "idUniqueId", idUniqueId)
+    //console.log("stmtInsertNewRowSuggestion: ", "suggestion", suggestion, "idEdit", idEdit, "idProfile", idProfile, "idSuggestionType", idSuggestionType, "idUniqueId", idUniqueId)
+
     const [results] = await db.query(stmtInsertNewRowSuggestion, [suggestion, idEdit, idProfile, idSuggestionType, idUniqueId]);
-    return [null, results];
+    console.log(results);
+
+    const pos = Object.keys(results).pop(); // get last
+    const idSuggestion_new = (results as any)[pos][0]["idSuggestion_new"]; // sw: this is bc of how procedures return data
+    console.log("idSuggestion_new = " + idSuggestion_new);
+
+    return idSuggestion_new;
   } catch (error) {
       console.log(error);
       logDbErr(error, "error during insertNewRowSuggestion", "warn");
-      return error;
   }
 }
 
