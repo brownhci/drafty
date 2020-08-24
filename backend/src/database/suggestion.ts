@@ -3,23 +3,23 @@ import { db,logDbErr } from "./mysql";
 /*
 * var used idSuggestion, suggestion, idProfile
 */
-const stmtProcedureEdit: string = "SET @p0=?; SET @p1=?; SET @p2=?; CALL new_suggestion(@p0, @p1, @p2, @p3); SELECT @p0 AS idSuggestion, @p3 AS isNewSuggestion;";
+const stmtProcedureEdit: string = "SET @p0=?; SET @p1=?; SET @p2=?; CALL new_suggestion(@p0, @p1, @p2, @p3); SELECT @p0 AS idSuggestion, @p3 AS isNewSuggestion; ";
 
 /*
 * idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
 */
-const stmtProcedureEditSuggestions: string = "CALL insert_edit_suggestions(?, ?, ?, ?, ?, ?, ?);";
+const stmtProcedureEditSuggestions: string = "CALL insert_edit_suggestions(?, ?, ?, ?, ?, ?, ?) ";
 
-const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1)";
+const stmtInsertUniqueId: string = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1) ";
 
 //INSERT INTO Edit (idInteraction, idEntryType, mode) VALUES (insert_interaction(idSession_var,idInteractionType_var), idEntryType_var, mode_var);
-const stmtInsertInteractionAndEdit: string = "INSERT INTO Edit (idInteraction, idEntryType, mode) VALUES (insert_interaction(?,?), ?, ?);";
+const stmtInsertInteractionAndEdit: string = "INSERT INTO Edit (idInteraction, idEntryType, mode) VALUES (insert_interaction(?,?), ?, ?) ";
 
 // suggestion_var, idEdit_var, idProfile_var, idSuggestionType_var, idUniqueId_var
-const stmtInsertNewRowSuggestion: string = "CALL new_suggestion_new_row(?, ?, ?, ?, ?, ?);";
+const stmtInsertNewRowSuggestion: string = "CALL new_suggestion_new_row(?, ?, ?, ?, ?) ";
 
 //idProfile_var, idUniqueId_var
-const stmtInsertNewRowSuggestionUserCredit: string = "CALL new_user_credit_suggestion_new_row(?, ?);";
+const stmtInsertNewRowSuggestionUserCredit: string = "CALL new_user_credit_suggestion_new_row(?, ?) ";
 
 const stmtSelectSuggestionsWithSuggestionType: string = "SELECT suggestion FROM Suggestions WHERE idSuggestionType = ? AND active = 1 GROUP BY suggestion ORDER BY suggestion asc";
 const stmtSelectSuggestionsForEdit: string = "SELECT suggestion, 1 as prevSugg FROM Suggestions  WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = ?) "
@@ -74,6 +74,7 @@ export async function insertInteractionAndEdit(idSession: number, idInteractionT
     const [results] = await db.query(stmtInsertInteractionAndEdit, [idSession, idInteractionType, idEntryType, mode]);
     return [null, results];
   } catch (error) {
+      console.log(error);
       logDbErr(error, "error during insertInteractionAndEdit", "warn");
       return error;
   }
@@ -87,9 +88,11 @@ export async function insertInteractionAndEdit(idSession: number, idInteractionT
 ***/
 export async function insertNewRowSuggestion(suggestion: string, idEdit: number, idProfile: number, idSuggestionType: number, idUniqueId: number) {
   try {
+    console.log("stmtInsertNewRowSuggestion: ", "suggestion", suggestion, "idEdit", idEdit, "idProfile", idProfile, "idSuggestionType", idSuggestionType, "idUniqueId", idUniqueId)
     const [results] = await db.query(stmtInsertNewRowSuggestion, [suggestion, idEdit, idProfile, idSuggestionType, idUniqueId]);
     return [null, results];
   } catch (error) {
+      console.log(error);
       logDbErr(error, "error during insertNewRowSuggestion", "warn");
       return error;
   }
@@ -102,8 +105,10 @@ export async function insertNewRowSuggestion(suggestion: string, idEdit: number,
 ***/
 export async function insertNewRowSuggestionUserCredit(idProfile: number, idUniqueId: number) {
   try {
+    console.log("stmtInsertNewRowSuggestionUserCredit: ", idProfile, idUniqueId)
     db.query(stmtInsertNewRowSuggestionUserCredit, [idProfile, idUniqueId]);
   } catch (error) {
+      console.log(error);
       logDbErr(error, "error during insertNewRowSuggestionUserCredit", "warn");
   }
 }

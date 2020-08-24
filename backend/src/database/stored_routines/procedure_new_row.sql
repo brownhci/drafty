@@ -15,7 +15,7 @@ CREATE PROCEDURE new_suggestion_new_row(
     IN idProfile_var INT,
     IN idSuggestionType_var INT,
     IN idUniqueId_var INT,
-    OUT idSuggestion INT
+    OUT idSuggestion_new INT
 )
 BEGIN
     DECLARE idSuggestion_var INT;
@@ -25,10 +25,10 @@ START TRANSACTION;
     --- insert new suggestion
     INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (null, idSuggestionType_var, idUniqueId_var, idProfile_var, suggestion_var, confidence_var);
     --- get new idSuggestion
-    SET idSuggestion_var = (SELECT LAST_INSERT_ID());
+    SET idSuggestion_new = (SELECT LAST_INSERT_ID());
 
     --- insert into edit_suggestions
-    INSERT INTO Edit_NewRow (idEdit,idSuggestion) VALUES (idEdit_var,idSuggestion_var);
+    INSERT INTO Edit_NewRow (idEdit,idSuggestion) VALUES (idEdit_var,idSuggestion_new);
 COMMIT;
 END$$
 DELIMITER ;
