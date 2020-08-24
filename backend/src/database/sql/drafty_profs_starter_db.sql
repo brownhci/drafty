@@ -397,6 +397,18 @@ CREATE TABLE `Edit_Suggestion` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `Edit_NewRow`
+--
+
+CREATE TABLE `Edit_NewRow` (
+  `idEdit` int(11) NOT NULL,
+  `idSuggestion` int(11) NOT NULL,
+  `isCorrect` tinyint(1) NOT NULL DEFAULT '2'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `EntryType`
 --
 
@@ -73560,6 +73572,14 @@ ALTER TABLE `Edit_Suggestion`
   ADD KEY `_index_edit_suggestion_idSuggestion_agsdh1872dg` (`idSuggestion`);
 
 --
+-- Indexes for table `Edit_NewRow`
+--
+ALTER TABLE `Edit_NewRow`
+  ADD UNIQUE KEY `idEdit` (`idEdit`,`idSuggestion`),
+  ADD KEY `_index_edit_suggestion_idEdit_agsdh1872dg` (`idEdit`),
+  ADD KEY `_index_edit_suggestion_idSuggestion_agsdh1872dg` (`idSuggestion`);
+
+--
 -- Indexes for table `EntryType`
 --
 ALTER TABLE `EntryType`
@@ -73836,6 +73856,14 @@ ALTER TABLE `Edit`
 ALTER TABLE `Edit_Suggestion`
   ADD CONSTRAINT `_fk_idEdit_from_Edit_Sugg_asdkl123` FOREIGN KEY (`idEdit`) REFERENCES `Edit` (`idEdit`),
   ADD CONSTRAINT `_fk_idSuggestion_from_Edit_Sugg_asdkl123` FOREIGN KEY (`idSuggestion`) REFERENCES `Suggestions` (`idSuggestion`);
+
+--
+-- Constraints for table `Edit_NewRow`
+--
+ALTER TABLE `Edit_NewRow`
+  ADD CONSTRAINT `_fk_idEdit_from_Edit_NewRow_asdkl123` FOREIGN KEY (`idEdit`) REFERENCES `Edit` (`idEdit`),
+  ADD CONSTRAINT `_fk_idSuggestion_from_Edit_NewRow_asdkl123` FOREIGN KEY (`idSuggestion`) REFERENCES `Suggestions` (`idSuggestion`);
+
 
 --
 -- Constraints for table `NewRow`
