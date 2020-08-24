@@ -27,10 +27,6 @@ class CellEditor {
 
   /** click to go to the associated cell */
   private readonly locateCellButtonElement = document.getElementById("locate-cell") as HTMLButtonElement;
-  /** the row index */
-  private readonly locateCellRowElement = document.getElementById("locate-cell-associated-row") as HTMLSpanElement;
-  /** the column index */
-  private readonly locateCellColumnElement = document.getElementById("locate-cell-associated-col") as HTMLSpanElement;
   /** whether the location element is shown in the input editor */
 
   /** a flag indicates whether the form will automatically deactivate when cell is no longer reachable by scrolling */
@@ -194,16 +190,6 @@ class CellEditor {
   private deactivateLocateCell() {
     this.locateCellButtonElement.classList.remove(activeClass);
   }
-  updateLocateCell() {
-    // row index
-    /* since recordIndex is 0-based */
-    const elementIndex = tableDataManager.getElementIndex(getTableRow(this.cellElement));
-    this.locateCellRowElement.textContent = `${elementIndex + 1}`;
-    // column index
-    const columnIndex = this.cellElement.cellIndex;
-    const columnLabelText = getColumnLabelText(getColumnLabel(columnIndex));
-    this.locateCellColumnElement.textContent = columnLabelText;
-  }
   private activateLocateCell() {
     if (this.isActive && !this.isLocateCellActive) {
       this.locateCellButtonElement.classList.add(activeClass);
@@ -296,7 +282,6 @@ class CellEditor {
         this.alignTableCellInputForm();
       });
 
-      this.updateLocateCell();
       this.resizeFormToFitText(this.fuseSelect.longestText, 88);
       this.alignTableCellInputForm();
       this.showHelpWhenInactivityReached();
