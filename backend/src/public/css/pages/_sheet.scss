@@ -473,19 +473,32 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
           @extend .position-absolute;
           top: 50%;
           transform: translateY(-50%);
+          &::before, &::after {
+            @extend .font-awesome;
+          }
         }
 
         button#confirm-newrow {
           @extend .btn-success;
           right: $table-cell-padding;
+          &::before {
+            content: "\f0c7";
+            @extend .mr-2;
+          }
         }
         button#discard-newrow {
-          @extend .btn-danger;
-          left: 6rem;
+          @extend .btn-outline-secondary;
+          left: 5rem;
+          &::after {
+            content: "\f2ea";
+          }
         }
         button#close-newrow {
-          @extend .btn-danger;
+          @extend .btn-outline-secondary;
           left: $table-cell-padding;
+          &::after {
+            content: "\f00d";
+          }
         }
 
         #newrow-error {

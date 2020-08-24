@@ -29,8 +29,8 @@ function getColumnSuggestions(idSuggestionType: string): Array<Option> {
  * @param {number} idSuggestionType - The id suggestion type of a table column {@link ../../api/record-interactions.ts#getIdSuggestionType}.
  * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Option objects.
  */
-export async function fetchColumnSuggestions(idSuggestion: number): Promise<Array<Option>> {
-  const url = getColumnSuggestionURL(idSuggestion);
+export async function fetchColumnSuggestions(idSuggestionType: number): Promise<Array<Option>> {
+  const url = getColumnSuggestionURL(idSuggestionType);
   try {
     const response = await fetch(url);
     if (!response.ok) {
