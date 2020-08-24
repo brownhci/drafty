@@ -229,7 +229,7 @@ class TableFoot {
 
     tableElement.addEventListener("blur", (event: Event) => {
       const target = event.target as HTMLElement;
-      if (isInput(target) && this.isInserting) {
+      if (this.isNewRowInsertionInput(target)) {
         const columnIndex = this.insertionInputs.indexOf(target as HTMLInputElement);
         if (columnIndex >= 0) {
           this.verifyInputValue(columnIndex);
@@ -240,7 +240,7 @@ class TableFoot {
     tableElement.addEventListener("focus", (event: Event) => {
       const target = event.target as HTMLElement;
 
-      if (this.isInserting && isInput(target) && target.classList.contains(invalidClass) && this.insertionTableRow.contains(target)) {
+      if (this.isNewRowInsertionInput(target) && target.classList.contains(invalidClass)) {
         this.insertionErrorMessage.textContent = target.dataset.errorMessage;
         this.statusTableCell.appendChild(this.insertionErrorMessage);
       } else {
@@ -262,6 +262,10 @@ class TableFoot {
       this.insertionInputs[columnIndex].value = "";
       this.verifyInputValue(columnIndex);
     }
+  }
+
+  isNewRowInsertionInput(inputElement: HTMLElement): boolean {
+    return this.isInserting && isInput(inputElement) && this.insertionTableRow.contains(inputElement);
   }
 
   private isRequiredInput(inputElement: HTMLInputElement): boolean {

@@ -123,7 +123,7 @@ export function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCel
 tableElement.addEventListener("paste", function (event: ClipboardEvent) {
   const pasteContent = event.clipboardData.getData("text");
   const target: HTMLElement = event.target as HTMLElement;
-  if(isColumnSearchInput(target)) {
+  if(isColumnSearchInput(target) || tableFoot.isNewRowInsertionInput(target)) {
     const targetInput: HTMLInputElement = event.target as HTMLInputElement;
     targetInput.value = pasteContent;
     targetInput.dispatchEvent(new Event("input"));
