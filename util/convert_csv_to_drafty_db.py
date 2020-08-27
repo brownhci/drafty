@@ -16,8 +16,8 @@ newSuggestions = {}
 sql_check_db_exists = "SELECT count(*) as ct FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME LIKE %s"
 sql_col_order = "SELECT * FROM SuggestionType st ORDER BY st.columnOrder"  
 
-sql_insert_row = "INSERT INTO UniqueId (idUniqueID, active) VALUES (null, 1) "
-sql_insert_suggestion = "INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (?, ?, ?, 2, ?, 10);" # sw: 2 is the system user idProfile
+sql_insert_row = "INSERT INTO UniqueId (idUniqueID, active) VALUES (%i, 1) "
+sql_insert_suggestion = "INSERT INTO Suggestions (idSuggestion, idSuggestionType, idUniqueID, idProfile, suggestion, confidence) VALUES (%i, %i, %i, 2, %s, 10);" # sw: 2 is the system user idProfile
 
 # UTIL functions
 
@@ -72,18 +72,34 @@ def check_headers_cols(cursor):
         else:
             columns[name] = {'id':idSuggestionType,'inCSV':0,'inDB':1}
 
+def print_test(idRow,idSuggestion,idSuggestionType,suggestion):
+    print('idRow: ', idRow)
+    print('idSuggestion: ', idSuggestion)
+    print('idSuggestionType: ', idSuggestionType)
+    print('suggestion: ', suggestion,'\n')
+
 # loop through csv
-def convert_data(csv_name):
+def convert_data(csv_name,cursor):
     idRow = 0
     idSuggestion = 0
-    with open(csv_name) as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            idRow += 1
-            for k,v in columns.items():
-                if v['inCSV']:
-                    idSuggestion += 1
-                    print(k,v,row[k])
+    try:
+        with open(csv_name) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                idRow += 1
+                cursor.execute(sql_insert_row, (idRow,1))
+                for k,v in columns.items():
+                    idSuggestionType = v['id']
+                    if v['inCSV']:
+                        idSuggestion += 1
+                        suggestion = row[k]
+                        #print_test(idRow,idSuggestion,idSuggestionType,suggestion)
+                        # idSuggestion, idSuggestionType, idUniqueID, suggestion
+                        cursor.execute(sql_insert_suggestion, (idSuggestion, idSuggestionType, idRow, suggestion))
+    except Exception as e:
+        print('Error convert_data: ' + e)
+    finally:
+        pass
 
 
 ##########################
@@ -118,7 +134,9 @@ if __name__ == '__main__':
         with db.cursor() as cursor:
             get_columns(args.csv)
             check_headers_cols(cursor)
-            convert_data(args.csv)
+            convert_data(args.csv,cursor)
+        # db connection is not autocommit by default. So you must commit to save changes.
+        db.commit()
     except Exception as e:
         print('ERROR exiting...')
         print(e)
