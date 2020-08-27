@@ -34,6 +34,9 @@ def get_db_creds():
                 dbpass = kv[1]
     return dbuser, dbpass
 
+def get_data_pd(file_location, index):
+    return pd.read_csv(file_location, index_col = index)
+
 def create_new_db(new_db_name):
     command = "mysqldump drafty_seed | mysqldump " + new_db_name # COPY drafty seed db
     os.popen(command)
@@ -59,7 +62,7 @@ def get_columns(csv_name):
         header = next(reader)
         for name in header:
             columns[name] = {'id':-1,'inCSV':1,'inDB':-1}
-    print(columns)
+    #print(columns)
 
 def check_headers_cols(cursor):
     cursor.execute(sql_col_order)
@@ -78,6 +81,36 @@ def print_test(idRow,idSuggestion,idSuggestionType,suggestion):
     print('idSuggestionType: ', idSuggestionType)
     print('suggestion: ', suggestion,'\n')
 
+def get_sql_from_file(filename):
+    """
+    Get the SQL instruction from a file
+
+    :return: a list of each SQL query whithout the trailing ";"
+    """
+    from os import path
+
+    # File did not exists
+    if path.isfile(filename) is False:
+        print("File load error : {}".format(filename))
+        return False
+
+    else:
+        with open(filename, "r") as sql_file:
+            # Split file in list
+            ret = sql_file.read().split(';')
+            # drop last empty entry
+            ret.pop()
+            return ret
+
+def create_new_seed_db(filename): 
+    request_list = get_sql_from_file()
+
+    if request_list is not False:
+
+        for idx, sql_request in enumerate(request_list):
+            message = MSG['request'].format(idx, sql_request)
+            cursor.execute(sql_request + ';')
+
 # loop through csv
 def convert_data(csv_name,cursor):
     idRow = 0
@@ -87,19 +120,19 @@ def convert_data(csv_name,cursor):
             reader = csv.DictReader(csvfile)
             for row in reader:
                 idRow += 1
-                cursor.execute(sql_insert_row, (idRow,1))
+                #cursor.execute(sql_insert_row, (idRow,1))
                 for k,v in columns.items():
                     idSuggestionType = v['id']
                     if v['inCSV']:
                         idSuggestion += 1
                         suggestion = row[k]
-                        #print_test(idRow,idSuggestion,idSuggestionType,suggestion)
+                        print_test(idRow,idSuggestion,idSuggestionType,suggestion)
                         # idSuggestion, idSuggestionType, idUniqueID, suggestion
-                        cursor.execute(sql_insert_suggestion, (idSuggestion, idSuggestionType, idRow, suggestion))
+                        #cursor.execute(sql_insert_suggestion, (idSuggestion, idSuggestionType, idRow, suggestion))
     except Exception as e:
         print('Error convert_data: ' + e)
     finally:
-        pass
+        return
 
 
 ##########################
@@ -120,7 +153,7 @@ if __name__ == '__main__':
     
     db_exists = check_if_db_exists(db_check.cursor(),args.database)
     if db_exists:
-        print('db_exists')
+        #print('db_exists')
         db_check.close()
         db = pymysql.connect(host='localhost', db=args.database,  
                         user=db_user, password=db_pass,
@@ -136,7 +169,7 @@ if __name__ == '__main__':
             check_headers_cols(cursor)
             convert_data(args.csv,cursor)
         # db connection is not autocommit by default. So you must commit to save changes.
-        db.commit()
+        #db.commit()
     except Exception as e:
         print('ERROR exiting...')
         print(e)
