@@ -163,7 +163,8 @@ def convert_data(csv_name,db):
                     if v['inCSV']:
                         idSuggestion += 1
                         suggestion = row[k]
-                        print_test(idRow,idSuggestion,idSuggestionType,suggestion)
+                        # for debugging
+                        # print_test(idRow,idSuggestion,idSuggestionType,suggestion)
                         # idSuggestion, idSuggestionType, idUniqueID, suggestion
                         insert_new_suggestion(db, idSuggestion, idSuggestionType, idRow, suggestion)
     except Exception as e:
