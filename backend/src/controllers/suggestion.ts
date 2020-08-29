@@ -106,11 +106,13 @@ export const postNewRow = async (req: Request, res: Response) => {
       const newSuggestion = rowValues[i] + 1;
       const newIdSuggestionType = rowFields[i] + 1; 
       const idSuggestion = await insertNewRowSuggestion(newSuggestion, idEdit, idProfile, newIdSuggestionType, idUniqueID);
+      console.log('postNewRow - new idSuggestion: ' + idSuggestion);
       insertNewRowSuggestionUserCredit(idProfile, idUniqueID);
       newRowIds.push(idSuggestion);
       newRowFields.push(newIdSuggestionType);
     }
 
+    console.log('idUniqueID', idUniqueID,'newRowIds', newRowIds,'newRowFields', newRowFields);
     return res.status(200).json({
       idUniqueID: idUniqueID,
       newRowIds: newRowIds,
