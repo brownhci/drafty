@@ -194,6 +194,7 @@ def get_db_creds():
 
 if __name__ == '__main__':
     # python3 build_spreadsheet.py --host localhost --database 2300profs 2300profs.hbs
+    # python3 build_spreadsheet.py --host localhost --database csprofessors csprofessors.hbs
     parser = argparse.ArgumentParser(description='Write database data to table HTML file.')
     parser.add_argument('--host', default='localhost',
                         help='The host of the MySQL database')
