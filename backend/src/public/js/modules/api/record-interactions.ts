@@ -98,20 +98,20 @@ export function recordCellClick(tableCellElement: HTMLTableCellElement) {
     // only record click on table data now
     const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
     const rowValues = getTableRowCellValues(tableRow);
-
     const idSuggestion = getIdSuggestion(tableCellElement);
     recordInteraction(postCellClickURL(), {idSuggestion, rowValues});
   }
 }
 
 export function recordRowInsertion(rowValues: Array<string>, idSuggestionTypes: Array<number>, successHandler?: ResponseHandler, failureHandler?: ResponseHandler) {
-  recordInteraction(postNewRowURL(), { newRowValues: rowValues, newRowFields: idSuggestionTypes }, successHandler, failureHandler);
+  recordInteraction(postNewRowURL(), { 
+      newRowValues: rowValues, newRowFields: idSuggestionTypes 
+    }, successHandler, failureHandler);
 }
 
 export function recordCellDoubleClick(tableCellElement: HTMLTableCellElement) {
   const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
   const rowValues = getTableRowCellValues(tableRow);
-
   const idSuggestion = getIdSuggestion(tableCellElement);
   recordInteraction(postCellDoubleClickURL(), {idSuggestion, rowValues});
 }
@@ -151,8 +151,8 @@ export function recordColumnSearch(columnSearch: HTMLTableCellElement, isFullSea
     const matchedValues: string: a pipe delimited list of unique values from that column that matched the input
     const multiSearchValues: string idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
   */
-  const url = isFullSearch ? postColumnCompleteSearchURL() : postColumnPartialSearchURL();
-  recordInteraction(url, {
+  const endPointInteraction = isFullSearch ? postColumnCompleteSearchURL() : postColumnPartialSearchURL();
+  recordInteraction(endPointInteraction, {
     idSuggestionType: getIdSuggestionType(columnLabel),
     isMulti: Number(isMultipleColumnSearchInputFilled()),
     isFromUrl: 0,
