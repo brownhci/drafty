@@ -94,10 +94,10 @@ export async function insertNewRowSuggestion(suggestion: string, idEdit: number,
     console.log(results);
 
     const pos = Object.keys(results).pop(); // get last
-    const idSuggestion_new = (results as any)[pos][0]["idSuggestion_new"]; // sw: this is bc of how procedures return data
-    console.log("idSuggestion_new = " + idSuggestion_new);
+    const idSuggestionNew = (results as any)[pos][0]["idSuggestion_new"]; // sw: this is bc of how procedures return data
+    //console.log("idSuggestionNew = " + idSuggestionNew);
 
-    return idSuggestion_new;
+    return idSuggestionNew;
   } catch (error) {
       console.log(error);
       logDbErr(error, "error during insertNewRowSuggestion", "warn");
@@ -111,7 +111,7 @@ export async function insertNewRowSuggestion(suggestion: string, idEdit: number,
 ***/
 export async function insertNewRowSuggestionUserCredit(idProfile: number, idUniqueId: number) {
   try {
-    console.log("stmtInsertNewRowSuggestionUserCredit: ", idProfile, idUniqueId)
+    //console.log("stmtInsertNewRowSuggestionUserCredit: ", idProfile, idUniqueId);
     db.query(stmtInsertNewRowSuggestionUserCredit, [idProfile, idUniqueId]);
   } catch (error) {
       console.log(error);

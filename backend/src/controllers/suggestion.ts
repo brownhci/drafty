@@ -94,8 +94,8 @@ export const postNewRow = async (req: Request, res: Response) => {
   const rowValues = req.body.newRowValues;
   const rowFields = req.body.newRowFields;
 
-  console.log("postNewRow - rowValues: " + rowValues);
-  console.log("postNewRow - rowFields: " + rowFields);
+  //console.log("postNewRow - rowValues: " + rowValues);
+  //console.log("postNewRow - rowFields: " + rowFields);
   try {
     const idUniqueID = await getNewUniqueId();
     const idEdit = await getIdEdit(idSession,idInteractionType,idEntryType,mode);
@@ -103,16 +103,15 @@ export const postNewRow = async (req: Request, res: Response) => {
     const newRowIds: number[] = [];
     const newRowFields: number[] = [];
     for(let i = 0; i < rowFields.length; ++i ) {
-      const newSuggestion = rowValues[i] + 1;
-      const newIdSuggestionType = rowFields[i] + 1; 
+      const newSuggestion = rowValues[i];
+      const newIdSuggestionType = rowFields[i]; 
       const idSuggestion = await insertNewRowSuggestion(newSuggestion, idEdit, idProfile, newIdSuggestionType, idUniqueID);
-      console.log('postNewRow - new idSuggestion: ' + idSuggestion);
       insertNewRowSuggestionUserCredit(idProfile, idUniqueID);
       newRowIds.push(idSuggestion);
       newRowFields.push(newIdSuggestionType);
     }
 
-    console.log('idUniqueID', idUniqueID,'newRowIds', newRowIds,'newRowFields', newRowFields);
+    //console.log("idUniqueID", idUniqueID,"newRowIds", newRowIds,"newRowFields", newRowFields);
     return res.status(200).json({
       idUniqueID: idUniqueID,
       newRowIds: newRowIds,
@@ -156,7 +155,6 @@ const getIdEdit = async (idSession: number,idInteractionType: number,idEntryType
 export const postNewRowTest = (req: Request, res: Response) => {
   // check for errors
   const rowvalues = req.body.rowValues;
-  console.log("postNewRow: " + rowvalues);
   try {
     // TODO change stub
     return res.status(200).json({
