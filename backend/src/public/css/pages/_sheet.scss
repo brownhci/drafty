@@ -488,7 +488,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
         }
         button#discard-newrow {
           @extend .btn-outline-secondary;
-          left: 5rem;
+          left: 4rem;
           &::after {
             content: "\f2ea";
           }
