@@ -3,25 +3,20 @@
  * As the name implies, this module provides autocomplete suggestions for a column. Therefore, it is different from {@link ./suggestions.ts} in that it does not bias a specific cell.
  */
 import { alignElementHorizontally, placeElementAdjacently } from "./align";
-import { fetchColumnSuggestions } from "./suggestions";
-import { getIdSuggestionType } from "../../api/record-interactions";
+import { columnSuggestionManager, editSuggestionManager } from "./suggestions";
+import { getColumnSuggestionURL, getEditSuggestionURL } from "../../api/endpoints";
+import { getIdSuggestion, getIdSuggestionType } from "../../api/record-interactions";
 import { activeClass } from "../../constants/css-classes";
-import { getEnclosingTableCell } from "../../dom/navigate";
-import { getColumnLabel, tableElement } from "../../dom/sheet";
+import { getCellInTableRow, getEnclosingTableCell } from "../../dom/navigate";
+import { getColumnLabel, isColumnSearchInput, tableElement } from "../../dom/sheet";
 import { isInput } from "../../dom/types";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 import { debounce } from "../../utils/debounce";
 import { measureTextWidth } from "../../utils/length";
-import { LocalStorageCache } from "../../utils/local-storage";
-import { updateActiveTableCellElement } from "../../../sheet";
+import { tableDataManager, updateActiveTableCellElement } from "../../../sheet";
 
 interface Option {
   suggestion: string;
-}
-
-const optionCache = new LocalStorageCache(5 * 60 * 1000);
-function optionCacheKeyFunction(idSuggestionType: string): string {
-  return `column${idSuggestionType}-suggestions`;
 }
 
 class ColumnSuggestions {
@@ -36,6 +31,33 @@ class ColumnSuggestions {
     return this.container.classList.contains(activeClass);
   }
 
+  /**
+   * If suggestions are used for column search, then lower quality suggestions are acceptable.
+   */
+  private get isSuggestionsForColumnSearch(): boolean {
+    return isColumnSearchInput(this.inputElement);
+  }
+
+  private get suggestionIdentifier(): number {
+    const columnIndex = this.target.cellIndex;
+    if (this.isSuggestionsForColumnSearch) {
+      const columnLabel = getColumnLabel(columnIndex);
+      return getIdSuggestionType(columnLabel);
+    } else {
+      const firstRow = tableDataManager.fullView[0].element_ as HTMLTableRowElement;
+      return getIdSuggestion(getCellInTableRow(firstRow, columnIndex) as HTMLTableCellElement);
+    }
+  }
+
+
+  private get suggestionFetchURL() {
+    const identifier = this.suggestionIdentifier;
+    if (this.isSuggestionsForColumnSearch) {
+      return getColumnSuggestionURL(identifier);
+    } else {
+      return getEditSuggestionURL(identifier);
+    }
+  }
 
   private get containerWidth(): number {
     return this.container.offsetWidth;
@@ -94,42 +116,43 @@ class ColumnSuggestions {
     this.updateFuseSelect();
   }
 
-
   deactivate() {
     this.container.classList.remove(activeClass);
   }
 
-  private parseSuggestions(suggestions: Array<Option>): Array<Option> {
-    suggestions.sort((suggestion1, suggestion2) => suggestion1.suggestion.localeCompare(suggestion2.suggestion));
-    return suggestions;
+  private getSuggestions(
+    handlerForCachedSuggestions?: (options: Array<Option>) => void,
+    handlerForPulledSuggestions?: (options: Array<Option>) => void
+  ) {
+    const forColumnSearch: boolean = this.isSuggestionsForColumnSearch;
+    const suggestionManager = forColumnSearch ? columnSuggestionManager : editSuggestionManager;
+    suggestionManager.get(this.suggestionFetchURL, this.suggestionIdentifier.toString(), handlerForCachedSuggestions, (options) => {
+      if (!forColumnSearch) {
+        // if suggestions are not pulled for column search, they are pulled for edit row and in that case. Previous edit should be filtered out
+        options = options.filter(option => option.prevSugg === 0);
+      }
+      handlerForPulledSuggestions(options);
+    });
   }
 
   private updateFuseSelect() {
-    const columnLabel = getColumnLabel(this.target.cellIndex);
-    const idSuggestionType: number = getIdSuggestionType(columnLabel);
-    const idSuggestionTypeString = idSuggestionType.toString();
-    let options = optionCache.retrieve(optionCacheKeyFunction(idSuggestionTypeString)) as Array<Option>;
-    if (!options) {
-      // cannot retrieve unexpired autocomplete suggestions from local storage, create an empty placeholder for now
-      options = [];
-    }
-    this.fuseSelect.options = options;
-    this.fuseSelect.sync();
-    this.align();
-
-    fetchColumnSuggestions(idSuggestionType).then(suggestions => {
-      const options = this.parseSuggestions(suggestions);
-      optionCache.store(optionCacheKeyFunction(idSuggestionTypeString), options);
-
-      if (options.length === 0) {
-        this.deactivate();
-      } else {
-        this.fuseSelect.options = options;
+    this.getSuggestions(
+      options => {
+        this.fuseSelect.options = options ? options : [];
         this.fuseSelect.sync();
-        this.container.classList.add(activeClass);
         this.align();
+      },
+      options => {
+        if (options === null || options.length === 0) {
+          this.deactivate();
+        } else {
+          this.fuseSelect.options = options;
+          this.fuseSelect.sync();
+          this.container.classList.add(activeClass);
+          this.align();
+        }
       }
-    });
+    );
   }
 
   private align() {
@@ -153,19 +176,12 @@ class ColumnSuggestions {
       return this.fuseSelect.hasSuggestion(suggestion);
     }
 
-    const columnLabel = getColumnLabel(columnIndex);
-    const idSuggestionTypeString = getIdSuggestionType(columnLabel).toString();
-    const options = optionCache.retrieve(optionCacheKeyFunction(idSuggestionTypeString)) as Array<Option>;
-    if (options) {
-      return options.some(option => option.suggestion === suggestion);
-    } else {
-      const idSuggestionType = getIdSuggestionType(columnLabel);
-      return fetchColumnSuggestions(idSuggestionType).then(suggestions => {
-        const options = this.parseSuggestions(suggestions);
-        optionCache.store(optionCacheKeyFunction(idSuggestionTypeString), options);
-        return options.some(option => option.suggestion === suggestion);
-      });
-    }
+    return new Promise(resolve => {
+      this.getSuggestions(
+        options => resolve(options.some(option => option.suggestion === suggestion)),
+        options => resolve(options.some(option => option.suggestion === suggestion))
+      );
+    });
   }
 }
 
