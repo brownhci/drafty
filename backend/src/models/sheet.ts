@@ -1,44 +1,68 @@
-const classProfsName = "CS Professors";
-const classProfsURL = "2300profs";
-const classProfsPath = "sheets/2300profs";
-const csProfessorName = "CS Professors";
-const csProfessorURL = "csprofessors";
-const csProfessorPath = "sheets/csprofessors";
-const academicJobName = "Academic Jobs";
-const academicJobURL = "ajobs";
-const academicJobPath = "sheets/ajobs";
-const demoName = "Demo";
-const demoURL = "demo";
-const demoPath = "sheets/demo";
+import { access,existsSync,readFileSync,PathLike,F_OK } from "fs";
+import { safeLoad } from "js-yaml";
+import logger from "../util/logger"; 
 
-const sheetNames = [classProfsName, csProfessorName, academicJobName, demoName];
-const sheetURLs = [classProfsURL, csProfessorURL, academicJobURL, demoURL];
-const sheetPaths = [classProfsPath, csProfessorPath, academicJobPath, demoPath];
+const yamlPath = "sheets.yaml";
+const dir = "sheets/";
+const fileExt = ".hbs";
+const sheetsUrl = "sheets/";
 
 export const sheetNameToURL = new Map();
 const sheetURLToName = new Map();
-const sheetURLToSheetPath = new Map();
 
-// TODO change to reflect other sheets
-// sw: we need to avoid hardcoding sheets as much as possible
-for (let i = 0; i < sheetURLs.length; i++) {
-  const sheetName = sheetNames[i];
-  const sheetURL = sheetURLs[i];
-  const sheetPath = sheetPaths[i];
-  sheetNameToURL.set(sheetName, sheetURL);
-  sheetURLToName.set(sheetURL, sheetName);
-  sheetURLToSheetPath.set(sheetURL, sheetPath);
+async function createDataStructures() { 
+    try {
+        const yamlData: any = await getSheetsYAML();
+        for (const key of Object.keys(yamlData)) {
+            const sheetURL = sheetsUrl + key;
+            const sheetName = yamlData[key].name;
+            sheetNameToURL.set(sheetName, sheetURL);
+            sheetURLToName.set(key, sheetName);
+        }
+    } catch(err) {
+        logger.error('ERROR - createDataStructures(): ' + err);
+    } 
+}
+createDataStructures();
+
+async function getSheetsYAML() {
+    if (existsSync(yamlPath)) {
+        //logger.info("Using sheets.yaml file to supply sheet configuration data");
+        const yamlData = readFileSync(yamlPath, "utf8");
+        return safeLoad(yamlData);
+    } else {
+        throw new Error("yaml File does not exist at: " + yamlPath);
+    }
+}
+
+export async function getRequestedSheetName(urlName: string) {
+    try {
+        const yamlData: any = await getSheetsYAML();
+        if(urlName in yamlData) {
+            return yamlData[urlName].name;
+        } else {
+            throw new Error("yaml data does not contain urlName: " + urlName);
+        }
+    } catch (err) {
+        logger.error('ERROR - getRequestedSheetName():',err);
+    }
+}
+
+export async function getRequestedSheetPath(urlName: string) {
+    try {
+        const path: PathLike = dir + urlName;
+        return path;
+        /* sw - this is performance hit on page loads
+        const file_path: PathLike = 'views/partials/' + path + fileExt;
+        if (existsSync(file_path)) {
+            return path;
+        }
+        */
+    } catch(err) {
+        logger.error('ERROR - path does not exists',err);
+    }    
 }
 
 export function hasRequestedSheet(urlName: string) {
-  return sheetURLToName.has(urlName);
-}
-
-export function getRequestedSheetName(urlName: string) {
-  console.log(sheetURLToName)
-  return sheetURLToName.get(urlName);
-}
-
-export function getRequestedSheetPath(urlName: string) {
-  return sheetURLToSheetPath.get(urlName);
+    return sheetURLToName.has(urlName);
 }
