@@ -4,7 +4,7 @@
  */
 
 import { LocalStorageCache } from "../../utils/local-storage";
-import { getColumnSuggestionURL, getEditSuggestionURL } from "../../api/endpoints";
+import { getEditSuggestionURL } from "../../api/endpoints";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 
 export interface Option {
@@ -13,54 +13,100 @@ export interface Option {
   prevSugg: number;
 }
 
-const optionCache = new LocalStorageCache(5 * 60 * 1000);
-function optionCacheKeyFunction(idSuggestionType: string): string {
-  return `column${idSuggestionType}-cell-suggestions`;
-}
-function getColumnSuggestions(idSuggestionType: string): Array<Option> {
-  return optionCache.retrieve(optionCacheKeyFunction(idSuggestionType)) as Array<Option>;
-}
+type Transformer = (options: Array<Option>) => Array<Option>;
 
+export class SuggestionManager {
+  /** Default transformation is to sort suggestion alphabetically */
+  static readonly defaultTransformer: Transformer = (options) => {
+    options.sort((option1, option2) => option1.suggestion.localeCompare(option2.suggestion));
+    return options;
+  };
 
-/**
- * Fetch column suggestions from database. The difference between column suggestions and edit suggestions is that column suggestions do not tie to a specific table cell.
- *
- * @async
- * @param {number} idSuggestionType - The id suggestion type of a table column {@link ../../api/record-interactions.ts#getIdSuggestionType}.
- * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Option objects.
- */
-export async function fetchColumnSuggestions(idSuggestionType: number): Promise<Array<Option>> {
-  const url = getColumnSuggestionURL(idSuggestionType);
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
+  /** A name (or a type) for this suggestion manager. Should be appropriate for modifying suggestions */
+  readonly name: string;
+  /** A transformation process to apply to pulled suggestions */
+  readonly transformer: Transformer;
+
+  /** A LocalStorage cache to store pulled suggestions */
+  private readonly storage: LocalStorageCache = new LocalStorageCache(5 * 60 * 1000);
+
+  constructor(name: string, transformer?: Transformer) {
+    this.name = name;
+    this.transformer = transformer ? transformer : SuggestionManager.defaultTransformer;
+  }
+
+  private getStorageKey(identifier: string): string {
+    return `${this.name}#${identifier}-suggestions`;
+  }
+  /**
+   * Retrieves an array of options from cache
+   *
+   * @param {string} identifier - An identifier that distinguish this collection of options from other collections.
+   * @returns {Array<Option>} The array of options stored under specified identifier. Null if such collection does not exists.
+   */
+  private retrieve(identifier: string): Array<Option> {
+    return this.storage.retrieve(this.getStorageKey(identifier)) as Array<Option>;
+  }
+  /**
+   * Stores an array of options in cache
+   *
+   * @param {string} identifier - An identifier that distinguish this collection of options from other collections.
+   * @param {Array<Option>} options - A collection of options associated with and will be stored under the specified identifier.
+   */
+  private store(identifier: string, options: Array<Option>) {
+    this.storage.store(this.getStorageKey(identifier), options);
+  }
+
+  /**
+   * Fetch suggestions from database.
+   *
+   * @async
+   * @param {string} url - Endpoint to pull suggestions from.
+   * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Option objects.
+   */
+  private async fetch(url: string): Promise<Array<Option>> {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        return null;
+      }
+      return this.transformer(await response.json());
+    } catch (error) {
+      console.error(`Network error when fetching ${this.name} suggestions`, error);
       return null;
     }
-    return await response.json();
-  } catch (error) {
-    console.error("Network error when fetching column suggestions", error);
   }
+
+  /**
+   * Gets suggestions.
+   *
+   * @async
+   * @param {string} url - Endpoint to pull suggestions from.
+   * @param {string} identifier - An identifier that distinguish stored collection of options from other collections.
+   * @param {(options: Array<Option>) => void} [handlerForCachedSuggestions] - A handler that will be called when cached suggestions are fetched.
+   * @param {(options: Array<Option>) => void} [handlerForPulledSuggestions] - A handler that will be called when cached suggestions are pulled.
+   */
+  async get(
+    url: string,
+    identifier: string,
+    handlerForCachedSuggestions?: (options: Array<Option>) => void,
+    handlerForPulledSuggestions?: (options: Array<Option>) => void
+  ) {
+    if (handlerForCachedSuggestions) {
+      handlerForCachedSuggestions(this.retrieve(identifier));
+    }
+    if (handlerForPulledSuggestions) {
+      this.fetch(url).then(options => {
+        this.store(identifier, options);
+        handlerForPulledSuggestions(options);
+      })
+                     .catch(error => console.error(error));
+    }
+    }
 }
 
-/**
- * Fetch suggestions from database for a particular table cell.
- *
- * @async
- * @param {number} idSuggestion - The id suggestion of a particular table cell.
- * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Option objects.
- */
-export async function fetchEditSuggestions(idSuggestion: number): Promise<Array<Option>> {
-  const url = getEditSuggestionURL(idSuggestion);
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      return null;
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("Network error when fetching suggestions", error);
-  }
-}
+export const editSuggestionManager: SuggestionManager = new SuggestionManager("edit");
+export const columnSuggestionManager: SuggestionManager = new SuggestionManager("column");
 
 /**
  * Suggestions will be filtered (empty string suggestion will be removed) and de-duplicated (only previous edit suggestion will be kept if both present).
@@ -68,7 +114,7 @@ export async function fetchEditSuggestions(idSuggestion: number): Promise<Array<
  * @param {Array<Option>} suggestions - An array of suggestions returned from the server
  * @returns {Array<Option>} An array containing the filtered suggestions.
  */
-function parseSuggestions(suggestions: Array<Option>): Array<Option> {
+function parseCellEditSuggestions(suggestions: Array<Option>): Array<Option> {
   const options: Map<string, Option> = new Map();
 
   for (const suggestion of suggestions) {
@@ -110,23 +156,18 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
 
  */
 export function updateFuseSelect(fuseSelect: FuseSelect, idSuggestion: number, idSuggestionType: number, callback: () => void = () => undefined) {
-  const idSuggestionTypeString = idSuggestionType.toString();
-  let options = getColumnSuggestions(idSuggestionTypeString);
-  if (!options) {
-    // cannot retrieve unexpired autocomplete suggestions from local storage, create an empty placeholder for now
-    options = [];
-  }
-  fuseSelect.options = options;
-
-  fuseSelect.sync();
-
-  fetchEditSuggestions(idSuggestion).then(suggestions => {
-    const options = parseSuggestions(suggestions);
-    optionCache.store(optionCacheKeyFunction(idSuggestionTypeString), options);
-
-    fuseSelect.options = options;
-
-    fuseSelect.sync();
-    callback();
-  });
+  const url = getEditSuggestionURL(idSuggestion);
+  editSuggestionManager.get(
+    url,
+    idSuggestion.toString(),
+    (options) => {
+      fuseSelect.options = options ? parseCellEditSuggestions(options) : [];
+      fuseSelect.sync();
+    },
+    (options) => {
+      fuseSelect.options = options ? parseCellEditSuggestions(options) : [];
+      fuseSelect.sync();
+      callback();
+    },
+  );
 }

@@ -22,7 +22,7 @@
 
   export class TabularView extends BasicView {
     /**
-     * @returns {Array<ViewModel>} The full view before partial rendering (before passing into PartialView.
+     * @returns {Array<ViewModel>} The full view before partial rendering (before passing into PartialView).
      */
     get fullView(): Array<ViewModel> {
       // updates view if necessary
