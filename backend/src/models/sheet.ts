@@ -1,4 +1,4 @@
-import { access,existsSync,readFileSync,PathLike,F_OK } from "fs";
+import { existsSync,readFileSync,PathLike } from "fs";
 import { safeLoad } from "js-yaml";
 import logger from "../util/logger"; 
 
