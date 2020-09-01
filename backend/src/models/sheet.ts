@@ -4,26 +4,10 @@ import logger from "../util/logger";
 
 const yamlPath = "sheets.yaml";
 const dir = "sheets/";
-const fileExt = ".hbs";
 const sheetsUrl = "sheets/";
 
 export const sheetNameToURL = new Map();
 const sheetURLToName = new Map();
-
-async function createDataStructures() { 
-    try {
-        const yamlData: any = await getSheetsYAML();
-        for (const key of Object.keys(yamlData)) {
-            const sheetURL = sheetsUrl + key;
-            const sheetName = yamlData[key].name;
-            sheetNameToURL.set(sheetName, sheetURL);
-            sheetURLToName.set(key, sheetName);
-        }
-    } catch(err) {
-        logger.error('ERROR - createDataStructures(): ' + err);
-    } 
-}
-createDataStructures();
 
 async function getSheetsYAML() {
     if (existsSync(yamlPath)) {
@@ -35,6 +19,21 @@ async function getSheetsYAML() {
     }
 }
 
+async function createDataStructures() { 
+    try {
+        const yamlData: any = await getSheetsYAML();
+        for (const key of Object.keys(yamlData)) {
+            const sheetURL = sheetsUrl + key;
+            const sheetName = yamlData[key].name;
+            sheetNameToURL.set(sheetName, sheetURL);
+            sheetURLToName.set(key, sheetName);
+        }
+    } catch(err) {
+        logger.error("ERROR - createDataStructures(): " + err);
+    } 
+}
+createDataStructures();
+
 export async function getRequestedSheetName(urlName: string) {
     try {
         const yamlData: any = await getSheetsYAML();
@@ -44,7 +43,7 @@ export async function getRequestedSheetName(urlName: string) {
             throw new Error("yaml data does not contain urlName: " + urlName);
         }
     } catch (err) {
-        logger.error('ERROR - getRequestedSheetName():',err);
+        logger.error("ERROR - getRequestedSheetName():",err);
     }
 }
 
@@ -59,7 +58,7 @@ export async function getRequestedSheetPath(urlName: string) {
         }
         */
     } catch(err) {
-        logger.error('ERROR - path does not exists',err);
+        logger.error("ERROR - path does not exists",err);
     }    
 }
 

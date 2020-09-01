@@ -3,7 +3,7 @@ import crypto from "crypto";
 import moment from "moment";
 import passport from "passport";
 import logger from "../util/logger";
-import process from "../util/process";
+//import process from "../util/process"; sw - npm warning never used :/
 import { Request, Response, NextFunction } from "express";
 import { UserModel, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
 import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup } from "../database/user";
