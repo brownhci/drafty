@@ -1,0 +1,11 @@
+csprofessors:
+    login: 0
+    name: "CS Professors"
+
+2300profs:
+    login: 1
+    name: "CS Professors"
+
+demo:
+    login: 1
+    name: "Demo Sheet"
