@@ -20,8 +20,8 @@ const sheetURLToName = new Map();
 const sheetURLToSheetPath = new Map();
 
 // TODO change to reflect other sheets
-// sw: we need to avoid hardcoding sheets as much as possible we could cr
-for (let i = 0; i < 1; i++) {
+// sw: we need to avoid hardcoding sheets as much as possible
+for (let i = 0; i < sheetURLs.length; i++) {
   const sheetName = sheetNames[i];
   const sheetURL = sheetURLs[i];
   const sheetPath = sheetPaths[i];
@@ -35,6 +35,7 @@ export function hasRequestedSheet(urlName: string) {
 }
 
 export function getRequestedSheetName(urlName: string) {
+  console.log(sheetURLToName)
   return sheetURLToName.get(urlName);
 }
 
