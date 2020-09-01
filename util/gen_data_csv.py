@@ -12,7 +12,7 @@ def get_db_creds():
     return dbuser, dbpass
 
 parser = argparse.ArgumentParser(description='Write edit history to csv file.')
-parser.add_argument('--database', default='2300profs',
+parser.add_argument('--database', default='csprofessors',
                     help='The database to be outputtted')
 args = parser.parse_args()
 
