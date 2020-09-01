@@ -1,11 +1,15 @@
 csprofessors:
     login: 0
+    in_menu: 1
     name: "CS Professors"
 
 2300profs:
     login: 1
+    in_menu: 0
     name: "CS Professors"
 
 demo:
     login: 1
+    in_menu: 0
     name: "Demo Sheet"
+    
