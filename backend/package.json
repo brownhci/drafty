@@ -36,6 +36,7 @@
     },
     "dependencies": {
         "@types/helmet": "0.0.45",
+        "@types/js-yaml": "^3.12.5",
         "@types/session-file-store": "^1.2.1",
         "acorn": "^7.2.0",
         "async": "^3.2.0",
@@ -90,7 +91,7 @@
         "@types/moment": "^2.13.0",
         "@types/mysql": "^2.15.13",
         "@types/mysql2": "github:types/mysql2",
-        "@types/node": "^13.13.9",
+        "@types/node": "^13.13.15",
         "@types/node-sass": "^4.11.1",
         "@types/nodemailer": "^6.4.0",
         "@types/passport": "^1.0.3",
