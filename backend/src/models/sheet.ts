@@ -33,7 +33,7 @@ async function createDataStructures() {
             sheetURLToName.set(key, sheetName);
             sheetsData.set(key,yamlData[key]);
         }
-        console.log(sheetsData);
+        //console.log(sheetsData);
     } catch(err) {
         logger.error("ERROR - createDataStructures(): " + err);
     } 
