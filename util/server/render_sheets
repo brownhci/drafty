@@ -2,11 +2,13 @@
 
 # Start job every 1 minute
 
-* * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_spreadsheet.py --host=localhost --database=csprofessors --nrows 40 csprofessors.hbs
-
+### render sheets
+* * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_spreadsheet.py --host=localhost --database=csprofessors csprofessors.hbs
 * * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_spreadsheet.py --host=localhost --database=2300profs 2300profs.hbs
 
+### edit history
 # * * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_edit_history.py --database 2300profs 2300profs_edits.csv
 # * * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_edit_history.py --database csprofessors csprofessors.csv
 
+### csv version
 * * * * * root vol/drafty_source/drafty/util/ && python3 gen_data_csv.py --database csprofessors
