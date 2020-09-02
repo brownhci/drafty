@@ -1,15 +1,21 @@
 csprofessors:
-    login: 0
+    login_required: 0
+    admin_only: 0
     in_menu: 1
+    on_homepage: 1
     name: "CS Professors"
 
 2300profs:
-    login: 1
+    login_required: 1
+    admin_only: 1
     in_menu: 0
+    on_homepage: 0
     name: "CS Professors"
 
 demo:
-    login: 1
+    login_required: 1
+    admin_only: 1
     in_menu: 0
+    on_homepage: 0
     name: "Demo Sheet"
     
