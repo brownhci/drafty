@@ -6,6 +6,7 @@ const yamlPath = "sheets.yaml";
 const dir = "sheets/";
 const sheetsUrl = "sheets/";
 
+export const sheetsData = new Map();
 export const sheetNameToURL = new Map();
 const sheetURLToName = new Map();
 
@@ -25,9 +26,14 @@ async function createDataStructures() {
         for (const key of Object.keys(yamlData)) {
             const sheetURL = sheetsUrl + key;
             const sheetName = yamlData[key].name;
-            sheetNameToURL.set(sheetName, sheetURL);
+
+            if(yamlData[key].in_menu) {
+                sheetNameToURL.set(sheetName, sheetURL);
+            }
             sheetURLToName.set(key, sheetName);
+            sheetsData.set(key,yamlData[key]);
         }
+        console.log(sheetsData);
     } catch(err) {
         logger.error("ERROR - createDataStructures(): " + err);
     } 
