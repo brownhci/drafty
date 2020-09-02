@@ -14,27 +14,28 @@
             </div>
             <div id="sheets">
         <h4>Hosted Spreadsheets</h4>
-            <p>
-                We are currently remodeling. Thank you for your patience!
-            </p>
-            <!-- sw: commenting out for now
+            <!--
             <ul>
                 <li class="spreadsheet">
-                    <a class="spreadsheet-link" href="/professors">
+                    <a class="spreadsheet-link" href="/csprofessors">
                         Computer Science Professors
                     </a>
                 </li>
                 <div class="spreadsheet-related-content">
                     <p>See an <a href="https://jeffhuang.com/computer_science_professors.html">analysis of computer science hiring trends</a></p>
                 </div>
-
-                <li class="spreadsheet">
-                    <a class="spreadsheet-link" href="/ajobs">
-                        Academic Jobs
-                    </a>
-                </li>
             </ul>
-             -->
+            -->
+            <ul>
+                {{#each sheets}}
+                    <li class="spreadsheet">
+                        <a class="spreadsheet-link" href="{{link}}">{{name}}</a>
+                    </li>
+                {{/each}}
+            </ul>
+            <div class="spreadsheet-related-content">
+                <p>See an <a href="https://jeffhuang.com/computer_science_professors.html">analysis of computer science hiring trends</a></p>
+            </div>
         </div>
             <div id="articles">
                 <!--<h4>Articles and Publications</h4>-->
