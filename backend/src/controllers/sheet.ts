@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getRequestedSheetName, getRequestedSheetPath, hasRequestedSheet } from "../models/sheet";
+import { sheetsData, getRequestedSheetName, getRequestedSheetPath } from "../models/sheet";
 import { makeRenderObject } from "../config/handlebars-helpers";
 // import { genSheets } from "../database/gen_spreadsheets";
 
@@ -9,13 +9,22 @@ import { makeRenderObject } from "../config/handlebars-helpers";
  */
 export async function getSheet(req: Request, res: Response) {
   const sheetURL = req.params.sheet;
-  if (!hasRequestedSheet(sheetURL)) {
+
+  // check if sheet exists
+  if (!sheetsData.has(sheetURL)) {
     if(sheetURL !== "service-worker.js") { // sw bug: service-worker.js is getting this endpoint
       req.flash("errors", { msg: "Oh sorry we cannot find requested sheet :("});
     }
     return res.redirect("/");
-  } else if(!req.user) {
+  } 
+
+  // run through permissions/settings
+  const sheetData = sheetsData.get(sheetURL);
+
+  if(!req.session.user.isAuth && sheetData.login_required) {
     res.render("account/signup", makeRenderObject({ title: "Signup" }, req));
+  } else if (req.session.user.isAuth && !req.session.user.isAdmin && sheetData.admin_only) {
+    req.flash("errors", { msg: "Oh sorry this sheet is protected or under development :("});
   } else {
     const sheetName = await getRequestedSheetName(sheetURL);
     const sheetPath = await getRequestedSheetPath(sheetURL);
