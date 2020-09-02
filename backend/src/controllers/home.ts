@@ -4,19 +4,17 @@ import { sheetsData }  from "../models/sheet";
 
 
 function getSheets() {
-  let sheets = new Array();
-  console.log(' -- ',Object.keys(sheetsData));
-
+  const sheets: Array<Record<string, any>> = [];
   sheetsData.forEach((data, sheetUrl) => {
     if(data.on_homepage) {
-      const link = '/' + sheetUrl
+      const link = "/" + sheetUrl;
       sheets.push({
         link: link,
         name: data.name
       });
     }
-  })
-  return sheets
+  });
+  return sheets;
 }
 
 /**
@@ -24,7 +22,6 @@ function getSheets() {
  * Home page.
  */
 export const index = (req: Request, res: Response) => {
-  console.log('getSheets() = ',getSheets());
   res.render("pages/home", makeRenderObject({
     ignoreHeader: true,
     ignoreFooter: true,
