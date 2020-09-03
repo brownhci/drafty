@@ -23,3 +23,7 @@ then
   # pm2 reload npm -- run watch --env production --source-map-support --wait-ready
   pm2 reload npm -- run watch --source-map-support --node-args="--max_old_space_size=2048"
 fi
+
+# restart cron service
+./server/render_sheets
+/etc/init.d/cron restart
