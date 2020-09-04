@@ -18,6 +18,7 @@
 
   ul {
     @extend .list-unstyled;
+    @extend .text-muted;
   }
 
   p {
@@ -36,6 +37,8 @@
   }
 
   section#thumbnail-section {
+  	@extend .d-none;
+  	@extend .d-md-flex;
     min-width: $img-width;
     min-height: 350px;
     background-image: linear-gradient(45deg,#003aff 0%,#00b9ff 100%);
@@ -46,31 +49,24 @@
     }
   }
 
-  @include media-breakpoint-up(md) {
-    section#description-section {
-      overflow: auto;
-    }
-  }
-
   section#description-section {
     @extend .bg-white;
     @extend .d-block;
     @extend .d-md-flex;
+    overflow: auto;
     #description-wrapper {
       @extend .mh-100;
-      @extend .text-center;
-      @extend .text-md-left;
-      @extend .mx-4;
-      @extend .mx-md-5;
-      @extend .px-4;
-      @extend .px-md-0;
-      @extend .px-lg-5;
+      @extend .w-75;
+      @extend .mx-auto;
+      @extend .p-5;
     }
     #introduction {
       @extend .my-5;
       #project-name {
         @extend .text-primary;
         @extend .h2;
+        @extend .font-weight-light;
+        @extend .font-italic;
       }
       #project-short-summary {
         @extend .text-dark;
@@ -81,7 +77,6 @@
       }
     }
     .spreadsheet-related-content {
-      @extend .ml-4;
       @extend %aside-text;
     }
     .publication-link + p {
