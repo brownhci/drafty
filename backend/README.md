@@ -12,7 +12,7 @@ Steps:
    ```bash
    mysql -u [username] -p [database_name] < [path_to_.sql file]
    ```
-   For example, `mysql -uroot -p test < src/database/profs.sql` will import the professors' database.
+   For example, `mysql -uroot -p test < src/database/sql/profs.sql` will import the professors' database.
 
    - username need to have correct permissions, consider using root user if you are not sure
    - database_name should be an existing database
