@@ -339,7 +339,7 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   if (isTableCell(target)) {
     tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
   } else if (isInput(target)) {
-    if (event.key === "Escape") {
+    if (event.key === "Escape" || event.key === "Enter") {
       // ESC pressed on column search
       if (columnSuggestions.isActive) {
         columnSuggestions.deactivate();
