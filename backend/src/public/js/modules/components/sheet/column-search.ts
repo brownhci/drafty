@@ -13,7 +13,13 @@ function updateTableColumnFilter(columnIndex: number, query: string) {
   if (query == "") {
     tableDataManager.deleteFilterFunction(columnIndex);
   } else {
-    const queryRegex = new RegExp(query, "i");
+    let queryRegex: RegExp;
+    try {
+      queryRegex = new RegExp(query, "i");
+    } catch (e) {
+      // ignore if not a valid RegExp
+      return;
+    }
     const filter: FilterFunction<HTMLElement> = element => queryRegex.test(getTableCellText((element as HTMLTableRowElement).cells[columnIndex]));
     tableDataManager.addFilterFunction(columnIndex, filter);
   }
