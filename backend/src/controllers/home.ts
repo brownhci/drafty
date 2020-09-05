@@ -26,7 +26,6 @@ export const index = (req: Request, res: Response) => {
     ignoreHeader: true,
     ignoreFooter: true,
     title: "Home",
-    sheets: getSheets(),
     publications: [
       {
         link: "https://jeffhuang.com/Final_Drafty_HCOMP17.pdf",
