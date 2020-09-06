@@ -44,7 +44,7 @@ class ColumnSuggestions {
       const columnLabel = getColumnLabel(columnIndex);
       return getIdSuggestionType(columnLabel);
     } else {
-      const firstRow = tableDataManager.fullView[0].element_ as HTMLTableRowElement;
+      const firstRow = tableDataManager.source[0].element_ as HTMLTableRowElement;
       return getIdSuggestion(getCellInTableRow(firstRow, columnIndex) as HTMLTableCellElement);
     }
   }
