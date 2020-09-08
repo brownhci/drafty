@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { makeRenderObject } from "../config/handlebars-helpers";
 import { sheetsData }  from "../models/sheet";
 import path from "path";
-//import logger from "../util/logger";
+import logger from "../util/logger";
 
 function getSheets() {
     const sheets: Array<Record<string, any>> = [];
@@ -24,7 +24,7 @@ function getSheets() {
  */
 export async function error500 (req: Request, res: Response) {
   console.log("ERROR --- error500");
-  //logger.error(err);
+  logger.error("");
   res.render(path.join(__dirname, "../../views/pages/home500"), makeRenderObject({
     errors: true,
     ignoreHeader: true,
@@ -39,4 +39,15 @@ export async function error500 (req: Request, res: Response) {
       },
     ]
   }, req));
+}
+
+
+/**
+ * GLOBAL MIDDLEWARE
+ */
+export async function errors(err: Error, req: Request, res: Response, next: NextFunction){
+  res.status(500);
+  //console.log('errors...',req.url);
+  //req.flash("errors", { msg: `Oops! There appears to be an error, our elves are hard at work on fixing it.`});
+  res.redirect("/");
 }

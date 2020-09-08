@@ -40,8 +40,6 @@ app.set("trust proxy", true); // sw: for production reverse proxy
 
 //static files
 app.use( express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }) );
- // home site rendering
-app.get("/", homeCtrl.index);
 
 // View Engine
 import helpers from "./config/handlebars-helpers";
@@ -63,6 +61,9 @@ app.set("views", path.join(__dirname, "../views"));
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// home site rendering
+app.get("/", homeCtrl.index);
 
 // Session
 const days = 10800; // we will manually manage sessions
@@ -86,6 +87,7 @@ app.use(session({
       database: "users", // sw: change this to create sessions only db
     })
 }));
+
 // passport.session has to be used after express.session in order to work properly
 app.use(passport.initialize());
 app.use(passport.session());
@@ -166,8 +168,10 @@ app.post("/suggestions/new", suggestionCtrl.postNewSuggestion);
 // sheets
 app.get("/:sheet", userCtrl.checkReturnPath, sheetCtrl.getSheet);
 
+
 // handle missing pages
 app.get("*", function(req, res) {
+  //sw: bc homepage was moved flash errors do not show up 
   req.flash("errors", { msg: `Cannot find requested page ${req.originalUrl}`});
   res.redirect("/");
 });
