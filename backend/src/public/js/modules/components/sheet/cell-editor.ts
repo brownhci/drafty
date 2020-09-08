@@ -173,9 +173,10 @@ class CellEditor {
         // recording current client X and Y, this set a reference point
         this.mouseMoveStartX = event.clientX;
         this.mouseMoveStartY = event.clientY;
+        event.preventDefault();
         event.stopPropagation();
       }
-    }, { passive: true, capture: true });
+    }, { capture: true });
 
     this.formElement.addEventListener("mousemove", debounce((event: MouseEvent) => {
       this.onMouseMove(event);
