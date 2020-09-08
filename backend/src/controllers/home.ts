@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { makeRenderObject } from "../config/handlebars-helpers";
 import { sheetsData }  from "../models/sheet";
-
+import path from "path";
 
 function getSheets() {
   const sheets: Array<Record<string, any>> = [];
@@ -23,6 +23,7 @@ function getSheets() {
  */
 export const index = (req: Request, res: Response) => {
   res.render("pages/home", makeRenderObject({
+    errors: false,
     ignoreHeader: true,
     ignoreFooter: true,
     title: "Home",
