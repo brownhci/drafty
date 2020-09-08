@@ -41,7 +41,7 @@ export class FuseSelect {
   private optionContainer: HTMLElement;
   longestText: string;
 
-  private rootContainer: HTMLElement;
+  rootContainer: HTMLElement;
   private mounted: boolean = false;
 
   constructor(options: Array<Option> = []) {
