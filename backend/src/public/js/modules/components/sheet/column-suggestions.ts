@@ -114,20 +114,22 @@ class ColumnSuggestions {
     this.target = target;
     this.inputElement = target.querySelector("input");
 
-    this.updateFuseSelect();
+    this.updateFuseSelect().then(() => {
+      this.fuseSelect.query(this.inputElement.value);
+    });
   }
 
   deactivate() {
     this.container.classList.remove(activeClass);
   }
 
-  private getSuggestions(
+  private async getSuggestions(
     handlerForCachedSuggestions?: (options: Array<Option>) => void,
     handlerForPulledSuggestions?: (options: Array<Option>) => void
   ) {
     const forColumnSearch: boolean = this.isSuggestionsForColumnSearch;
     const suggestionManager = forColumnSearch ? columnSuggestionManager : editSuggestionManager;
-    suggestionManager.get(this.suggestionFetchURL, this.suggestionIdentifier.toString(), handlerForCachedSuggestions, (options) => {
+    return await suggestionManager.get(this.suggestionFetchURL, this.suggestionIdentifier.toString(), handlerForCachedSuggestions, (options) => {
       if (!forColumnSearch) {
         // if suggestions are not pulled for column search, they are pulled for edit row and in that case. Previous edit should be filtered out
         options = options.filter(option => option.prevSugg === 0);
@@ -136,8 +138,8 @@ class ColumnSuggestions {
     });
   }
 
-  private updateFuseSelect() {
-    this.getSuggestions(
+  private async updateFuseSelect() {
+    return await this.getSuggestions(
       options => {
         this.fuseSelect.options = options ? options : [];
         this.fuseSelect.sync();
