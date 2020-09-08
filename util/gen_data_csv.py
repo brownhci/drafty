@@ -33,20 +33,13 @@ sql = "SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st
     #AND idUniqueID < 10000000000000
     # 15223 is a bad field
 
-def insert(sugg):
-    try:
-        cursor.execute(sql, ('webmaster@python.org', 'very-secret'))
-        db.commit()
-    except ConnectionError as e:
-        pass
-
 def new_cell(sugg):
     new_val = ''
     for x in sugg.encode('ascii','xmlcharrefreplace'):
         if x != 0:
             new_val += chr(x)
     #sugg.encode('ascii','xmlcharrefreplace').strip(b'\x00').decode("utf-8"))
-    return '\"' + str(new_val) + '\",'       
+    return '\"' + str(sugg) + '\",'       
 
 # execute SQL query using execute() method.
 cursor.execute(sqlSuggType)
