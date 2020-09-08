@@ -11,7 +11,7 @@ import { alignElementHorizontally } from "./align";
 import { activeClass, inputtingClass, invalidClass, userEditClass } from "../../constants/css-classes";
 import { getViewportHeight, getViewportWidth, measureTextWidth } from "../../utils/length";
 import { debounce } from "../../utils/debounce";
-import { getColumnLabel, getColumnLabelText, getTableRow, isColumnAutocompleteOnly, isTableCellEditable, setTableDataText, tableScrollContainer } from "../../dom/sheet";
+import { getColumnLabel, getTableRow, isColumnAutocompleteOnly, isTableCellEditable, setTableDataText, tableScrollContainer } from "../../dom/sheet";
 import { getRightTableCellElement } from "../../dom/navigate";
 import { getIdSuggestion, getIdSuggestionType, recordCellEdit } from "../../api/record-interactions";
 import { tableDataManager, updateActiveTableCellElement } from "../../../sheet";
@@ -67,6 +67,9 @@ class CellEditor {
     return this.isLocateCellActive? this.locateCellButtonElement.offsetHeight: 0;
   }
 
+  private mouseMoveStartX: number = 0;
+  private mouseMoveStartY: number = 0;
+
   private formElementXShift: number = 0;
   private formElementYShift: number = 0;
 
@@ -80,6 +83,26 @@ class CellEditor {
   constructor() {
     this.initializeEventListeners();
     this.fuseSelect = initializeFuseSelect(this.formInputElement, element => this.mountFuseSelect(element));
+  }
+
+  /**
+   * Determines whether the form should be repositioned according to mouse movement.
+   * Reposition will start when the mouse target
+   *
+   *    + is a descendant of the form element
+   *    + is neither the Return To Cell button nor the cell input
+   *    + is not a descendant of autocompletion container
+   */
+  private willStartReposition(target: HTMLElement) {
+    if(target === this.formInputElement || target === this.locateCellButtonElement) {
+      return false;
+    }
+
+    if (this.fuseSelect.rootContainer.contains(target)) {
+      return false;
+    }
+
+    return true;
   }
 
   private focusFormInput() {
@@ -109,6 +132,12 @@ class CellEditor {
       }
       event.preventDefault();
       event.stopPropagation();
+    });
+
+    tableScrollContainer.addEventListener("click", (event) => {
+      if (!this.formElement.contains(event.target as HTMLElement)) {
+        this.deactivateForm();
+      }
     });
 
     tableScrollContainer.addEventListener("scroll", debounce(() => this.activateLocateCell()), { passive: true });
@@ -144,27 +173,44 @@ class CellEditor {
     // mouse event handlers
     this.formElement.addEventListener("mousedown", (event: MouseEvent) => {
       this.activateLocateCell();
-      this.isRepositioning = true;
-      event.stopPropagation();
-    }, {passive: true, capture: true});
-
-    this.formElement.addEventListener("mousemove", (event: MouseEvent) => this.onMouseMove(event));
-
-    this.formElement.addEventListener("mouseup", () => {
-      if (this.isRepositioning) {
-        this.isRepositioning = false;
-        this.focusFormInput();
+      if (this.willStartReposition(event.target as HTMLElement)) {
+        // start repositioning if the mouse drag starts at an element inside the form but neither the return to cell button nor the input
+        this.isRepositioning = true;
+        // recording current client X and Y, this set a reference point
+        this.mouseMoveStartX = event.clientX;
+        this.mouseMoveStartY = event.clientY;
+        event.preventDefault();
+        event.stopPropagation();
       }
-    });
+    }, { capture: true });
+
+    tableScrollContainer.addEventListener("mousemove", debounce((event: MouseEvent) => {
+      this.onMouseMove(event);
+    }), { passive: true, capture: true });
+
+    this.formElement.addEventListener("mouseup", (event: MouseEvent) => {
+      this.onMouseUp(event);
+      event.stopPropagation();
+    }, { passive: true, capture: true });
   }
 
   onMouseMove(event: MouseEvent) {
     if (this.isRepositioning) {
-      const { movementX: xShift, movementY: yShift } = event;
-      // debounce
-      this.formElementXShift += xShift;
-      this.formElementYShift += yShift;
+      // shift is calculated as initial shift to reference point and subsequent shift to reference point
+      const xShift = this.formElementXShift + event.clientX - this.mouseMoveStartX;
+      const yShift = this.formElementYShift + event.clientY - this.mouseMoveStartY;
+      this.formElement.style.transform = `translate(${xShift}px, ${yShift}px)`;
+    }
+  }
+
+  onMouseUp(event: MouseEvent) {
+    if (this.isRepositioning) {
+      this.isRepositioning = false;
+      // finalizes the shift amount since the movement has finished
+      this.formElementXShift += event.clientX - this.mouseMoveStartX;
+      this.formElementYShift += event.clientY - this.mouseMoveStartY;
       this.formElement.style.transform = `translate(${this.formElementXShift}px, ${this.formElementYShift}px)`;
+      this.focusFormInput();
     }
   }
 

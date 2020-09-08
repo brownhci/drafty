@@ -44,7 +44,7 @@ class ColumnSuggestions {
       const columnLabel = getColumnLabel(columnIndex);
       return getIdSuggestionType(columnLabel);
     } else {
-      const firstRow = tableDataManager.fullView[0].element_ as HTMLTableRowElement;
+      const firstRow = tableDataManager.source[0].element_ as HTMLTableRowElement;
       return getIdSuggestion(getCellInTableRow(firstRow, columnIndex) as HTMLTableCellElement);
     }
   }
@@ -75,10 +75,11 @@ class ColumnSuggestions {
 
   constructor() {
     this.fuseSelect.handleClickOnOption((text: string) => {
+      // this dictates what happens when an autocompletion option is clicked
       if (this.inputElement) {
         this.inputElement.value = text;
         this.inputElement.dispatchEvent(new Event("input"));
-        this.inputElement.focus();
+        this.deactivate();
       }
     });
     this.fuseSelect.mount(element => this.container.appendChild(element));
@@ -113,30 +114,30 @@ class ColumnSuggestions {
     this.target = target;
     this.inputElement = target.querySelector("input");
 
-    this.updateFuseSelect();
+    this.updateFuseSelect().then(() => {
+      this.fuseSelect.query(this.inputElement.value);
+    });
   }
 
   deactivate() {
     this.container.classList.remove(activeClass);
   }
 
-  private getSuggestions(
+  private async getSuggestions(
     handlerForCachedSuggestions?: (options: Array<Option>) => void,
     handlerForPulledSuggestions?: (options: Array<Option>) => void
   ) {
     const forColumnSearch: boolean = this.isSuggestionsForColumnSearch;
     const suggestionManager = forColumnSearch ? columnSuggestionManager : editSuggestionManager;
-    suggestionManager.get(this.suggestionFetchURL, this.suggestionIdentifier.toString(), handlerForCachedSuggestions, (options) => {
-      if (!forColumnSearch) {
-        // if suggestions are not pulled for column search, they are pulled for edit row and in that case. Previous edit should be filtered out
-        options = options.filter(option => option.prevSugg === 0);
-      }
+    return await suggestionManager.get(this.suggestionFetchURL, this.suggestionIdentifier.toString(), handlerForCachedSuggestions, (options) => {
+      // if suggestions are not pulled for column search, they are pulled for edit row and in that case. Previous edit should be filtered out
+      options = options.filter(option => option.suggestion !== "" && (forColumnSearch || option.prevSugg === 0));
       handlerForPulledSuggestions(options);
     });
   }
 
-  private updateFuseSelect() {
-    this.getSuggestions(
+  private async updateFuseSelect() {
+    return await this.getSuggestions(
       options => {
         this.fuseSelect.options = options ? options : [];
         this.fuseSelect.sync();
@@ -144,6 +145,7 @@ class ColumnSuggestions {
       },
       options => {
         if (options === null || options.length === 0) {
+          // no autocomplete options to show
           this.deactivate();
         } else {
           this.fuseSelect.options = options;

@@ -188,7 +188,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
       }
       #input-form-legend {
         @extend .font-size-small;
-        //@extend .font-weight-lighter;
+        @extend .unselectable;
         @extend .text-right;
         span:nth-child(2) {
           @extend .text-muted;

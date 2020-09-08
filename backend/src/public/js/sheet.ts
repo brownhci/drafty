@@ -11,7 +11,7 @@ import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } f
 import { tableFoot } from "./modules/components/sheet/table-foot";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
-import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isColumnSearchInput, isTableCellEditable, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
+import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
 import { isInput, isTableData, isTableHead, isTableCell } from "./modules/dom/types";
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
@@ -338,8 +338,8 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
     tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
-  } else if (isColumnSearchInput(target)) {
-    if (event.key === "Escape") {
+  } else if (isInput(target)) {
+    if (event.key === "Escape" || event.key === "Enter") {
       // ESC pressed on column search
       if (columnSuggestions.isActive) {
         columnSuggestions.deactivate();
@@ -372,19 +372,16 @@ tableElement.addEventListener("mousedown", function(event: MouseEvent) {
   if (isTableHead(target)) {
     tableHeadOnMouseDown(target as HTMLTableCellElement, event);
   }
-  event.stopPropagation();
 }, {passive: true, capture: true});
 tableElement.addEventListener("mousemove", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableHead(target)) {
     tableHeadOnMouseMove(target as HTMLTableCellElement, event);
-  } else {
-    cellEditor.onMouseMove(event);
   }
   event.stopPropagation();
 }, {passive: true, capture: true});
 tableElement.addEventListener("mouseup", function(event: MouseEvent) {
-  cellEditor.isRepositioning = false;
+  cellEditor.onMouseUp(event);
   tableHeadOnMouseUp(event);
   event.stopPropagation();
 }, {passive: true, capture: true});

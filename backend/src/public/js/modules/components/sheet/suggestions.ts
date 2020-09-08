@@ -96,11 +96,11 @@ export class SuggestionManager {
       handlerForCachedSuggestions(this.retrieve(identifier));
     }
     if (handlerForPulledSuggestions) {
-      this.fetch(url).then(options => {
+      return await this.fetch(url).then(options => {
         this.store(identifier, options);
         handlerForPulledSuggestions(options);
       })
-                     .catch(error => console.error(error));
+                                  .catch(error => console.error(error));
     }
     }
 }
