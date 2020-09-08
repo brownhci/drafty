@@ -15,8 +15,8 @@ import { DB_HOST, DB_USER, DB_PASSWORD, SESSION_SECRET } from "./util/secrets";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const MySQLStore = require("express-mysql-session")(session); // MySQLStore
 
-
 // Ctrls (route handlers)
+import * as errorsCtrl from "./controllers/errors";
 import * as helpCtrl from "./controllers/help";
 import * as homeCtrl from "./controllers/home";
 import * as sheetCtrl from "./controllers/sheet";
@@ -38,6 +38,12 @@ app.disable("x-powered-by");
 // Express configuration
 app.set("port", process.env.PORT || 3000);
 app.set("trust proxy", true); // sw: for production reverse proxy
+
+//static files
+app.use( express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }) );
+ // home site rendering
+app.get("/", homeCtrl.index);
+app.use(errorsCtrl.error500);
 
 // View Engine
 import helpers from "./config/handlebars-helpers";
@@ -101,9 +107,6 @@ app.use(lusca.referrerPolicy("same-origin"));
 
 // added security: https://expressjs.com/en/advanced/best-practice-security.html#use-helmet
 app.use(helmet());
-app.use(
-    express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
-);
 
 //GLOBAL MIDDLEWARE
 app.use(userCtrl.checkSessionUser);
@@ -118,8 +121,6 @@ app.use((req, res, next) => {
 /**
  * Primary app routes.
  */
-// home site rendering
-app.get("/", homeCtrl.index);
 
 // user related functionalities
 app.get("/login", userCtrl.getLogin);
