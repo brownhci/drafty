@@ -86,6 +86,14 @@ function modifyColumnSorterContainer(container: HTMLElement, columnIndex: number
   columnSorterColumnSelect.selectedIndex = columnIndex;
 }
 
+/**
+ * In column search panel, there is an entry row corresponding to every active column sorter. In each entry row, there is a `<select>` element that allows users to change the sorter at current priority to sort on a different column.
+ *
+ * However, there are certain `<option>` elements that are disabled (those corresponding to active sorted columns). This function ensures the options in each entry's `<select>` are correctly disabled.
+ *
+ * @example
+ * If a column sorting is deleted using the column sort panel, then this option will no longer be disabled (since there is no longer an active sorting on this column).
+ */
 function updateDisabledOptions() {
   const disabledOptionIndices = new Set(tableDataManager.sortingFunctions.keys()) as Set<number>;
 
@@ -235,6 +243,8 @@ function sortPanelSorterDeleteButtonOnClick(sorterDeleteButton: HTMLElement) {
   if (columnSorterContainers.length === 0) {
     deactivateSortPanel();
   }
+
+  updateDisabledOptions();
 }
 columnSortPanel.addEventListener("click", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
