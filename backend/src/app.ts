@@ -16,7 +16,6 @@ import { DB_HOST, DB_USER, DB_PASSWORD, SESSION_SECRET } from "./util/secrets";
 const MySQLStore = require("express-mysql-session")(session); // MySQLStore
 
 // Ctrls (route handlers)
-import * as errorsCtrl from "./controllers/errors";
 import * as helpCtrl from "./controllers/help";
 import * as homeCtrl from "./controllers/home";
 import * as sheetCtrl from "./controllers/sheet";
@@ -43,7 +42,6 @@ app.set("trust proxy", true); // sw: for production reverse proxy
 app.use( express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }) );
  // home site rendering
 app.get("/", homeCtrl.index);
-app.use(errorsCtrl.error500);
 
 // View Engine
 import helpers from "./config/handlebars-helpers";
