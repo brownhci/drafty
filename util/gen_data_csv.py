@@ -28,7 +28,8 @@ sqlSuggType = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.co
 sql = "SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder \
         FROM Suggestions s \
         INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType \
-        WHERE s.active = 1 AND st.isActive = 1 AND idUniqueID > 0 \
+        INNER JOIN UniqueId u ON u.idUniqueID = s.idUniqueID \
+        WHERE u.active = 1 AND s.active = 1 AND st.isActive = 1 AND idUniqueID > 0 \
         ORDER BY idUniqueID, st.columnOrder, confidence desc"
     #AND idUniqueID < 10000000000000
     # 15223 is a bad field
