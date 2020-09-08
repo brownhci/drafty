@@ -130,10 +130,8 @@ class ColumnSuggestions {
     const forColumnSearch: boolean = this.isSuggestionsForColumnSearch;
     const suggestionManager = forColumnSearch ? columnSuggestionManager : editSuggestionManager;
     return await suggestionManager.get(this.suggestionFetchURL, this.suggestionIdentifier.toString(), handlerForCachedSuggestions, (options) => {
-      if (!forColumnSearch) {
-        // if suggestions are not pulled for column search, they are pulled for edit row and in that case. Previous edit should be filtered out
-        options = options.filter(option => option.prevSugg === 0);
-      }
+      // if suggestions are not pulled for column search, they are pulled for edit row and in that case. Previous edit should be filtered out
+      options = options.filter(option => option.suggestion !== "" && (forColumnSearch || option.prevSugg === 0));
       handlerForPulledSuggestions(options);
     });
   }
