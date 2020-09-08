@@ -377,8 +377,6 @@ tableElement.addEventListener("mousemove", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableHead(target)) {
     tableHeadOnMouseMove(target as HTMLTableCellElement, event);
-  } else {
-    cellEditor.onMouseMove(event);
   }
   event.stopPropagation();
 }, {passive: true, capture: true});

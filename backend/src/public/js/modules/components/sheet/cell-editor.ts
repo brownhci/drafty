@@ -134,6 +134,12 @@ class CellEditor {
       event.stopPropagation();
     });
 
+    tableScrollContainer.addEventListener("click", (event) => {
+      if (!this.formElement.contains(event.target as HTMLElement)) {
+        this.deactivateForm();
+      }
+    });
+
     tableScrollContainer.addEventListener("scroll", debounce(() => this.activateLocateCell()), { passive: true });
 
     this.formElement.addEventListener("submit", function(event: Event) {
@@ -178,9 +184,8 @@ class CellEditor {
       }
     }, { capture: true });
 
-    this.formElement.addEventListener("mousemove", debounce((event: MouseEvent) => {
+    tableScrollContainer.addEventListener("mousemove", debounce((event: MouseEvent) => {
       this.onMouseMove(event);
-      event.stopPropagation();
     }), { passive: true, capture: true });
 
     this.formElement.addEventListener("mouseup", (event: MouseEvent) => {
