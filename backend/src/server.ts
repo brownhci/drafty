@@ -1,3 +1,5 @@
+//import * as errorsCtrl from "./controllers/errors";
+import errorHandler from "errorhandler";
 import app from "./app";
 
 /**
@@ -5,11 +7,10 @@ import app from "./app";
  */
 const env = process.env.NODE_ENV || "development";
 if(env !== "production") {
-  //app.use(errorHandler()); 
-  //app.use(errorMiddleware);  
+  app.use(errorHandler());  
   //app.use(errorsCtrl.error500);
 } else {
-  //app.use(errorMiddleware); 
+  app.use(errorHandler()); 
   //app.use(errorsCtrl.error500);
 }
 
