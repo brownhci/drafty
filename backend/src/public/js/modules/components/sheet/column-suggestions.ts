@@ -75,10 +75,11 @@ class ColumnSuggestions {
 
   constructor() {
     this.fuseSelect.handleClickOnOption((text: string) => {
+      // this dictates what happens when an autocompletion option is clicked
       if (this.inputElement) {
         this.inputElement.value = text;
         this.inputElement.dispatchEvent(new Event("input"));
-        this.inputElement.focus();
+        this.deactivate();
       }
     });
     this.fuseSelect.mount(element => this.container.appendChild(element));
@@ -144,6 +145,7 @@ class ColumnSuggestions {
       },
       options => {
         if (options === null || options.length === 0) {
+          // no autocomplete options to show
           this.deactivate();
         } else {
           this.fuseSelect.options = options;
