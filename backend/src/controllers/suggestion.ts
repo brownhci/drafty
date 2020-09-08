@@ -153,7 +153,7 @@ const getIdEdit = async (idSession: number,idInteractionType: number,idEntryType
  */
 export const postNewRowTest = (req: Request, res: Response) => {
   // check for errors
-  const rowvalues = req.body.rowValues;
+  //const rowvalues = req.body.rowValues; // sw - unused
   try {
     // TODO change stub
     return res.status(200).json({
