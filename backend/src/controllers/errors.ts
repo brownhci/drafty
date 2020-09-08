@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
+import { Request, Response } from "express";
 import { makeRenderObject } from "../config/handlebars-helpers";
 import { sheetsData }  from "../models/sheet";
 import path from "path";
@@ -36,4 +36,4 @@ export async function error500 (req: Request, res: Response) {
         },
       ]
     }, req));
-  };
+  }

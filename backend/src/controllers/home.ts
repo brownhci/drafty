@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { makeRenderObject } from "../config/handlebars-helpers";
 import { sheetsData }  from "../models/sheet";
-import path from "path";
 
+// sw - unused for now
+/*
 function getSheets() {
   const sheets: Array<Record<string, any>> = [];
   sheetsData.forEach((data, sheetUrl) => {
@@ -16,6 +17,7 @@ function getSheets() {
   });
   return sheets;
 }
+*/
 
 /**
  * GET /
