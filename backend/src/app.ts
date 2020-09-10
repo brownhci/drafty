@@ -40,6 +40,7 @@ app.set("trust proxy", true); // sw: for production reverse proxy
 
 //static files
 app.use( express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }) );
+//app.use('/csmultiranker', express.static(path.join(__dirname, "../../../../CSRankings")));
 
 // View Engine
 import helpers from "./config/handlebars-helpers";
@@ -62,7 +63,9 @@ app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
 // home site rendering
+app.get("/flask", homeCtrl.flaskTest);
 app.get("/", homeCtrl.index);
 
 // Session
@@ -172,7 +175,7 @@ app.get("/:sheet", userCtrl.checkReturnPath, sheetCtrl.getSheet);
 // handle missing pages
 app.get("*", function(req, res) {
   //sw: bc homepage was moved flash errors do not show up 
-  req.flash("errors", { msg: `Cannot find requested page ${req.originalUrl}`});
+  //req.flash("errors", { msg: `Cannot find requested page ${req.originalUrl}`});
   res.redirect("/");
 });
 
