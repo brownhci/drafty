@@ -1,5 +1,6 @@
 import { columnSuggestions } from "./column-suggestions";
 import { columnLabelInsertRowMenuItem } from "./contextmenu";
+import { verifyEdit } from "./edit-validation";
 import { ViewModel } from "./table-data-manager/ViewModel";
 import { activeClass, disabledClass, invalidClass, userEditClass } from "../../constants/css-classes";
 import { getIdSuggestionType, recordRowInsertion, setIdSuggestion, setIdUniqueID } from "../../api/record-interactions";
@@ -286,6 +287,13 @@ class TableFoot {
     if (isInputRequired && inputValue === "") {
       // this input must be filled, but it is left unfilled
       this.reportInvalidInput(inputElement, "This field is required");
+      return false;
+    }
+
+    const idSuggestionType = getIdSuggestionType(columnLabel);
+    if (!verifyEdit(inputValue, idSuggestionType)) {
+      // this input does not pass defined validation rule
+      this.reportInvalidInput(inputElement, "Value does not pass validation");
       return false;
     }
 

@@ -4,6 +4,7 @@
  * Input editor are a floating window that offers user the ability to edit table cell.
  */
 
+import { verifyEdit } from "./edit-validation";
 import { StatusMode, tableFoot } from "./table-foot";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 import { initializeFuseSelect, updateFuseSelect } from "./suggestions";
@@ -458,16 +459,29 @@ class CellEditor {
   saveEdit(): boolean {
     const edit = this.formInput;
     const cellElement = this.cellElement;
+
     // check validity of edit
+    let validationResult = true;
+    let invalidFeedback: string;
+    const idSuggestionType = getIdSuggestionType(getColumnLabel(cellElement.cellIndex));
+    if (!verifyEdit(edit, idSuggestionType)) {
+      validationResult = false;
+      invalidFeedback = "Value does not pass validation";
+    }
     if (isColumnAutocompleteOnly(getColumnLabel(cellElement.cellIndex))) {
-      if (this.fuseSelect.hasSuggestion(edit)) {
-        this.deactivateInvalidFeedback();
-      } else {
-        this.activateInvalidFeedback("Value must come from suggestions");
-        return false;
+      if (!this.fuseSelect.hasSuggestion(edit)) {
+        validationResult = false;
+        invalidFeedback = "Value must come from suggestions";
       }
     }
+    if (validationResult) {
+      this.deactivateInvalidFeedback();
+    } else {
+      this.activateInvalidFeedback(invalidFeedback);
+      return false;
+    }
 
+    // save edit
     if (cellElement) {
       setTableDataText(cellElement, edit);
       // mark this cell as user edited

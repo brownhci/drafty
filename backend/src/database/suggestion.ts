@@ -1,4 +1,4 @@
-import { db,logDbErr } from "./mysql";
+import { db, logDbErr } from "./mysql";
 
 /*
 * var used idSuggestion, suggestion, idProfile
@@ -27,6 +27,8 @@ const stmtSelectSuggestionsForEdit: string = "SELECT suggestion, 1 as prevSugg F
                                           + " SELECT stv.value as suggestion, 0 as prevSugg  FROM (SELECT * FROM SuggestionTypeValues WHERE active = 1) stv WHERE stv.idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) "
                                           + " ORDER BY prevSugg DESC, suggestion ASC ";
 
+const stmtGetSuggestionTypeValidationRule: string = "SELECT idSuggestionType, regex FROM SuggestionType;";
+
 /**
  * returns current or new idSuggestion
  */
@@ -36,7 +38,7 @@ export async function newSuggestion(idSuggestion: number, suggestion: string, id
 
       //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
       const idSuggestionPrev = idSuggestion;
-      const pos = Object.keys(results).pop(); // get last 
+      const pos = Object.keys(results).pop(); // get last
       const idSuggestionChosen = (results as any)[pos][0]["idSuggestion"]; // sw: this is bc of how procedures return data
 
       db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode, idProfile]);
@@ -49,9 +51,9 @@ export async function newSuggestion(idSuggestion: number, suggestion: string, id
 }
 
 /***
- * 
+ *
  * save new row
- * 
+ *
  ***/
 export async function insertNewRowId() {
     try {
@@ -129,6 +131,20 @@ export async function selectSuggestionsForEdit(idSuggestion: number) {
       return [null, results];
   } catch (error) {
       logDbErr(error, "error during selectSuggestionsForEdit", "warn");
+      return [error];
+  }
+}
+
+/**
+ * Get validation rule for edits. Validation rule is column scoped -- for example, Join Year might be limited to be numeric only.
+ * @returns results will be a list of object where each object contains an `idSuggestionType` and a `regex` field.
+ */
+export async function getValidationRule() {
+  try {
+      const [results] = await db.query(stmtGetSuggestionTypeValidationRule);
+      return [null, results];
+  } catch (error) {
+      logDbErr(error, "error during retrieving validation rules", "warn");
       return [error];
   }
 }

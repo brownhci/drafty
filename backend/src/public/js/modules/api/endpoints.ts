@@ -22,6 +22,10 @@ export function getColumnSuggestionURL(idSuggestionType: number) {
   return `/suggestions?idSuggestionType=${idSuggestionType}`;
 }
 
+export function getValidationRuleURL() {
+  return "/suggestions/validation-rule";
+}
+
 // interactions
 export function postNewRowURL() {
   return "/newrow";

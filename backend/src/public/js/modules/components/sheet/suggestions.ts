@@ -5,6 +5,7 @@
 
 import { LocalStorageCache } from "../../utils/local-storage";
 import { getEditSuggestionURL } from "../../api/endpoints";
+import { getJSON } from "../../api/requests";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 
 export interface Option {
@@ -65,16 +66,11 @@ export class SuggestionManager {
    * @returns {Promise<Array<Suggestion>>} A promise which resolves to an array of Option objects.
    */
   private async fetch(url: string): Promise<Array<Option>> {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        return null;
-      }
-      return this.transformer(await response.json());
-    } catch (error) {
-      console.error(`Network error when fetching ${this.name} suggestions`, error);
+    const suggestions = await getJSON(url);
+    if (!suggestions) {
       return null;
     }
+    return this.transformer(suggestions);
   }
 
   /**

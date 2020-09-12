@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getSuggestionsWithSuggestionType, newSuggestion, selectSuggestionsForEdit, insertNewRowId, insertInteractionAndEdit, insertNewRowSuggestion, insertNewRowSuggestionUserCredit } from "../database/suggestion";
+import { getSuggestionsWithSuggestionType, getValidationRule as _getValidationRule, newSuggestion, selectSuggestionsForEdit, insertNewRowId, insertInteractionAndEdit, insertNewRowSuggestion, insertNewRowSuggestionUserCredit } from "../database/suggestion";
 import { isValidIdSuggestionType } from "../validation/validators";
 
 /**
@@ -38,6 +38,19 @@ export const getSuggestionsForEdit = async (req: Request, res: Response, next: N
 
   return res.status(200).json(results);
 };
+
+/**
+ * GET /suggestions/validation-rule
+ * Get validation rule which determines whether an edit is valid. For example, cells for Join Year might be limited to numeric only.
+ */
+export async function getValidationRule(req: Request, res: Response, next: NextFunction) {
+  const [error, results] = await _getValidationRule();
+  if (error) {
+    return next(error);
+  }
+
+  return res.status(200).json(results);
+}
 
 /**
  * POST /suggestions/new
@@ -103,7 +116,7 @@ export const postNewRow = async (req: Request, res: Response) => {
     const newRowFields: number[] = [];
     for(let i = 0; i < rowFields.length; ++i ) {
       const newSuggestion = rowValues[i];
-      const newIdSuggestionType = rowFields[i]; 
+      const newIdSuggestionType = rowFields[i];
       const idSuggestion = await insertNewRowSuggestion(newSuggestion, idEdit, idProfile, newIdSuggestionType, idUniqueID);
       insertNewRowSuggestionUserCredit(idProfile, idUniqueID);
       newRowIds.push(idSuggestion);
@@ -136,6 +149,8 @@ const getIdEdit = async (idSession: number,idInteractionType: number,idEntryType
   }
   return results.insertId;
 };
+
+
 
 /**
  * POST /new-row
