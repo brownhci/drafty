@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from "../dom/navigate";
 import { isTableData } from "../dom/types";
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from "../dom/sheet";
-import { postCellClickURL, postCellDoubleClickURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL } from "./endpoints";
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL } from "./endpoints";
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector("input[name='_csrf']");
 
@@ -124,6 +124,10 @@ export function recordCellCopy(tableCellElement: HTMLTableCellElement) {
 export function recordColumnCopy(columnLabel: HTMLTableCellElement) {
   const idSuggestionType = getIdSuggestionType(columnLabel);
   recordInteraction(postColumnCopyURL(), {idSuggestionType});
+}
+
+export function recordPaste(pasteVal: string, pasteCellVal: string, pasteCellIdSuggestion: string, copyCellVal: string, copyCellIdSuggestion: string) {
+  recordInteraction(postPasteURL(), {pasteVal: pasteVal, pasteCellVal: pasteCellVal, pasteCellIdSuggestion: pasteCellIdSuggestion, copyCellVal: copyCellVal, copyCellIdSuggestion: copyCellIdSuggestion});
 }
 
 function isMultipleColumnSearchInputFilled(limit: number = 2): boolean {
