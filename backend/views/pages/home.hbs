@@ -11,10 +11,19 @@
                     Drafty strives to keep data up-to-date by recruiting people to review it from the crowd of people who are already using it. The data is hosted on Drafty, a web-based spreadsheet. Potential reviewers are matched to topics they likely have an interest in, by inferring their interest from interactions such as text highlighting, pointing, searching, sorting, and clicks. This continual review allows the maintenance of data to be self-sustaining over time.
                 </p>
             </div>
+            {{#if errors}}
+                <hr>
+                <h5>Whoops...there is an issue. :(</h5>
+                <p>Our elves are hard at work on it!</p>
+                <hr>
+            {{/if}}
             <div id="sheets">
                 <h4>Datasets and Products</h4>
                 <ul>
                     <li class="spreadsheet">
+                        {{#if errors}}
+                            <i>Temporarily Unavailable Dataset:</i><br>
+                        {{/if}}
                         <a class="spreadsheet-link" href="/csprofessors">
                             Computer Science Professors
                         </a>

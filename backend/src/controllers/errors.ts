@@ -47,7 +47,21 @@ export async function error500 (req: Request, res: Response) {
  */
 export async function errors(err: Error, req: Request, res: Response, next: NextFunction){
   res.status(500);
-  //console.log('errors...',req.url);
+  console.log('ERRORS...',req.url);
   //req.flash("errors", { msg: `Oops! There appears to be an error, our elves are hard at work on fixing it.`});
-  res.redirect("/");
+  //res.redirect("/?errors");
+
+  res.render("pages/home", makeRenderObject({
+    errors: true,
+    ignoreHeader: true,
+    ignoreFooter: true,
+    title: "HOME",
+    publications: [
+      {
+        link: "https://jeffhuang.com/Final_Drafty_HCOMP17.pdf",
+        name: "Drafty: Enlisting Users to be Editors who Maintain Structured Data",
+        description: "Shaun Wallace, Lucy van Kleunen, Marianne Aubin-Le Quere, Abraham Peterkin, Yirui Huang, Jeff Huang. HCOMP 2017"
+      },
+    ]
+  }, req));
 }
