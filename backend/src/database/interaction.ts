@@ -7,6 +7,8 @@ const stmtInsertInteraction: string = "INSERT INTO Interaction (idInteraction, i
 
 const stmtInsertClick: string = "INSERT INTO Click (idInteraction, idSuggestion, rowvalues) VALUES (insert_interaction(?,?), ?, ?);";
 
+const stmtInsertPaste: string = "INSERT INTO Paste (idInteraction, pasteValue, pasteCellValue, pasteCellIdSuggestion, copyCellValue, copyCellIdSuggestion) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?);";
+
 const stmtInsertCopy: string = "INSERT INTO Copy (idInteraction, idSuggestion) VALUES (insert_interaction(?,?), ?);";
 
 const stmtInsertDoubleClick: string = "INSERT INTO DoubleClick (idInteraction, idSuggestion, rowvalues) VALUES (insert_interaction(?,?), ?, ?);";
@@ -42,6 +44,20 @@ export async function insertDoubleClick(idSession: string, idSuggestion: string,
         await db.query(stmtInsertDoubleClick, [idSession, idInteractionType, idSuggestion, rowvalues.join(pipeDelim)]);
     } catch (error) {
         logDbErr(error, "error during insert double-click", "warn");
+    }
+}
+
+/**
+ * 
+ * saves paste on cell
+ * 
+ */
+export async function insertPasteCell(idSession: string, pasteVal: string, pasteCellVal: string, pasteCellIdSuggestion: number, copyCellVal: string, copyCellIdSuggestion: number) {
+    try {
+        const idInteractionType: number = 9;
+        await db.query(stmtInsertPaste, [idSession,idInteractionType,pasteVal,pasteCellVal,pasteCellIdSuggestion,copyCellVal,copyCellIdSuggestion]);
+    } catch (error) {
+        logDbErr(error, "error during insert paste", "warn");
     }
 }
 
