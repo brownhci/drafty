@@ -47,7 +47,7 @@ export async function error500 (req: Request, res: Response) {
  */
 export async function errors(err: Error, req: Request, res: Response, next: NextFunction){
   res.status(500);
-  console.log('ERRORS...',req.url);
+  console.log("ERRORS...",req.url);
   //req.flash("errors", { msg: `Oops! There appears to be an error, our elves are hard at work on fixing it.`});
   //res.redirect("/?errors");
 
