@@ -4,7 +4,7 @@ import { getTextSelected } from "./selection";
 
 /** copy **/
 let copyBuffer: HTMLTextAreaElement;
-function getCopyBuffer(): HTMLTextAreaElement {
+export function getCopyBuffer(): HTMLTextAreaElement {
   if (!copyBuffer) {
     // initialize copy buffer
     copyBuffer = document.createElement("textarea");
@@ -18,15 +18,20 @@ function getCopyBuffer(): HTMLTextAreaElement {
 }
 export function clearCopyBuffer() {
   getCopyBuffer().value = " ";
+  getCopyBuffer().name = " "; 
+  // sw: name is to store the idSuggestion from the copied cell
 }
-export function copyTextToCopyBuffer(text: string) {
+export function copyTextToCopyBuffer(text: string, id: string) {
   if (text === "") {
     text = " ";
   }
   getCopyBuffer().value = text;
+  getCopyBuffer().name = id; // Copied cell id & idSuggestion
 }
 export function copyCurrentSelectionToCopyBuffer() {
-  copyTextToCopyBuffer(getTextSelected());
+  // when someone manually highlights text somewhere and copies it
+  const id: string = ""; // will be blank bc they did not copy an exact cell
+  copyTextToCopyBuffer(getTextSelected(),id);
 }
 export function copyCopyBuffer() {
   getCopyBuffer().select();
