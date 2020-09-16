@@ -4,6 +4,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
 
+# Will search at most this many years into the past
+MAX_YEAR_RANGE = 30
+
 
 def load_csv(file_location, index_col):
     return pd.read_csv(file_location, index_col=index_col)
@@ -37,7 +40,7 @@ def generate_databait_1(df, data_column, label, time_column):
     earliest_year = time_counts.index[-1]
     optimal_range = 0
     optimal_rate = 0
-    for decrement in range(5, min(30, current_year - earliest_year + 1), 5):
+    for decrement in range(5, min(MAX_YEAR_RANGE, current_year - earliest_year + 1), 5):
         # NOTE: This should look differently if the data itself is cumulative
         pivot_year = current_year - decrement
         previous_sum = time_counts.loc[time_counts.index < pivot_year].sum()
@@ -82,7 +85,7 @@ def generate_databait_2(df, data_column, label1, label2, time_column):
     optimal_rate = 0
     bigger_label = None
     smaller_label = None
-    for decrement in range(5, min(30, current_year - earliest_year + 1), 5):
+    for decrement in range(5, min(MAX_YEAR_RANGE, current_year - earliest_year + 1), 5):
         # NOTE: This should look differently if the data itself is cumulative
         pivot_year = current_year - decrement
         previous_sum1 = time_counts1.loc[time_counts1.index < pivot_year].sum()
@@ -137,7 +140,7 @@ def generate_databait_3(df, column1, label1, column2, label2, time_column):
     earliest_year = time_counts.index[-1]
     optimal_range = 0
     optimal_rate = 0
-    for decrement in range(5, min(30, current_year - earliest_year + 1), 5):
+    for decrement in range(5, min(MAX_YEAR_RANGE, current_year - earliest_year + 1), 5):
         # NOTE: This should look differently if the data itself is cumulative
         pivot_year = current_year - decrement
         previous_sum = time_counts.loc[time_counts.index < pivot_year].sum()
@@ -150,6 +153,67 @@ def generate_databait_3(df, column1, label1, column2, label2, time_column):
     return {
         "label1": label1,
         "label2": label2,
+        "rate": optimal_rate * 100,
+        "time_range": optimal_range,
+    }
+
+
+def generate_databait_4(
+    df, column1, shared_label, column2, label_a, label_b, time_column
+):
+    """
+    #Categorical, #Time
+
+    Template:
+    The number of rows with [shared label in column1] and [label A in column2]
+    grew/shrank [rate]% more than those with [shared label in column1] and
+    [label B in column2] in the past [time range].
+    """
+    rows_with_shared_label = df.loc[df[column1] == shared_label]
+    rows_with_a = rows_with_shared_label.loc[df[column2] == label_a][time_column]
+    rows_with_b = rows_with_shared_label.loc[df[column2] == label_b][time_column]
+    a_counts = rows_with_a.astype("int32").value_counts().sort_index(ascending=False)
+    b_counts = rows_with_b.astype("int32").value_counts().sort_index(ascending=False)
+
+    # Search for optimal time range by iterating through time ranges,
+    # increasing by 5 years, up to 30 years
+    now = datetime.datetime.now()
+    current_year = now.year
+    earliest_year = max(a_counts.index[-1], b_counts.index[-1])
+    optimal_range = 0
+    optimal_rate = 0
+    bigger_label = None
+    smaller_label = None
+
+    for decrement in range(5, min(MAX_YEAR_RANGE, current_year - earliest_year + 1), 5):
+        pivot_year = current_year - decrement
+
+        previous_sum_a = a_counts.loc[a_counts.index < pivot_year].sum()
+        if previous_sum_a == 0:
+            break
+        added_values_a = a_counts.loc[a_counts.index >= pivot_year].sum()
+        rate_of_change_a = added_values_a / previous_sum_a
+
+        previous_sum_b = b_counts.loc[b_counts.index < pivot_year].sum()
+        if previous_sum_b == 0:
+            break
+        added_values_b = b_counts.loc[b_counts.index >= pivot_year].sum()
+        rate_of_change_b = added_values_b / previous_sum_b
+
+        diff = abs(rate_of_change_a - rate_of_change_b) / min(
+            rate_of_change_a, rate_of_change_b
+        )
+        if diff > optimal_rate:
+            optimal_rate = diff
+            optimal_range = decrement
+            bigger_label = label_a if rate_of_change_a >= rate_of_change_b else label_b
+            smaller_label = label_a if bigger_label == label_b else label_b
+    return {
+        "shared_label": shared_label,
+        "column1": column1,
+        "bigger_label": bigger_label,
+        "smaller_label": smaller_label,
+        "column2": column2,
         "rate": optimal_rate * 100,
         "time_range": optimal_range,
     }
@@ -177,7 +241,7 @@ def generate_databait_5(df, data_column, time_column):
     optimal_label = None
     # Search for optimal time range by iterating through time ranges,
     # increasing by 5 years, up to 30 years
-    for decrement in range(5, 30, 5):
+    for decrement in range(5, MAX_YEAR_RANGE, 5):
         pivot_year = current_year - decrement
         entries_in_time_range = cleaned_df.loc[cleaned_df[time_column] >= pivot_year][
             data_column
@@ -221,7 +285,7 @@ def generate_databait_6(df, data_column, time_column):
     optimal_label = None
     # Search for optimal time range by iterating through time ranges,
     # increasing by 5 years, up to 30 years
-    for decrement in range(5, 30, 5):
+    for decrement in range(5, MAX_YEAR_RANGE, 5):
         pivot_year = current_year - decrement
         entries_in_time_range = cleaned_df.loc[cleaned_df[time_column] >= pivot_year][
             data_column
@@ -240,6 +304,35 @@ def generate_databait_6(df, data_column, time_column):
         "column": data_column,
         "time_range": optimal_range,
         "max_label": optimal_label,
+    }
+
+
+def generate_databait_7(df, data_column, label, time_column, event, year):
+    """
+    #Categorical, #Numerical (not implemented), #Time
+
+    Template:
+    [Label count in a column / average value in a column] has risen/fallen [rate]% since [year],
+    when [event] occurred.
+
+    """
+    rows_with_label = (
+        df.loc[df[data_column] == label]
+        .dropna(subset=[time_column])
+        .astype({time_column: "int32"})
+    )
+    count_at_event = len(rows_with_label.loc[rows_with_label[time_column] == year])
+    latest_year = rows_with_label[time_column].max()
+    count_at_present = len(
+        rows_with_label.loc[rows_with_label[time_column] == latest_year]
+    )
+    rate_of_change = (count_at_present - count_at_event) / count_at_event
+    return {
+        "label": label,
+        "event": event,
+        "year": year,
+        "latest_year": latest_year,
+        "rate": rate_of_change * 100,
     }
 
 
@@ -265,6 +358,17 @@ def generate_databait_8(df, column1, column2):
     }
 
 
+def generate_databait_9(df, data_column, label, time_column):
+    """
+    #Categorical, #Time
+
+    Template:
+    [Label]'s share of [column] dropped/rose from [rate1]% in [year1] to [rate2%] in [year2].
+    """
+    # Approach 1: given label, look back in the past 10(?) years and find the most optimal year. year2 is always the latest
+    # Approach 2: given a year range, find the most optimal label
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate DataBaits from CSV file")
     parser.add_argument(
@@ -280,4 +384,15 @@ if __name__ == "__main__":
     #     "SubField", "Databases", "JoinYear"))
     # print(generate_databait_5(df, "University", "JoinYear"))
     # print(generate_databait_6(df, "University", "JoinYear"))
-    print(generate_databait_8(df, "Bachelors", "Doctorate"))
+    # print(generate_databait_8(df, "Bachelors", "Doctorate"))
+    # print(generate_databait_4(df, "SubField", "Databases", "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
+    print(
+        generate_databait_7(
+            df,
+            "SubField",
+            "Artificial Intelligence",
+            "JoinYear",
+            "IBM's Deep Blue beat Garry Kasparov",
+            1997,
+        )
+    )
