@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { insertClick, insertDoubleClick, insertCopyCell, insertCopyColumn, insertSearch, insertSort } from "../database/interaction";
+import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertCopyColumn, insertSearch, insertSort } from "../database/interaction";
 
 /**
  * POST /click
@@ -124,6 +124,26 @@ export const postSearchFull = (req: Request, res: Response) => {
   }
 };
 
+/**
+ * POST /paste-cell
+ * Copy
+ *
+ * @param {number} req.body.idSuggestion
+*/
+export const postPasteCell = (req: Request, res: Response) => {
+  const idSession = req.session.user.idSession;
+  const pasteVal: string|any = req.body.pasteVal;
+  const pasteCellVal: string|any = req.body.pasteCellVal;
+  const pasteCellIdSuggestion: number = req.body.pasteCellIdSuggestion;
+  const copyCellVal: string|any = req.body.copyCellVal;
+  const copyCellIdSuggestion: number = req.body.copyCellIdSuggestion;
+  try {
+    insertPasteCell(idSession,pasteVal,pasteCellVal,pasteCellIdSuggestion,copyCellVal,copyCellIdSuggestion);
+    return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+};
 
 /**
  * POST /copy-cell

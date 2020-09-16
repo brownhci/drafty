@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { makeRenderObject } from "../config/handlebars-helpers";
-import { sheetsData }  from "../models/sheet";
+// import { sheetsData }  from "../models/sheet";
 
 // sw - unused for now
 /*
@@ -20,8 +20,8 @@ function getSheets() {
 */
 
 export const flaskTest = (req: Request, res: Response) => {
-  res.redirect('http://localhost:5000');
-}
+  res.redirect("http://localhost:5000");
+};
 
 /**
  * GET /

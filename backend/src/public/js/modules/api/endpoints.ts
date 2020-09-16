@@ -39,6 +39,10 @@ export function postCellDoubleClickURL() {
   return "/click-double";
 }
 
+export function postPasteURL() {
+  return "/paste-cell";
+}
+
 export function postCellCopyURL() {
   return "/copy-cell";
 }

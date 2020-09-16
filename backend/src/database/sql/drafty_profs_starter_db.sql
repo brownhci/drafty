@@ -559,8 +559,11 @@ CREATE TABLE `NewRow` (
 
 CREATE TABLE `Paste` (
   `idInteraction` int(11) NOT NULL,
-  `idSuggestionBefore` int(11) NOT NULL,
-  `idSuggestionAfter` int(11) DEFAULT NULL
+  `pasteValue` varchar(1500) NOT NULL,
+  `copyCellIdSuggestion` int(11) DEFAULT NULL,
+  `copyCellValue` varchar(1500) DEFAULT NULL,
+  `pasteCellIdSuggestion` int(11) NOT NULL,
+  `pasteCellValue` varchar(1500) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -73658,9 +73661,9 @@ ALTER TABLE `NewRow`
 -- Indexes for table `Paste`
 --
 ALTER TABLE `Paste`
-  ADD PRIMARY KEY (`idInteraction`,`idSuggestionBefore`),
-  ADD KEY `_fk_idSuggestionBefore_2217654` (`idSuggestionBefore`),
-  ADD KEY `_fk_idSuggestionAfter_2217654` (`idSuggestionAfter`);
+  ADD PRIMARY KEY (`idInteraction`),
+  ADD KEY `_fk_copy_id_suggestion_197823` (`copyCellIdSuggestion`),
+  ADD KEY `_fk_paste_id_suggestion_197823` (`pasteCellIdSuggestion`);
 
 --
 -- Indexes for table `Profile`
@@ -73919,9 +73922,9 @@ ALTER TABLE `NewRow`
 -- Constraints for table `Paste`
 --
 ALTER TABLE `Paste`
-  ADD CONSTRAINT `_fk_idInteraction_2247443` FOREIGN KEY (`idInteraction`) REFERENCES `Interaction` (`idInteraction`),
-  ADD CONSTRAINT `_fk_idSuggestionAfter_2217654` FOREIGN KEY (`idSuggestionAfter`) REFERENCES `Suggestions` (`idSuggestion`),
-  ADD CONSTRAINT `_fk_idSuggestionBefore_2217654` FOREIGN KEY (`idSuggestionBefore`) REFERENCES `Suggestions` (`idSuggestion`);
+  ADD CONSTRAINT `_fk_copy_id_suggestion_197823` FOREIGN KEY (`copyCellIdSuggestion`) REFERENCES `Suggestions` (`idSuggestion`),
+  ADD CONSTRAINT `_fk_paste_id_suggestion_197823` FOREIGN KEY (`pasteCellIdSuggestion`) REFERENCES `Suggestions` (`idSuggestion`);
+
 
 --
 -- Constraints for table `Search`

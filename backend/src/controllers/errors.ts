@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { makeRenderObject } from "../config/handlebars-helpers";
 import { sheetsData }  from "../models/sheet";
 import path from "path";
@@ -45,9 +45,23 @@ export async function error500 (req: Request, res: Response) {
 /**
  * GLOBAL MIDDLEWARE
  */
-export async function errors(err: Error, req: Request, res: Response, next: NextFunction){
+export async function errors(err: Error, req: Request, res: Response){
   res.status(500);
-  //console.log('errors...',req.url);
+  console.log("ERRORS...",req.url);
   //req.flash("errors", { msg: `Oops! There appears to be an error, our elves are hard at work on fixing it.`});
-  res.redirect("/");
+  //res.redirect("/?errors");
+
+  res.render("pages/home", makeRenderObject({
+    errors: true,
+    ignoreHeader: true,
+    ignoreFooter: true,
+    title: "HOME",
+    publications: [
+      {
+        link: "https://jeffhuang.com/Final_Drafty_HCOMP17.pdf",
+        name: "Drafty: Enlisting Users to be Editors who Maintain Structured Data",
+        description: "Shaun Wallace, Lucy van Kleunen, Marianne Aubin-Le Quere, Abraham Peterkin, Yirui Huang, Jeff Huang. HCOMP 2017"
+      },
+    ]
+  }, req));
 }

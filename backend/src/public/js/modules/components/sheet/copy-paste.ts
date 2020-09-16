@@ -1,8 +1,8 @@
 import { cellEditor } from "./cell-editor";
 import { StatusMode, tableFoot } from "./table-foot";
-import { clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyCopyBuffer, copyTextToCopyBuffer, hasCopyModifier } from "../../utils/copy";
+import { clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyCopyBuffer, copyTextToCopyBuffer, hasCopyModifier, getCopyBuffer } from "../../utils/copy";
 import { hasTextSelected } from "../../utils/selection";
-import { recordCellCopy, recordColumnCopy } from "../../api/record-interactions";
+import { recordCellCopy, recordColumnCopy, recordPaste } from "../../api/record-interactions";
 import { isTableData, isTableHead } from "../../dom/types";
 import { getColumnLabel, getTableCellText, getTableDataText, isColumnLabel, isColumnSearchInput, isTableCellEditable, tableElement } from "../../dom/sheet";
 import { activeTableCellElement, activeTableColElement, tableDataManager } from "../../../sheet";
@@ -27,7 +27,7 @@ interface ConsumableKeyboardEvent extends KeyboardEvent {
   consumed?: boolean;
 }
 function copyCellTextToCopyBuffer(tableCellElement: HTMLTableCellElement) {
-  copyTextToCopyBuffer(getTableCellText(tableCellElement));
+  copyTextToCopyBuffer(getTableCellText(tableCellElement), tableCellElement.id);
 }
 function copyTableColumnToCopyBuffer(index: number) {
   let textToCopy = "";
@@ -37,7 +37,8 @@ function copyTableColumnToCopyBuffer(index: number) {
     const text = tableRow.cells[index].textContent;
     textToCopy += `${text}\n`;
   }
-  copyTextToCopyBuffer(textToCopy.trimRight());
+  const id: string = ""; //sw: bc this was a copy column operation
+  copyTextToCopyBuffer(textToCopy.trimRight(),id);
 }
 export function copyTableCellElement(tableCellElement: HTMLTableCellElement, ignoreSelection: boolean = true) {
   removeCurrentCopyTarget();
@@ -66,7 +67,7 @@ export function copyTableCellElement(tableCellElement: HTMLTableCellElement, ign
       // do not record copy on table head element
       recordCellCopy(tableCellElement);
       // report in table footer that a cell was copied
-      tableFoot.setStatusTimeout(StatusMode.CellCopy, 1000);
+      tableFoot.setStatusTimeout(StatusMode.CellCopy, 2000);
     }
 
     // regain focus
@@ -87,6 +88,13 @@ export function tableCellElementOnCopyKeyPressed(tableCellElement: HTMLTableCell
 
 // paste event
 function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: string) {
+  const pasteVal = text;
+  const pasteCellVal = tableCellElement.innerText;
+  const pasteCellIdSuggestion = tableCellElement.id;
+  const copyCellVal = getCopyBuffer().value;
+  const copyCellIdSuggestion = getCopyBuffer().name;
+  recordPaste(pasteVal, pasteCellVal, pasteCellIdSuggestion, copyCellVal, copyCellIdSuggestion);
+
   // invoke edit editor
   cellEditor.activateForm(tableCellElement);
   cellEditor.formInput = text;

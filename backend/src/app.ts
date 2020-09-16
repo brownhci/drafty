@@ -159,6 +159,7 @@ app.post("/click-double", interactionCtrl.postClickDouble);
 app.post("/sort", interactionCtrl.postSort);
 app.post("/search-partial", interactionCtrl.postSearchPartial);
 app.post("/search-full", interactionCtrl.postSearchFull);
+app.post("/paste-cell", interactionCtrl.postPasteCell);
 app.post("/copy-cell", interactionCtrl.postCopyCell);
 app.post("/copy-column", interactionCtrl.postCopyColumn);
 
@@ -175,6 +176,7 @@ app.get("/:sheet", userCtrl.checkReturnPath, sheetCtrl.getSheet);
 
 // handle missing pages
 app.get("*", function(req, res) {
+  console.log(`ERROR - Cannot find requested page ${req.originalUrl}`);
   //sw: bc homepage was moved flash errors do not show up 
   //req.flash("errors", { msg: `Cannot find requested page ${req.originalUrl}`});
   res.redirect("/");
