@@ -1,5 +1,8 @@
 *.class
 
+# Remove __pycache__
+*__pycache__*
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
