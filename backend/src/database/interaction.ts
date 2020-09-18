@@ -19,7 +19,7 @@ const stmtSearch: string  = "INSERT INTO Search (idInteraction, idSuggestionType
 
 const stmtSearchMulti: string  = "INSERT INTO SearchMulti (idInteraction, idSuggestionType, idSearchType, value) VALUES (?, ?, ?, ?)";
 
-//const stmtInsertEdit: string  = "INSERT INTO Edit (idInteraction, idSuggestion, idEntryType, chosen) VALUES (?, ?, ?, ?);";
+const stmtInsertSearchGoogle: string  = "INSERT INTO SearchGoogle (idInteraction, idUniqueID, idSuggestion, searchValues) VALUES (insert_interaction(?,?), ?, ?, ?);";
 
 /**
  * save new click
@@ -170,5 +170,18 @@ export async function insertSearch(idSession: string, idSuggestionType: number|s
         }
     } catch (error) {
         logDbErr(error, "error during insert insertSearch", "warn");
+    }
+}
+
+/**
+* insert Search Google
+**/
+export async function insertSearchGoogle(idSession: string, idRow: number|string, idSuggestion: number|string, searchValues: Array<string>) {
+    try {
+        const idInteractionType: number = 18;
+        //console.log('insertSearchGoogle:',idSession, idInteractionType, idRow, idSuggestion, searchValues.join(pipeDelim));
+        db.query(stmtInsertSearchGoogle, [idSession, idInteractionType, idRow, idSuggestion, searchValues.join(pipeDelim)]);
+    } catch (error) {
+        logDbErr(error, "error during insert google search", "warn");
     }
 }
