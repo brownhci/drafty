@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertCopyColumn, insertSearch, insertSort } from "../database/interaction";
+import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertCopyColumn, insertSearch, insertSort, insertSearchGoogle } from "../database/interaction";
 
 /**
  * POST /click
@@ -119,6 +119,30 @@ export const postSearchFull = (req: Request, res: Response) => {
   try {
     insertSearch(idSession, idSuggestionType, isPartial, isMulti, isFromUrl, value, matchedValues, multiSearchValues);
   return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+};
+
+/**
+ * POST /search-google
+ * Full search
+ * @param {number} req.body.idSuggestion
+ * @param {number} req.body.idRow
+ *
+ * (pipe delimited)-> idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
+ * @param {Array<string>} req.body.searchValues
+ */
+export const postSearchGoogle = (req: Request, res: Response) => {
+  const idSession = req.session.user.idSession;
+  const idRow: number = req.body.idRow;
+  const idSuggestion: number = req.body.idSuggestion;
+  const searchValues: Array<string> = req.body.searchValues;
+
+  try {
+    //console.log('postSearchGoogle:',idSession, idRow, idSuggestion, searchValues);
+    insertSearchGoogle(idSession, idRow, idSuggestion, searchValues);
+    return res.sendStatus(200);
   } catch (error) {
     return res.sendStatus(500);
   }
