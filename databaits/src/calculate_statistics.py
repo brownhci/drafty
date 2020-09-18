@@ -385,7 +385,7 @@ if __name__ == "__main__":
     # print(generate_databait_5(df, "University", "JoinYear"))
     # print(generate_databait_6(df, "University", "JoinYear"))
     # print(generate_databait_8(df, "Bachelors", "Doctorate"))
-    # print(generate_databait_4(df, "SubField", "Databases", "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
+    print(generate_databait_4(df, "SubField", "Databases", "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
     print(
         generate_databait_7(
             df,
