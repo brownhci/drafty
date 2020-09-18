@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from "../dom/navigate";
 import { isTableData } from "../dom/types";
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from "../dom/sheet";
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL } from "./endpoints";
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postGoogleSearchURL } from "./endpoints";
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector("input[name='_csrf']");
 
@@ -171,5 +171,14 @@ export function recordColumnSort(columnIndex: number , sortingDirection: number)
   recordInteraction(postColumnSortURL(), {
     idSuggestionType: getIdSuggestionType(columnLabel),
     isAsc: (1 - sortingDirection)
+  });
+}
+
+export function recordGoogleSearch(idSuggestion: string, idRow: string, tableRow: HTMLTableRowElement) {
+  const rowValues = getTableRowCellValues(tableRow);
+  recordInteraction(postGoogleSearchURL(), {
+    idSuggestion: idSuggestion,
+    idRow: idRow,
+    searchValues: rowValues
   });
 }
