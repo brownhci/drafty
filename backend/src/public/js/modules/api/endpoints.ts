@@ -58,6 +58,11 @@ export function postColumnSortURL() {
 export function postColumnCompleteSearchURL() {
   return "search-full";
 }
+
 export function postColumnPartialSearchURL() {
   return "search-full";
+}
+
+export function postGoogleSearchURL() {
+  return "search-google";
 }
