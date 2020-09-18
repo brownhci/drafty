@@ -11,4 +11,4 @@
 # * * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_edit_history.py --database csprofessors csprofessors_edits.csv
 
 ### csv version
-* * * * * root vol/drafty_source/drafty/util/ && python3 gen_data_csv.py --database csprofessors
+* * * * * root /vol/drafty_source/drafty/util/ && python3 gen_data_csv.py --database csprofessors
