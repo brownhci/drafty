@@ -1,6 +1,7 @@
 import { placeElementInViewport } from "./align";
 import { cellEditor } from "./cell-editor";
 import { copyTableCellElement, pasteToTableCellElement } from "./copy-paste";
+import { openGoogleSearch } from "./search-google";
 import { StatusMode, tableFoot } from "./table-foot";
 import { activeClass } from "../../constants/css-classes";
 import { isButton } from "../../dom/types";
@@ -130,6 +131,7 @@ export const tableDataEditMenuItem = new MenuItem(tableDataButtons[0] as HTMLBut
 export const tableDataCopyMenuItem = new MenuItem(tableDataButtons[1] as HTMLButtonElement);
 export const tableDataPasteMenuItem = new MenuItem(tableDataButtons[2] as HTMLButtonElement);
 export const tableDataInsertRowMenuItem = new MenuItem(tableDataButtons[3] as HTMLButtonElement);
+export const tableDataSearchGoogleMenuItem = new MenuItem(tableDataButtons[4] as HTMLButtonElement);
 
 /* set up alias and conflicts */
 columnLabelInsertRowMenuItem.addToAlias(tableDataInsertRowMenuItem);
@@ -143,6 +145,7 @@ export function isContextMenuButton(element: HTMLElement) {
 // event handler
 tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
   const menuItem = MenuItem.find(event.target as HTMLElement);
+  console.log(menuItem.action);
   switch (menuItem.action) {
     case "Edit":
       cellEditor.activateForm(activeTableCellElement);
@@ -156,6 +159,9 @@ tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
     case "Insert Row":
       menuItem.toggle();
       tableFoot.toggle(StatusMode.Insertion);
+      break;
+    case "Search Google":
+      openGoogleSearch(activeTableCellElement);
       break;
   }
   deactivateTableDataContextMenu();
