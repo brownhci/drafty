@@ -42,14 +42,14 @@ app.set("trust proxy", true); // sw: for production reverse proxy
 //static files
 app.use( express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }) );
 
-let csMultiRankerLive  = path.join(__dirname, "/vol/CSMultiRanker");
-let csMultiRankerLocal = path.join(__dirname, "../../../../CSRankings");
+const csMultiRankerLive  = path.join(__dirname, "/vol/CSMultiRanker");
+const csMultiRankerLocal = path.join(__dirname, "../../../../CSRankings");
 if (fs.existsSync(csMultiRankerLive)) {
   //console.log("on LIVE server, serving csmultiranker from",csMultiRankerLive);
-  app.use('/csmultiranker', express.static(csMultiRankerLive));
+  app.use("/csmultiranker", express.static(csMultiRankerLive));
 } else {
   //console.log("on LOCAL server, serving  csmultiranker from",csMultiRankerLocal);
-  app.use('/csmultiranker', express.static(csMultiRankerLocal));
+  app.use("/csmultiranker", express.static(csMultiRankerLocal));
 }
 
 // View Engine
