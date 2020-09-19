@@ -7,6 +7,7 @@ import lusca from "lusca";
 import flash from "express-flash";
 import path from "path";
 import passport from "passport";
+import fs from "fs";
 import { DB_HOST, DB_USER, DB_PASSWORD, SESSION_SECRET } from "./util/secrets";
 
 // Create session file store
@@ -40,7 +41,16 @@ app.set("trust proxy", true); // sw: for production reverse proxy
 
 //static files
 app.use( express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }) );
-//app.use('/csmultiranker', express.static(path.join(__dirname, "../../../../CSRankings")));
+
+let csmultiranker_live  = path.join(__dirname, "/vol/CSMultiRanker");
+let csmultiranker_local = path.join(__dirname, "../../../../CSRankings");
+if (fs.existsSync(csmultiranker_live)) {
+  console.log("on LIVE server, serving csmultiranker from",csmultiranker_live);
+  app.use('/csmultiranker', express.static(csmultiranker_live));
+} else {
+  console.log("on LOCAL server, serving  csmultiranker from",csmultiranker_local);
+  app.use('/csmultiranker', express.static(csmultiranker_local));
+}
 
 // View Engine
 import helpers from "./config/handlebars-helpers";
