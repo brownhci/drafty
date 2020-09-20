@@ -12,6 +12,7 @@ We are working on writing test files that will automatically execute all of them
 
 ## Sample function calls  
 <b>DataBait 1</b>
+
 Function call: generate_databait_1(df, "University", "Brown University", "JoinYear"))
 
 Returns: {'label': 'Brown University', 'rate': 146.15384615384613, 'time_range': 25}
@@ -19,6 +20,7 @@ Returns: {'label': 'Brown University', 'rate': 146.15384615384613, 'time_range':
 Sentence: CS professors hired by Brown University increased 146% in the past 25 years.
 
 <b>DataBait 2</b>
+
 Function call: generate_databait_2(df, "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
 
 Returns: {'bigger_label': 'Carnegie Mellon University', 'smaller_label': 'Brown University', 'rate': 63.045912653975364, 'time_range': 25}
@@ -27,6 +29,7 @@ Sentence: The total number of CS professors hired by Carnegie Mellon University 
 
 
 <b>DataBait 3</b>
+
 Function call: generate_databait_3(df, "University", "Brown University", "SubField", "Databases", "JoinYear"))
 
 Returns: {'label1': 'Brown University', 'label2': 'Databases', 'rate': 200.0, 'time_range': 20}
@@ -34,6 +37,7 @@ Returns: {'label1': 'Brown University', 'label2': 'Databases', 'rate': 200.0, 't
 Sentence: The number of CS professors hired by Brown University who specialize in Databases grew 200% in the last 20 years. 
 
 <b>DataBait 4</b>
+
 Function call: generate_databait_4(df, "SubField", "Databases", "University", "Brown University", "Carnegie Mellon University", "JoinYear")
 
 Returns: {shared_label': 'Databases', 'column1': 'SubField', 'bigger_label': 'Carnegie Mellon University', 'smaller_label': 'Brown University', 'column2': 'University', 'rate': 100.0, 'time_range': 10}
@@ -41,6 +45,7 @@ Returns: {shared_label': 'Databases', 'column1': 'SubField', 'bigger_label': 'Ca
 Sentence: The number of CS professors who specialize in Databases hired by Carnegie Mellon University grew 100% more in the past 10 years than that of those hired by Brown University. 
 
 <b>DataBait 5</b>
+
 Function call: generate_databait_5(df, "University", "JoinYear"))
 
 Returns: {'max_label': 'Carnegie Mellon University', 'column': 'University', 'rate': 354.18894830659536, 'time_range': 25}
@@ -48,6 +53,7 @@ Returns: {'max_label': 'Carnegie Mellon University', 'column': 'University', 'ra
 Sentence: The number of CS professors hired by Carnegie Mellon University in the past 25 years was 354% greater than the number of those hired by the average university. 
 
 <b>DataBait 6</b>
+
 Function call: generate_databait_6(df, "University", "JoinYear"))
 
 Returns: {'proportion': 6.779661016949152, 'column': 'University', 'time_range': 5, 'max_label': 'Carnegie Mellon University'}
@@ -55,6 +61,7 @@ Returns: {'proportion': 6.779661016949152, 'column': 'University', 'time_range':
 Sentence: 6.78% of the hires in CS professors in the past 5 years comes from Carnegie Mellon University. 
 
 <b>DataBait 7</b>
+
 Function call: generate_databait_7(df, "SubField", "Artificial Intelligence", "JoinYear", "IBM's Deep Blue beat Garry Kasparov", 1997)
 
 Returns: {'label': 'Artificial Intelligence', 'event': "IBM's Deep Blue beat Garry Kasparov", 'year': 1997, 'latest_year': 2016, 'rate': -83.33333333333334}
@@ -62,6 +69,7 @@ Returns: {'label': 'Artificial Intelligence', 'event': "IBM's Deep Blue beat Gar
 Sentence: The total number of CS professors specializing in Artificial Intelligence hired in 2016 decreased 83% from that in 1997, when IBM's Deep Blue beat Gary Kasparov. 
 
 <b>DataBait 8</b>
+
 Function call: generate_databait_8(df, "Bachelors", "Doctorate"))
 
 Returns: {'proportion': 11.551862771374967, 'column1': 'Bachelors', 'column2': 'Doctorate'}
