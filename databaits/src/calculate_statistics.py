@@ -17,7 +17,7 @@ def generate_databait_1(df, data_column, label, time_column):
     #Categorical, #Time
 
     Template:
-    The total number of [labe in column] grew/shrank [rate]% in the past [time range].
+    The total number of [label in column] grew/shrank [rate]% in the past [time range].
 
     Params:
         data_column: column to search for label in
@@ -199,7 +199,7 @@ def generate_databait_4(
             break
         added_values_b = b_counts.loc[b_counts.index >= pivot_year].sum()
         rate_of_change_b = added_values_b / previous_sum_b
-
+        print(rate_of_change_a, rate_of_change_b)
         diff = abs(rate_of_change_a - rate_of_change_b) / min(
             rate_of_change_a, rate_of_change_b
         )
@@ -386,6 +386,7 @@ if __name__ == "__main__":
     # print(generate_databait_6(df, "University", "JoinYear"))
     # print(generate_databait_8(df, "Bachelors", "Doctorate"))
     print(generate_databait_4(df, "SubField", "Databases", "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
+<<<<<<< Updated upstream
     print(
         generate_databait_7(
             df,
