@@ -347,8 +347,8 @@ def generate_databait_8(df, column1, column2):
     Returns:
         dictionary of proportion, column1, and column2
     """
+    total_rows = len(df)
     cleaned_df = df.dropna(subset=[column1, column2])
-    total_rows = len(cleaned_df)
     rows_with_labels = cleaned_df.loc[cleaned_df[column1] == cleaned_df[column2]]
     matching_rows = len(rows_with_labels)
     return {
@@ -358,15 +358,63 @@ def generate_databait_8(df, column1, column2):
     }
 
 
-def generate_databait_9(df, data_column, label, time_column):
+def generate_databait_9(df, data_column, time_column, time_range):
     """
     #Categorical, #Time
 
     Template:
     [Label]'s share of [column] dropped/rose from [rate1]% in [year1] to [rate2%] in [year2].
+
+    Returns:
+    Dictionary of the optimal label, the proportion at the starting and end years, and the starting and end years 
     """
-    # Approach 1: given label, look back in the past 10(?) years and find the most optimal year. year2 is always the latest
-    # Approach 2: given a year range, find the most optimal label
+    # Approach 1: Given time range, find optimal label => Implemented now
+    # Approach 2: Given label, find optimal time range
+    cleaned_df = df.dropna(subset=[time_column])[[time_column, data_column]]
+    valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
+    cleaned_df = cleaned_df[valid_year_filter]
+    cleaned_df = cleaned_df.astype({time_column: "int32"})
+
+    latest_year = cleaned_df[time_column].max()
+    latest_entries = cleaned_df.loc[cleaned_df[time_column] == latest_year][data_column]
+    latest_counts = latest_entries.value_counts()
+    latest_total = latest_counts.values.sum()
+
+    years = cleaned_df[time_column]
+    oldest_year = years.where(years > latest_year - time_range).min()
+    oldest_entries = cleaned_df.loc[cleaned_df[time_column] == oldest_year][data_column]
+    oldest_counts = oldest_entries.value_counts()
+    oldest_total = oldest_counts.values.sum()
+
+    all_entries = set(latest_entries.array).union(set(oldest_entries.array))
+
+    optimal_label = None
+    optimal_diff = float("-inf")
+    optimal_start = None
+    optimal_end = None
+
+    for entry in all_entries:
+        if entry in latest_counts.index:
+            latest_portion = latest_counts[entry] / latest_total * 100
+        else:
+            latest_portion = 0
+        if entry in oldest_counts.index:
+            oldest_portion = oldest_counts[entry] / oldest_total * 100
+        else:
+            oldest_portion = 0
+        diff = abs(latest_portion - oldest_portion)
+        if diff > optimal_diff:
+            optimal_diff = diff
+            optimal_start, optimal_end = oldest_portion, latest_portion
+            optimal_label = entry
+
+    return {
+        "label": optimal_label,
+        "start": optimal_start,
+        "end": optimal_end,
+        "oldest_year": oldest_year,
+        "latest_year": latest_year,
+    }
 
 
 if __name__ == "__main__":
@@ -385,15 +433,15 @@ if __name__ == "__main__":
     # print(generate_databait_5(df, "University", "JoinYear"))
     # print(generate_databait_6(df, "University", "JoinYear"))
     # print(generate_databait_8(df, "Bachelors", "Doctorate"))
-    print(generate_databait_4(df, "SubField", "Databases", "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
-<<<<<<< Updated upstream
-    print(
-        generate_databait_7(
-            df,
-            "SubField",
-            "Artificial Intelligence",
-            "JoinYear",
-            "IBM's Deep Blue beat Garry Kasparov",
-            1997,
-        )
-    )
+    # print(generate_databait_4(df, "SubField", "Databases", "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
+    # print(
+    #     generate_databait_7(
+    #         df,
+    #         "SubField",
+    #         "Artificial Intelligence",
+    #         "JoinYear",
+    #         "IBM's Deep Blue beat Garry Kasparov",
+    #         1997,
+    #     )
+    # )
+    # print(generate_databait_9(df, "University", "JoinYear", 30))
