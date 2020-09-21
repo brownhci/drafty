@@ -75,3 +75,11 @@ Function call: generate_databait_8(df, "Bachelors", "Doctorate"))
 Returns: {'proportion': 11.551862771374967, 'column1': 'Bachelors', 'column2': 'Doctorate'}
 
 Sentence: 11.55% of CS professors went to the same university for their Bachelor's degrees as for their Doctorate degrees. 
+
+<b>DataBait 9</b>
+
+Function call: generate_databait_9(df, "University", "JoinYear", 30)
+
+Returns: {'label': 'Boston University', 'start': 0, 'end': 50.0, 'latest_year': 2017, 'oldest_year': 1988.0}
+
+Sentence: Boston University hired 0% of all CS professors hired in 1988, and 50% of all CS professors hired in 2017. 
