@@ -83,3 +83,11 @@ Function call: generate_databait_9(df, "University", "JoinYear", 30)
 Returns: {'label': 'Boston University', 'start': 0, 'end': 50.0, 'latest_year': 2017, 'oldest_year': 1988.0}
 
 Sentence: Boston University hired 0% of all CS professors hired in 1988, and 50% of all CS professors hired in 2017. 
+
+<b>DataBait 10</b>
+
+Function call: generate_databait_10(df, "SubField", "JoinYear", 20)
+
+Returns: {'up_labels': [('Security & Privacy', 22.2972972972973), ('Software Engineering', 19.594594594594597)], 'down_labels': [('Graphics', -8.108108108108109), ('Data Mining', -6.756756756756757)], 'year': 1998.0}
+
+Sentence: The share of new CS professors hired who specialize in Security & Privacy and Software Engineering are up, and those who specialize in Graphics and Data Mining are down, from 1998. 

@@ -366,7 +366,7 @@ def generate_databait_9(df, data_column, time_column, time_range):
     [Label]'s share of [column] dropped/rose from [rate1]% in [year1] to [rate2%] in [year2].
 
     Returns:
-    Dictionary of the optimal label, the proportion at the starting and end years, and the starting and end years 
+    Dictionary of the optimal label, the proportion at the starting and end years, and the starting and end years
     """
     # Approach 1: Given time range, find optimal label => Implemented now
     # Approach 2: Given label, find optimal time range
@@ -417,6 +417,69 @@ def generate_databait_9(df, data_column, time_column, time_range):
     }
 
 
+def generate_databait_10(df, data_column, time_column, time_range):
+    """
+    #Categorical, #Numerical, #Time
+
+    Template:
+    [Labels] are up, and [Labels] are down from [year].
+    """
+    # THINK ABOUT: how to integrate latest year in DB into sentence? 
+    # The part below is repeated from DB 9 - move into a helper function ==========
+    cleaned_df = df.dropna(subset=[time_column])[[time_column, data_column]]
+    valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
+    cleaned_df = cleaned_df[valid_year_filter]
+    cleaned_df = cleaned_df.astype({time_column: "int32"})
+
+    latest_year = cleaned_df[time_column].max()
+    latest_entries = cleaned_df.loc[cleaned_df[time_column] == latest_year][data_column]
+    latest_counts = latest_entries.value_counts()
+    latest_total = latest_counts.values.sum()
+
+    years = cleaned_df[time_column]
+    oldest_year = years.where(years > latest_year - time_range).min()
+    oldest_entries = cleaned_df.loc[cleaned_df[time_column] == oldest_year][data_column]
+    oldest_counts = oldest_entries.value_counts()
+    oldest_total = oldest_counts.values.sum()
+
+    all_entries = set(latest_entries.array).union(set(oldest_entries.array))
+    # Helper function end ==========
+
+    up_labels = []
+    down_labels = []
+
+    for entry in all_entries:
+        # NOTE: we could compare the values individually, or as shares of the total 
+            # latest_count = 0 if entry not in latest_counts.index else latest_counts[entry]
+            # oldest_count = 0 if entry not in oldest_counts.index else oldest_counts[entry]
+            # diff = (latest_count - oldest_count) 
+
+        # NOTE: we could use the abs difference, or % difference (divide by zero error)
+        if entry in latest_counts.index:
+            latest_portion = latest_counts[entry] / latest_total * 100
+        else:
+            latest_portion = 0
+        if entry in oldest_counts.index:
+            oldest_portion = oldest_counts[entry] / oldest_total * 100
+        else:
+            oldest_portion = 0
+        diff = latest_portion - oldest_portion
+        
+        if diff > 0:
+            up_labels.append((entry, diff))
+        elif diff < 0:
+            down_labels.append((entry, diff))
+
+    up_labels.sort(key=lambda x: x[1], reverse=True)
+    down_labels.sort(key=lambda x: x[1])
+
+    return {
+        "up_labels": up_labels[:2],
+        "down_labels": down_labels[:2],
+        "year": oldest_year,
+    }
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate DataBaits from CSV file")
     parser.add_argument(
@@ -430,10 +493,9 @@ if __name__ == "__main__":
     # print(generate_databait_2(df, "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
     # print(generate_databait_3(df, "University", "Brown University",
     #     "SubField", "Databases", "JoinYear"))
+    # print(generate_databait_4(df, "SubField", "Databases", "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
     # print(generate_databait_5(df, "University", "JoinYear"))
     # print(generate_databait_6(df, "University", "JoinYear"))
-    # print(generate_databait_8(df, "Bachelors", "Doctorate"))
-    # print(generate_databait_4(df, "SubField", "Databases", "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
     # print(
     #     generate_databait_7(
     #         df,
@@ -444,4 +506,6 @@ if __name__ == "__main__":
     #         1997,
     #     )
     # )
+    # print(generate_databait_8(df, "Bachelors", "Doctorate"))
     # print(generate_databait_9(df, "University", "JoinYear", 30))
+    # print(generate_databait_10(df, "SubField", "JoinYear", 20))
