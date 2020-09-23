@@ -1,6 +1,7 @@
 import sys
 import argparse
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 
@@ -424,7 +425,7 @@ def generate_databait_10(df, data_column, time_column, time_range):
     Template:
     [Labels] are up, and [Labels] are down from [year].
     """
-    # THINK ABOUT: how to integrate latest year in DB into sentence? 
+    # THINK ABOUT: how to integrate latest year in DB into sentence?
     # The part below is repeated from DB 9 - move into a helper function ==========
     cleaned_df = df.dropna(subset=[time_column])[[time_column, data_column]]
     valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
@@ -449,10 +450,10 @@ def generate_databait_10(df, data_column, time_column, time_range):
     down_labels = []
 
     for entry in all_entries:
-        # NOTE: we could compare the values individually, or as shares of the total 
-            # latest_count = 0 if entry not in latest_counts.index else latest_counts[entry]
-            # oldest_count = 0 if entry not in oldest_counts.index else oldest_counts[entry]
-            # diff = (latest_count - oldest_count) 
+        # NOTE: we could compare the values individually, or as shares of the total
+        # latest_count = 0 if entry not in latest_counts.index else latest_counts[entry]
+        # oldest_count = 0 if entry not in oldest_counts.index else oldest_counts[entry]
+        # diff = (latest_count - oldest_count)
 
         # NOTE: we could use the abs difference, or % difference (divide by zero error)
         if entry in latest_counts.index:
@@ -464,7 +465,7 @@ def generate_databait_10(df, data_column, time_column, time_range):
         else:
             oldest_portion = 0
         diff = latest_portion - oldest_portion
-        
+
         if diff > 0:
             up_labels.append((entry, diff))
         elif diff < 0:
@@ -480,6 +481,29 @@ def generate_databait_10(df, data_column, time_column, time_range):
     }
 
 
+def generate_databait_11(df, column_name, columns_to_compare=[]):
+    """
+    #Numerical
+
+    Template:
+    [Column1] showed the highest correlation with [column2].
+    """
+    if len(columns_to_compare) <= 1:
+        raise ValueError
+    coefficients = []
+    base_column = df[column_name]
+    for col in columns_to_compare:
+        coefficients.append(abs(base_column.corr(df[col])))
+    coefficients = np.array(coefficients)
+    idx = np.argmax(coefficients)
+    highest_corr_col = columns_to_compare[idx]
+    return {
+        "base_colunmn": column_name,
+        "comp_column": highest_corr_col,
+        "corr": coefficients[idx],
+    }
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate DataBaits from CSV file")
     parser.add_argument(
@@ -488,6 +512,7 @@ if __name__ == "__main__":
     parser.add_argument("--index", help="the index column for the pandas dataframe")
     args = parser.parse_args()
     df = load_csv(args.csv, args.index)
+    df2 = load_csv("../data/iris.csv", args.index)
     # print(generate_databait_1(df, "University", "Brown University", "JoinYear"))
     # print(generate_databait_1(df, "University", "Carnegie Mellon University", "JoinYear"))
     # print(generate_databait_2(df, "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
@@ -509,3 +534,8 @@ if __name__ == "__main__":
     # print(generate_databait_8(df, "Bachelors", "Doctorate"))
     # print(generate_databait_9(df, "University", "JoinYear", 30))
     # print(generate_databait_10(df, "SubField", "JoinYear", 20))
+    # print(
+    #     generate_databait_11(
+    #         df2, "sepal.length", ["sepal.width", "petal.length", "petal.width"]
+    #     )
+    # )

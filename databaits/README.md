@@ -91,3 +91,11 @@ Function call: generate_databait_10(df, "SubField", "JoinYear", 20)
 Returns: {'up_labels': [('Security & Privacy', 22.2972972972973), ('Software Engineering', 19.594594594594597)], 'down_labels': [('Graphics', -8.108108108108109), ('Data Mining', -6.756756756756757)], 'year': 1998.0}
 
 Sentence: The share of new CS professors hired who specialize in Security & Privacy and Software Engineering are up, and those who specialize in Graphics and Data Mining are down, from 1998. 
+
+<b>DataBait 11</b>
+
+Function call: generate_databait_11(df2, "sepal.length", ["sepal.width", "petal.length", "petal.width"])
+
+Returns: {'base_colunmn': 'sepal.length', 'comp_column': 'petal.length', 'corr': 0.8717537758865831}
+
+Sentence: Petal length of iris flowers showed the highest correlation with sepal length. 
