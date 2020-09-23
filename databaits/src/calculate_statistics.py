@@ -504,6 +504,39 @@ def generate_databait_11(df, column_name, columns_to_compare=[]):
     }
 
 
+def generate_databait_12(df, columns=[]):
+    """
+    #Categorical
+
+    Template:
+    Currently - [Label] was the most often associated with [Column1, column2, … (related)].
+    Goal - [Share]% of [Column1, column2, … (related)] are [label].
+    """
+    all_entries = set()
+    for col in columns:
+        entries = set(df[col])
+        all_entries.update(entries)
+
+    counts = []
+    total_counts = 0
+    for col in columns:
+        counts.append(df[col].value_counts())
+        total_counts += df[col].value_counts().sum()
+
+    max_count = float("-inf")
+    max_entry = None
+    for entry in all_entries:
+        count = 0
+        for i in range(len(columns)):
+            if entry in counts[i].index:
+                count += counts[i][entry]
+        if count > max_count:
+            max_count = count
+            max_entry = entry
+
+    return {"entry": max_entry, "share": max_count / total_counts * 100, "columns": columns}
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate DataBaits from CSV file")
     parser.add_argument(
@@ -539,3 +572,4 @@ if __name__ == "__main__":
     #         df2, "sepal.length", ["sepal.width", "petal.length", "petal.width"]
     #     )
     # )
+    # print(generate_databait_12(df, columns=["University","Bachelors", "Masters", "Doctorate"]))

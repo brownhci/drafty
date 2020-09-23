@@ -99,3 +99,11 @@ Function call: generate_databait_11(df2, "sepal.length", ["sepal.width", "petal.
 Returns: {'base_colunmn': 'sepal.length', 'comp_column': 'petal.length', 'corr': 0.8717537758865831}
 
 Sentence: Petal length of iris flowers showed the highest correlation with sepal length. 
+
+<b>DataBait 12</b>
+
+Function call: generate_databait_12(df, columns=["University","Bachelors", "Masters", "Doctorate"])
+
+Returns: {'entry': 'Massachusetts Institute of Technology - USA', 'share': 5.241660993873383, 'columns': ['University', 'Bachelors', 'Masters', 'Doctorate']}
+
+Sentence: Massachusetts Institute of Technology - USA has had the most CS professors enrolled as either student or faculty. 
