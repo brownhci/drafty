@@ -105,7 +105,10 @@ class ColumnSuggestions {
       if (this.isActive && target === this.inputElement) {
         // the input to which suggestion window is attached is receiving input, filter the suggestions
         this.fuseSelect.query(this.inputElement.value);
-        this.align();
+        if (!this.isSuggestionsForColumnSearch) {
+          // if the suggestion window is for column search, then there is no need to re-align
+          this.align();
+        }
       }
     }), true);
   }
