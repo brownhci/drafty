@@ -80,6 +80,8 @@ export class FuseSelect {
 
       if (optionTextElement) {
         callback(optionTextElement.textContent);
+        // the "click" event is fully handled here
+        event.stopPropagation();
       }
     });
   }
