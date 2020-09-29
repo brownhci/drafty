@@ -5,9 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 
+pd.options.mode.chained_assignment = None  # default='warn'
+
 # Will search at most this many years into the past
 MAX_YEAR_RANGE = 30
-
 
 def load_csv(file_location, index_col):
     return pd.read_csv(file_location, index_col=index_col)
