@@ -534,7 +534,11 @@ def generate_databait_12(df, columns=[]):
             max_count = count
             max_entry = entry
 
-    return {"entry": max_entry, "share": max_count / total_counts * 100, "columns": columns}
+    return {
+        "entry": max_entry,
+        "share": max_count / total_counts * 100,
+        "columns": columns,
+    }
 
 
 if __name__ == "__main__":
