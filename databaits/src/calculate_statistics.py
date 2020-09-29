@@ -10,6 +10,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 # Will search at most this many years into the past
 MAX_YEAR_RANGE = 30
 
+
 def load_csv(file_location, index_col):
     return pd.read_csv(file_location, index_col=index_col)
 
@@ -201,7 +202,6 @@ def generate_databait_4(
             break
         added_values_b = b_counts.loc[b_counts.index >= pivot_year].sum()
         rate_of_change_b = added_values_b / previous_sum_b
-        print(rate_of_change_a, rate_of_change_b)
         diff = abs(rate_of_change_a - rate_of_change_b) / min(
             rate_of_change_a, rate_of_change_b
         )
