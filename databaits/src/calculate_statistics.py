@@ -314,7 +314,7 @@ def generate_databait_7(df, data_column, label, time_column, event, year):
     #Categorical, #Numerical (not implemented), #Time
 
     Template:
-    [Label count in a column / average value in a column] has risen/fallen [rate]% since [year],
+    [Label count in a column] has risen/fallen [rate]% since [year],
     when [event] occurred.
 
     """
@@ -424,7 +424,7 @@ def generate_databait_10(df, data_column, time_column, time_range):
     #Categorical, #Numerical, #Time
 
     Template:
-    [Labels] are up, and [Labels] are down from [year].
+    [Labels] went up, and [Labels] went down from [year] to [year].
     """
     # THINK ABOUT: how to integrate latest year in DB into sentence?
     # The part below is repeated from DB 9 - move into a helper function ==========
@@ -478,7 +478,8 @@ def generate_databait_10(df, data_column, time_column, time_range):
     return {
         "up_labels": up_labels[:2],
         "down_labels": down_labels[:2],
-        "year": oldest_year,
+        "oldest_year": oldest_year,
+        "latest_year": latest_year,
     }
 
 
