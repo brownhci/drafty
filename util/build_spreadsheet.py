@@ -79,7 +79,7 @@ def build_column_search_row():
                         <label for="column-search-input{column_search_index}" class="sr-only sr-only-focusable">
                             Search in Column
                         </label>
-                        <input id="column-search-input{column_search_index}" type="search" placeholder="&#xF002;">
+                        <input id="column-search-input{column_search_index}" type="search" placeholder="&#xF002;" autocomplete="off">
                       </th>'''
     cursor.execute(sql_col_order)
     rows = cursor.fetchall()
@@ -97,7 +97,7 @@ required_column_indices = {0, 1}
 
 def build_table_foot_cell(column_index):
     required_str = " required" if column_index in required_column_indices else ""
-    return f'<th scope="col" tabindex="-1"><input type="text"{required_str}></th>'
+    return f'<th scope="col" tabindex="-1"><input type="text"{required_str} autocomplete="off"></th>'
 
 
 def build_table_foot():
