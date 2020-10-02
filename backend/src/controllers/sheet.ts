@@ -13,7 +13,8 @@ export async function getSheet(req: Request, res: Response) {
   // check if sheet exists
   if (!sheetsData.has(sheetURL)) {
     if(sheetURL !== "service-worker.js") { // sw bug: service-worker.js is getting this endpoint
-      req.flash("errors", { msg: "Oh sorry we cannot find requested sheet :("});
+      //sw creates annoying behavior
+      //Oh sorry we cannot find requested sheet :("});
     }
     return res.redirect("/");
   } 
