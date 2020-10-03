@@ -83,6 +83,7 @@ export class FuseSelect {
 
   handleClickOnOption(callback: (text: string) => void) {
     this.rootContainer.addEventListener("click", function (event: MouseEvent) {
+      console.log('handleClickOnOption - click'); // TODO - this is registering but not the extra click
       let optionTextElement = (event.target as HTMLElement);
       if (!optionTextElement.classList.contains(optionTextClass)) {
         optionTextElement = optionTextElement.querySelector(`.${optionTextClass}`);
@@ -116,7 +117,7 @@ export class FuseSelect {
   query(q: string) {
     executeAtLeisure(() => {
       const fuseResult: Array<Fuse.FuseResult<Option>> = this.fuse.search(q);
-
+      //console.log('query - result :: ',q,' length = ',fuseResult.length);
       if (fuseResult.length > 0) {
         // recreate the option container from fuse search result
         this.createOptionContainerFromFuseResult(fuseResult);
@@ -258,10 +259,12 @@ export class FuseSelect {
   }
 
   private createOptionContainerFromFuseResult(fuseResult: Array<Fuse.FuseResult<Option>>) {
+    // sw TODO this is not creating the right class
     const optionContainer = document.createElement("div");
     optionContainer.classList.add(optionContainerClass);
 
     // `fuseResult.length` represents the number of option to render
+    //console.log('createOptionContainerFromFuseResult :: length =',fuseResult.length)
     if (fuseResult.length > 0) {
       optionContainer.classList.add(activeClass);
     }
@@ -269,10 +272,11 @@ export class FuseSelect {
     for (let i = 0; i < fuseResult.length; i++) {
       const { item: option, matches } = fuseResult[i];
       optionContainer.appendChild(this.createOptionElement(option, matches));
+      //console.log(option,matches)
     }
 
     if (this.optionContainer) {
-      // if there is already an option container mounted, replace the option container in DOM also
+      // if there is an option container mounted, replace the option container in DOM also
       this.optionContainer.replaceWith(optionContainer);
     }
     return this.optionContainer = optionContainer;

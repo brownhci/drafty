@@ -131,7 +131,9 @@ function parseCellEditSuggestions(suggestions: Array<Option>): Array<Option> {
 
 export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod: (element: HTMLElement) => void): FuseSelect {
   const fuseSelect = new FuseSelect();
+  // TODO: sw - not handling clicks correctly
   fuseSelect.handleClickOnOption((text: string) => {
+    console.log('fuseSelect.handleClickOnOption',text);
     inputElement.value = text;
     inputElement.dispatchEvent(new Event("input"));
     inputElement.focus();
@@ -153,6 +155,8 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
  */
 export function updateFuseSelect(fuseSelect: FuseSelect, idSuggestion: number, idSuggestionType: number, callback: () => void = () => undefined) {
   const url = getEditSuggestionURL(idSuggestion);
+  //console.log('function updateFuseSelect - overriding DOM after paste?');
+  // i see paste update it twice, and this is only called the 1st time
   editSuggestionManager.get(
     url,
     idSuggestion.toString(),
