@@ -83,7 +83,7 @@ export class FuseSelect {
 
   handleClickOnOption(callback: (text: string) => void) {
     this.rootContainer.addEventListener("click", function (event: MouseEvent) {
-      console.log('handleClickOnOption - click'); // TODO - this is registering but not the extra click
+      console.log("handleClickOnOption - click"); // TODO - this is registering but not the extra click
       let optionTextElement = (event.target as HTMLElement);
       if (!optionTextElement.classList.contains(optionTextClass)) {
         optionTextElement = optionTextElement.querySelector(`.${optionTextClass}`);

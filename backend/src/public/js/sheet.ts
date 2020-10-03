@@ -180,8 +180,8 @@ function activeElementOnRepeatedClick() {
   if (isTableData(activeTableCellElement)) {
     if (isTableDataLastActivatedRecently()) {
       cellEditor.formInput = getTableDataText(activeTableCellElement);
-      const initial_search_val = ""; // bc we want users to see all options
-      cellEditor.activateForm(activeTableCellElement,initial_search_val);
+      const initialSearchValue = ""; // bc we want users to see all options
+      cellEditor.activateForm(activeTableCellElement,initialSearchValue);
       activeTableCellElement.lastActiveTimestamp = null;
       recordCellDoubleClick(activeTableCellElement);
     } else {
@@ -240,8 +240,8 @@ interface ConsumableKeyboardEvent extends KeyboardEvent {
   consumed?: boolean;
 }
 function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  const initial_search_value = event.key;
-  cellEditor.activateForm(tableDataElement,initial_search_value);
+  const initialSearchValue = event.key;
+  cellEditor.activateForm(tableDataElement,initialSearchValue);
   event.consumed = true;
 }
 function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
