@@ -82,10 +82,16 @@ export class FuseSelect {
   }
 
   handleClickOnOption(callback: (text: string) => void) {
-    this.rootContainer.addEventListener("click", function (event: MouseEvent) {
-      console.log("handleClickOnOption - click"); // TODO - this is registering but not the extra click
+    // sw: setting to optionContainer only handles first click - 
+    this.rootContainer.addEventListener("click", function (event: MouseEvent) {  
       let optionTextElement = (event.target as HTMLElement);
-      if (!optionTextElement.classList.contains(optionTextClass)) {
+
+      if (optionTextElement.nodeName === "B") {
+        // sw: this handles when someone clicks on a bold letter
+        // when clicking on bold letter it return <b>some text</b> instead of the 
+        // div required element containing the 'fuse-select-option' css class
+        optionTextElement = optionTextElement.parentElement.parentElement.querySelector(`.${optionTextClass}`);
+      } else if (!optionTextElement.classList.contains(optionTextClass)) {
         optionTextElement = optionTextElement.querySelector(`.${optionTextClass}`);
       }
 
@@ -295,7 +301,8 @@ export class FuseSelect {
     optionElement.classList.add(optionClass, suggestionClass);
 
     // create option text
-    optionElement.appendChild(this.createOptionTextElement(option.suggestion, matches));
+    const optionTextElement = this.createOptionTextElement(option.suggestion, matches);
+    optionElement.appendChild(optionTextElement);
     return optionElement;
   }
 
@@ -311,7 +318,16 @@ export class FuseSelect {
     optionTextElement.classList.add(optionTextClass);
 
     optionTextElement.title = text;
-    optionTextElement.appendChild(this.highlightMatchCharacter(text, matches));
+    
+    /* sw - not registering
+    optionTextElement.addEventListener("click", function (event: MouseEvent) {  
+      let optionElement = (event.target as HTMLElement);
+      console.log('hello',optionElement);
+    });
+    */
+
+    optionTextElement.appendChild(this.highlightMatchCharacter(text, matches)); // adds bold
+    //optionTextElement.appendChild(document.createTextNode(text));
 
     return optionTextElement;
   }
