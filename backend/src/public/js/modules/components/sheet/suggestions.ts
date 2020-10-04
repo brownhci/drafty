@@ -95,8 +95,7 @@ export class SuggestionManager {
       return await this.fetch(url).then(options => {
         this.store(identifier, options);
         handlerForPulledSuggestions(options);
-      })
-                                  .catch(error => console.error(error));
+      }).catch(error => console.error(error));
     }
     }
 }
@@ -133,7 +132,6 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
   const fuseSelect = new FuseSelect();
   // TODO: sw - not handling clicks correctly
   fuseSelect.handleClickOnOption((text: string) => {
-    console.log("fuseSelect.handleClickOnOption",text);
     inputElement.value = text;
     inputElement.dispatchEvent(new Event("input"));
     inputElement.focus();
