@@ -53,9 +53,10 @@ def click_test(cursor):
     example_idProfile = 66430
     cursor.execute(sql_click, (example_idProfile))
     rows = cursor.fetchall()
-    #print(rows,'\n')
-    for r in rows:
-        print(r)
+    print(rows,'\n')
+    return rows
+    # for r in rows:
+    #     print(r)
 
 def double_click_test(cursor):
     example_idProfile = 66430
@@ -82,7 +83,7 @@ if __name__ == '__main__':
 
     try:
         with db.cursor() as cursor:
-            column_order_test(cursor)
+            #column_order_test(cursor)
             click_test(cursor)
     except Exception as e:
         print('ERROR exiting...')

@@ -115,6 +115,37 @@ class userInterestService():
         print(self.university)
         
 
+    def genUserRec(self, profArr):
+        profArr['Inst. Score'] = profArr['University']
+        profArr['Subf. Score'] = profArr['SubField']
+        profArr['Inst. Score'] = profArr['Inst. Score'].apply(lambda x: instScoreAggregate(x, self.university, self.bachelors, self.subfield))
+        profArr['Subf. Score'] = profArr['Subf. Score'].apply(lambda x: subfScoreAggregate(x, self.subfield))
+        profArr['Score'] = profArr['Subf. Score'] + profArr['Inst. Score']
+        profArr.sort_values(by = ['Score'], ascending = False)
+        profArr = profArr[profArr.isnull().any(axis = 1)]
+        print(profArr.sort_values(by = ['Score'], ascending = False, na_position ='first'))
+
+
+def instScoreAggregate(x, uni, bach, doct):
+    try: 
+        uniScore = uni[x]
+    except:
+        uniScore = 0
+    try: 
+        bachScore = bach[x]
+    except:
+        bachScore = 0
+    try:
+        doctScore = doct[x]
+    except:
+        doctScore = 0
+    return uniScore + bachScore + doctScore
+
+def subfScoreAggregate(x, subfield):
+    try:
+        return subfield[x]
+    except: 
+        return 0
 
 def genIntHist(args, profileID, interID):
     db_user,db_pass = get_db_creds()
@@ -139,11 +170,15 @@ def genIntHist(args, profileID, interID):
         db.close()
 
 def main(args):
+    profArr = pd.read_csv('finalProfs.csv')
+    profArr = profArr.drop(labels = ['JoinYear'], axis = 1)
+    #profArr = profArr.dropna()
     hist = []
     for key in list(intIDDict.keys()):
         hist += genIntHist(args, 66430, key)
     user = userInterestService()
     click = user.genUserScore(hist)
+    user.genUserRec(profArr)
     #print(click)
     
 
