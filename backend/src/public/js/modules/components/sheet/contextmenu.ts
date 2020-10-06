@@ -148,7 +148,7 @@ tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
   console.log(menuItem.action);
   switch (menuItem.action) {
     case "Edit":
-      cellEditor.activateForm(activeTableCellElement);
+      cellEditor.activateForm(activeTableCellElement,""); // initialSearchValue
       break;
     case "Copy":
       copyTableCellElement(activeTableCellElement);

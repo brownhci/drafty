@@ -21,7 +21,7 @@ class CellEditor {
   private readonly formElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
   /** everything except the CSRF input is contained inside this element */
   private readonly formContainerElement = this.formElement.lastElementChild;
-  private readonly formInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
+  public readonly formInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
   private readonly inputInvalidFeedbackElement = document.getElementById("table-cell-input-feedback") as HTMLElement;
 
   cellElement: HTMLTableCellElement;
@@ -167,9 +167,10 @@ class CellEditor {
     });
 
     this.formInputElement.addEventListener("input", (event) => {
-      this.fuseSelect.query(this.formInput);
+      //console.log('INPUT on fuse-select');
+      this.fuseSelect.query(this.formInput); // sw: TODO replace fuse
       event.stopPropagation();
-    }, { passive: true});
+    }, { passive: true });
 
     // mouse event handlers
     this.formElement.addEventListener("mousedown", (event: MouseEvent) => {
@@ -300,7 +301,7 @@ class CellEditor {
     }
   }
 
-  activateForm(cellElement: HTMLTableCellElement) {
+  activateForm(cellElement: HTMLTableCellElement, searchVal: string) {
     if (this.isActive) {
       this.deactivateForm();
     }
@@ -311,7 +312,7 @@ class CellEditor {
         this.deactivateFormWhenCellNoLongerReachable();
         this.willFormDeactivateWhenCellNoLongerReachable = true;
       }
-
+      
       this.cellElement = cellElement;
       this.formElement.classList.add(activeClass);
       this.focusFormInput();
@@ -327,6 +328,8 @@ class CellEditor {
         // resize form editor
         this.resizeFormToFitText(this.fuseSelect.longestText, 88);
         this.alignTableCellInputForm();
+        this.fuseSelect.query(searchVal); // sw: for initial search value
+        this.formInput = searchVal;
       });
 
       this.resizeFormToFitText(this.fuseSelect.longestText, 88);

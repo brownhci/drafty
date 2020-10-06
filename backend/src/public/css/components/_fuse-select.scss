@@ -18,13 +18,17 @@
         color: $orange !important;
       }
     }
+    &.previous-edit {
+      &.fuse-select-option-text {
+        b {
+          color: $orange !important;
+        }
+      }
+    }
 
     .fuse-select-option-text {
       @extend .text-dark;
       @extend .text-truncate;
-      b {
-        @extend .text-body;
-      }
     }
 
     &:hover {
@@ -37,9 +41,6 @@
       }
       .fuse-select-option-text {
         @extend .text-light;
-        b {
-          @extend .text-white;;
-        }
       }
     }
   }

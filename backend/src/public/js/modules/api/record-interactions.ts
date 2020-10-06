@@ -84,13 +84,12 @@ function recordInteraction(
 }
 
 export function recordCellEdit(tableCellElement: HTMLTableCellElement, textContent: string) {
-  // supply enough fields to update database entry for table cell
-
+  // supply enough fields to update database entry for table cell, also updates the table cell with the new `idSuggestion` value
   recordInteraction("/suggestions/new", {
     "idUniqueID": getIdUniqueID(tableCellElement),
     "idSuggestion": getIdSuggestion(tableCellElement),
     "suggestion": textContent,
-  });
+  }, (response) => response.json().then(idSuggestion => setIdSuggestion(tableCellElement, idSuggestion)));
 }
 
 export function recordCellClick(tableCellElement: HTMLTableCellElement) {
@@ -104,8 +103,8 @@ export function recordCellClick(tableCellElement: HTMLTableCellElement) {
 }
 
 export function recordRowInsertion(rowValues: Array<string>, idSuggestionTypes: Array<number>, successHandler?: ResponseHandler, failureHandler?: ResponseHandler) {
-  recordInteraction(postNewRowURL(), { 
-      newRowValues: rowValues, newRowFields: idSuggestionTypes 
+  recordInteraction(postNewRowURL(), {
+      newRowValues: rowValues, newRowFields: idSuggestionTypes
     }, successHandler, failureHandler);
 }
 

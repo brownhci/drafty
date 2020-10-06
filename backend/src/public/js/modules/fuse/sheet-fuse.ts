@@ -2,6 +2,8 @@ import Fuse from "./fuse";
 import { Option as Opt } from "../components/sheet/suggestions";
 import { fuseSelectRootContainerClass, autocompleteSuggestionClass, previousEditClass, optionContainerClass, optionClass, optionTextClass } from "../constants/css-classes";
 import { activeClass } from "../constants/css-classes";
+import { executeAtLeisure } from "../utils/defer";
+
 
 type Option = Partial<Opt>;
 
@@ -35,6 +37,14 @@ export class FuseSelect {
     this.fuse = new Fuse(this.options, fuseOptions);
     this.hideOptionContainerIfNoOptions();
   }
+
+  /**
+   * @returns The count of suggestions that are actually rendered.
+   */
+  get activeSuggestionCount(): number {
+    return this.optionContainer.childElementCount;
+  }
+
   private suggestions: Set<string>;
 
   private fuse: Fuse<Option, Fuse.IFuseOptions<Option>>;
@@ -72,14 +82,23 @@ export class FuseSelect {
   }
 
   handleClickOnOption(callback: (text: string) => void) {
-    this.rootContainer.addEventListener("click", function (event: MouseEvent) {
+    // sw: setting to optionContainer only handles first click - 
+    this.rootContainer.addEventListener("click", function (event: MouseEvent) {  
       let optionTextElement = (event.target as HTMLElement);
-      if (!optionTextElement.classList.contains(optionTextClass)) {
+
+      if (optionTextElement.nodeName === "B") {
+        // sw: this handles when someone clicks on a bold letter
+        // when clicking on bold letter it return <b>some text</b> instead of the 
+        // div required element containing the 'fuse-select-option' css class
+        optionTextElement = optionTextElement.parentElement.parentElement.querySelector(`.${optionTextClass}`);
+      } else if (!optionTextElement.classList.contains(optionTextClass)) {
         optionTextElement = optionTextElement.querySelector(`.${optionTextClass}`);
       }
 
       if (optionTextElement) {
         callback(optionTextElement.textContent);
+        // the "click" event is fully handled here
+        event.stopPropagation();
       }
     });
   }
@@ -102,24 +121,27 @@ export class FuseSelect {
    * @param {string} q - The user inputted query.
    */
   query(q: string) {
-    const fuseResult: Array<Fuse.FuseResult<Option>> = this.fuse.search(q);
-    const filteredOptions = fuseResult.map(match => match.item);
-
-    if (filteredOptions.length > 0) {
-      this.patch(filteredOptions);
-      const optionTextElements = this.optionContainer.querySelectorAll(`.${optionTextClass}`);
-      for (let i = 0; i < optionTextElements.length; i++) {
-        const matches = fuseResult[i].matches;
-        this.highlightMatchCharacter(optionTextElements[i] as HTMLElement, matches);
+    executeAtLeisure(() => {
+      const fuseResult: Array<Fuse.FuseResult<Option>> = this.fuse.search(q);
+      //console.log('query - result :: ',q,' length = ',fuseResult.length);
+      if (fuseResult.length > 0) {
+        // recreate the option container from fuse search result
+        this.createOptionContainerFromFuseResult(fuseResult);
+      } else {
+        // render initial options
+        this.sync();
       }
-    } else {
-      // render initial options
-      this.sync();
-    }
+    });
   }
 
-  private highlightMatchCharacter(optionTextElement: HTMLElement, matches: ReadonlyArray<Fuse.FuseResultMatch>) {
-    const text = optionTextElement.textContent;
+  private highlightMatchCharacter(text: string, matches: ReadonlyArray<Fuse.FuseResultMatch>): DocumentFragment {
+    const highlightedTextFragment = new DocumentFragment();
+    if (!matches || matches.length === 0) {
+      // short circuit the highlighting when no match exists
+      highlightedTextFragment.appendChild(document.createTextNode(text));
+      return highlightedTextFragment;
+    }
+
     const matchedPositions: Set<number> = new Set();
     for (const match of matches) {
       for (const indices of match.indices) {
@@ -130,7 +152,6 @@ export class FuseSelect {
       }
     }
 
-    optionTextElement.textContent = "";
     const textLength = text.length;
     let i = 0;
     let rangeStart: number = null;
@@ -143,7 +164,7 @@ export class FuseSelect {
         } else {
           // finish a non-matched range
           const textNode = document.createTextNode(text.slice(lastRangeEnd, i));
-          optionTextElement.appendChild(textNode);
+          highlightedTextFragment.appendChild(textNode);
           rangeStart = i;
         }
       } else {
@@ -151,7 +172,7 @@ export class FuseSelect {
           // finish a matched range
           const range = document.createElement("b");
           range.textContent = text.slice(rangeStart, i);
-          optionTextElement.appendChild(range);
+          highlightedTextFragment.appendChild(range);
           rangeStart = null;
           lastRangeEnd = i;
         } else {
@@ -163,13 +184,15 @@ export class FuseSelect {
     if (rangeStart === null) {
       // last unmatched range
       const textNode = document.createTextNode(text.slice(lastRangeEnd));
-      optionTextElement.appendChild(textNode);
+      highlightedTextFragment.appendChild(textNode);
     } else {
       // last matched range
       const range = document.createElement("b");
       range.textContent = text.slice(rangeStart);
-      optionTextElement.appendChild(range);
+      highlightedTextFragment.appendChild(range);
     }
+
+    return highlightedTextFragment;
   }
 
   private patch(options: Array<Option>) {
@@ -234,24 +257,78 @@ export class FuseSelect {
       optionContainer.appendChild(this.createOptionElement(option));
     }
 
+    if (this.optionContainer) {
+      // if there is already an option container mounted, replace the option container in DOM also
+      this.optionContainer.replaceWith(optionContainer);
+    }
     return this.optionContainer = optionContainer;
   }
 
-  private createOptionElement(option: Option): HTMLElement {
+  private createOptionContainerFromFuseResult(fuseResult: Array<Fuse.FuseResult<Option>>) {
+    // sw TODO this is not creating the right class
+    const optionContainer = document.createElement("div");
+    optionContainer.classList.add(optionContainerClass);
+
+    // `fuseResult.length` represents the number of option to render
+    //console.log('createOptionContainerFromFuseResult :: length =',fuseResult.length)
+    if (fuseResult.length > 0) {
+      optionContainer.classList.add(activeClass);
+    }
+
+    for (let i = 0; i < fuseResult.length; i++) {
+      const { item: option, matches } = fuseResult[i];
+      optionContainer.appendChild(this.createOptionElement(option, matches));
+      //console.log(option,matches)
+    }
+
+    if (this.optionContainer) {
+      // if there is an option container mounted, replace the option container in DOM also
+      this.optionContainer.replaceWith(optionContainer);
+    }
+    return this.optionContainer = optionContainer;
+  }
+
+  /**
+   * Creates an option element.
+   *
+   * @param {Option} option - Represents a suggestion item.
+   * @param {ReadonlyArray<Fuse.FuseResultMatch>} [matches = []] - A list of Match generated by Fuse library to highlight certain characters of suggestion content. Default to empty array signaling a `<span>` with no highlighed character.
+   * @returns {HTMLElement} A created element containing the suggestion.
+   */
+  private createOptionElement(option: Option, matches: ReadonlyArray<Fuse.FuseResultMatch> = []): HTMLElement {
     const optionElement = document.createElement("div");
     const suggestionClass = option.prevSugg ? previousEditClass : autocompleteSuggestionClass;
     optionElement.classList.add(optionClass, suggestionClass);
 
     // create option text
+    const optionTextElement = this.createOptionTextElement(option.suggestion, matches);
+    optionElement.appendChild(optionTextElement);
+    return optionElement;
+  }
+
+  /**
+   * Creates an option text element.
+   *
+   * @param {string} text - The suggestion content.
+   * @param {ReadonlyArray<Fuse.FuseResultMatch>} [matches = []] - A list of Match generated by Fuse library to highlight certain characters of suggestion content. Default to empty array signaling a `<span>` with no highlighed character.
+   * @returns {HTMLElement} A created element containing the suggestion.
+   */
+  private createOptionTextElement(text: string, matches: ReadonlyArray<Fuse.FuseResultMatch> = []): HTMLElement {
     const optionTextElement = document.createElement("span");
     optionTextElement.classList.add(optionTextClass);
 
-    const text: string = option.suggestion;
-
-    optionTextElement.textContent = text;
     optionTextElement.title = text;
+    
+    /* sw - not registering
+    optionTextElement.addEventListener("click", function (event: MouseEvent) {  
+      let optionElement = (event.target as HTMLElement);
+      console.log('hello',optionElement);
+    });
+    */
 
-    optionElement.appendChild(optionTextElement);
-    return optionElement;
+    optionTextElement.appendChild(this.highlightMatchCharacter(text, matches)); // adds bold
+    //optionTextElement.appendChild(document.createTextNode(text));
+
+    return optionTextElement;
   }
 }

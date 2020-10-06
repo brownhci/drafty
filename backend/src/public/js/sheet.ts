@@ -180,7 +180,8 @@ function activeElementOnRepeatedClick() {
   if (isTableData(activeTableCellElement)) {
     if (isTableDataLastActivatedRecently()) {
       cellEditor.formInput = getTableDataText(activeTableCellElement);
-      cellEditor.activateForm(activeTableCellElement);
+      const initialSearchValue = ""; // bc we want users to see all options
+      cellEditor.activateForm(activeTableCellElement,initialSearchValue);
       activeTableCellElement.lastActiveTimestamp = null;
       recordCellDoubleClick(activeTableCellElement);
     } else {
@@ -239,7 +240,8 @@ interface ConsumableKeyboardEvent extends KeyboardEvent {
   consumed?: boolean;
 }
 function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  cellEditor.activateForm(tableDataElement);
+  const initialSearchValue = event.key;
+  cellEditor.activateForm(tableDataElement,initialSearchValue);
   event.consumed = true;
 }
 function tableCellElementOnInput(event: ConsumableKeyboardEvent) {

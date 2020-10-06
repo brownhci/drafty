@@ -95,9 +95,7 @@ function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: s
   const copyCellIdSuggestion = getCopyBuffer().name;
   recordPaste(pasteVal, pasteCellVal, pasteCellIdSuggestion, copyCellVal, copyCellIdSuggestion);
 
-  // invoke edit editor
-  cellEditor.activateForm(tableCellElement);
-  cellEditor.formInput = text;
+  cellEditor.activateForm(tableCellElement, text);
 }
 export function pasteToTableCellElement(tableCellElement: HTMLTableCellElement) {
   if (navigator.clipboard) {
@@ -134,9 +132,9 @@ tableElement.addEventListener("paste", function (event: ClipboardEvent) {
   if(isColumnSearchInput(target) || tableFoot.isNewRowInsertionInput(target)) {
     const targetInput: HTMLInputElement = event.target as HTMLInputElement;
     targetInput.value = pasteContent;
-    targetInput.dispatchEvent(new Event("input"));
+    targetInput.dispatchEvent(new Event("input")); 
   } else if (isTableData(target) && isTableCellEditable(target as HTMLTableCellElement)) {
-    tableCellElementOnPaste(target as HTMLTableCellElement, pasteContent);
+    tableCellElementOnPaste(target as HTMLTableCellElement, pasteContent); 
   }
   event.preventDefault();
   event.stopPropagation();

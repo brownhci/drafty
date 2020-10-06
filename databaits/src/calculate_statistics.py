@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 
+pd.options.mode.chained_assignment = None  # default='warn'
+
 # Will search at most this many years into the past
 MAX_YEAR_RANGE = 30
 
@@ -51,7 +53,12 @@ def generate_databait_1(df, data_column, label, time_column):
         if abs(added_values / previous_sum) > abs(optimal_rate):
             optimal_range = decrement
             optimal_rate = added_values / previous_sum
-    return {"label": label, "rate": optimal_rate * 100, "time_range": optimal_range}
+    return {
+        "label": label,
+        "column": data_column,
+        "rate": optimal_rate * 100,
+        "time_range": optimal_range,
+    }
 
 
 def generate_databait_2(df, data_column, label1, label2, time_column):
@@ -108,6 +115,7 @@ def generate_databait_2(df, data_column, label1, label2, time_column):
     return {
         "bigger_label": bigger_label,
         "smaller_label": smaller_label,
+        "column": data_column,
         "rate": optimal_rate * 100,
         "time_range": optimal_range,
     }
@@ -154,6 +162,8 @@ def generate_databait_3(df, column1, label1, column2, label2, time_column):
     return {
         "label1": label1,
         "label2": label2,
+        "column1": column1,
+        "column2": column2,
         "rate": optimal_rate * 100,
         "time_range": optimal_range,
     }
@@ -200,7 +210,7 @@ def generate_databait_4(
             break
         added_values_b = b_counts.loc[b_counts.index >= pivot_year].sum()
         rate_of_change_b = added_values_b / previous_sum_b
-        print(rate_of_change_a, rate_of_change_b)
+
         diff = abs(rate_of_change_a - rate_of_change_b) / min(
             rate_of_change_a, rate_of_change_b
         )
@@ -313,7 +323,7 @@ def generate_databait_7(df, data_column, label, time_column, event, year):
     #Categorical, #Numerical (not implemented), #Time
 
     Template:
-    [Label count in a column / average value in a column] has risen/fallen [rate]% since [year],
+    [Label count in a column] has risen/fallen [rate]% since [year],
     when [event] occurred.
 
     """
@@ -330,6 +340,7 @@ def generate_databait_7(df, data_column, label, time_column, event, year):
     rate_of_change = (count_at_present - count_at_event) / count_at_event
     return {
         "label": label,
+        "column": data_column,
         "event": event,
         "year": year,
         "latest_year": latest_year,
@@ -411,6 +422,7 @@ def generate_databait_9(df, data_column, time_column, time_range):
 
     return {
         "label": optimal_label,
+        "column": data_column,
         "start": optimal_start,
         "end": optimal_end,
         "oldest_year": oldest_year,
@@ -423,7 +435,7 @@ def generate_databait_10(df, data_column, time_column, time_range):
     #Categorical, #Numerical, #Time
 
     Template:
-    [Labels] are up, and [Labels] are down from [year].
+    [Labels] went up, and [Labels] went down from [year] to [year].
     """
     # THINK ABOUT: how to integrate latest year in DB into sentence?
     # The part below is repeated from DB 9 - move into a helper function ==========
@@ -477,7 +489,9 @@ def generate_databait_10(df, data_column, time_column, time_range):
     return {
         "up_labels": up_labels[:2],
         "down_labels": down_labels[:2],
-        "year": oldest_year,
+        "column": data_column,
+        "oldest_year": oldest_year,
+        "latest_year": latest_year,
     }
 
 
@@ -498,7 +512,7 @@ def generate_databait_11(df, column_name, columns_to_compare=[]):
     idx = np.argmax(coefficients)
     highest_corr_col = columns_to_compare[idx]
     return {
-        "base_colunmn": column_name,
+        "base_column": column_name,
         "comp_column": highest_corr_col,
         "corr": coefficients[idx],
     }
@@ -534,7 +548,11 @@ def generate_databait_12(df, columns=[]):
             max_count = count
             max_entry = entry
 
-    return {"entry": max_entry, "share": max_count / total_counts * 100, "columns": columns}
+    return {
+        "entry": max_entry,
+        "share": max_count / total_counts * 100,
+        "columns": columns,
+    }
 
 
 if __name__ == "__main__":

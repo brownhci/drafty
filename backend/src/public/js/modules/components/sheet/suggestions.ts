@@ -95,8 +95,7 @@ export class SuggestionManager {
       return await this.fetch(url).then(options => {
         this.store(identifier, options);
         handlerForPulledSuggestions(options);
-      })
-                                  .catch(error => console.error(error));
+      }).catch(error => console.error(error));
     }
     }
 }
@@ -131,6 +130,7 @@ function parseCellEditSuggestions(suggestions: Array<Option>): Array<Option> {
 
 export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod: (element: HTMLElement) => void): FuseSelect {
   const fuseSelect = new FuseSelect();
+  // TODO: sw - not handling clicks correctly
   fuseSelect.handleClickOnOption((text: string) => {
     inputElement.value = text;
     inputElement.dispatchEvent(new Event("input"));
@@ -153,6 +153,8 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
  */
 export function updateFuseSelect(fuseSelect: FuseSelect, idSuggestion: number, idSuggestionType: number, callback: () => void = () => undefined) {
   const url = getEditSuggestionURL(idSuggestion);
+  //console.log('function updateFuseSelect - overriding DOM after paste?');
+  // i see paste update it twice, and this is only called the 1st time
   editSuggestionManager.get(
     url,
     idSuggestion.toString(),

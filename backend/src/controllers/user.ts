@@ -426,6 +426,8 @@ export const postSeenWelcome = (req: Request, res: Response) => {
  * GLOBAL MIDDLEWARE
  */
 export async function checkSessionUser(req: Request, res: Response, next: NextFunction) {
+  //console.log('Referer = ',req.header('Referer'));
+  //console.log(req.headers);
   if (await !req.session.user) {
     if(req.user) {
       logger.debug(req.sessionID + " :: NO USER but there is a passport :: " + req.user);
