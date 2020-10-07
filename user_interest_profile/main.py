@@ -54,13 +54,15 @@ LEFT JOIN csprofessors.DoubleClick dc on dc.idInteraction = i.idInteraction
 LEFT JOIN csprofessors.Suggestions dcs on dcs.idSuggestion = dc.idSuggestion
 LEFT JOIN csprofessors.SuggestionType dcst on dcst.idSuggestionType = dcs.idSuggestionType
 
-left join csprofessors.Search se on(se.idInteraction = i.idInteraction)
-left join csprofessors.SuggestionType sest on(sest.idSuggestionType = se.idSuggestionType)
+LEFT JOIN csprofessors.Search se on(se.idInteraction = i.idInteraction)
+LEFT JOIN csprofessors.SuggestionType sest on(sest.idSuggestionType = se.idSuggestionType)
 
-left join csprofessors.Sort so on(so.idInteraction = i.idInteraction)
-left join csprofessors.SuggestionType sost on(sost.idSuggestionType = so.idSuggestionType)
+LEFT JOIN csprofessors.Sort so on(so.idInteraction = i.idInteraction)
+LEFT JOIN csprofessors.SuggestionType sost on(sost.idSuggestionType = so.idSuggestionType)
 
 WHERE i.idInteractionType IN (1,104,7,15,16) AND s.idProfile = %s;
+
+ORDER BY i.timestamp ASC
 """
 # add this to lookup by a user: AND s.idProfile = %s;
 
