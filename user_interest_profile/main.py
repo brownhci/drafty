@@ -28,6 +28,29 @@ INNER JOIN DoubleClick dc on i.idInteraction = dc.idInteraction
 WHERE ses.idProfile = %s;
 """
 
+sql_all_interactions = """
+SELECT
+    s.idProfile AS idProfile,i.idSession AS idSession,
+    i.idInteraction AS idInteraction,it.interaction AS interaction,i.timestamp AS timestamp,
+    cs.idSuggestion AS click_idSuggestion,cs.suggestion AS click_suggestion,cst.name AS click_colName,cs.idUniqueID AS click_rowID,c.rowvalues AS click_rowValues,
+    dcs.idSuggestion AS doubleClick_idSuggestion,dcs.suggestion AS doubleClick_suggestion,dcst.name AS doubleClick_colName,dcs.idUniqueID AS doubleClick_rowID,dc.rowvalues AS doubleClick_rowValues
+
+FROM csprofessors.Interaction i
+INNER JOIN csprofessors.InteractionType it on it.idInteractionType = i.idInteractionType
+
+INNER JOIN users.Session s ON s.idSession = i.idSession
+
+LEFT JOIN csprofessors.Click c on c.idInteraction = i.idInteraction
+LEFT JOIN csprofessors.Suggestions cs on cs.idSuggestion = c.idSuggestion
+LEFT JOIN csprofessors.SuggestionType cst on cst.idSuggestionType = cs.idSuggestionType
+
+LEFT JOIN csprofessors.DoubleClick dc on dc.idInteraction = i.idInteraction
+LEFT JOIN csprofessors.Suggestions dcs on dcs.idSuggestion = dc.idSuggestion
+LEFT JOIN csprofessors.SuggestionType dcst on dcst.idSuggestionType = dcs.idSuggestionType
+
+WHERE i.idInteractionType IN (1,10);
+"""
+
 def get_db_creds():
     dbuser, dbpass = 'test', 'test'
     with open('../backend/.env', 'r') as fh:
