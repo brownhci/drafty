@@ -50,6 +50,7 @@ LEFT JOIN csprofessors.SuggestionType dcst on dcst.idSuggestionType = dcs.idSugg
 
 WHERE i.idInteractionType IN (1,10);
 """
+# add this to lookup by a user: AND s.idProfile = %s;
 
 def get_db_creds():
     dbuser, dbpass = 'test', 'test'
