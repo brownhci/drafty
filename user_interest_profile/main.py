@@ -47,7 +47,9 @@ SELECT
     
     cocst.name AS copyColumn_colName,
     
-    sm.SearchMulti_ColNames, sm.SearchMulti_SearchValues
+    sm.SearchMulti_ColNames, sm.SearchMulti_SearchValues,
+
+    es.Edit_Suggestion_isCorrect, es.Edit_Suggestion_Suggestion,es.Edit_Suggestion_isPrevSuggestion,es.Edit_Suggestion_isNew,es.Edit_Suggestion_isChosen
 
 FROM csprofessors.Interaction i
 INNER JOIN csprofessors.InteractionType it on it.idInteractionType = i.idInteractionType
@@ -84,7 +86,18 @@ LEFT JOIN (
     GROUP BY sm.idInteraction
 ) as sm ON sm.idInteraction = i.idInteraction
 
-WHERE i.idInteractionType IN (1,10,4,7,8,11,14,15,16,18) AND s.idProfile = %s
+LEFT JOIN (SELECT e.isCorrect as Edit_Suggestion_isCorrect,
+       group_concat(ess.suggestion separator '|') as Edit_Suggestion_Suggestion,
+       group_concat(es.isPrevSuggestion separator '|') as Edit_Suggestion_isPrevSuggestion,
+       group_concat(es.isNew separator '|') as Edit_Suggestion_isNew,
+       group_concat(es.isChosen separator '|') as Edit_Suggestion_isChosen
+FROM csprofessors.Edit 
+INNER JOIN csprofessors.Edit_Suggestion es ON es.idEdit = e.idEdit
+INNER JOIN csprofessors.Suggestions ess ON ess.idSuggestion = es.idSuggestion
+GROUP BY e.idEdit) as es e ON e.IdInteraction = i.idInteraction
+
+
+WHERE i.idInteractionType IN (1,10,5,6,4,7,8,11,14,15,16,18) AND s.idProfile = %s
 
 ORDER BY i.timestamp ASC
 """
