@@ -45,7 +45,9 @@ SELECT
     
     cos.idSuggestion AS copy_idSuggestion, cos.suggestion AS copy_suggestion,
     
-    cocst.name AS copyColumn_colName
+    cocst.name AS copyColumn_colName,
+    
+    sm.SearchMulti_ColNames, sm.SearchMulti_SearchValues
 
 FROM csprofessors.Interaction i
 INNER JOIN csprofessors.InteractionType it on it.idInteractionType = i.idInteractionType
@@ -75,7 +77,14 @@ LEFT JOIN csprofessors.Suggestions cos on cos.idSuggestion = co.idSuggestion
 LEFT JOIN csprofessors.CopyColumn coc on(coc.idInteraction = i.idInteraction)
 LEFT JOIN csprofessors.SuggestionType cocst on(cocst.idSuggestionType = coc.idSuggestionType)
 
-WHERE i.idInteractionType IN (1,10,4,7,8,14,15,16,18) AND s.idProfile = %s
+
+LEFT JOIN (
+    SELECT idInteraction, group_concat(st.name separator '|') as SearchMulti_ColNames, group_concat(value separator '|') as SearchMulti_SearchValues
+    FROM SearchMulti sm INNER JOIN SuggestionType st on sm.idSuggestionType = st.idSuggestionType
+    GROUP BY sm.idInteraction
+) as sm ON sm.idInteraction = i.idInteraction
+
+WHERE i.idInteractionType IN (1,10,4,7,8,11,14,15,16,18) AND s.idProfile = %s
 
 ORDER BY i.timestamp ASC
 """
