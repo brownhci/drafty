@@ -43,7 +43,9 @@ SELECT
     
     sg.idSuggestion AS searchGoogle_idSuggestion, sgs.suggestion AS searchGoogle_suggestion, sg.searchValues as searchGoogle_searchValues,
     
-    cos.idSuggestion AS copy_idSuggestion, cos.suggestion AS copy_suggestion
+    cos.idSuggestion AS copy_idSuggestion, cos.suggestion AS copy_suggestion,
+    
+    cocst.name AS copyColumn_colName
 
 FROM csprofessors.Interaction i
 INNER JOIN csprofessors.InteractionType it on it.idInteractionType = i.idInteractionType
@@ -65,13 +67,15 @@ LEFT JOIN csprofessors.Sort so on(so.idInteraction = i.idInteraction)
 LEFT JOIN csprofessors.SuggestionType sost on(sost.idSuggestionType = so.idSuggestionType)
 
 LEFT JOIN csprofessors.SearchGoogle sg on(sg.idInteraction = i.idInteraction)
-LEFT JOIN csprofessors.Suggestions sgs on sgs.idSuggestion = dc.idSuggestion
+LEFT JOIN csprofessors.Suggestions sgs on sgs.idSuggestion = sg.idSuggestion
 
 LEFT JOIN csprofessors.Copy co on(co.idInteraction = i.idInteraction)
-LEFT JOIN csprofessors.Suggestions cos on cos.idSuggestion = dc.idSuggestion
+LEFT JOIN csprofessors.Suggestions cos on cos.idSuggestion = co.idSuggestion
 
+LEFT JOIN csprofessors.CopyColumn coc on(coc.idInteraction = i.idInteraction)
+LEFT JOIN csprofessors.SuggestionType cocst on(cocst.idSuggestionType = coc.idSuggestionType)
 
-WHERE i.idInteractionType IN (1,104,7,15,16,18) AND s.idProfile = %s
+WHERE i.idInteractionType IN (1,10,4,7,8,14,15,16,18) AND s.idProfile = %s
 
 ORDER BY i.timestamp ASC
 """
