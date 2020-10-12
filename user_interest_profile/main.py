@@ -38,8 +38,10 @@ SELECT
     dcs.idSuggestion AS doubleClick_idSuggestion,dcs.suggestion AS doubleClick_suggestion,dcst.name AS doubleClick_colName,dcs.idUniqueID AS doubleClick_rowID,dc.rowvalues AS doubleClick_rowValues,
 
     se.value AS search_value, se.matchedValues AS search_matchedValues,
-       
-    sost.name AS sort_colName
+
+    sost.name AS sort_colName,
+    
+    sg.idSuggestion AS searchGoogle_idSuggestion, sgs.suggestion AS searchGoogle_suggestion,sg.searchValues as searchGoogle_searchValues 
 
 FROM csprofessors.Interaction i
 INNER JOIN csprofessors.InteractionType it on it.idInteractionType = i.idInteractionType
@@ -60,7 +62,12 @@ LEFT JOIN csprofessors.SuggestionType sest on(sest.idSuggestionType = se.idSugge
 LEFT JOIN csprofessors.Sort so on(so.idInteraction = i.idInteraction)
 LEFT JOIN csprofessors.SuggestionType sost on(sost.idSuggestionType = so.idSuggestionType)
 
-WHERE i.idInteractionType IN (1,104,7,15,16) AND s.idProfile = %s;
+
+LEFT JOIN csprofessors.SearchGoogle sg on(sg.idInteraction = i.idInteraction)
+LEFT JOIN csprofessors.Suggestions sgs on sgs.idSuggestion = dc.idSuggestion
+
+
+WHERE i.idInteractionType IN (1,104,7,15,16,18) AND s.idProfile = %s
 
 ORDER BY i.timestamp ASC
 """
