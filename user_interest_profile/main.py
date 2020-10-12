@@ -41,7 +41,9 @@ SELECT
 
     sost.name AS sort_colName,
     
-    sg.idSuggestion AS searchGoogle_idSuggestion, sgs.suggestion AS searchGoogle_suggestion,sg.searchValues as searchGoogle_searchValues 
+    sg.idSuggestion AS searchGoogle_idSuggestion, sgs.suggestion AS searchGoogle_suggestion, sg.searchValues as searchGoogle_searchValues,
+    
+    cos.idSuggestion AS copy_idSuggestion, cos.suggestion AS copy_suggestion
 
 FROM csprofessors.Interaction i
 INNER JOIN csprofessors.InteractionType it on it.idInteractionType = i.idInteractionType
@@ -62,9 +64,11 @@ LEFT JOIN csprofessors.SuggestionType sest on(sest.idSuggestionType = se.idSugge
 LEFT JOIN csprofessors.Sort so on(so.idInteraction = i.idInteraction)
 LEFT JOIN csprofessors.SuggestionType sost on(sost.idSuggestionType = so.idSuggestionType)
 
-
 LEFT JOIN csprofessors.SearchGoogle sg on(sg.idInteraction = i.idInteraction)
 LEFT JOIN csprofessors.Suggestions sgs on sgs.idSuggestion = dc.idSuggestion
+
+LEFT JOIN csprofessors.Copy co on(co.idInteraction = i.idInteraction)
+LEFT JOIN csprofessors.Suggestions cos on cos.idSuggestion = dc.idSuggestion
 
 
 WHERE i.idInteractionType IN (1,104,7,15,16,18) AND s.idProfile = %s
