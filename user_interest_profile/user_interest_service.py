@@ -115,14 +115,18 @@ class userInterestService():
         print(self.university)
         
 
-    def genUserRec(self, profArr):
+    def genUserRec(self, profArr, emptyCount):
         profArr['Inst. Score'] = profArr['University']
         profArr['Subf. Score'] = profArr['SubField']
         profArr['Inst. Score'] = profArr['Inst. Score'].apply(lambda x: instScoreAggregate(x, self.university, self.bachelors, self.subfield))
         profArr['Subf. Score'] = profArr['Subf. Score'].apply(lambda x: subfScoreAggregate(x, self.subfield))
         profArr['Score'] = profArr['Subf. Score'] + profArr['Inst. Score']
         profArr.sort_values(by = ['Score'], ascending = False)
-        profArr = profArr[profArr.isnull().any(axis = 1)]
+        #profArr = profArr[profArr.isnull().any(axis = 1)]
+        profArr['Empty Count'] = profArr.isnull().sum(axis=1)
+        profArr.to_csv('createProfArr.csv')
+        profArr = profArr.loc[profArr['Empty Count'] == emptyCount]
+        #profArr.to_csv('createProfArr.csv')
         print(profArr.sort_values(by = ['Score'], ascending = False, na_position ='first'))
 
 
@@ -178,7 +182,7 @@ def main(args):
         hist += genIntHist(args, 66430, key)
     user = userInterestService()
     click = user.genUserScore(hist)
-    user.genUserRec(profArr)
+    user.genUserRec(profArr, 0)
     #print(click)
     
 
