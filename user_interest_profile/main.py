@@ -86,15 +86,15 @@ LEFT JOIN (
     GROUP BY sm.idInteraction
 ) as sm ON sm.idInteraction = i.idInteraction
 
-LEFT JOIN (SELECT e.isCorrect as Edit_Suggestion_isCorrect,
+LEFT JOIN (SELECT e.IdInteraction, e.isCorrect as Edit_Suggestion_isCorrect,
        group_concat(ess.suggestion separator '|') as Edit_Suggestion_Suggestion,
        group_concat(es.isPrevSuggestion separator '|') as Edit_Suggestion_isPrevSuggestion,
        group_concat(es.isNew separator '|') as Edit_Suggestion_isNew,
        group_concat(es.isChosen separator '|') as Edit_Suggestion_isChosen
-FROM csprofessors.Edit 
+FROM csprofessors.Edit e
 INNER JOIN csprofessors.Edit_Suggestion es ON es.idEdit = e.idEdit
 INNER JOIN csprofessors.Suggestions ess ON ess.idSuggestion = es.idSuggestion
-GROUP BY e.idEdit) as es e ON e.IdInteraction = i.idInteraction
+GROUP BY e.idEdit) as es ON es.IdInteraction = i.idInteraction
 
 
 WHERE i.idInteractionType IN (1,10,5,6,4,7,8,11,14,15,16,18) AND s.idProfile = %s
