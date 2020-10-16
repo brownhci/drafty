@@ -24,7 +24,6 @@ export function getMinimumColumnWidth(index: number) {
   const paddingWidth: number = em2px(0.75) * 2;
   const sortButtonWidth: number = 30;
   const slack: number = 80;
-  console.log('getMinimumColumnWidth',index,(textWidth + paddingWidth + sortButtonWidth + slack))
   return textWidth + paddingWidth + sortButtonWidth + slack;
 }
 function loadPreferredColumnWidths(respectMinimumColumnWidth: boolean = true) {
