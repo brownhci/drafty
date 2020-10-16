@@ -6,7 +6,7 @@ export const name = "name";
 export const idSuggestionTypeLowerBound = 1;
 export const idSuggestionTypeUpperBound = 14;
 
-// @TODO @zhengyi these should always be pulled based on the DB (profs/ajobs/etc...)
+// @TODO @zhengyi these should always be pulled based on the DB (profs/ajobs/etc...
 export const names = new Set();
 names.add("FullName");
 names.add("University");
