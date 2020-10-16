@@ -6,6 +6,7 @@ import sys
 import pymysql
 from atomicwrites import atomic_write
 
+db_name = ''
 db_user = 'test'
 db_pass = 'test'
 
@@ -31,10 +32,11 @@ sql_suggestions = '''
 def build_column_width(row, column_index, column_widths):
     idSuggestionType = row['idSuggestionType']
     width = column_widths[idSuggestionType]
-    if idSuggestionType in [2,3,5] and width <= 300:
-        width = 300
-    elif idSuggestionType in [7] and width <= 240:
-        width = 240
+    if db_name == 'csprofessors':
+        if idSuggestionType in [2,3,5] and width <= 300:
+            width = 300
+        elif idSuggestionType in [7]:
+            width = 195
     return f'<col id="col{column_index}" data-width="{width}">\n'
 
 
@@ -195,16 +197,17 @@ def get_db_creds():
 
 if __name__ == '__main__':
     # python3 build_spreadsheet.py --host localhost --database 2300profs 2300profs.hbs
-    # python3 build_spreadsheet.py --host localhost --database csprofessors csprofessors.hbs
+    # python3 build_spreadsheet.py --host=localhost --database=csprofessors csprofessors.hbs
     parser = argparse.ArgumentParser(description='Write database data to table HTML file.')
     parser.add_argument('--host', default='localhost',
                         help='The host of the MySQL database')
-    parser.add_argument('--database', default='profs',
+    parser.add_argument('--database', default='csprofessors',
                         help='The database to be outputtted')
     parser.add_argument('outfile',
                         help='where the HTML markup will be written to')
     args = parser.parse_args()
 
+    db_name = args.database
     db_user, db_pass = get_db_creds()
     db = pymysql.connect(host=args.host, user=db_user,
                          password=db_pass,
