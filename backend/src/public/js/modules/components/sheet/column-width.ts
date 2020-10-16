@@ -14,7 +14,7 @@ function getPreferredColumnWidth(index: number): string {
     const dataWidth = tableColumnElement.dataset.width;
     return `${dataWidth}px`;
   }
-
+  // sw: TODO - this is the local storage which never gets triggered bc the if stmt is always true
   return columnWidthCache.retrieve(keyFunction(index));
 }
 export function getMinimumColumnWidth(index: number) {
@@ -24,7 +24,7 @@ export function getMinimumColumnWidth(index: number) {
   const paddingWidth: number = em2px(0.75) * 2;
   const sortButtonWidth: number = 30;
   const slack: number = 80;
-
+  console.log('getMinimumColumnWidth',index,(textWidth + paddingWidth + sortButtonWidth + slack))
   return textWidth + paddingWidth + sortButtonWidth + slack;
 }
 function loadPreferredColumnWidths(respectMinimumColumnWidth: boolean = true) {
@@ -55,6 +55,7 @@ loadPreferredColumnWidths();
 /**
  * store column width in local storage
  */
+// sw: TODO this is not working
 function storeColumnWidth(index: number, columnWidth: string) {
   columnWidthCache.store(keyFunction(index), columnWidth);
 }

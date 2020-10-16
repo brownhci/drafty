@@ -88,15 +88,15 @@ export class SuggestionManager {
     handlerForCachedSuggestions?: (options: Array<Option>) => void,
     handlerForPulledSuggestions?: (options: Array<Option>) => void
   ) {
-    if (handlerForCachedSuggestions) {
-      handlerForCachedSuggestions(this.retrieve(identifier));
-    }
-    if (handlerForPulledSuggestions) {
-      return await this.fetch(url).then(options => {
-        this.store(identifier, options);
-        handlerForPulledSuggestions(options);
-      }).catch(error => console.error(error));
-    }
+      if (handlerForCachedSuggestions) {
+        handlerForCachedSuggestions(this.retrieve(identifier));
+      }
+      if (handlerForPulledSuggestions) {
+        return await this.fetch(url).then(options => {
+          this.store(identifier, options);
+          handlerForPulledSuggestions(options);
+        }).catch(error => console.error(error));
+      }
     }
 }
 
@@ -152,9 +152,8 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
 
  */
 export function updateFuseSelect(fuseSelect: FuseSelect, idSuggestion: number, idSuggestionType: number, callback: () => void = () => undefined) {
+  // TODO: sw localStorage.clear() if run out of space
   const url = getEditSuggestionURL(idSuggestion);
-  //console.log('function updateFuseSelect - overriding DOM after paste?');
-  // i see paste update it twice, and this is only called the 1st time
   editSuggestionManager.get(
     url,
     idSuggestion.toString(),
