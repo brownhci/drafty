@@ -45,14 +45,15 @@ app.use( express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
 
 const csMultiRankerLive  = path.join(__dirname, "/vol/CSMultiRanker");
 const csMultiRankerLocal = path.join(__dirname, "../../../../CSRankings");
-if (fs.existsSync(csMultiRankerLive)) {
-  console.log("\n LIVE server, serving csmultiranker from",csMultiRankerLive,"\n");
-  app.use("/csmultiranker", express.static(csMultiRankerLive));
-} else {
+if (fs.existsSync(csMultiRankerLocal)) {
   console.log("\n LOCAL server, serving  csmultiranker from",csMultiRankerLocal,"\n");
   app.use("/csmultiranker", express.static(csMultiRankerLocal));
+  app.use("/csmultirankertest", middlewareTests.urls, express.static(csMultiRankerLocal));
+} else {
+  console.log("\n LIVE server, serving csmultiranker from",csMultiRankerLive,"\n");
+  app.use("/csmultiranker", express.static(csMultiRankerLive));
+  //app.use("/csmultirankertest", middlewareTests.urls, express.static(csMultiRankerLive));
 }
-app.use("/csmultirankertest", middlewareTests.urls, express.static(csMultiRankerLive));
 
 // View Engine
 import helpers from "./config/handlebars-helpers";
