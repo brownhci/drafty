@@ -41,19 +41,10 @@ app.set("port", process.env.PORT || 3000);
 app.set("trust proxy", true); // sw: for production reverse proxy
 
 //static files
+app.use("/csmultiranker", express.static(path.join(__dirname, "/vol/CSMultiRanker"), { maxAge: 30000 }) );
+app.use("/csmultirankertest", middlewareTests.urls, express.static("/vol/CSMultiRanker"));
+app.use("/csmultirankerlocal", express.static(path.join(__dirname, "../../../../CSRankings"), { maxAge: 30000 }) );
 app.use( express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }) );
-
-const csMultiRankerLive  = path.join(__dirname, "/vol/CSMultiRanker");
-const csMultiRankerLocal = path.join(__dirname, "../../../../CSRankings");
-if (fs.existsSync(csMultiRankerLocal)) {
-  console.log("\n LOCAL server, serving  csmultiranker from",csMultiRankerLocal,"\n");
-  app.use("/csmultiranker", express.static(csMultiRankerLocal));
-  app.use("/csmultirankertest", middlewareTests.urls, express.static(csMultiRankerLocal));
-} else {
-  console.log("\n LIVE server, serving csmultiranker from",csMultiRankerLive,"\n");
-  app.use("/csmultiranker", express.static(csMultiRankerLive));
-  //app.use("/csmultirankertest", middlewareTests.urls, express.static(csMultiRankerLive));
-}
 
 // View Engine
 import helpers from "./config/handlebars-helpers";
