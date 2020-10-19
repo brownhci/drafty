@@ -41,10 +41,10 @@ app.set("port", process.env.PORT || 3000);
 app.set("trust proxy", true); // sw: for production reverse proxy
 
 //static files
-app.use("/csmultiranker", express.static(path.join(__dirname, "/vol/CSMultiRanker"), { maxAge: 30000 }) );
 app.use("/csmultirankertest", middlewareTests.urls, express.static("/vol/CSMultiRanker"));
+app.use("/csmultiranker", express.static("/vol/CSMultiRanker"));
 app.use("/csmultirankerlocal", express.static(path.join(__dirname, "../../../../CSRankings"), { maxAge: 30000 }) );
-app.use( express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }) );
+app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
 
 // View Engine
 import helpers from "./config/handlebars-helpers";
