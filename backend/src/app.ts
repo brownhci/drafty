@@ -25,6 +25,7 @@ import * as contactCtrl from "./controllers/contact";
 import * as interactionCtrl from "./controllers/interaction";
 import * as suggestionCtrl from "./controllers/suggestion";
 import * as dataSharingCtrl from "./controllers/datasharing";
+import * as middlewareTests from "./util/middlewaretests";
 
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
@@ -45,12 +46,13 @@ app.use( express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
 const csMultiRankerLive  = path.join(__dirname, "/vol/CSMultiRanker");
 const csMultiRankerLocal = path.join(__dirname, "../../../../CSRankings");
 if (fs.existsSync(csMultiRankerLive)) {
-  console.log("\non LIVE server, serving csmultiranker from",csMultiRankerLive,"\n");
+  console.log("\n LIVE server, serving csmultiranker from",csMultiRankerLive,"\n");
   app.use("/csmultiranker", express.static(csMultiRankerLive));
 } else {
-  console.log("\non LOCAL server, serving  csmultiranker from",csMultiRankerLocal,"\n");
+  console.log("\n LOCAL server, serving  csmultiranker from",csMultiRankerLocal,"\n");
   app.use("/csmultiranker", express.static(csMultiRankerLocal));
 }
+app.use("/csmultirankertest", middlewareTests.urls, express.static(csMultiRankerLive));
 
 // View Engine
 import helpers from "./config/handlebars-helpers";
