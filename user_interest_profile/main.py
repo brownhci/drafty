@@ -103,6 +103,17 @@ ORDER BY i.timestamp ASC
 """
 # add this to lookup by a user: AND s.idProfile = %s;
 
+sql_rowvalues = '''
+select rowvalues
+from Interaction i
+inner join Click c on i.idInteraction = c.idInteraction
+inner join Suggestions s on s.idSuggestion = c.idSuggestion
+where s.idUniqueId = ?
+and (i.timestamp <= ?)
+order by i.timestamp DESC
+limit 1
+'''
+
 def get_db_creds():
     dbuser, dbpass = 'test', 'test'
     with open('../backend/.env', 'r') as fh:
