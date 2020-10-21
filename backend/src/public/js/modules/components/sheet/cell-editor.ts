@@ -326,12 +326,18 @@ class CellEditor {
       this.fuseSelect.mount(element => this.mountFuseSelect(element));
       updateFuseSelect(this.fuseSelect, getIdSuggestion(this.cellElement), getIdSuggestionType(columnLabel), () => {
         // resize form editor
+
+        // sw: this resize/align is causing alignElementHorizontally to trigger twice
+        /*
         this.resizeFormToFitText(this.fuseSelect.longestText, 88);
         this.alignTableCellInputForm();
+        */
+
         this.fuseSelect.query(searchVal); // sw: for initial search value
         this.formInput = searchVal;
       });
 
+      // sw: TODO - resizeFormToFitText taking too long before align is triggered
       this.resizeFormToFitText(this.fuseSelect.longestText, 88);
       this.alignTableCellInputForm();
       this.showHelpWhenInactivityReached();
@@ -361,6 +367,7 @@ class CellEditor {
     }
   }
 
+  /* sw: this is getting called twice on cell input */
   alignTableCellInputForm() {
     // reset last shifting
     this.formElement.style.transform = "";
