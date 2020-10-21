@@ -106,9 +106,11 @@ ORDER BY i.timestamp ASC
 sql_rowvalues = '''
 select rowvalues
 from Interaction i
+inner join users.Session us on us.idSession = i.idSession
 inner join Click c on i.idInteraction = c.idInteraction
 inner join Suggestions s on s.idSuggestion = c.idSuggestion
-where s.idUniqueId = ?
+where us.idProfile = ?
+and s.idUniqueId = ?
 and (i.timestamp <= ?)
 order by i.timestamp DESC
 limit 1
