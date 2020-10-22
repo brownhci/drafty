@@ -5,6 +5,7 @@ import { getViewportWidth, getViewportHeight } from "../../utils/length";
 
 export function placeElementInViewport(element: HTMLElement, x: number, y: number) {
   const { width: elementWidth, height: elementHeight } = element.getBoundingClientRect();
+  console.log("\nplaceElementInViewport()");
   // horizontal alignment
   const viewportWidth = getViewportWidth();
   if (x + elementWidth < viewportWidth) {
@@ -33,6 +34,48 @@ export function placeElementInViewport(element: HTMLElement, x: number, y: numbe
 }
 
 
+export function alignElementHorizontally1(element: HTMLElement, targetDimensions: DOMRect) {
+  // First  - horizontally shift table, then
+  // Second - horizontally shift element
+
+  const {left: leftLimit, right: rightLimit} = tableElement.getBoundingClientRect();
+  let {left: targetLeft, right: targetRight} = targetDimensions;
+  const elementWidth: number = element.getBoundingClientRect().width;
+
+  const verticalScrollBarWidth = tableScrollContainer.offsetWidth - tableScrollContainer.clientWidth;
+  const viewportWidth = getViewportWidth() - verticalScrollBarWidth;
+
+  if (targetLeft + elementWidth <= rightLimit) { 
+    if (targetLeft < 0) {
+      // left border the form is to the left of viewport
+      const leftShiftAmount: number = -targetLeft;
+      targetLeft += leftShiftAmount;
+      tableScrollContainer.scrollLeft -= leftShiftAmount;
+      console.log("   left shift amounts",leftShiftAmount);
+    } else if (targetLeft + elementWidth > viewportWidth) {
+      // right border of the form is to the right of viewport
+      const rightShiftAmount: number = targetLeft + elementWidth - viewportWidth;
+      targetLeft -= rightShiftAmount;
+      tableScrollContainer.scrollLeft += rightShiftAmount;
+      console.log("   right shift amounts",rightShiftAmount);
+    }
+  } else if (targetRight - elementWidth >= leftLimit) {
+    if (targetRight > viewportWidth) {
+      // right border of the form is to the right of viewport
+      const rightShiftAmount: number = targetRight - viewportWidth;
+      targetRight -= rightShiftAmount;
+      tableScrollContainer.scrollLeft += rightShiftAmount;
+      console.log("   right shift amounts",rightShiftAmount);
+    } else if (targetRight - elementWidth < 0) {
+      // left border of the form is to the left left of viewport
+      const leftShiftAmount: number = elementWidth - targetRight;
+      targetRight += leftShiftAmount;
+      tableScrollContainer.scrollLeft -= leftShiftAmount;
+      console.log("   left shift amounts",leftShiftAmount);
+    }
+  }
+}
+
 /**
  * Align an element horizontally with respect to targetElement (either align to the left border or right border of targetElement).
  *
@@ -44,6 +87,7 @@ export function placeElementInViewport(element: HTMLElement, x: number, y: numbe
  * @param {DOMRect} targetDimensions - The result of running getBoundingClientRect() on the element to align against.
  */
 export function alignElementHorizontally(element: HTMLElement, targetDimensions: DOMRect) {
+  console.log("\nalignElementHorizontally...");
   const {left: leftLimit, right: rightLimit} = tableElement.getBoundingClientRect();
   let {left: targetLeft, right: targetRight} = targetDimensions;
   const elementWidth: number = element.getBoundingClientRect().width;
@@ -60,37 +104,60 @@ export function alignElementHorizontally(element: HTMLElement, targetDimensions:
    *     This option should be picked when the first option isn't available and the left side of the element does not exceed table element's left bound (leftLimit)
    */
   let elementLeft: number;
-   if (targetLeft + elementWidth <= rightLimit) {
-     // option 1
-     if (targetLeft < 0) {
-       // left border the form is to the left of viewport
-       const leftShiftAmount: number = -targetLeft;
-       targetLeft += leftShiftAmount;
-       tableScrollContainer.scrollLeft -= leftShiftAmount;
-     } else if (targetLeft + elementWidth > viewportWidth) {
-       // right border of the form is to the right of viewport
-       const rightShiftAmount: number = targetLeft + elementWidth - viewportWidth;
-       targetLeft -= rightShiftAmount;
-       tableScrollContainer.scrollLeft += rightShiftAmount;
-     }
-     elementLeft = targetLeft;
-   } else if (targetRight - elementWidth >= leftLimit) {
-     // option 2
-     if (targetRight > viewportWidth) {
-       // right border of the form is to the right of viewport
-       const rightShiftAmount: number = targetRight - viewportWidth;
-       targetRight -= rightShiftAmount;
-       tableScrollContainer.scrollLeft += rightShiftAmount;
-     } else if (targetRight - elementWidth < 0) {
-       // left border of the form is to the left left of viewport
-       const leftShiftAmount: number = elementWidth - targetRight;
-       targetRight += leftShiftAmount;
-       tableScrollContainer.scrollLeft -= leftShiftAmount;
-     }
-     elementLeft = targetRight - elementWidth;
-   }
+  console.log("left check",(targetLeft + elementWidth),rightLimit);
+  console.log("left check",(targetRight - elementWidth),leftLimit);
+  if (targetLeft + elementWidth <= rightLimit) {
+    // option 1
+    console.log("option 1...");
+    if (targetLeft < 0) {
+      // left border the form is to the left of viewport
+      const leftShiftAmount: number = -targetLeft;
+      targetLeft += leftShiftAmount;
+      //tableScrollContainer.scrollLeft -= leftShiftAmount;
+      console.log("   left shift amounts",leftShiftAmount);
+    } else if (targetLeft + elementWidth > viewportWidth) {
+      // right border of the form is to the right of viewport
+      const rightShiftAmount: number = targetLeft + elementWidth - viewportWidth;
+      targetLeft -= rightShiftAmount;
+      //tableScrollContainer.scrollLeft += rightShiftAmount;
+      console.log("   right shift amounts",rightShiftAmount);
+    } else {
+    console.log("   no shift");
+    }
+    elementLeft = targetLeft;
+  } else if (targetRight - elementWidth >= leftLimit) {
+    // option 2
+    console.log("option 2...",targetRight,viewportWidth);
+    if (targetRight > viewportWidth) {
+      // right border of the form is to the right of viewport
+      console.log("   right border");
+      const rightShiftAmount: number = targetRight - viewportWidth;
+      targetRight -= rightShiftAmount;
+      //tableScrollContainer.scrollLeft += rightShiftAmount;
+      console.log("   right shift amounts",rightShiftAmount);
+    } else if (targetRight - elementWidth < 0) {
+      // left border of the form is to the left left of viewport
+      console.log("   left border");
+      const leftShiftAmount: number = elementWidth - targetRight;
+      targetRight += leftShiftAmount;
+      //tableScrollContainer.scrollLeft -= leftShiftAmount;
+      console.log("   left shift amounts",leftShiftAmount);
+    } else {
+    console.log("   no shift");
+    }
+    elementLeft = targetRight - elementWidth;
+  }
+  
+  // getViewportWidth() - is not consistent
+  console.log("\n",getViewportWidth());
+  console.log(document.documentElement.clientWidth, window.innerWidth);
+  console.log(verticalScrollBarWidth);
+  console.log("elementWidth",elementWidth);
+  console.log("getBoundingClientRect",element.getBoundingClientRect().width);
+  console.log(((getViewportWidth() - verticalScrollBarWidth) - elementWidth));
 
-   element.style.left = `${elementLeft}px`;
+  console.log("   final left =",elementLeft);
+  element.style.left = `${elementLeft}px`;
 }
 
 /**
