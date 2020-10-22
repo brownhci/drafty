@@ -25,9 +25,11 @@ export class FuseSelect {
   set options(options: Array<Option>) {
     this.longestText = "";
     this.suggestions = new Set();
+    this.suggestionsLookup = new Set();
     options.forEach(option => {
       const suggestion = option.suggestion;
       this.suggestions.add(suggestion);
+      this.suggestionsLookup.add(suggestion.toLowerCase());
       if (suggestion.length > this.longestText.length) {
         this.longestText = suggestion;
       }
@@ -46,6 +48,7 @@ export class FuseSelect {
   }
 
   private suggestions: Set<string>;
+  private suggestionsLookup: Set<string>;
 
   private fuse: Fuse<Option, Fuse.IFuseOptions<Option>>;
   private optionContainer: HTMLElement;
@@ -72,7 +75,7 @@ export class FuseSelect {
   }
 
   hasSuggestion(query: string): boolean {
-    return this.suggestions.has(query);
+    return this.suggestionsLookup.has(query.toLowerCase());
   }
 
   private initializeSelect() {
