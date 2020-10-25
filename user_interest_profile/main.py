@@ -49,7 +49,7 @@ SELECT
     
     sm.SearchMulti_ColNames, sm.SearchMulti_SearchValues,
 
-    es.Edit_Suggestion_isCorrect, es.Edit_Suggestion_Suggestion,es.Edit_Suggestion_isPrevSuggestion,es.Edit_Suggestion_isNew,es.Edit_Suggestion_isChosen
+    es.Edit_Suggestion_isCorrect, es.Edit_Suggestion_Suggestion,es.Edit_Suggestion_isPrevSuggestion,es.Edit_Suggestion_isNew,es.Edit_Suggestion_isChosen,es.edit_rowId
 
 FROM csprofessors.Interaction i
 INNER JOIN csprofessors.InteractionType it on it.idInteractionType = i.idInteractionType
@@ -90,7 +90,8 @@ LEFT JOIN (SELECT e.IdInteraction, e.isCorrect as Edit_Suggestion_isCorrect,
        group_concat(ess.suggestion separator '|') as Edit_Suggestion_Suggestion,
        group_concat(es.isPrevSuggestion separator '|') as Edit_Suggestion_isPrevSuggestion,
        group_concat(es.isNew separator '|') as Edit_Suggestion_isNew,
-       group_concat(es.isChosen separator '|') as Edit_Suggestion_isChosen
+       group_concat(es.isChosen separator '|') as Edit_Suggestion_isChosen,
+       ess.idUniqueId as edit_rowId
 FROM csprofessors.Edit e
 INNER JOIN csprofessors.Edit_Suggestion es ON es.idEdit = e.idEdit
 INNER JOIN csprofessors.Suggestions ess ON ess.idSuggestion = es.idSuggestion
