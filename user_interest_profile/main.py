@@ -99,7 +99,7 @@ INNER JOIN csprofessors.Suggestions ess ON ess.idSuggestion = es.idSuggestion
 GROUP BY e.idEdit) as es ON es.IdInteraction = i.idInteraction
 
 LEFT JOIN csprofessors.Paste p ON p.idInteraction = i.idInteraction
-INNER JOIN csprofessors.Suggestions ps ON ps.idSuggestion = p.pasteCellIdSuggestion
+LEFT JOIN csprofessors.Suggestions ps ON ps.idSuggestion = p.pasteCellIdSuggestion
 
 WHERE i.idInteractionType IN (1,10,5,6,4,7,8,9,11,14,15,16,18) AND s.idProfile = %s
 
