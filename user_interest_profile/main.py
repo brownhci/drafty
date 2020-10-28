@@ -46,7 +46,9 @@ SELECT
     cos.idSuggestion AS copy_idSuggestion, cos.suggestion AS copy_suggestion,
     
     cocst.name AS copyColumn_colName,
-    
+
+    p.pasteValue as paste_pasteValue, p.copyCellValue as paste_copyCellValue,IF(p.pasteValue = p.copyCellValue,1,0) as paste_copiedFromDrafty, p.pasteCellValue as paste_pasteCellValue,
+
     sm.SearchMulti_ColNames, sm.SearchMulti_SearchValues,
 
     es.Edit_Suggestion_isCorrect, es.Edit_Suggestion_Suggestion,es.Edit_Suggestion_isPrevSuggestion,es.Edit_Suggestion_isNew,es.Edit_Suggestion_isChosen,es.edit_rowId
@@ -97,8 +99,9 @@ INNER JOIN csprofessors.Edit_Suggestion es ON es.idEdit = e.idEdit
 INNER JOIN csprofessors.Suggestions ess ON ess.idSuggestion = es.idSuggestion
 GROUP BY e.idEdit) as es ON es.IdInteraction = i.idInteraction
 
+LEFT JOIN csprofessors.Paste p ON p.idInteraction = i.idInteraction
 
-WHERE i.idInteractionType IN (1,10,5,6,4,7,8,11,14,15,16,18) AND s.idProfile = %s
+WHERE i.idInteractionType IN (1,10,5,6,4,7,8,11,14,15,16,18) AND s.idProfile = 140368
 
 ORDER BY i.timestamp ASC
 """
