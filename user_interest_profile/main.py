@@ -33,21 +33,21 @@ SELECT
     s.idProfile AS idProfile,i.idSession AS idSession,
     i.idInteraction AS idInteraction,it.interaction AS interaction,i.timestamp AS timestamp,
 
-    cs.idSuggestion AS click_idSuggestion,cs.suggestion AS click_suggestion,cst.name AS click_colName,cs.idUniqueID AS click_rowID,c.rowvalues AS click_rowValues,
+    cs.idSuggestion AS click_idSuggestion,cs.suggestion AS click_suggestion, cst.name AS click_colName, cs.idUniqueID AS click_rowID, c.rowvalues AS click_rowValues,
 
     dcs.idSuggestion AS doubleClick_idSuggestion,dcs.suggestion AS doubleClick_suggestion,dcst.name AS doubleClick_colName,dcs.idUniqueID AS doubleClick_rowID,dc.rowvalues AS doubleClick_rowValues,
 
     se.value AS search_value, se.matchedValues AS search_matchedValues,
 
     sost.name AS sort_colName,
-    
+
     sg.idSuggestion AS searchGoogle_idSuggestion, sgs.suggestion AS searchGoogle_suggestion, sg.searchValues as searchGoogle_searchValues,
     
-    cos.idSuggestion AS copy_idSuggestion, cos.suggestion AS copy_suggestion,
+    cos.idSuggestion AS copy_idSuggestion, cos.suggestion AS copy_suggestion,cos.idUniqueID as copy_rowId,
     
     cocst.name AS copyColumn_colName,
 
-    p.pasteValue as paste_pasteValue, p.copyCellValue as paste_copyCellValue,IF(p.pasteValue = p.copyCellValue,1,0) as paste_copiedFromDrafty, p.pasteCellValue as paste_pasteCellValue,
+    p.pasteValue as paste_pasteValue, p.copyCellValue as paste_copyCellValue,IF(p.pasteValue = p.copyCellValue,1,0) as paste_copiedFromDrafty, p.pasteCellValue as paste_pasteCellValue,ps.idUniqueID as paste_rowId
 
     sm.SearchMulti_ColNames, sm.SearchMulti_SearchValues,
 
@@ -81,7 +81,6 @@ LEFT JOIN csprofessors.Suggestions cos on cos.idSuggestion = co.idSuggestion
 LEFT JOIN csprofessors.CopyColumn coc on(coc.idInteraction = i.idInteraction)
 LEFT JOIN csprofessors.SuggestionType cocst on(cocst.idSuggestionType = coc.idSuggestionType)
 
-
 LEFT JOIN (
     SELECT idInteraction, group_concat(st.name separator '|') as SearchMulti_ColNames, group_concat(value separator '|') as SearchMulti_SearchValues
     FROM SearchMulti sm INNER JOIN SuggestionType st on sm.idSuggestionType = st.idSuggestionType
@@ -100,8 +99,9 @@ INNER JOIN csprofessors.Suggestions ess ON ess.idSuggestion = es.idSuggestion
 GROUP BY e.idEdit) as es ON es.IdInteraction = i.idInteraction
 
 LEFT JOIN csprofessors.Paste p ON p.idInteraction = i.idInteraction
+INNER JOIN csprofessors.Suggestions ps ON ps.idSuggestion = p.pasteCellIdSuggestion
 
-WHERE i.idInteractionType IN (1,10,5,6,4,7,8,11,14,15,16,18) AND s.idProfile = 140368
+WHERE i.idInteractionType IN (1,10,5,6,4,7,8,9,11,14,15,16,18) AND s.idProfile = %s
 
 ORDER BY i.timestamp ASC
 """
