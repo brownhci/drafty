@@ -44,7 +44,6 @@ def generate_databait_1(df, data_column, label, time_column):
     optimal_range = 0
     optimal_rate = 0
     for decrement in range(5, min(MAX_YEAR_RANGE, current_year - earliest_year + 1), 5):
-        # NOTE: This should look differently if the data itself is cumulative
         pivot_year = current_year - decrement
         previous_sum = time_counts.loc[time_counts.index < pivot_year].sum()
         if previous_sum == 0:
@@ -94,21 +93,15 @@ def generate_databait_2(df, data_column, label1, label2, time_column):
     bigger_label = None
     smaller_label = None
     for decrement in range(5, min(MAX_YEAR_RANGE, current_year - earliest_year + 1), 5):
-        # NOTE: This should look differently if the data itself is cumulative
         pivot_year = current_year - decrement
-        previous_sum1 = time_counts1.loc[time_counts1.index < pivot_year].sum()
         added_values1 = time_counts1.loc[time_counts1.index >= pivot_year].sum()
-        previous_sum2 = time_counts2.loc[time_counts2.index < pivot_year].sum()
         added_values2 = time_counts2.loc[time_counts2.index >= pivot_year].sum()
-        if previous_sum1 == 0 or previous_sum2 == 0:
-            break
-        change_rate1 = added_values1 / previous_sum1
-        change_rate2 = added_values2 / previous_sum2
-        diff = abs(change_rate1 - change_rate2) / min(change_rate1, change_rate2)
+
+        diff = abs(added_values1 - added_values2) / min(added_values1, added_values2)
         if diff > abs(optimal_rate):
             optimal_range = decrement
             optimal_rate = diff
-            if change_rate1 > change_rate2:
+            if added_values1 > added_values2:
                 bigger_label, smaller_label = label1, label2
             else:
                 bigger_label, smaller_label = label2, label1
@@ -180,11 +173,20 @@ def generate_databait_4(
     grew/shrank [rate]% more than those with [shared label in column1] and
     [label B in column2] in the past [time range].
     """
-    rows_with_shared_label = df.loc[df[column1] == shared_label]
-    rows_with_a = rows_with_shared_label.loc[df[column2] == label_a][time_column]
-    rows_with_b = rows_with_shared_label.loc[df[column2] == label_b][time_column]
-    a_counts = rows_with_a.astype("int32").value_counts().sort_index(ascending=False)
-    b_counts = rows_with_b.astype("int32").value_counts().sort_index(ascending=False)
+    cleaned_df = df.dropna(subset=[time_column])
+    valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
+    cleaned_df = cleaned_df[valid_year_filter]
+    cleaned_df = cleaned_df.astype({time_column: "int32"})
+
+    rows_with_shared_label = cleaned_df.loc[cleaned_df[column1] == shared_label]
+    rows_with_a = rows_with_shared_label.loc[cleaned_df[column2] == label_a][
+        time_column
+    ]
+    rows_with_b = rows_with_shared_label.loc[cleaned_df[column2] == label_b][
+        time_column
+    ]
+    a_counts = rows_with_a.value_counts().sort_index(ascending=False)
+    b_counts = rows_with_b.value_counts().sort_index(ascending=False)
 
     # Search for optimal time range by iterating through time ranges,
     # increasing by 5 years, up to 30 years
@@ -198,27 +200,23 @@ def generate_databait_4(
 
     for decrement in range(5, min(MAX_YEAR_RANGE, current_year - earliest_year + 1), 5):
         pivot_year = current_year - decrement
-
-        previous_sum_a = a_counts.loc[a_counts.index < pivot_year].sum()
-        if previous_sum_a == 0:
-            break
         added_values_a = a_counts.loc[a_counts.index >= pivot_year].sum()
-        rate_of_change_a = added_values_a / previous_sum_a
-
-        previous_sum_b = b_counts.loc[b_counts.index < pivot_year].sum()
-        if previous_sum_b == 0:
-            break
         added_values_b = b_counts.loc[b_counts.index >= pivot_year].sum()
-        rate_of_change_b = added_values_b / previous_sum_b
-
-        diff = abs(rate_of_change_a - rate_of_change_b) / min(
-            rate_of_change_a, rate_of_change_b
+        if min(added_values_a, added_values_b) == 0:
+            continue 
+        diff = abs(added_values_a - added_values_b) / min(
+            added_values_a, added_values_b
         )
+
         if diff > optimal_rate:
             optimal_rate = diff
             optimal_range = decrement
-            bigger_label = label_a if rate_of_change_a >= rate_of_change_b else label_b
+            bigger_label = label_a if added_values_a >= added_values_b else label_b
             smaller_label = label_a if bigger_label == label_b else label_b
+    
+    if bigger_label is None:
+        raise ValueError("There are no entries in the database that match the inputs for DataBait 4")
+
     return {
         "shared_label": shared_label,
         "column1": column1,
@@ -261,12 +259,17 @@ def generate_databait_5(df, data_column, time_column):
 
         max_label, max_count = counts.idxmax(), counts.max()
         avg_of_others = (counts.sum() - max_count) / (len(counts.index) - 1)
+        if avg_of_others == 0:
+            continue
         diff = (max_count - avg_of_others) / avg_of_others
-
         if diff > optimal_rate:
             optimal_rate = diff
             optimal_range = decrement
             optimal_label = max_label
+
+    if optimal_label is None:
+        raise ValueError("Please pick different inputs for DataBait 5")
+
     return {
         "max_label": optimal_label,
         "column": data_column,
@@ -332,10 +335,15 @@ def generate_databait_7(df, data_column, label, time_column, event, year):
         .dropna(subset=[time_column])
         .astype({time_column: "int32"})
     )
-    count_at_event = len(rows_with_label.loc[rows_with_label[time_column] == year])
+    count_at_event = len(rows_with_label.loc[rows_with_label[time_column] <= year])
+    if count_at_event == 0:
+        raise ValueError(
+            "Please change inputs for DataBait 5.  \
+                There are no records for the input label prior to the year of the input event."
+        )
     latest_year = rows_with_label[time_column].max()
     count_at_present = len(
-        rows_with_label.loc[rows_with_label[time_column] == latest_year]
+        rows_with_label.loc[rows_with_label[time_column] <= latest_year]
     )
     rate_of_change = (count_at_present - count_at_event) / count_at_event
     return {
@@ -437,7 +445,6 @@ def generate_databait_10(df, data_column, time_column, time_range):
     Template:
     [Labels] went up, and [Labels] went down from [year] to [year].
     """
-    # THINK ABOUT: how to integrate latest year in DB into sentence?
     # The part below is repeated from DB 9 - move into a helper function ==========
     cleaned_df = df.dropna(subset=[time_column])[[time_column, data_column]]
     valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]

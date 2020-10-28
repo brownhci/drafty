@@ -3,8 +3,6 @@
 import calculate_statistics as cs
 import argparse
 
-COUNT_PHRASE = "number of CS professors hired by"
-
 
 def capitalize_first_word(sentence):
     first_char = sentence[0].upper()
@@ -12,85 +10,143 @@ def capitalize_first_word(sentence):
     return first_char
 
 
-def create_setence_1(dict, count_phrases):
-    """
-    Original sentence: The total number of [label in column] grew/shrank
-    [rate]% in the past [time range].
+def phrase_numbers_for_change(number):
+    """Phrases big numbers in a more intuitive way"""
+    if number < 0:
+        return "decreased by %d percent" % (number)
+    if number == 0:
+        return "did not change"
 
-    Template: <count_phrases for dict[column]> <dict-label> <grew OR shrank> <dict-rate> %
-    in the past <dict-time_range> years.
-    """
-    if dict["rate"] > 0:
-        growth_word = "grew"
-    else:
-        growth_word = "shrank"
-        dict["rate"] = abs(dict["rate"])
+    # Number < 100
+    if 0 < number < 100:
+        return "increased by %d percent" % (number)
 
-    sentence = "%s %s %s %d%% in the past %d years." % (
-        count_phrases[dict["column"]],
+    # Simple cases
+    simple_words = {
+        100: "doubled",
+        200: "tripled",
+        300: "quadrupled",
+    }
+    if number in simple_words:
+        return simple_words[number]
+
+    # Between doubled and quadrupled
+    if 100 < number and number <= 150:
+        return "more than doubled"
+    elif 150 < number and number < 200:
+        return "nearly tripled"
+    elif 200 < number and number <= 250:
+        return "more than tripled"
+    elif 250 < number and number < 300:
+        return "nearly quadrupled"
+    elif 300 < number and number < 400:
+        return "more than quadrupled"
+
+    # Number too big
+    if number >= 400:
+        return "increased %d times" % (number/100 + 1)
+
+
+def phrase_numbers_for_comparisons(number):
+    """Phrases big numbers in a more intuitive way"""
+
+    # Number < 100
+    if 0 < number < 100:
+        return "%d percent more" % (number)
+
+    # Simple cases
+    simple_words = {
+        100: "twice",
+        200: "three times",
+        300: "four times",
+    }
+    if number in simple_words:
+        return "%s as many" % (simple_words[number]) 
+
+    # Between doubled and quadrupled
+    if 100 < number and number <= 150:
+        return "more than twice as many"
+    elif 150 < number and number < 200:
+        return "almost three times as many"
+    elif 200 < number and number <= 250:
+        return "more than three times as many"
+    elif 250 < number and number < 300:
+        return "almost four times as many"
+    elif 300 < number and number < 400:
+        return "more than four times as many"
+
+    # Number too big
+    if number >= 400:
+        return "%d times as many" % (number / 100 + 1)
+
+
+
+def create_setence_1(dict, entry_phrase, pronoun, column_phrase):
+    """
+    Sample: Over the past 25 years, the total number of CS professors who 
+    specialized in Human-Computer Interaction more than quadrupled.
+
+    Template: Over the past <time_range> years, the total number of <entry phrase> <pronoun>
+    <column phrase> <label> <growth phrase>.  
+    """
+    rate_phrase = phrase_numbers_for_change(dict["rate"])
+
+    sentence = "Over the past %d years, the total number of %s %s %s %s %s." % (
+         dict["time_range"],
+         entry_phrase,
+         pronoun,
+        " ".join(column_phrase[dict["column"]]),
         dict["label"],
-        growth_word,
-        dict["rate"],
-        dict["time_range"],
+        rate_phrase
     )
     return capitalize_first_word(sentence)
 
 
-def create_setence_2(dict, count_phrases, pronoun_phrases):
+def create_setence_2(dict, entry_phrase, column_phrase):
     """
-    Original sentence: The total number of [max(label1, label2) in column]
-    grew/shrank [rate]% more than [min(label1, label2) in column] in [time range].
+    Sample: 5 times as many CS professors were hired by 
+    Carnegie Mellon University than by Brown University in the past 25 years.
 
-    Template: The <count phrases for dict[column]> <dict-bigger_label> <grew OR shrank>
-    <dict-rate> percent more than <pronoun phrases for dict[column]> <dict-smaller_label>
-    in the past <dict-time_range> years.
+    Template: <growth phrase> <entry phrase> <column phrase> <max label> 
+    than by <min label> in the past <time range>. 
     """
-    if dict["rate"] > 0:
-        growth_word = "grew"
-    else:
-        growth_word = "shrank"
-        dict["rate"] = abs(dict["rate"])
+    rate_phrase = phrase_numbers_for_comparisons(dict["rate"])
 
-    sentence = "%s %s %s %d%% more than %s %s in the past %d years." % (
-        count_phrases[dict["column"]],
+    sentence = "%s %s %s %s than %s %s in the past %d years." % (
+        rate_phrase,
+        entry_phrase,
+        " ".join(column_phrase[dict["column"]]),
         dict["bigger_label"],
-        growth_word,
-        dict["rate"],
-        pronoun_phrases[dict["column"]],
+        column_phrase[dict["column"]][1],
         dict["smaller_label"],
-        dict["time_range"],
+        dict["time_range"]
     )
     return capitalize_first_word(sentence)
 
 
-def create_sentence_3(dict, count_phrases, filter_phrases):
+def create_sentence_3(dict, entry_phrase, pronoun, column_phrase):
     """
-    Original sentence: The total number of
-    [label1 in column1, filtered by label2 in column2]
-    grew/shrank [rate]% in the past [time range].
+    Sample: Over the past 20 years, the total number of CS professors who 
+    were hired by Brown University and specialized in Databases tripled.
 
-    Template: The <count phrase for dict[column1]> <dict-label1>
-    <count phrase for dict[column2]> <dict-label2> <grew OR shrank>
-    <dict-rate> percent in the past <dict-time_range> years.
+    Template: Over the past <time_range> years, the total number of <entry phrase>
+    <pronoun> <column phrase1> <label1> <column phrase2> <label2> <growth phrase>. 
     """
-    if dict["rate"] > 0:
-        growth_word = "grew"
-    else:
-        growth_word = "shrank"
-        dict["rate"] = abs(dict["rate"])
-    sentence = "%s %s %s %s %s %d%% in the past %d years." % (
-        count_phrases[dict["column1"]],
+    rate_phrase = phrase_numbers_for_change(dict["rate"])
+    sentence = "Over the past %d years, the total number of %s %s %s %s and %s %s %s." % (
+        dict["time_range"],
+        entry_phrase,
+        pronoun, 
+        " ".join(column_phrase[dict["column1"]]),
         dict["label1"],
-        filter_phrases[dict["column2"]],
+        " ".join(column_phrase[dict["column2"]]),
         dict["label2"],
-        growth_word,
-        dict["rate"],
-        dict["time_range"],
+        rate_phrase,
     )
     return capitalize_first_word(sentence)
 
 
-def create_sentence_4(dict, count_phrases, filter_phrases, filter_pronoun_phrases):
+def create_sentence_4(dict, entry_phrase, column_phrase):
     """
     Original sentence: The number of rows with [shared label in column1]
     and [label A in column2] grew/shrank [rate]% more than
@@ -103,21 +159,19 @@ def create_sentence_4(dict, count_phrases, filter_phrases, filter_pronoun_phrase
     those <filter pronoun phrase for dict[column2]> <dict-smaller_label>
     in the past <dict-time_range> years.
     """
-    if dict["rate"] > 0:
-        growth_word = "grew"
-    else:
-        growth_word = "shrank"
-        dict["rate"] = abs(dict["rate"])
-    sentence = "%s %s %s %s %s %d%% more than %s %s in the past %d years." % (
-        count_phrases[dict["column1"]],
+    
+    rate_phrase = phrase_numbers_for_comparisons(dict["rate"])
+
+    sentence = "%s %s %s %s than %s %s in the past %d years." % (
+        rate_phrase,
+        entry_phrase,
+        " ".join(descriptive_phrase[dict["column1"]]),
         dict["shared_label"],
-        filter_phrases[dict["column2"]],
+        " ".join(column_phrase[dict["column2"]]),
         dict["bigger_label"],
-        growth_word,
-        dict["rate"],
-        filter_pronoun_phrases[dict["column2"]],
+        column_phrase[dict["column2"]][1],
         dict["smaller_label"],
-        dict["time_range"],
+        dict["time_range"]
     )
     return capitalize_first_word(sentence)
 
@@ -130,7 +184,7 @@ def create_sentence_5(dict, count_phrases, column_phrases):
     **only supports max for now
 
     Template: <count phrase for dict[column]> <dict-max_label> was
-    <dict-rate> percent <higher OR lower> than 
+    <dict-rate> percent <higher OR lower> than
     the average value for the column that shows
     <count phrase for dict[column]> for the past <dict-time_range> years.
     """
@@ -139,16 +193,13 @@ def create_sentence_5(dict, count_phrases, column_phrases):
     else:
         growth_word = "lower"
         dict["rate"] = abs(dict["rate"])
-    sentence = (
-        "%s %s was %d%% %s than the average value for the column that shows %s in the past %d years."
-        % (
-            count_phrases[dict["column"]],
-            dict["max_label"],
-            dict["rate"],
-            growth_word,
-            column_phrases[dict["column"]],
-            dict["time_range"],
-        )
+    sentence = "%s %s was %d%% %s than the average value for the column that shows %s in the past %d years." % (
+        count_phrases[dict["column"]],
+        dict["max_label"],
+        dict["rate"],
+        growth_word,
+        column_phrases[dict["column"]],
+        dict["time_range"],
     )
     return capitalize_first_word(sentence)
 
@@ -198,16 +249,13 @@ def create_sentence_8(dict, column_phrases):
     Original sentence: [Proportion]% of entries share values for [column1] and [column2].
 
     Template: <dict-proportion> percent of <column phrase for total> in the database share values for
-    columns that show <column phrase for dict[column1]> and <column phrase for dict[column2]>.
+    the column about <column phrase for dict[column1]> and that about <column phrase for dict[column2]>.
     """
-    return (
-        "%d%% of %s in the database share values for columns that show %s and %s."
-        % (
-            dict["proportion"],
-            column_phrases["total"],
-            column_phrases[dict["column1"]],
-            column_phrases[dict["column2"]],
-        )
+    return "%d%% of %s in our database share values for columns about %s and %s." % (
+        dict["proportion"],
+        column_phrases["total"],
+        column_phrases[dict["column1"]],
+        column_phrases[dict["column2"]],
     )
 
 
@@ -258,7 +306,7 @@ def create_sentence_10(dict, count_phrases, pronoun_phrases):
         return res
 
     sentence = "%s %s went up, and %s %s went down, from %d to %d." % (
-        count_phrases[dict["column"]],
+        count_phrases_yearly[dict["column"]],
         convert_label_list_to_string(dict["up_labels"]),
         pronoun_phrases[dict["column"]],
         convert_label_list_to_string(dict["down_labels"]),
@@ -266,6 +314,7 @@ def create_sentence_10(dict, count_phrases, pronoun_phrases):
         dict["latest_year"],
     )
     return capitalize_first_word(sentence)
+
 
 def create_sentence_11(dict, column_phrases):
     """
@@ -285,7 +334,7 @@ def create_sentence_12(dict, column_phrases):
     """
     Original sentence: [Label] was the most often associated with [Column1, column2, … (related)].
 
-    Template: <dict-entry> was the most common value in 
+    Template: <dict-entry> was the most common value in
     columns that show <column phrase for each column in dict[columns]>.
     # NOTE: We can also just have one phrase inserted that describes all of the columns
     """
@@ -320,104 +369,160 @@ if __name__ == "__main__":
     df = cs.load_csv(args.csv, args.index)
     df2 = cs.load_csv("../data/iris.csv", args.index)
 
-    column_phrases = {
-        "total": "all CS professors",
-        "University": "universities that hired CS professors",
-        "Bachelors": "where CS professors got their Bachelor's degrees",
-        "Masters": "where CS professors got their Master's degrees",
-        "Doctorate": "where CS professors got their Doctorate's degrees",
-        "PostDoc": "where CS professors got their PostDoc degrees",
+    entry_phrase = "CS professors"
+    pronoun = "who"
+
+    column_phrase = {
+        "University": ("were hired", "by"), 
+        "SubField": ("specialized", "in"),
+        "Gender": ("identified", "as")
     }
 
-    count_phrases = {
-        "total": "all CS professors hired",
-        "total_time_filtered": "all CS professors hired in a year",
-        "University": "the number of CS professors hired by",
-        "SubField": "the number of newly hired CS professors specializing in",
-    }
+    # descriptive_phrase = {
+    #     "University": ("hired", "by"),
+    #     "SubField": ("specializing", "in"),
+    #     "Gender": ("identifying", "as"),
+    # }
 
-    pronoun_phrases = {
-        "University": "that of those hired by",
-        "SubField": "that of those specializing in",
-    }
+    # dict1 = cs.generate_databait_1(df, "University", "Brown University", "JoinYear")
+    # print("(1) " + create_setence_1(dict1, entry_phrase, pronoun, column_phrase))
 
-    filter_phrases = {"SubField": "who specialize in", "University": "hired by"}
+    # dict1a = cs.generate_databait_1(
+    #     df, "SubField", "Human-Computer Interaction", "JoinYear"
+    # )
+    # print("(1) " + create_setence_1(dict1a, entry_phrase, pronoun, column_phrase))
 
-    filter_pronoun_phrases = {
-        "SubField": "that of those who specialize in",
-        "University": "that of those hired by",
-    }
+    # dict1b = cs.generate_databait_1(df, "SubField", "Machine Learning & Pattern Recognition", "JoinYear")
+    # print("(1) " + create_setence_1(dict1b, entry_phrase, pronoun, column_phrase))
 
-    column_phrases2 = {
-        "sepal.length": "the sepal length of iris flowers",
-        "sepal.width": "the sepal width of iris flowers",
-        "petal.length": "the petal length of iris flowers",
-        "petal.width": "the petal width of iris flowers",
-    }
+    # dict2 = cs.generate_databait_2(
+    #     df, "University", "Brown University", "Carnegie Mellon University", "JoinYear"
+    # )
+    # print("(2) " + create_setence_2(dict2, entry_phrase, column_phrase))
 
-    dict1 = cs.generate_databait_1(df, "University", "Brown University", "JoinYear")
-    print("(1) " + create_setence_1(dict1, count_phrases))
+    # dict2a = cs.generate_databait_2(
+    #     df, "SubField", "Human-Computer Interaction", "Machine Learning & Pattern Recognition", "JoinYear"
+    # )
+    # print("(2) " + create_setence_2(dict2a, entry_phrase, column_phrase))
 
-    dict2 = cs.generate_databait_2(
-        df, "University", "Brown University", "Carnegie Mellon University", "JoinYear"
-    )
-    print("(2) " + create_setence_2(dict2, count_phrases, pronoun_phrases))
+    # dict2b = cs.generate_databait_2(
+    #     df, "Gender", "Male", "Female", "JoinYear"
+    # )
+    # print("(2) " + create_setence_2(dict2b, entry_phrase, column_phrase))
 
     dict3 = cs.generate_databait_3(
         df, "University", "Brown University", "SubField", "Databases", "JoinYear"
     )
-    print("(3) " + create_sentence_3(dict3, count_phrases, filter_phrases))
+    print("(3) " + create_sentence_3(dict3, entry_phrase, pronoun, column_phrase))
 
-    dict4 = cs.generate_databait_4(
-        df,
-        "SubField",
-        "Databases",
-        "University",
-        "Brown University",
-        "Carnegie Mellon University",
-        "JoinYear",
+    dict3a = cs.generate_databait_3(
+        df, "SubField", "Software Engineering", "Gender", "Female", "JoinYear"
     )
-    print("(4) " + 
-        create_sentence_4(dict4, count_phrases, filter_phrases, filter_pronoun_phrases)
-    )
+    print("(3) " + create_sentence_3(dict3a, entry_phrase, pronoun, column_phrase))
 
-    dict5 = cs.generate_databait_5(df, "University", "JoinYear")
-    print("(5) " + create_sentence_5(dict5, count_phrases, column_phrases))
+    # dict4 = cs.generate_databait_4(
+    #     df,
+    #     "SubField",
+    #     "Databases",
+    #     "University",
+    #     "Brown University",
+    #     "Carnegie Mellon University",
+    #     "JoinYear",
+    # )
+    # print("(4) " +
+    #     create_sentence_4(dict4, entry_phrase, column_phrase)
+    # )
 
-    dict6 = cs.generate_databait_6(df, "University", "JoinYear")
-    print("(6) " + create_sentence_6(dict6, count_phrases))
+    # dict4a = cs.generate_databait_4(
+    #     df,
+    #     "SubField",
+    #     "Artificial Intelligence",
+    #     "University",
+    #     "Massachusetts Institute of Technology",
+    #     "Carnegie Mellon University",
+    #     "JoinYear",
+    # )
 
-    dict7 = cs.generate_databait_7(
-        df,
-        "SubField",
-        "Artificial Intelligence",
-        "JoinYear",
-        "IBM's Deep Blue beat Garry Kasparov",
-        1997,
-    )
-    print("(7) " + create_sentence_7(dict7, count_phrases))
+    # print(
+    #     "(4) "
+    #     + create_sentence_4(
+    #         dict4a, entry_phrase, column_phrase
+    #     )
+    # )
 
-    dict8 = cs.generate_databait_8(df, "Bachelors", "Doctorate")
-    print("(8) " + create_sentence_8(dict8, column_phrases))
+    # dict5 = cs.generate_databait_5(df, "University", "JoinYear")
+    # print("(5) " + create_sentence_5(dict5, count_phrases, column_phrases))
 
-    dict9 = cs.generate_databait_9(df, "University", "JoinYear", 30)
-    print("(9) " + create_sentence_9(dict9, count_phrases))
+    # dict5a = cs.generate_databait_5(df, "Gender", "JoinYear")
+    # print("(5) " + create_sentence_5(dict5a, count_phrases, column_phrases))
 
-    dict10 = cs.generate_databait_10(df, "SubField", "JoinYear", 20)
-    print("(10) " + 
-        create_sentence_10(
-            dict10,
-            count_phrases,
-            pronoun_phrases,
-        )
-    )
+    # dict6 = cs.generate_databait_6(df, "University", "JoinYear")
+    # print("(6) " + create_sentence_6(dict6, count_phrases))
 
-    dict11 = cs.generate_databait_11(
-        df2, "sepal.length", ["sepal.width", "petal.length", "petal.width"]
-    )
-    print("(11) " + create_sentence_11(dict11, column_phrases2))
+    # dict6a = cs.generate_databait_6(df, "Gender", "JoinYear")
+    # print("(6) " + create_sentence_6(dict6a, count_phrases))
 
-    dict12 = cs.generate_databait_12(
-        df, columns=["University", "Bachelors", "Masters", "Doctorate"]
-    )
-    print("(12) " + create_sentence_12(dict12, column_phrases))
+    # dict6b = cs.generate_databait_6(df, "SubField", "JoinYear")
+    # print("(6) " + create_sentence_6(dict6b, count_phrases))
+
+    # dict7 = cs.generate_databait_7(
+    #     df,
+    #     "SubField",
+    #     "Artificial Intelligence",
+    #     "JoinYear",
+    #     "IBM's Deep Blue beat Garry Kasparov",
+    #     1997,
+    # )
+    # print("(7) " + create_sentence_7(dict7, count_phrases))
+
+    # dict7a = cs.generate_databait_7(
+    #     df,
+    #     "Gender",
+    #     "Female",
+    #     "JoinYear",
+    #     "Title IX was ratified",
+    #     1972,
+    # )
+    # print("(7) " + create_sentence_7(dict7a, count_phrases))
+
+    # dict8 = cs.generate_databait_8(df, "Bachelors", "Doctorate")
+    # print("(8) " + create_sentence_8(dict8, column_phrases))
+
+    # dict8a = cs.generate_databait_8(df, "Bachelors", "Masters")
+    # print("(8) " + create_sentence_8(dict8a, column_phrases))
+
+    # dict9 = cs.generate_databait_9(df, "University", "JoinYear", 30)
+    # print("(9) " + create_sentence_9(dict9, count_phrases))
+
+    # dict9a = cs.generate_databait_9(df, "Gender", "JoinYear", 30)
+    # print("(9) " + create_sentence_9(dict9a, count_phrases))
+
+    # dict9b = cs.generate_databait_9(df, "SubField", "JoinYear", 30)
+    # print("(9) " + create_sentence_9(dict9b, count_phrases))
+
+    # dict10 = cs.generate_databait_10(df, "SubField", "JoinYear", 20)
+    # print("(10) " +
+    #     create_sentence_10(
+    #         dict10,
+    #         count_phrases,
+    #         pronoun_phrases,
+    #     )
+    # )
+    # dict10a = cs.generate_databait_10(df, "Bachelors", "JoinYear", 20)
+    # print("(10) " +
+    #     create_sentence_10(
+    #         dict10a,
+    #         count_phrases,
+    #         pronoun_phrases,
+    #     )
+    # )
+
+    # dict11 = cs.generate_databait_11(
+    #     df2, "sepal.length", ["sepal.width", "petal.length", "petal.width"]
+    # )
+    # print("(11) " + create_sentence_11(dict11, column_phrases2))
+
+    # dict12 = cs.generate_databait_12(
+    #     df, columns=["University", "Bachelors", "Masters", "Doctorate"]
+    # )
+    # print("(12) " + create_sentence_12(dict12, column_phrases))
