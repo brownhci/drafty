@@ -396,13 +396,13 @@ def generate_databait_9(df, data_column, time_column, time_range):
     cleaned_df = cleaned_df.astype({time_column: "int32"})
 
     latest_year = cleaned_df[time_column].max()
-    latest_entries = cleaned_df.loc[cleaned_df[time_column] == latest_year][data_column]
+    latest_entries = cleaned_df.loc[cleaned_df[time_column] <= latest_year][data_column]
     latest_counts = latest_entries.value_counts()
     latest_total = latest_counts.values.sum()
 
     years = cleaned_df[time_column]
     oldest_year = years.where(years > latest_year - time_range).min()
-    oldest_entries = cleaned_df.loc[cleaned_df[time_column] == oldest_year][data_column]
+    oldest_entries = cleaned_df.loc[cleaned_df[time_column] <= oldest_year][data_column]
     oldest_counts = oldest_entries.value_counts()
     oldest_total = oldest_counts.values.sum()
 
