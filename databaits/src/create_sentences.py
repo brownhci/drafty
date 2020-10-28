@@ -194,15 +194,14 @@ def create_sentence_5(dict, entry_phrase, column_phrase):
     )
     return capitalize_first_word(sentence)
 
-# TODO: 6 is misleading for now... Either change entry phrase to "new CS professors" or find another way
 def create_sentence_6(dict, entry_phrase, column_phrase):
     """
-    Sample: 13% of all CS professors in the past 5 years specialized in Security & Privacy.
+    Sample: 13% of all new CS professors from the past 5 years specialized in Security & Privacy.
 
-    Template: <dict-proportion> percent of <count phrase for total>
-    in the past <dict-time_range> comes from <dict-max_label>.
+    Template: <proportion>% of all new <entry phrase> in the past <time_range> years 
+    <column phrase> <max label>. 
     """
-    return "%d%% of all %s in the past %d years %s %s." % (
+    return "%d%% of all new %s from the past %d years %s %s." % (
         dict["proportion"],
         entry_phrase,
         dict["time_range"],
@@ -273,38 +272,24 @@ def create_sentence_9(dict, entry_phrase, column_phrase):
     )
     return capitalize_first_word(sentence)
 
-# TODO: this is also problematic because it's looking at yearly (and not cumulative) data
-# we need to change the subject of the sentences
-def create_sentence_10(dict, count_phrases, pronoun_phrases):
+
+def create_sentence_10(dict, entry_phrase, column_phrase):
     """
-    Original sentence: [Labels] went up, and [Labels] went down from [year] to [year].
+    Sample: Less new CS professors specialized in Graphics in 2017 than in 1998, 
+    while more specialized in Security & Privacy. 
 
-    Template: <count phrase for dict[column]> <dict-up_labels> went up,
-    and <pronoun phrase dor dict[column]> <dict-down_labels> went down,
-    from <dict-oldest year> to <dict-latest year>.
+    Template: Less new <entry phrase> <column phrase> <down labels> from year to year,
+    while more <column phrase> <up labels>. 
     """
-    # TODO: throw error when up_labels or down_labels == size 0?
 
-    def convert_label_list_to_string(labels):
-        labels = [x[0] for x in labels]
-        if len(labels) <= 2:
-            return " and ".join(labels)
-
-        res = ""
-        for i in range(len(labels) - 1):
-            res += labels[i]
-            res += ", "
-        res += "and "
-        res += labels[-1]
-        return res
-
-    sentence = "%s %s went up, and %s %s went down, from %d to %d." % (
-        count_phrases_yearly[dict["column"]],
-        convert_label_list_to_string(dict["up_labels"]),
-        pronoun_phrases[dict["column"]],
-        convert_label_list_to_string(dict["down_labels"]),
-        dict["oldest_year"],
+    sentence = "Less new %s %s %s in %d than in %d, while more %s %s." % (
+        entry_phrase,
+        " ".join(column_phrase[dict["column"]]),
+        " and ".join(dict["down_labels"]),
         dict["latest_year"],
+        dict["oldest_year"],
+        " ".join(column_phrase[dict["column"]]),
+        " and ".join(dict["up_labels"])
     )
     return capitalize_first_word(sentence)
 
@@ -368,7 +353,8 @@ if __name__ == "__main__":
     column_phrase = {
         "University": ("were hired", "by"), 
         "SubField": ("specialized", "in"),
-        "Gender": ("identified", "as")
+        "Gender": ("identified", "as"),
+        "Bachelors": ("had a bachelor's degree", "from")
     }
 
     # descriptive_phrase = {
@@ -449,14 +435,14 @@ if __name__ == "__main__":
     # dict5a = cs.generate_databait_5(df, "Gender", "JoinYear")
     # print("(5) " + create_sentence_5(dict5a, entry_phrase, column_phrase))
 
-    # dict6 = cs.generate_databait_6(df, "University", "JoinYear")
-    # print("(6) " + create_sentence_6(dict6, entry_phrase, column_phrase))
+    dict6 = cs.generate_databait_6(df, "University", "JoinYear")
+    print("(6) " + create_sentence_6(dict6, entry_phrase, column_phrase))
 
-    # dict6a = cs.generate_databait_6(df, "Gender", "JoinYear")
-    # print("(6) " + create_sentence_6(dict6a, entry_phrase, column_phrase))
+    dict6a = cs.generate_databait_6(df, "Gender", "JoinYear")
+    print("(6) " + create_sentence_6(dict6a, entry_phrase, column_phrase))
 
-    # dict6b = cs.generate_databait_6(df, "SubField", "JoinYear")
-    # print("(6) " + create_sentence_6(dict6b, entry_phrase, column_phrase))
+    dict6b = cs.generate_databait_6(df, "SubField", "JoinYear")
+    print("(6) " + create_sentence_6(dict6b, entry_phrase, column_phrase))
 
     # dict7 = cs.generate_databait_7(
     #     df,
@@ -484,31 +470,31 @@ if __name__ == "__main__":
     # dict8a = cs.generate_databait_8(df, "Bachelors", "Masters")
     # print("(8) " + create_sentence_8(dict8a, column_phrases))
 
-    dict9 = cs.generate_databait_9(df, "University", "JoinYear", 30)
-    print("(9) " + create_sentence_9(dict9, entry_phrase, column_phrase))
+    # dict9 = cs.generate_databait_9(df, "University", "JoinYear", 30)
+    # print("(9) " + create_sentence_9(dict9, entry_phrase, column_phrase))
 
-    dict9a = cs.generate_databait_9(df, "Gender", "JoinYear", 30)
-    print("(9) " + create_sentence_9(dict9a, entry_phrase, column_phrase))
+    # dict9a = cs.generate_databait_9(df, "Gender", "JoinYear", 30)
+    # print("(9) " + create_sentence_9(dict9a, entry_phrase, column_phrase))
 
-    dict9b = cs.generate_databait_9(df, "SubField", "JoinYear", 30)
-    print("(9) " + create_sentence_9(dict9b, entry_phrase, column_phrase))
+    # dict9b = cs.generate_databait_9(df, "SubField", "JoinYear", 30)
+    # print("(9) " + create_sentence_9(dict9b, entry_phrase, column_phrase))
 
-    # dict10 = cs.generate_databait_10(df, "SubField", "JoinYear", 20)
-    # print("(10) " +
-    #     create_sentence_10(
-    #         dict10,
-    #         count_phrases,
-    #         pronoun_phrases,
-    #     )
-    # )
-    # dict10a = cs.generate_databait_10(df, "Bachelors", "JoinYear", 20)
-    # print("(10) " +
-    #     create_sentence_10(
-    #         dict10a,
-    #         count_phrases,
-    #         pronoun_phrases,
-    #     )
-    # )
+    dict10 = cs.generate_databait_10(df, "SubField", "JoinYear", 20)
+    print("(10) " +
+        create_sentence_10(
+            dict10,
+            entry_phrase,
+            column_phrase
+        )
+    )
+    dict10a = cs.generate_databait_10(df, "Bachelors", "JoinYear", 20)
+    print("(10) " +
+        create_sentence_10(
+            dict10a,
+            entry_phrase,
+            column_phrase
+        )
+    )
 
     # dict11 = cs.generate_databait_11(
     #     df2, "sepal.length", ["sepal.width", "petal.length", "petal.width"]

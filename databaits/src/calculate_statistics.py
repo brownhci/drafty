@@ -494,8 +494,8 @@ def generate_databait_10(df, data_column, time_column, time_range):
     down_labels.sort(key=lambda x: x[1])
 
     return {
-        "up_labels": up_labels[:2],
-        "down_labels": down_labels[:2],
+        "up_labels": [x[0] for x in up_labels[:1]], # TODO: tune number of labels returned
+        "down_labels": [x[0] for x in down_labels[:1]],
         "column": data_column,
         "oldest_year": oldest_year,
         "latest_year": latest_year,
