@@ -41,7 +41,7 @@ SELECT
 
     sost.name AS sort_colName,
 
-    sg.idSuggestion AS searchGoogle_idSuggestion, sgs.suggestion AS searchGoogle_suggestion, sg.searchValues as searchGoogle_searchValues,
+    sg.idSuggestion AS searchGoogle_idSuggestion, sg.idUniqueID AS searchGoogle_rowId,sgs.suggestion AS searchGoogle_suggestion, sg.searchValues as searchGoogle_searchValues,
     
     cos.idSuggestion AS copy_idSuggestion, cos.suggestion AS copy_suggestion,cos.idUniqueID as copy_rowId,
     
