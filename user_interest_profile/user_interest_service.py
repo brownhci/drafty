@@ -100,7 +100,7 @@ INNER JOIN csprofessors.Suggestions ess ON ess.idSuggestion = es.idSuggestion
 GROUP BY e.idEdit) as es ON es.IdInteraction = i.idInteraction
 
 LEFT JOIN csprofessors.Paste p ON p.idInteraction = i.idInteraction
-INNER JOIN csprofessors.Suggestions ps ON ps.idSuggestion = p.pasteCellIdSuggestion
+LEFT JOIN csprofessors.Suggestions ps ON ps.idSuggestion = p.pasteCellIdSuggestion
 
 WHERE i.idInteractionType IN (1,10,5,6,4,7,8,9,11,14,15,16,18) AND s.idProfile = %s
 
@@ -148,7 +148,13 @@ interaction_to_value = {
     'search-full' : 'search_matchedValues',
 }
 
-
+interaction_to_rowID = {
+    'click' : 'click_rowID',
+    'doubleClick' : 'doubleClick_rowID',
+    'paste' : 'paste_rowId',
+    'copy' : 'copy_rowId',
+    'editRecord' : 'edit_rowId',
+}
 def get_db_creds():
     dbuser, dbpass = 'test', 'test'
     with open('../backend/.env', 'r') as fh:
@@ -195,15 +201,14 @@ def all_interactions_test(cursor, profileID):
     cursor.execute(sql_all_interactions, profileID)
     rows = cursor.fetchall()
     all_row_values = []
-    print('hi')
-    print(rows)
     for row in rows:
         if row['interaction'] not in supported_interactions:
             continue
-        row_values = get_row_values(cursor, (row['idProfile'], row['timestamp']))
+        row_id = interaction_to_rowID[row['interaction']]
+        row_values = get_row_values(cursor, (row['idProfile'], row[row_id], row['timestamp']))
         row_values['interaction'] = row['interaction']
         # adds relevant dict entry to row_values
-        row_values[interaction_to_value[row['interaction']]] = row[interaction_to_value[row['interaction']]]
+        #row_values[interaction_to_value[row['interaction']]] = row[interaction_to_value[row['interaction']]]
         all_row_values.append(row_values)
     return(all_row_values)
         
@@ -219,7 +224,6 @@ class userInterestService():
 
     def genUserScore(self, hist):
         for interact in hist:
-            print(hist)
             if interact['rowvalues'] != None:
                 row = interact['rowvalues'].split('|')
                 try:
@@ -239,8 +243,7 @@ class userInterestService():
                 except:
                     self.doctorate[row[5]] = interactionWeights[interact['interaction']]
             else:
-                interact['search_matchedValues']
-                print(interact['search_matchedValues'])
+                print(interact)
 
     def genUserRec(self, profArr, emptyCount):
         profArr['Inst. Score'] = profArr['University']
@@ -305,14 +308,14 @@ def main(args):
     profArr = pd.read_csv('finalProfs.csv')
     profArr = profArr.drop(labels = ['JoinYear'], axis = 1)
     #profArr = profArr.dropna()
-    hist = genIntHist(args, 66430)
+    hist = genIntHist(args, 140368)
     #print(hist)
     #hist = genIntHist(args, 66430 , 'poo')
     #print(hist[0:5])
     user = userInterestService()
     click = user.genUserScore(hist)
     user.genUserRec(profArr, 0)
-    #print(click)
+    print(user.bachelors)
     
 
 if __name__ == '__main__':
