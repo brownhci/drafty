@@ -34,20 +34,22 @@ SELECT
     s.idProfile AS idProfile,i.idSession AS idSession,
     i.idInteraction AS idInteraction,it.interaction AS interaction,i.timestamp AS timestamp,
 
-    cs.idSuggestion AS click_idSuggestion,cs.suggestion AS click_suggestion,cst.name AS click_colName,cs.idUniqueID AS click_rowID,c.rowvalues AS click_rowValues,
+    cs.idSuggestion AS click_idSuggestion,cs.suggestion AS click_suggestion, cst.name AS click_colName, cs.idUniqueID AS click_rowID, c.rowvalues AS click_rowValues,
 
     dcs.idSuggestion AS doubleClick_idSuggestion,dcs.suggestion AS doubleClick_suggestion,dcst.name AS doubleClick_colName,dcs.idUniqueID AS doubleClick_rowID,dc.rowvalues AS doubleClick_rowValues,
 
     se.value AS search_value, se.matchedValues AS search_matchedValues,
 
     sost.name AS sort_colName,
+
+    sg.idSuggestion AS searchGoogle_idSuggestion, sg.idUniqueID AS searchGoogle_rowId,sgs.suggestion AS searchGoogle_suggestion, sg.searchValues as searchGoogle_searchValues,
     
-    sg.idSuggestion AS searchGoogle_idSuggestion, sgs.suggestion AS searchGoogle_suggestion, sg.searchValues as searchGoogle_searchValues,
-    
-    cos.idSuggestion AS copy_idSuggestion, cos.suggestion AS copy_suggestion,
+    cos.idSuggestion AS copy_idSuggestion, cos.suggestion AS copy_suggestion,cos.idUniqueID as copy_rowId,
     
     cocst.name AS copyColumn_colName,
-    
+
+    p.pasteValue as paste_pasteValue, p.copyCellValue as paste_copyCellValue,IF(p.pasteValue = p.copyCellValue,1,0) as paste_copiedFromDrafty, p.pasteCellValue as paste_pasteCellValue,ps.idUniqueID as paste_rowId,
+
     sm.SearchMulti_ColNames, sm.SearchMulti_SearchValues,
 
     es.Edit_Suggestion_isCorrect, es.Edit_Suggestion_Suggestion,es.Edit_Suggestion_isPrevSuggestion,es.Edit_Suggestion_isNew,es.Edit_Suggestion_isChosen,es.edit_rowId
@@ -80,7 +82,6 @@ LEFT JOIN csprofessors.Suggestions cos on cos.idSuggestion = co.idSuggestion
 LEFT JOIN csprofessors.CopyColumn coc on(coc.idInteraction = i.idInteraction)
 LEFT JOIN csprofessors.SuggestionType cocst on(cocst.idSuggestionType = coc.idSuggestionType)
 
-
 LEFT JOIN (
     SELECT idInteraction, group_concat(st.name separator '|') as SearchMulti_ColNames, group_concat(value separator '|') as SearchMulti_SearchValues
     FROM SearchMulti sm INNER JOIN SuggestionType st on sm.idSuggestionType = st.idSuggestionType
@@ -98,8 +99,10 @@ INNER JOIN csprofessors.Edit_Suggestion es ON es.idEdit = e.idEdit
 INNER JOIN csprofessors.Suggestions ess ON ess.idSuggestion = es.idSuggestion
 GROUP BY e.idEdit) as es ON es.IdInteraction = i.idInteraction
 
+LEFT JOIN csprofessors.Paste p ON p.idInteraction = i.idInteraction
+INNER JOIN csprofessors.Suggestions ps ON ps.idSuggestion = p.pasteCellIdSuggestion
 
-WHERE i.idInteractionType IN (1,10,5,6,4,7,8,11,14,15,16,18) AND s.idProfile = %s
+WHERE i.idInteractionType IN (1,10,5,6,4,7,8,9,11,14,15,16,18) AND s.idProfile = %s
 
 ORDER BY i.timestamp ASC
 """
@@ -112,6 +115,7 @@ inner join users.Session us on us.idSession = i.idSession
 inner join Click c on i.idInteraction = c.idInteraction
 inner join Suggestions s on s.idSuggestion = c.idSuggestion
 where us.idProfile = %s
+and s.idUniqueId = %s
 and (i.timestamp <= %s)
 order by i.timestamp DESC
 limit 1
@@ -122,19 +126,21 @@ limit 1
 interactionWeights = {
     "click": 2,
     "doubleClick": 3,
+    "editRecord" : 7,
     "filterBlur": 2,
     "sorting": 1,
     "domain": 4,
     "suggestion": 4,
     "validation": 3,
     "verification_correctness": 7,
-    "copy_paste": 5,
+    "copy": 5,
+    "paste" : 5,
     "scrolling": 2,
     "dwell_time": 2,
     "highlight_duration": 2
 }
 
-supported_interactions = ['doubleClick', 'click', 'edit', 'copy_paste', 'search-full']
+supported_interactions = ['doubleClick', 'click', 'editRecord', 'copy', 'paste']
 
 interaction_to_value = {
     'click' : 'click_rowValues',
@@ -189,6 +195,8 @@ def all_interactions_test(cursor, profileID):
     cursor.execute(sql_all_interactions, profileID)
     rows = cursor.fetchall()
     all_row_values = []
+    print('hi')
+    print(rows)
     for row in rows:
         if row['interaction'] not in supported_interactions:
             continue
@@ -199,14 +207,6 @@ def all_interactions_test(cursor, profileID):
         all_row_values.append(row_values)
     return(all_row_values)
         
-
-
-
-intIDDict = {
-    '1' : click_test,
-    '2' : double_click_test,
-}
-
 
 
 class userInterestService():
@@ -278,7 +278,7 @@ def subfScoreAggregate(x, subfield):
     except: 
         return 0
 
-def genIntHist(args, profileID, interID):
+def genIntHist(args, profileID):
     db_user,db_pass = get_db_creds()
     db = pymysql.connect(host=args.host, user=db_user,
                          password=db_pass,
@@ -305,15 +305,12 @@ def main(args):
     profArr = pd.read_csv('finalProfs.csv')
     profArr = profArr.drop(labels = ['JoinYear'], axis = 1)
     #profArr = profArr.dropna()
-    hist = []
-    for key in list(intIDDict.keys()):
-        hist += genIntHist(args, 140368, key)
+    hist = genIntHist(args, 66430)
     #print(hist)
     #hist = genIntHist(args, 66430 , 'poo')
     #print(hist[0:5])
     user = userInterestService()
     click = user.genUserScore(hist)
-    print(user)
     user.genUserRec(profArr, 0)
     #print(click)
     

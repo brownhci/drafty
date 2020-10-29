@@ -143,7 +143,7 @@ def column_order_test(cursor):
 
 def click_test(cursor):
     example_idProfile = 66430
-    cursor.execute(sql_click, (example_idProfile))
+    cursor.execute(sql_all_interactions, (example_idProfile))
     rows = cursor.fetchall()
     print(rows,'\n')
     return rows
