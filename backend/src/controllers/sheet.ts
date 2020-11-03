@@ -29,6 +29,6 @@ export async function getSheet(req: Request, res: Response) {
   } else {
     const sheetName = await getRequestedSheetName(sheetURL);
     const sheetPath = await getRequestedSheetPath(sheetURL);
-    res.render("pages/sheet", makeRenderObject({ title: `Sheet:${sheetName}`, sheetName: sheetName, sheetPath: sheetPath }, req));
+    res.render("pages/sheet", makeRenderObject({ title: `Sheet: ${sheetName}`, sheetName: sheetName, sheetPath: sheetPath }, req));
   }
 }

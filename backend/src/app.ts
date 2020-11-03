@@ -41,9 +41,9 @@ app.set("port", process.env.PORT || 3000);
 app.set("trust proxy", true); // sw: for production reverse proxy
 
 //static files
-app.use("/csmultirankertest", middlewareTests.urls, express.static("/vol/CSMultiRanker"));
-app.use("/csmultiranker", express.static("/vol/CSMultiRanker"));
-app.use("/csmultirankerlocal", express.static(path.join(__dirname, "../../../../CSRankings"), { maxAge: 30000 }) );
+app.use("/csopenrankingstest", middlewareTests.urls, express.static("/vol/csopenrankings"));
+app.use("/csopenrankings", express.static("/vol/csopenrankings"));
+app.use("/csopenrankingslocal", express.static(path.join(__dirname, "../../../../CSRankings"), { maxAge: 30000 }) );
 app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
 
 // View Engine
