@@ -174,8 +174,8 @@ def generate_databait_4(
     [label B in column2] in the past [time range].
     """
     cleaned_df = df.dropna(subset=[time_column])
-    valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
-    cleaned_df = cleaned_df[valid_year_filter]
+    # valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
+    # cleaned_df = cleaned_df[valid_year_filter]
     cleaned_df = cleaned_df.astype({time_column: "int32"})
 
     rows_with_shared_label = cleaned_df.loc[cleaned_df[column1] == shared_label]
@@ -239,8 +239,8 @@ def generate_databait_5(df, data_column, time_column):
     """
     # Preprocess data to remove NaN and non-numeric time column (year) values
     cleaned_df = df.dropna(subset=[time_column])[[time_column, data_column]]
-    valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
-    cleaned_df = cleaned_df[valid_year_filter]
+    # valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
+    # cleaned_df = cleaned_df[valid_year_filter]
     cleaned_df = cleaned_df.astype({time_column: "int32"})
 
     now = datetime.datetime.now()
@@ -288,8 +288,8 @@ def generate_databait_6(df, data_column, time_column):
     """
     # Preprocess data to remove NaN and non-numeric time column (year) values
     cleaned_df = df.dropna(subset=[time_column])[[time_column, data_column]]
-    valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
-    cleaned_df = cleaned_df[valid_year_filter]
+    # valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
+    # cleaned_df = cleaned_df[valid_year_filter]
     cleaned_df = cleaned_df.astype({time_column: "int32"})
 
     now = datetime.datetime.now()
@@ -391,8 +391,8 @@ def generate_databait_9(df, data_column, time_column, time_range):
     # Approach 1: Given time range, find optimal label => Implemented now
     # Approach 2: Given label, find optimal time range
     cleaned_df = df.dropna(subset=[time_column])[[time_column, data_column]]
-    valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
-    cleaned_df = cleaned_df[valid_year_filter]
+    # valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
+    # cleaned_df = cleaned_df[valid_year_filter]
     cleaned_df = cleaned_df.astype({time_column: "int32"})
 
     latest_year = cleaned_df[time_column].max()
@@ -447,8 +447,8 @@ def generate_databait_10(df, data_column, time_column, time_range):
     """
     # The part below is repeated from DB 9 - move into a helper function ==========
     cleaned_df = df.dropna(subset=[time_column])[[time_column, data_column]]
-    valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
-    cleaned_df = cleaned_df[valid_year_filter]
+    # valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
+    # cleaned_df = cleaned_df[valid_year_filter]
     cleaned_df = cleaned_df.astype({time_column: "int32"})
 
     latest_year = cleaned_df[time_column].max()
@@ -556,7 +556,7 @@ def generate_databait_12(df, columns=[]):
             max_entry = entry
 
     return {
-        "entry": max_entry,
+        "max_label": max_entry,
         "share": max_count / total_counts * 100,
         "columns": columns,
     }

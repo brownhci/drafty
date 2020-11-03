@@ -52,7 +52,7 @@ def phrase_numbers_for_comparisons(number):
 
     # Number < 100
     if 0 < number < 100:
-        return "%d percent more" % (number)
+        return "%d%% as many" % (number)
 
     # Simple cases
     simple_words = {
@@ -230,8 +230,8 @@ def create_sentence_7(dict, entry_phrase, pronoun, column_phrase):
     )
     return capitalize_first_word(sentence)
 
-# TODO: problematic with template 
-def create_sentence_8(dict, column_phrases):
+
+def create_sentence_8(dict, entry_phrase, column_phrase, column_descriptor):
     """
     Original sentence: [Proportion]% of entries share values for [column1] and [column2].
 
@@ -245,14 +245,15 @@ def create_sentence_8(dict, column_phrases):
     Template: <dict-proportion> percent of <column phrase for total> in the database share values for
     the column about <column phrase for dict[column1]> and that about <column phrase for dict[column2]>.
     """
-    return "%d%% of %s %s and %s the same " % (
+    return "%d%% of %s %s and %s the same %s." % (
         dict["proportion"],
-        column_phrases["total"],
-        column_phrases[dict["column1"]],
-        column_phrases[dict["column2"]],
+        entry_phrase,
+        " ".join(column_phrase[dict["column1"]]),
+        " ".join(column_phrase[dict["column2"]]),
+        column_descriptor[dict["column1"]]
     )
 
-# TODO: should we keep growth word (rose/drop) or not? 
+
 def create_sentence_9(dict, entry_phrase, column_phrase):
     """
     Sample: 11% of all CS professors specialized in Algorithms & Theory in 2017, compared to 17% in 1988.
@@ -307,8 +308,7 @@ def create_sentence_11(dict, column_phrases):
     )
     return capitalize_first_word(sentence)
 
-# TODO: also hard to fit into template
-def create_sentence_12(dict, column_phrases):
+def create_sentence_12(dict, entry_phrase, column_phrase):
     """
     Original sentence: [Label] was the most often associated with [Column1, column2, … (related)].
 
@@ -317,22 +317,11 @@ def create_sentence_12(dict, column_phrases):
     # NOTE: We can also just have one phrase inserted that describes all of the columns
     """
 
-    def convert_columns_to_phrases(columns):
-        columns = [column_phrases[column] for column in columns]
-        if len(columns) <= 2:
-            return " and ".join(columns)
-
-        res = ""
-        for i in range(len(columns) - 1):
-            res += columns[i]
-            res += ", "
-        res += "and "
-        res += columns[-1]
-        return res
-
-    sentence = "%s was the most common value in columns that show %s." % (
-        dict["entry"],
-        convert_columns_to_phrases(dict["columns"]),
+    sentence = "The greatest number of %s %s, or %s %s. " % (
+        entry_phrase,
+        ", ".join([" ".join(column_phrase[col]) for col in dict["columns"][:-1]]),
+        " ".join(column_phrase[dict["columns"][-1]]),
+        dict["max_label"],
     )
     return capitalize_first_word(sentence)
 
@@ -340,12 +329,11 @@ def create_sentence_12(dict, column_phrases):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate DataBaits from CSV file")
     parser.add_argument(
-        "--csv", default="../data/professors.csv", help="The CSV to read data from"
+        "--csv", default="../data/csprofessors_20201028.csv", help="The CSV to read data from"
     )
     parser.add_argument("--index", help="the index column for the pandas dataframe")
     args = parser.parse_args()
     df = cs.load_csv(args.csv, args.index)
-    df2 = cs.load_csv("../data/iris.csv", args.index)
 
     entry_phrase = "CS professors"
     pronoun = "who"
@@ -353,131 +341,108 @@ if __name__ == "__main__":
     column_phrase = {
         "University": ("were hired", "by"), 
         "SubField": ("specialized", "in"),
-        "Gender": ("identified", "as"),
-        "Bachelors": ("had a bachelor's degree", "from")
+        "Bachelors": ("got their bachelor's degrees", "from"),
+        "Doctorate": ("got their doctorate degrees", "from")
     }
 
-    # descriptive_phrase = {
-    #     "University": ("hired", "by"),
-    #     "SubField": ("specializing", "in"),
-    #     "Gender": ("identifying", "as"),
-    # }
+    column_descriptor = {
+        "University": "university", 
+        "SubField": "subfield",
+        "Bachelors": "university",
+        "Doctorate": "university"       
+    }
 
-    # dict1 = cs.generate_databait_1(df, "University", "Brown University", "JoinYear")
-    # print("(1) " + create_setence_1(dict1, entry_phrase, pronoun, column_phrase))
+    dict1 = cs.generate_databait_1(df, "University", "Brown University", "JoinYear")
+    print("(1) " + create_setence_1(dict1, entry_phrase, pronoun, column_phrase))
 
-    # dict1a = cs.generate_databait_1(
-    #     df, "SubField", "Human-Computer Interaction", "JoinYear"
-    # )
-    # print("(1) " + create_setence_1(dict1a, entry_phrase, pronoun, column_phrase))
+    dict1a = cs.generate_databait_1(
+        df, "SubField", "Human-Computer Interaction", "JoinYear"
+    )
+    print("(1) " + create_setence_1(dict1a, entry_phrase, pronoun, column_phrase))
 
-    # dict1b = cs.generate_databait_1(df, "SubField", "Machine Learning & Pattern Recognition", "JoinYear")
-    # print("(1) " + create_setence_1(dict1b, entry_phrase, pronoun, column_phrase))
+    dict1b = cs.generate_databait_1(df, "SubField", "Machine Learning & Data Mining", "JoinYear")
+    print("(1) " + create_setence_1(dict1b, entry_phrase, pronoun, column_phrase))
 
-    # dict2 = cs.generate_databait_2(
-    #     df, "University", "Brown University", "Carnegie Mellon University", "JoinYear"
-    # )
-    # print("(2) " + create_setence_2(dict2, entry_phrase, column_phrase))
+    dict2 = cs.generate_databait_2(
+        df, "University", "Brown University", "Carnegie Mellon University", "JoinYear"
+    )
+    print("(2) " + create_setence_2(dict2, entry_phrase, column_phrase))
 
-    # dict2a = cs.generate_databait_2(
-    #     df, "SubField", "Human-Computer Interaction", "Machine Learning & Pattern Recognition", "JoinYear"
-    # )
-    # print("(2) " + create_setence_2(dict2a, entry_phrase, column_phrase))
+    dict2a = cs.generate_databait_2(
+        df, "SubField", "Human-Computer Interaction", "Artificial Intelligence", "JoinYear"
+    )
+    print("(2) " + create_setence_2(dict2a, entry_phrase, column_phrase))
 
-    # dict2b = cs.generate_databait_2(
-    #     df, "Gender", "Male", "Female", "JoinYear"
-    # )
-    # print("(2) " + create_setence_2(dict2b, entry_phrase, column_phrase))
+    dict3 = cs.generate_databait_3(
+        df, "University", "Brown University", "SubField", "Databases", "JoinYear"
+    )
+    print("(3) " + create_sentence_3(dict3, entry_phrase, pronoun, column_phrase))
 
-    # dict3 = cs.generate_databait_3(
-    #     df, "University", "Brown University", "SubField", "Databases", "JoinYear"
-    # )
-    # print("(3) " + create_sentence_3(dict3, entry_phrase, pronoun, column_phrase))
+    dict3a = cs.generate_databait_3(
+        df, "SubField", "Machine Learning & Data Mining", "University", "Carnegie Mellon University", "JoinYear"
+    )
+    print("(3) " + create_sentence_3(dict3a, entry_phrase, pronoun, column_phrase))
 
-    # dict3a = cs.generate_databait_3(
-    #     df, "SubField", "Software Engineering", "Gender", "Female", "JoinYear"
-    # )
-    # print("(3) " + create_sentence_3(dict3a, entry_phrase, pronoun, column_phrase))
+    dict4 = cs.generate_databait_4(
+        df,
+        "SubField",
+        "Databases",
+        "University",
+        "Brown University",
+        "Carnegie Mellon University",
+        "JoinYear",
+    )
+    print("(4) " +
+        create_sentence_4(dict4, entry_phrase, pronoun, column_phrase)
+    )
 
-    # dict4 = cs.generate_databait_4(
-    #     df,
-    #     "SubField",
-    #     "Databases",
-    #     "University",
-    #     "Brown University",
-    #     "Carnegie Mellon University",
-    #     "JoinYear",
-    # )
-    # print("(4) " +
-    #     create_sentence_4(dict4, entry_phrase, pronoun, column_phrase)
-    # )
+    dict4a = cs.generate_databait_4(
+        df,
+        "SubField",
+        "Artificial Intelligence",
+        "University",
+        "Massachusetts Institute of Technology",
+        "Carnegie Mellon University",
+        "JoinYear",
+    )
 
-    # dict4a = cs.generate_databait_4(
-    #     df,
-    #     "SubField",
-    #     "Artificial Intelligence",
-    #     "University",
-    #     "Massachusetts Institute of Technology",
-    #     "Carnegie Mellon University",
-    #     "JoinYear",
-    # )
+    print(
+        "(4) "
+        + create_sentence_4(
+            dict4a, entry_phrase, pronoun, column_phrase
+        )
+    )
 
-    # print(
-    #     "(4) "
-    #     + create_sentence_4(
-    #         dict4a, entry_phrase, pronoun, column_phrase
-    #     )
-    # )
+    dict5 = cs.generate_databait_5(df, "University", "JoinYear")
+    print("(5) " + create_sentence_5(dict5, entry_phrase, column_phrase))
 
-    # dict5 = cs.generate_databait_5(df, "University", "JoinYear")
-    # print("(5) " + create_sentence_5(dict5, entry_phrase, column_phrase))
-
-    # dict5a = cs.generate_databait_5(df, "Gender", "JoinYear")
-    # print("(5) " + create_sentence_5(dict5a, entry_phrase, column_phrase))
+    dict5a = cs.generate_databait_5(df, "SubField", "JoinYear")
+    print("(5) " + create_sentence_5(dict5a, entry_phrase, column_phrase))
 
     dict6 = cs.generate_databait_6(df, "University", "JoinYear")
     print("(6) " + create_sentence_6(dict6, entry_phrase, column_phrase))
 
-    dict6a = cs.generate_databait_6(df, "Gender", "JoinYear")
+    dict6a = cs.generate_databait_6(df, "SubField", "JoinYear")
     print("(6) " + create_sentence_6(dict6a, entry_phrase, column_phrase))
 
-    dict6b = cs.generate_databait_6(df, "SubField", "JoinYear")
-    print("(6) " + create_sentence_6(dict6b, entry_phrase, column_phrase))
+    dict7 = cs.generate_databait_7(
+        df,
+        "SubField",
+        "Artificial Intelligence",
+        "JoinYear",
+        "IBM's Deep Blue beat Garry Kasparov",
+        1997,
+    )
+    print("(7) " + create_sentence_7(dict7, entry_phrase, pronoun, column_phrase))
 
-    # dict7 = cs.generate_databait_7(
-    #     df,
-    #     "SubField",
-    #     "Artificial Intelligence",
-    #     "JoinYear",
-    #     "IBM's Deep Blue beat Garry Kasparov",
-    #     1997,
-    # )
-    # print("(7) " + create_sentence_7(dict7, entry_phrase, pronoun, column_phrase))
+    dict8 = cs.generate_databait_8(df, "Bachelors", "Doctorate")
+    print("(8) " + create_sentence_8(dict8, entry_phrase, column_phrase, column_descriptor))
 
-    # dict7a = cs.generate_databait_7(
-    #     df,
-    #     "Gender",
-    #     "Female",
-    #     "JoinYear",
-    #     "Title IX was ratified",
-    #     1972,
-    # )
-    # print("(7) " + create_sentence_7(dict7a,  entry_phrase, pronoun, column_phrase))
+    dict9 = cs.generate_databait_9(df, "University", "JoinYear", 30)
+    print("(9) " + create_sentence_9(dict9, entry_phrase, column_phrase))
 
-    # dict8 = cs.generate_databait_8(df, "Bachelors", "Doctorate")
-    # print("(8) " + create_sentence_8(dict8, column_phrases))
-
-    # dict8a = cs.generate_databait_8(df, "Bachelors", "Masters")
-    # print("(8) " + create_sentence_8(dict8a, column_phrases))
-
-    # dict9 = cs.generate_databait_9(df, "University", "JoinYear", 30)
-    # print("(9) " + create_sentence_9(dict9, entry_phrase, column_phrase))
-
-    # dict9a = cs.generate_databait_9(df, "Gender", "JoinYear", 30)
-    # print("(9) " + create_sentence_9(dict9a, entry_phrase, column_phrase))
-
-    # dict9b = cs.generate_databait_9(df, "SubField", "JoinYear", 30)
-    # print("(9) " + create_sentence_9(dict9b, entry_phrase, column_phrase))
+    dict9a = cs.generate_databait_9(df, "SubField", "JoinYear", 30)
+    print("(9) " + create_sentence_9(dict9a, entry_phrase, column_phrase))
 
     dict10 = cs.generate_databait_10(df, "SubField", "JoinYear", 20)
     print("(10) " +
@@ -496,12 +461,7 @@ if __name__ == "__main__":
         )
     )
 
-    # dict11 = cs.generate_databait_11(
-    #     df2, "sepal.length", ["sepal.width", "petal.length", "petal.width"]
-    # )
-    # print("(11) " + create_sentence_11(dict11, column_phrases2))
-
-    # dict12 = cs.generate_databait_12(
-    #     df, columns=["University", "Bachelors", "Masters", "Doctorate"]
-    # )
-    # print("(12) " + create_sentence_12(dict12, column_phrases))
+    dict12 = cs.generate_databait_12(
+        df, columns=["University", "Bachelors", "Doctorate"]
+    )
+    print("(12) " + create_sentence_12(dict12, entry_phrase, column_phrase))
