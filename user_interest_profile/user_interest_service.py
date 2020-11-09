@@ -38,7 +38,7 @@ SELECT
 
     dcs.idSuggestion AS doubleClick_idSuggestion,dcs.suggestion AS doubleClick_suggestion,dcst.name AS doubleClick_colName,dcs.idUniqueID AS doubleClick_rowID,dc.rowvalues AS doubleClick_rowValues,
 
-    se.value AS search_value, sest.name as search_colName, se.matchedValues AS search_matchedValues,
+    se.value AS search_value, se.matchedValues AS search_matchedValues,
 
     sost.name AS sort_colName,
 
