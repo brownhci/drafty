@@ -38,7 +38,7 @@ SELECT
 
     dcs.idSuggestion AS doubleClick_idSuggestion,dcs.suggestion AS doubleClick_suggestion,dcst.name AS doubleClick_colName,dcs.idUniqueID AS doubleClick_rowID,dc.rowvalues AS doubleClick_rowValues,
 
-    se.value AS search_value, se.matchedValues AS search_matchedValues,
+    se.value AS search_value, sest.name as search_colName, se.matchedValues AS search_matchedValues,
 
     sost.name AS sort_colName,
 
@@ -137,10 +137,15 @@ interactionWeights = {
     "paste" : 5,
     "scrolling": 2,
     "dwell_time": 2,
-    "highlight_duration": 2
+    "highlight_duration": 2,
+    #preliminary value
+    "searchGoogle": 5,
+    "search-full": 4
 }
 
-supported_interactions = ['doubleClick', 'click', 'editRecord', 'copy', 'paste']
+supported_interactions = ['doubleClick', 'click', 'editRecord', 'copy', 'paste', 'searchGoogle', 'search-full']
+row_value_interactions = ['doubleClick', 'click', 'copy', 'paste', 'editRecord']
+uni_col_names = ['University', 'Bachelors', 'Doctorate']
 
 interaction_to_value = {
     'click' : 'click_rowValues',
@@ -154,6 +159,7 @@ interaction_to_rowID = {
     'paste' : 'paste_rowId',
     'copy' : 'copy_rowId',
     'editRecord' : 'edit_rowId',
+    'searchGoogle' : 'searchGoogle_rowId'
 }
 def get_db_creds():
     dbuser, dbpass = 'test', 'test'
@@ -181,8 +187,7 @@ def column_order_test(cursor):
     cursor.execute(sql_col_order)
     rows = cursor.fetchall()
     print(rows,'\n')
-    for r in rows:
-        print(r['idSuggestionType'],r['name'])
+    return rows
 
 def click_test(cursor, profileID):
     cursor.execute(sql_click, profileID)
@@ -202,78 +207,80 @@ def all_interactions_test(cursor, profileID):
     rows = cursor.fetchall()
     all_row_values = []
     for row in rows:
+        row_values ={}
+        #checks if interaction is currently supported
         if row['interaction'] not in supported_interactions:
             continue
-        row_id = interaction_to_rowID[row['interaction']]
-        row_values = get_row_values(cursor, (row['idProfile'], row[row_id], row['timestamp']))
+        #if the interaction is one that has to do with rows, get the rowvalue from the last click
+        if row['interaction'] in row_value_interactions:
+            row_id = interaction_to_rowID[row['interaction']]
+            row_values = get_row_values(cursor, (row['idProfile'], row[row_id], row['timestamp']))
+        #if interaction is searchGoogle set searchGoogle values as row values
+        elif row['interaction'] == 'searchGoogle':
+            row_values['rowvalues'] = row['searchGoogle_searchValues']
+        #if interaction is search
+        elif row['interaction'] == 'search-full':
+            row_values['rowvalues'] = None
+            row_values['search_matchedValues'] = str(row['search_matchedValues'])[1:]
+            row_values['search_colName'] = row['search_colName']
+        elif row['interaction'] == 'sort':
+            print(row)
         row_values['interaction'] = row['interaction']
         # adds relevant dict entry to row_values
-        #row_values[interaction_to_value[row['interaction']]] = row[interaction_to_value[row['interaction']]]
         all_row_values.append(row_values)
     return(all_row_values)
         
 
 
 class userInterestService():
-    def __init__(self):
-        self.university = {}
-        self.subfield = {}
-        self.bachelors = {}
-        self.doctorate = {}
+    def __init__(self, columns):
+        self.columns = columns
 
 
+
+# this potentially doesn't count edits if a person has never clicked on the row before, but I'm not sure how that's possible
     def genUserScore(self, hist):
         for interact in hist:
+            if interact['interaction'] == 'search-full':
+                search_matchedValues = interact['search_matchedValues'].split('|')
+                search_col = interact['search_colName']
+                for matched_value in search_matchedValues:
+                    try:
+                        self.columns[search_col][matched_value] += interactionWeights[interact['interaction']]
+                    except:
+                        self.columns[search_col][matched_value] = interactionWeights[interact['interaction']]
             if interact['rowvalues'] != None:
                 row = interact['rowvalues'].split('|')
-                try:
-                    self.university[row[1]]+= interactionWeights[interact['interaction']]
-                except:
-                    self.university[row[1]] = interactionWeights[interact['interaction']]
-                try:
-                    self.subfield[row[3]]+= interactionWeights[interact['interaction']]
-                except:
-                    self.subfield[row[3]] = interactionWeights[interact['interaction']]
-                try:
-                    self.bachelors[row[4]]+= interactionWeights[interact['interaction']]
-                except:
-                    self.bachelors[row[4]] = interactionWeights[interact['interaction']]
-                try:
-                    self.doctorate[row[5]]+= interactionWeights[interact['interaction']]
-                except:
-                    self.doctorate[row[5]] = interactionWeights[interact['interaction']]
+                i = 0
+                for key in self.columns.keys():
+                    try:
+                        self.columns[key][row[i]] += interactionWeights[interact['interaction']]
+                    except:
+                        self.columns[key][row[i]] = interactionWeights[interact['interaction']]
+                    i+=1
             else:
                 print(interact)
 
     def genUserRec(self, profArr, emptyCount):
         profArr['Inst. Score'] = profArr['University']
         profArr['Subf. Score'] = profArr['SubField']
-        profArr['Inst. Score'] = profArr['Inst. Score'].apply(lambda x: instScoreAggregate(x, self.university, self.bachelors, self.subfield))
-        profArr['Subf. Score'] = profArr['Subf. Score'].apply(lambda x: subfScoreAggregate(x, self.subfield))
+        profArr['Inst. Score'] = profArr['Inst. Score'].apply(lambda x: instScoreAggregate(self, x, uni_col_names))
+        profArr['Subf. Score'] = profArr['Subf. Score'].apply(lambda x: subfScoreAggregate(x, self.columns['SubField']))
         profArr['Score'] = profArr['Subf. Score'] + profArr['Inst. Score']
         profArr.sort_values(by = ['Score'], ascending = False)
-        #profArr = profArr[profArr.isnull().any(axis = 1)]
         profArr['Empty Count'] = profArr.isnull().sum(axis=1)
         profArr.to_csv('createProfArr.csv')
         profArr = profArr.loc[profArr['Empty Count'] == emptyCount]
-        #profArr.to_csv('createProfArr.csv')
-       # print(profArr.sort_values(by = ['Score'], ascending = False, na_position ='first'))
 
 
-def instScoreAggregate(x, uni, bach, doct):
-    try: 
-        uniScore = uni[x]
-    except:
-        uniScore = 0
-    try: 
-        bachScore = bach[x]
-    except:
-        bachScore = 0
-    try:
-        doctScore = doct[x]
-    except:
-        doctScore = 0
-    return uniScore + bachScore + doctScore
+def instScoreAggregate(uip, x, uni_col_names):
+    total = 0
+    for i in range(len(uni_col_names)):
+        try: 
+            total += uip.columns[uni_col_names[i]]
+        except:
+            total += 0
+    return total
 
 def subfScoreAggregate(x, subfield):
     try:
@@ -304,18 +311,32 @@ def genIntHist(args, profileID):
     finally:
         db.close()
 
+def getCols():
+    db_user,db_pass = get_db_creds()
+    db = pymysql.connect(host=args.host, user=db_user,
+                         password=db_pass,
+                         db=args.database, charset='utf8mb4',
+                         cursorclass=pymysql.cursors.DictCursor)
+
+    try:
+        with db.cursor() as cursor:
+            return column_order_test(cursor)
+    except:
+        print('didnt work')
+        pass
+
 def main(args):
     profArr = pd.read_csv('finalProfs.csv')
     profArr = profArr.drop(labels = ['JoinYear'], axis = 1)
-    #profArr = profArr.dropna()
+    # gets whatever the columns are and creates dictionary using those column names
+    cols = getCols()
+    uip_columns = {}
+    for dic in cols:
+        uip_columns[dic['name']] = {}
     hist = genIntHist(args, 140368)
-    #print(hist)
-    #hist = genIntHist(args, 66430 , 'poo')
-    #print(hist[0:5])
-    user = userInterestService()
-    click = user.genUserScore(hist)
+    user = userInterestService(uip_columns)
+    user.genUserScore(hist)
     user.genUserRec(profArr, 0)
-    print(user.bachelors)
     
 
 if __name__ == '__main__':
