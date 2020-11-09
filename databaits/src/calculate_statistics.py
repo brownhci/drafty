@@ -592,6 +592,34 @@ def generate_databait_13(df, column1, column2):
         "column2": column2
     }
 
+def generate_databait_14(df, column1, column2):
+    max_count = float("-inf")
+    max_label = None 
+    min_count = float("inf")
+    min_label = None 
+    total_count = 0
+
+    all_labels= set(df[column1])
+    for label in all_labels:
+        count = df.loc[df[column1] == label][column2].sum()
+        if count >= max_count:
+            max_label = label
+            max_count = count 
+        if count <= min_count:
+            min_label = label
+            min_count = count 
+        total_count += count 
+
+    return {
+        "max_label": max_label,
+        "min_label": min_label,
+        "max_count": max_count,
+        "min_count": min_count,
+        "avg_count": total_count / len(all_labels),
+        "column1": column1,
+        "column2": column2
+    }
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate DataBaits from CSV file")
@@ -630,3 +658,4 @@ if __name__ == "__main__":
     # )
     # print(generate_databait_12(df, columns=["University","Bachelors", "Masters", "Doctorate"]))
     # print(generate_databait_13(df2, "State", "Trump votes by county"))
+    print(generate_databait_14(df2, "State", "Total Trump Votes"))

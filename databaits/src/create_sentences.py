@@ -339,6 +339,36 @@ def create_sentence_13(dict, entry_phrase):
     )
     return capitalize_first_word(sentence)
 
+# TODO: what about trillion+?
+def phrase_big_numbers(number):
+    if number >= 10**9:
+        return "%d billion" % (number / 10**9)
+    elif number >= 10**6:
+        return "%d million" % (number / 10**6)
+    elif number >= 10**3:
+        return "%d thousand" % (number / 10**3)
+    else:
+        return int(number)
+
+def create_sentence_14(dict):
+    """
+    Sample: The average State had about 1 million Total Trump Votes. 
+    Texas had the most with about 4 million Total Trump Votes, and Vermont had 
+    the least with about 95 thousand Total Trump Votes.
+    """ 
+    sentence = "The average %s had about %s %s. %s had the most with about %s %s, and %s had the least with about %s %s." % (
+        dict["column1"],
+        phrase_big_numbers(dict["avg_count"]),
+        dict["column2"],
+        dict["max_label"],
+        phrase_big_numbers(dict["max_count"]),
+        dict["column2"],
+        dict["min_label"],
+        phrase_big_numbers(dict["min_count"]),
+        dict["column2"]
+    )
+    return capitalize_first_word(sentence)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate DataBaits from CSV file")
     parser.add_argument(
@@ -483,5 +513,7 @@ if __name__ == "__main__":
     pronoun = "which"
     df2 = cs.load_csv("../data/elections.csv", args.index)
 
-    dict12 = cs.generate_databait_13(df2, "State", "Total Trump Votes")
-    print("(13) " + create_sentence_13(dict12, entry_phrase))
+    # dict13 = cs.generate_databait_13(df2, "State", "Total Trump Votes")
+    # print("(13) " + create_sentence_13(dict12, entry_phrase))
+    dict14 = cs.generate_databait_14(df2, "State", "Total Trump Votes")
+    print("(14) " + create_sentence_14(dict14))
