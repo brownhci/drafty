@@ -562,6 +562,37 @@ def generate_databait_12(df, columns=[]):
     }
 
 
+def generate_databait_13(df, column1, column2):
+    """
+    #Numerical
+
+    Template:
+    [max_label] is the most diverse [column1] in [column2] and [min_label] is the least diverse. 
+    """
+
+    max_variance = float("-inf")
+    max_label = None 
+    min_variance = float("inf")
+    min_label = None 
+
+    all_labels= set(df[column1])
+    for label in all_labels:
+        variance = df.loc[df[column1] == label][column2].var()
+        if variance >= max_variance:
+            max_label = label
+            max_variance = variance 
+        if variance <= min_variance:
+            min_label = label
+            min_variance = variance 
+
+    return {
+        "max_label": max_label,
+        "min_label": min_label,
+        "column1": column1,
+        "column2": column2
+    }
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate DataBaits from CSV file")
     parser.add_argument(
@@ -570,7 +601,7 @@ if __name__ == "__main__":
     parser.add_argument("--index", help="the index column for the pandas dataframe")
     args = parser.parse_args()
     df = load_csv(args.csv, args.index)
-    df2 = load_csv("../data/iris.csv", args.index)
+    df2 = load_csv("../data/elections.csv", args.index)
     # print(generate_databait_1(df, "University", "Brown University", "JoinYear"))
     # print(generate_databait_1(df, "University", "Carnegie Mellon University", "JoinYear"))
     # print(generate_databait_2(df, "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
@@ -598,3 +629,4 @@ if __name__ == "__main__":
     #     )
     # )
     # print(generate_databait_12(df, columns=["University","Bachelors", "Masters", "Doctorate"]))
+    # print(generate_databait_13(df2, "State", "Trump votes by county"))
