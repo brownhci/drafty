@@ -11,8 +11,9 @@ import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } f
 import { tableFoot } from "./modules/components/sheet/table-foot";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
-import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement } from "./modules/dom/sheet";
+import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams } from "./modules/dom/sheet";
 import { isInput, isTableData, isTableHead, isTableCell } from "./modules/dom/types";
+
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
 
@@ -390,3 +391,5 @@ tableElement.addEventListener("mouseup", function(event: MouseEvent) {
 
 // initially sort on University A-Z
 tableCellSortButtonOnClick(tableElement.querySelectorAll(".sort-btn")[1] as HTMLButtonElement, false);
+
+checkUrlForSearchParams();

@@ -190,3 +190,21 @@ export function* getTableCellTextsInColumn(index: number, skipColumnLabel: boole
     yield getTableCellText(tableCellElement);
   }
 }
+
+export function checkUrlForSearchParams() {
+  //console.log(document.getElementById('view').childNodes.length);
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const searchInputElement: HTMLInputElement = document.getElementById(`column-search-input${urlParams.get("searchCol")}`) as HTMLInputElement;
+  searchInputElement.value = urlParams.get("searchVal");
+
+  const checkTableDataLoaded = setInterval(function() {
+    clearInterval(checkTableDataLoaded);
+    if (document.getElementById("view").childNodes.length > 1) {
+        if(urlParams.has("searchCol") && urlParams.has("searchVal")) {
+          const eventInput = new Event("input");
+          searchInputElement.dispatchEvent(eventInput); 
+        }
+    }
+  }, 100); // check every 100ms
+}
