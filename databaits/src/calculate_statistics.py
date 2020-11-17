@@ -7,7 +7,7 @@ import datetime
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
-# Will search at most this many years into the past
+# Search at most this many years into the past
 MAX_YEAR_RANGE = 30
 
 
@@ -19,44 +19,86 @@ def generate_databait_1(df, data_column, label, time_column):
     """
     #Categorical, #Time
 
-    Template:
-    The total number of [label in column] grew/shrank [rate]% in the past [time range].
-
-    Params:
-        data_column: column to search for label in
-        label: label to find in column
-        time_column: name of column with time data
-
+    Template: Over the past <time_range> years, the total number of <entry phrase> <pronoun>
+    <column phrase> <label> <growth phrase>.  
+    
+    Sample: Over the past 25 years, the total number of CS professors who 
+    specialized in Human-Computer Interaction more than quadrupled.
+    
     Returns:
-        dictionary of label, growth (in percentage), and time range
+        Dict including time range with the highest % growth for label 
     """
-    # Create a series that counts how many times a year value appears
-    rows_with_label = df.loc[df[data_column] == label][time_column]
-    rows_with_label.dropna(inplace=True)
-    # TODO: Write a general method to format dates. This is just for CS professors dataset.
+    # Create series that maps year to # of times label appears in year
+    rows_with_label = df.loc[df[data_column] == label][time_column].dropna()
     time_formatted = rows_with_label.astype("int32")
     time_counts = time_formatted.value_counts().sort_index(ascending=False)
-    # Search for optimal time range by iterating through time ranges,
-    # increasing by 5 years, up to 30 years
-    now = datetime.datetime.now()
-    current_year = now.year
+
+    current_year = datetime.datetime.now().year
     earliest_year = time_counts.index[-1]
     optimal_range = 0
     optimal_rate = 0
+
+    # Finds time range with the greatest rate of growth (%)
     for decrement in range(5, min(MAX_YEAR_RANGE, current_year - earliest_year + 1), 5):
         pivot_year = current_year - decrement
-        previous_sum = time_counts.loc[time_counts.index < pivot_year].sum()
-        if previous_sum == 0:
+        before_pivot = time_counts.loc[time_counts.index < pivot_year].sum()
+        if before_pivot == 0: # Moving further back won't get us any additional values
             break
-        added_values = time_counts.loc[time_counts.index >= pivot_year].sum()
-        if abs(added_values / previous_sum) > abs(optimal_rate):
+        after_pivot = time_counts.loc[time_counts.index >= pivot_year].sum()
+        if after_pivot / before_pivot > optimal_rate:
             optimal_range = decrement
-            optimal_rate = added_values / previous_sum
+            optimal_rate = after_pivot / before_pivot
+    
+    if optimal_range == 0:
+        raise ValueError("DataBait 1: No values within the last %d years for %s." % (MAX_YEAR_RANGE, label))
     return {
         "label": label,
         "column": data_column,
-        "rate": optimal_rate * 100,
         "time_range": optimal_range,
+        "rate": optimal_rate * 100,
+    }
+
+def generate_databait_1a(df, label_column, label, count_column, time_column):
+    """
+    #Categorical, #Time
+
+    Template: Over the past <time_range> years, the total number of <entry phrase> <pronoun>
+    <column phrase> <label> <growth phrase>.  
+    
+    Sample: Over the past 25 years, the total number of global sales for games from Nintendo 
+    increased x%. 
+    
+    Returns:
+        Dict including time range with the highest % growth for label 
+    """
+    rows_with_label = df.loc[df[label_column] == label][[count_column, time_column]].dropna()
+    rows_formatted = rows_with_label.astype({time_column: "int32", count_column: "float32"})
+    counts_by_year = rows_formatted.groupby([time_column]).sum().sort_index(ascending=False)
+    
+    current_year = datetime.datetime.now().year
+    earliest_year = counts_by_year.index[-1]
+    optimal_range = 0
+    optimal_rate = 0
+
+    # Finds time range with the greatest rate of growth (%)
+    for decrement in range(5, min(MAX_YEAR_RANGE, current_year - earliest_year + 1), 5):
+        pivot_year = current_year - decrement
+        before_pivot = counts_by_year.loc[counts_by_year.index < pivot_year][count_column].sum()
+        if before_pivot == 0: # Moving further back won't get us any additional values
+            break
+        after_pivot = counts_by_year.loc[counts_by_year.index >= pivot_year][count_column].sum()
+        if after_pivot / before_pivot > optimal_rate:
+            optimal_range = decrement
+            optimal_rate = after_pivot / before_pivot
+    
+    if optimal_range == 0:
+        raise ValueError("DataBait 1: No values within the last %d years for %s." % (MAX_YEAR_RANGE, label))
+    return {
+        "label": label,
+        "label_column": label_column,
+        "count_column": count_column,
+        "time_range": optimal_range,
+        "rate": optimal_rate * 100,
     }
 
 
@@ -192,6 +234,12 @@ def generate_databait_4(
     # increasing by 5 years, up to 30 years
     now = datetime.datetime.now()
     current_year = now.year
+
+    if len(a_counts) == 0:
+        raise ValueError("There are no values in the time range for %s" % label_a)
+    if len(b_counts) == 0:
+        raise ValueError("There are no values in the time range for %s" % label_b)
+
     earliest_year = max(a_counts.index[-1], b_counts.index[-1])
     optimal_range = 0
     optimal_rate = 0
@@ -214,8 +262,9 @@ def generate_databait_4(
             bigger_label = label_a if added_values_a >= added_values_b else label_b
             smaller_label = label_a if bigger_label == label_b else label_b
     
+    # TODO: make more detailed error (which input is the problem?)
     if bigger_label is None:
-        raise ValueError("There are no entries in the database that match the inputs for DataBait 4")
+        raise ValueError("Not enough entries for the inputs for DataBait 4 occur in overlapping time intervals")
 
     return {
         "shared_label": shared_label,
@@ -630,32 +679,70 @@ if __name__ == "__main__":
     args = parser.parse_args()
     df = load_csv(args.csv, args.index)
     df2 = load_csv("../data/elections.csv", args.index)
-    # print(generate_databait_1(df, "University", "Brown University", "JoinYear"))
-    # print(generate_databait_1(df, "University", "Carnegie Mellon University", "JoinYear"))
-    # print(generate_databait_2(df, "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
-    # print(generate_databait_3(df, "University", "Brown University",
-    #     "SubField", "Databases", "JoinYear"))
-    # print(generate_databait_4(df, "SubField", "Databases", "University", "Brown University", "Carnegie Mellon University", "JoinYear"))
-    # print(generate_databait_5(df, "University", "JoinYear"))
-    # print(generate_databait_6(df, "University", "JoinYear"))
-    # print(
-    #     generate_databait_7(
-    #         df,
-    #         "SubField",
-    #         "Artificial Intelligence",
-    #         "JoinYear",
-    #         "IBM's Deep Blue beat Garry Kasparov",
-    #         1997,
-    #     )
-    # )
-    # print(generate_databait_8(df, "Bachelors", "Doctorate"))
-    # print(generate_databait_9(df, "University", "JoinYear", 30))
-    # print(generate_databait_10(df, "SubField", "JoinYear", 20))
-    # print(
-    #     generate_databait_11(
-    #         df2, "sepal.length", ["sepal.width", "petal.length", "petal.width"]
-    #     )
-    # )
-    # print(generate_databait_12(df, columns=["University","Bachelors", "Masters", "Doctorate"]))
-    # print(generate_databait_13(df2, "State", "Trump votes by county"))
-    print(generate_databait_14(df2, "State", "Total Trump Votes"))
+    df3 = load_csv("../data/vgsales.csv", args.index)
+    print(generate_databait_1a(df3, "Publisher", "Nintendo", "Global_Sales", "Year"))
+    print(generate_databait_1(df, "University", "Brown University", "JoinYear"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
