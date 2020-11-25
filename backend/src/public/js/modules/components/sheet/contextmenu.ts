@@ -156,7 +156,7 @@ tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
     case "Paste":
       pasteToTableCellElement(activeTableCellElement);
       break;
-    case "Insert Row":
+    case "Add Row":
       menuItem.toggle();
       tableFoot.toggle(StatusMode.Insertion);
       break;
@@ -176,7 +176,7 @@ columnLabelContextMenu.addEventListener("click", function(event: MouseEvent) {
     case "Copy":
       copyTableCellElement(activeTableCellElement);
       break;
-    case "Insert Row":
+    case "Add Row":
       menuItem.toggle();
       tableFoot.toggle(StatusMode.Insertion);
       break;
