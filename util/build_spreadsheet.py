@@ -105,13 +105,7 @@ def build_table_foot_cell(column_index):
 def build_table_foot():
     controls = '''
     <th scope="col" tabindex="-1">
-        <div style="position:fixed !important; left: 0px !important; bottom: 1.5rem !important;">
-            <button type="button" id="close-newrow"><span class="sr-only sr-only-focusable">Close</span></button>
-            <button type="button" id="discard-newrow"><span class="sr-only sr-only-focusable">Discard</span></button>
-        </div>
-        <div style="position:fixed !important; right: 0px !important; bottom: 1.5rem !important;">
-            <button type="button" id="confirm-newrow" class="disabled">Save Row</button>
-        </div>
+        
     </th>
     '''
     return f'<tfoot><tr>{"".join(build_table_foot_cell(column_index) for column_index in range(num_columns))}</tr><tr>{controls}</tr></tfoot>'
