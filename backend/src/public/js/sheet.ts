@@ -1,6 +1,7 @@
 import { recordCellClick, recordCellDoubleClick } from "./modules/api/record-interactions";
 import { activeClass, activeAccompanyClass } from "./modules/constants/css-classes";
 import "./modules/components/welcome-screen";
+import "./modules/components/sheet/navbar";
 import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "./modules/components/sheet/resize-column";
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
 import { cellEditor } from "./modules/components/sheet/cell-editor";
