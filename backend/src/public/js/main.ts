@@ -9,5 +9,5 @@ import "./modules/components/flash-messages";
 const scale: string = "scale(1)";
 document.body.style.webkitTransform =  scale;    // Chrome, Opera, Safari
 //document.body.style.msTransform     =   scale;   // IE 9 :: sw getting a TS error saying this doesn't exist
-document.body.style.transform       = scale;     // General
+document.body.style.transform = scale;     // General
 document.body.style.zoom = "1"; // 100%
