@@ -185,9 +185,10 @@ class TableFoot {
     this.insertionDiscardButton.type = "button";
     this.insertionDiscardButton.id = "discard-newrow";
     const insertionDiscardScreenReaderText = document.createElement("span");
-    insertionDiscardScreenReaderText.textContent = "Discard";
+    insertionDiscardScreenReaderText.textContent = "Reset";
     insertionDiscardScreenReaderText.classList.add("sr-only", "sr-only-focusable");
     this.insertionDiscardButton.appendChild(insertionDiscardScreenReaderText);
+    this.insertionDiscardButton.textContent = " Reset";
 
     this.insertionCloseButton.type = "button";
     this.insertionCloseButton.id = "close-newrow";
@@ -195,6 +196,7 @@ class TableFoot {
     insertionCloseScreenReaderText.textContent = "Close";
     insertionCloseScreenReaderText.classList.add("sr-only", "sr-only-focusable");
     this.insertionCloseButton.appendChild(insertionCloseScreenReaderText);
+    this.insertionCloseButton.textContent = " Close";
 
     /* error message initialization */
     this.insertionErrorMessage.id = "newrow-error";
@@ -228,7 +230,7 @@ class TableFoot {
       }
     }, true);
 
-    tableElement.addEventListener("blur", (event: Event) => {
+    tableElement.addEventListener("input", (event: Event) => {
       const target = event.target as HTMLElement;
       if (this.isNewRowInsertionInput(target)) {
         const columnIndex = this.insertionInputs.indexOf(target as HTMLInputElement);
@@ -240,7 +242,6 @@ class TableFoot {
 
     tableElement.addEventListener("focus", (event: Event) => {
       const target = event.target as HTMLElement;
-
       if (this.isNewRowInsertionInput(target) && target.classList.contains(invalidClass)) {
         this.insertionErrorMessage.textContent = target.dataset.errorMessage;
         this.statusTableCell.appendChild(this.insertionErrorMessage);
@@ -274,6 +275,7 @@ class TableFoot {
   }
 
   private reportInvalidInput(inputElement: HTMLInputElement, reason: string) {
+    inputElement.placeholder = "required...";
     inputElement.classList.add(invalidClass);
     inputElement.dataset.errorMessage = reason;
     this.insertionConfirmButton.classList.add(disabledClass);
