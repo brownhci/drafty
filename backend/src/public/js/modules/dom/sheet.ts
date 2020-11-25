@@ -196,7 +196,9 @@ export function checkUrlForSearchParams() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const searchInputElement: HTMLInputElement = document.getElementById(`column-search-input${urlParams.get("searchCol")}`) as HTMLInputElement;
-  searchInputElement.value = urlParams.get("searchVal");
+  if(urlParams.get("searchVal")) {
+    searchInputElement.value = urlParams.get("searchVal");
+  }
 
   const checkTableDataLoaded = setInterval(function() {
     clearInterval(checkTableDataLoaded);
