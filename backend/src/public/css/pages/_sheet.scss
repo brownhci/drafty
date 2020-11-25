@@ -480,7 +480,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
 
         button#confirm-newrow {
           @extend .btn-success;
-          right: $table-cell-padding;
+          left: $table-cell-padding;
           &::before {
             content: "\f0c7";
             @extend .mr-2;
@@ -488,15 +488,15 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
         }
         button#discard-newrow {
           @extend .btn-outline-secondary;
-          left: 4rem;
-          &::after {
+          left: 142px;
+          &::before {
             content: "\f2ea";
           }
         }
         button#close-newrow {
           @extend .btn-outline-secondary;
-          left: $table-cell-padding;
-          &::after {
+          left: 240px;
+          &::before {
             content: "\f00d";
           }
         }
