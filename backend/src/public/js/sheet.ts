@@ -392,5 +392,6 @@ tableElement.addEventListener("mouseup", function(event: MouseEvent) {
 
 // initially sort on University A-Z
 tableCellSortButtonOnClick(tableElement.querySelectorAll(".sort-btn")[1] as HTMLButtonElement, false);
+tableCellSortButtonOnClick(tableElement.querySelectorAll(".sort-btn")[0] as HTMLButtonElement, false);
 
 checkUrlForSearchParams();
