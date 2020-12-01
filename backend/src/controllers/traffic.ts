@@ -6,10 +6,10 @@ const trackedViews = ["","csopenrankings","csprofessors","account","login","sign
 
 function parseSid(data: string) {
     try {
-        let sid = data.split('connect.sid=')[1];
+        const sid = data.split("connect.sid=")[1];
         return sid;
     } catch (error) {
-        return 'none';
+        return "none";
     }
 }
 
