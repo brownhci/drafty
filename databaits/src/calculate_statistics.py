@@ -277,7 +277,6 @@ def generate_databait_3a(df, column1, label1, column2, label2, count_column, tim
     }
 
 
-
 def generate_databait_4(
     df, column1, shared_label, column2, label_a, label_b, time_column
 ):
@@ -355,24 +354,22 @@ def generate_databait_5(df, data_column, time_column):
     """
     #Categorical, #Time
 
-    Template:
-    [max/min label] was [rate]% higher/lower than the average [column] in the past [time range].
-    **only supports max for now
+    Sample:  More than four times as many CS professors were hired by 
+    Carnegie Mellon University than by the average university in the past 25 years.
 
+    Template: <growth phrase> <entry phrase> <column phrase> <max label> 
+    than <column phrase-short> the average <column> in the past <time_range> years. 
     """
+
     # Preprocess data to remove NaN and non-numeric time column (year) values
     cleaned_df = df.dropna(subset=[time_column])[[time_column, data_column]]
-    # valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
-    # cleaned_df = cleaned_df[valid_year_filter]
     cleaned_df = cleaned_df.astype({time_column: "int32"})
 
-    now = datetime.datetime.now()
-    current_year = now.year
+    current_year = datetime.datetime.now().year
     optimal_range = 0
     optimal_rate = 0
     optimal_label = None
-    # Search for optimal time range by iterating through time ranges,
-    # increasing by 5 years, up to 30 years
+    # Search for optimal time range
     for decrement in range(5, MAX_YEAR_RANGE, 5):
         pivot_year = current_year - decrement
         entries_in_time_range = cleaned_df.loc[cleaned_df[time_column] >= pivot_year][
@@ -396,6 +393,52 @@ def generate_databait_5(df, data_column, time_column):
     return {
         "max_label": optimal_label,
         "column": data_column,
+        "rate": optimal_rate * 100,
+        "time_range": optimal_range,
+    }
+
+def generate_databait_5a(df, label_column, count_column, time_column):
+    """
+    #Numerical, #Time
+
+    Sample: In the past 25 years, games released by Nintendo had 
+    7 times higher Global Sales than those released by the average company. 
+
+    Template: In the past <time range> years, <entry phrase> <label_column_phrase> <max_label>
+    had <rate phrase> higher <count column> than those <label_column_phrase> the average
+    <label>.
+    """
+    # Preprocess data to remove NaN and non-numeric time column (year) values
+    cleaned_df = df.dropna(subset=[time_column])[[time_column, label_column, count_column]]
+    cleaned_df = cleaned_df.astype({time_column: "int32", count_column: "float32"})
+
+    current_year = datetime.datetime.now().year
+    optimal_range = 0
+    optimal_rate = 0
+    optimal_label = None
+    # Search for optimal time range
+    for decrement in range(5, MAX_YEAR_RANGE, 5):
+        pivot_year = current_year - decrement
+        entries_in_time_range = cleaned_df.loc[cleaned_df[time_column] >= pivot_year][[label_column, count_column]]
+        counts = entries_in_time_range.groupby([label_column]).sum()
+
+        max_label, max_count = counts.idxmax(), counts.max()
+        avg_of_others = (counts.sum() - max_count) / (len(counts.index) - 1)
+        if avg_of_others == 0:
+            continue
+        diff = (max_count - avg_of_others) / avg_of_others
+        if diff > optimal_rate:
+            optimal_rate = diff
+            optimal_range = decrement
+            optimal_label = max_label
+
+    if optimal_label is None:
+        raise ValueError("Please pick different inputs for DataBait 5")
+
+    return {
+        "max_label": optimal_label,
+        "label_column": label_column,
+        "count_column": count_column,
         "rate": optimal_rate * 100,
         "time_range": optimal_range,
     }
