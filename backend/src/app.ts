@@ -9,7 +9,7 @@ import path from "path";
 import passport from "passport";
 // import fs from "fs"; // sw unused for now
 import { DB_HOST, DB_USER, DB_PASSWORD, SESSION_SECRET } from "./util/secrets";
-import * as trafficLogger from "./util/traffic_logger";
+import * as trafficLogger from "./controllers/traffic";
 
 // Create session file store
 // import sessionFileStore from "session-file-store";
@@ -73,13 +73,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 // home site rendering
-app.get("/flask", homeCtrl.flaskTest);
 app.get("/", homeCtrl.index);
 
 // Session
 const days = 10800; // we will manually manage sessions
 const age = days * 24 * 60 * 60 * 1000; // days * hours * minutes * seconds * milliseconds
-
 app.use(session({
     secret: SESSION_SECRET,
     name: "security_protection",
@@ -122,12 +120,6 @@ app.use(helmet());
 //GLOBAL MIDDLEWARE
 app.use(userCtrl.checkSessionUser);
 app.use(userCtrl.checkSessionId);
-/* sw - commenting out for now since we are not using the FileStore sessions
-app.use((req, res, next) => {
-    res.locals.user = req.user;
-    next();
-});
-*/
 
 /**
  * Primary app routes.
