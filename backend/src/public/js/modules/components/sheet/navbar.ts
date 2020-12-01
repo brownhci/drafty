@@ -8,7 +8,7 @@ navBarAddRow.innerHTML = `
                     Add Row
                 </span>
              </li>
-`
+`;
 navBar.appendChild(navBarAddRow);
 
 navBarAddRow.addEventListener("click", function(event: MouseEvent) {
