@@ -4,7 +4,7 @@ import logger from "../util/logger";
 
 const yamlPath = "sheets.yaml";
 const dir = "sheets/";
-const sheetsUrl = "sheets/";
+const sheetsUrl = "";
 
 export const sheetsData = new Map();
 export const sheetNameToURL = new Map();
