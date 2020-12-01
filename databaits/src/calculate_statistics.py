@@ -60,16 +60,13 @@ def generate_databait_1(df, data_column, label, time_column):
 
 def generate_databait_1a(df, label_column, label, count_column, time_column):
     """
-    #Categorical, #Time
-
-    Template: Over the past <time_range> years, the total number of <entry phrase> <pronoun>
-    <column phrase> <label> <growth phrase>.  
+    #Numerical, #Time
     
     Sample: Over the past 25 years, the total number of global sales for games from Nintendo 
     increased x%. 
     
     Returns:
-        Dict including time range with the highest % growth for label 
+        Dict including time range with the highest % growth in count_column for label 
     """
     rows_with_label = df.loc[df[label_column] == label][[count_column, time_column]].dropna()
     rows_formatted = rows_with_label.astype({time_column: "int32", count_column: "float32"})
@@ -106,9 +103,8 @@ def generate_databait_2(df, data_column, label1, label2, time_column):
     """
     #Categorical, #Time
 
-    Template:
-    The total number of [max(label1, label2) in column] grew/shrank [rate]% more than
-    [min(label1, label2) in column] in [time range].
+    Sample: 5 times as many CS professors were hired by 
+    Carnegie Mellon University than by Brown University in the past 25 years.
 
     Returns:
         dictionary of bigger_label, smaller_label, rate, and time_range
@@ -127,8 +123,7 @@ def generate_databait_2(df, data_column, label1, label2, time_column):
 
     # Search for optimal time range by iterating through time ranges,
     # increasing by 5 years, up to 30 years
-    now = datetime.datetime.now()
-    current_year = now.year
+    current_year = datetime.datetime.now().year
     earliest_year = max(time_counts1.index[-1], time_counts2.index[-1])
     optimal_range = 0
     optimal_rate = 0
@@ -156,36 +151,73 @@ def generate_databait_2(df, data_column, label1, label2, time_column):
     }
 
 
+def generate_databait_2a(df, label_column, label1, label2, count_column, time_column):
+    """
+    #Numerical, #Time 
+
+    Sample: In the past x years, games categorized as Action had x% more Global Sales than
+    those categorized as Sports.  
+    """
+    rows_with_label1 = df.loc[df[label_column] == label1][[count_column, time_column]].dropna()
+    rows_formatted1 = rows_with_label1.astype({time_column: "int32", count_column: "float32"})
+    counts_by_year1 = rows_formatted1.groupby([time_column]).sum().sort_index(ascending=False)
+
+    rows_with_label2 = df.loc[df[label_column] == label2][[count_column, time_column]].dropna()
+    rows_formatted2 = rows_with_label2.astype({time_column: "int32", count_column: "float32"})
+    counts_by_year2 = rows_formatted2.groupby([time_column]).sum().sort_index(ascending=False)
+
+    current_year = datetime.datetime.now().year
+    earliest_year = max(counts_by_year1.index[-1], counts_by_year2.index[-1])
+    optimal_range = 0
+    optimal_rate = 0
+    bigger_label = None
+    smaller_label = None
+
+    for decrement in range(5, min(MAX_YEAR_RANGE, current_year - earliest_year + 1), 5):
+        pivot_year = current_year - decrement
+        added_values1 = counts_by_year1.loc[counts_by_year1.index >= pivot_year].sum()
+        added_values2 = counts_by_year2.loc[counts_by_year2.index >= pivot_year].sum()
+
+        diff = abs(added_values1 - added_values2) / min(added_values1, added_values2)
+        if diff > abs(optimal_rate):
+            optimal_range = decrement
+            optimal_rate = diff
+            if added_values1 > added_values2:
+                bigger_label, smaller_label = label1, label2
+            else:
+                bigger_label, smaller_label = label2, label1
+    return {
+        "bigger_label": bigger_label,
+        "smaller_label": smaller_label,
+        "column": count_column,
+        "rate": optimal_rate * 100,
+        "time_range": optimal_range,
+    }
+
+
 def generate_databait_3(df, column1, label1, column2, label2, time_column):
     """
     #Categorical, #Time
 
-    Template:
-    The total number of [label1 in column1, filtered by label2 in column2]
-    grew/shrank [rate]% in the past [time range].
-    e.g.) The total number of HCI professors at Brown University grew ...
+    Sample: Over the past 20 years, the total number of CS professors who 
+    were hired by Brown University and specialized in Databases tripled.
 
-    Returns:
-        dictionary of label1, label2, rate, time_range
-
+    Template: Over the past <time_range> years, the total number of <entry phrase>
+    <pronoun> <column phrase1> <label1> <column phrase2> <label2> <growth phrase>. 
     """
-    # Create a series that counts how many times a year value appears
+    # Create a series that counts how many times a year entries with label1 and 2 appear
     rows_with_label = df.loc[df[column1] == label1].loc[df[column2] == label2][
         time_column
-    ]
-    rows_with_label.dropna(inplace=True)
-    # TODO: Write a general method to format dates. This is just for CS professors dataset.
+    ].dropna()
     time_formatted = rows_with_label.astype("int32")
     time_counts = time_formatted.value_counts().sort_index(ascending=False)
-    # Search for optimal time range by iterating through time ranges,
-    # increasing by 5 years, up to 30 years
-    now = datetime.datetime.now()
-    current_year = now.year
+
+    # Search for optimal time range
+    current_year = datetime.datetime.now().year
     earliest_year = time_counts.index[-1]
     optimal_range = 0
     optimal_rate = 0
     for decrement in range(5, min(MAX_YEAR_RANGE, current_year - earliest_year + 1), 5):
-        # NOTE: This should look differently if the data itself is cumulative
         pivot_year = current_year - decrement
         previous_sum = time_counts.loc[time_counts.index < pivot_year].sum()
         if previous_sum == 0:
@@ -202,6 +234,48 @@ def generate_databait_3(df, column1, label1, column2, label2, time_column):
         "rate": optimal_rate * 100,
         "time_range": optimal_range,
     }
+
+def generate_databait_3a(df, column1, label1, column2, label2, count_column, time_column):
+    """
+    #Numerical, Time
+
+    Sample: Over the past 20 years, the total Global Sales for games 
+    categorized as Action and released by Nintendo grew x times. 
+
+    Template: Over the past <time_range> years, the total <count column> for <entry phrase>
+    <column phrase1> <label1> and <column phrase2> <label2> <growth phrase>. 
+    """
+    # Create a series that sums counts by year for entries satisfying both labels 1 and 2
+    rows_with_label = df.loc[df[column1] == label1].loc[df[column2] == label2][
+        [count_column, time_column]
+    ].dropna()
+    data_formatted = rows_with_label.astype({time_column: "int32", count_column: "float32"})
+    time_counts = data_formatted.groupby([time_column]).sum().sort_index(ascending=False)
+
+    # Search for optimal time range
+    current_year = datetime.datetime.now().year
+    earliest_year = time_counts.index[-1]
+    optimal_range = 0
+    optimal_rate = 0
+    for decrement in range(5, min(MAX_YEAR_RANGE, current_year - earliest_year + 1), 5):
+        pivot_year = current_year - decrement
+        previous_sum = time_counts.loc[time_counts.index < pivot_year][count_column].sum()
+        if previous_sum == 0:
+            break
+        added_values = time_counts.loc[time_counts.index >= pivot_year][count_column].sum()
+        if abs(added_values / previous_sum) > abs(optimal_rate):
+            optimal_range = decrement
+            optimal_rate = added_values / previous_sum
+    return {
+        "label1": label1,
+        "label2": label2,
+        "column1": column1,
+        "column2": column2,
+        "count_column": count_column,
+        "rate": optimal_rate * 100,
+        "time_range": optimal_range,
+    }
+
 
 
 def generate_databait_4(
