@@ -7,8 +7,9 @@ import lusca from "lusca";
 import flash from "express-flash";
 import path from "path";
 import passport from "passport";
-import fs from "fs";
+// import fs from "fs"; // sw unused for now
 import { DB_HOST, DB_USER, DB_PASSWORD, SESSION_SECRET } from "./util/secrets";
+import * as trafficLogger from "./util/traffic_logger";
 
 // Create session file store
 // import sessionFileStore from "session-file-store";
@@ -40,7 +41,10 @@ app.disable("x-powered-by");
 app.set("port", process.env.PORT || 3000);
 app.set("trust proxy", true); // sw: for production reverse proxy
 
-//static files
+// global view logger middleware
+app.use(trafficLogger.trafficLogger);
+
+// static files
 app.use("/csopenrankingstest", middlewareTests.urls, express.static("/vol/csopenrankings"));
 app.use("/csopenrankings", express.static("/vol/csopenrankings"));
 app.use("/csopenrankingslocal", express.static(path.join(__dirname, "../../../../CSRankings"), { maxAge: 30000 }));
