@@ -67,7 +67,8 @@ $components: "#login-component", "#signup-component", "#forget-component";
   @include media-breakpoint-up(md) {
     $width: 500px;
     #info-section {
-        width: $width;
+        width: 100%;
+        margin-top: 1em;
     }
     @each $component in $components {
       #{$component} {
