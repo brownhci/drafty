@@ -1,6 +1,6 @@
 import { db,logDbErr } from "./mysql";
 
-const stmtInsertTraffic: string = "INSERT INTO users.Traffic (idTraffic, ip, url, host, origin, sid) VALUES (NULL, NULL, ?, ?, ?, ?);";
+const stmtInsertTraffic: string = "INSERT INTO users.Traffic (idTraffic, url, host, origin, sid) VALUES (NULL, ?, ?, ?, ?);";
 
 /**
  * save new page view (i.e. traffic) across drafty.cs.brown.edu
