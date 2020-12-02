@@ -7,6 +7,7 @@ import lusca from "lusca";
 import flash from "express-flash";
 import path from "path";
 import passport from "passport";
+import cookieParser from "cookie-parser";
 // import fs from "fs"; // sw unused for now
 import { DB_HOST, DB_USER, DB_PASSWORD, SESSION_SECRET } from "./util/secrets";
 import * as trafficLogger from "./controllers/traffic";
@@ -16,6 +17,7 @@ import * as trafficLogger from "./controllers/traffic";
 // const sessionStore = sessionFileStore(session); // FileStore
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const MySQLStore = require("express-mysql-session")(session); // MySQLStore
+console.log(MySQLStore);
 
 // Ctrls (route handlers)
 import * as helpCtrl from "./controllers/help";
@@ -42,6 +44,7 @@ app.set("port", process.env.PORT || 3000);
 app.set("trust proxy", true); // sw: for production reverse proxy
 
 // global view logger middleware
+app.use(cookieParser());
 app.use(trafficLogger.trafficLogger);
 
 // static files
