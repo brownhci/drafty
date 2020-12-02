@@ -446,16 +446,15 @@ def generate_databait_5a(df, label_column, count_column, time_column):
 
 def generate_databait_6(df, data_column, time_column):
     """
-    #Categorical, #Time
+    #Categorical #Time
 
-    Template:
-    [Proportion]% of [column] in the past [time_range] comes from [label].
+    Sample: 13% of all new CS professors from the past 5 years specialized in Security & Privacy.
 
+    Template: <proportion>% of all new <entry phrase> in the past <time_range> years 
+    <column phrase> <max label>. 
     """
     # Preprocess data to remove NaN and non-numeric time column (year) values
     cleaned_df = df.dropna(subset=[time_column])[[time_column, data_column]]
-    # valid_year_filter = [year.isnumeric() for year in cleaned_df[time_column]]
-    # cleaned_df = cleaned_df[valid_year_filter]
     cleaned_df = cleaned_df.astype({time_column: "int32"})
 
     now = datetime.datetime.now()
@@ -463,8 +462,7 @@ def generate_databait_6(df, data_column, time_column):
     optimal_range = 0
     optimal_proportion = 0
     optimal_label = None
-    # Search for optimal time range by iterating through time ranges,
-    # increasing by 5 years, up to 30 years
+    # Search for optimal time range
     for decrement in range(5, MAX_YEAR_RANGE, 5):
         pivot_year = current_year - decrement
         entries_in_time_range = cleaned_df.loc[cleaned_df[time_column] >= pivot_year][
@@ -486,6 +484,46 @@ def generate_databait_6(df, data_column, time_column):
         "max_label": optimal_label,
     }
 
+def generate_databait_6a(df, label_column, count_column, time_column):
+    """
+    #Numerical #Time
+    
+    Sample: 13% of all new games from the past 5 years were released by Nintendo.
+
+    Template: <proportion>% of all new <entry phrase> in the past <time_range> years 
+    <column phrase> <max label>. 
+    """
+    
+    # Preprocess data to remove NaN and non-numeric time column (year) values
+    cleaned_df = df.dropna(subset=[time_column])[[time_column, label_column, count_column]]
+    cleaned_df = cleaned_df.astype({time_column: "int32", count_column: "float32"})
+
+    current_year = datetime.datetime.now().year
+    optimal_range = 0
+    optimal_proportion = 0
+    optimal_label = None
+    # Search for optimal time range
+    for decrement in range(5, MAX_YEAR_RANGE, 5):
+        pivot_year = current_year - decrement
+        entries_in_time_range = cleaned_df.loc[cleaned_df[time_column] >= pivot_year][
+            [label_column, count_column]
+        ]
+        counts = entries_in_time_range.groupby([label_column]).sum()
+        max_label, max_count = counts.idxmax(), counts.max()
+        total_counts = counts.sum()
+        proportion = max_count / total_counts
+        if proportion > optimal_proportion:
+            optimal_range = decrement
+            optimal_proportion = proportion
+            optimal_label = max_label
+
+    return {
+        "proportion": optimal_proportion * 100,
+        "label_column": label_column,
+        "count_column": count_column,
+        "time_range": optimal_range,
+        "max_label": optimal_label,
+    }
 
 def generate_databait_7(df, data_column, label, time_column, event, year):
     """
@@ -501,26 +539,56 @@ def generate_databait_7(df, data_column, label, time_column, event, year):
         .dropna(subset=[time_column])
         .astype({time_column: "int32"})
     )
-    count_at_event = len(rows_with_label.loc[rows_with_label[time_column] <= year])
-    if count_at_event == 0:
+    before = len(rows_with_label.loc[rows_with_label[time_column] < year])
+    if before == 0:
         raise ValueError(
-            "Please change inputs for DataBait 5.  \
+            "Please change inputs for DataBait 7.  \
                 There are no records for the input label prior to the year of the input event."
         )
-    latest_year = rows_with_label[time_column].max()
-    count_at_present = len(
-        rows_with_label.loc[rows_with_label[time_column] <= latest_year]
+    change = len(
+        rows_with_label.loc[rows_with_label[time_column] >= year]
     )
-    rate_of_change = (count_at_present - count_at_event) / count_at_event
+    rate_of_change = change / before
     return {
         "label": label,
         "column": data_column,
         "event": event,
         "year": year,
-        "latest_year": latest_year,
         "rate": rate_of_change * 100,
     }
 
+def generate_databait_7a(df, label_column, label, count_column, time_column, event, year):
+    """
+    #Numerical #Time 
+
+    Sample: The total Global Sales of games released by Nintendo nearly tripled since 
+    x, when the first Super Mario game was released. 
+
+    Template: The total <count column> of <entry phrase> <label column phrase> <label>
+    <growth phrase> since <year> when <event>. 
+
+    """
+    rows_with_label = (
+        df.loc[df[label_column] == label]
+        .dropna(subset=[time_column])
+        .astype({time_column: "int32", count_column: "float32"})
+    )
+    before = rows_with_label.loc[rows_with_label[time_column] < year][count_column].sum()
+    if before == 0:
+        raise ValueError(
+            "Please change inputs for DataBait 7a.  \
+                There are no records for the input label prior to the year of the input event."
+        )
+    change = rows_with_label.loc[rows_with_label[time_column] >= year][count_column].sum()
+    rate_of_change = change / before 
+    return {
+        "label": label,
+        "label_column": label_column,
+        "count_column": count_column,
+        "event": event,
+        "year": year,
+        "rate": rate_of_change * 100,
+    }
 
 def generate_databait_8(df, column1, column2):
     """
