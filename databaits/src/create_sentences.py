@@ -102,6 +102,28 @@ def create_setence_1(dict, entry_phrase, pronoun, column_phrase):
     return capitalize_first_word(sentence)
 
 
+def create_setence_1a(dict, entry_phrase, pronoun, column_phrase):
+    """
+    #Numerical, #Time
+    
+    Sample: Over the past 25 years, the total number of global sales for games from Nintendo 
+    increased x%. 
+    
+    Template: Over the past <time range> years, the total number of <count column> for <entry phrase>
+    <label column phrase> <label> <growth phrase>. 
+    """
+    rate_phrase = phrase_numbers_for_change(dict["rate"])
+
+    sentence = "Over the past %d years, the total number of %s for %s %s %s %s." % (
+         dict["time_range"],
+         dict["count_column"],
+         entry_phrase,
+        " ".join(column_phrase[dict["label_column"]]),
+        dict["label"],
+        rate_phrase
+    )
+    return capitalize_first_word(sentence)
+
 def create_setence_2(dict, entry_phrase, column_phrase):
     """
     Sample: 5 times as many CS professors were hired by 
@@ -124,6 +146,32 @@ def create_setence_2(dict, entry_phrase, column_phrase):
     return capitalize_first_word(sentence)
 
 
+def create_setence_2a(dict, entry_phrase, column_phrase):
+    """
+    #Numerical, #Time 
+
+    Sample: In the past x years, games that were categorized as Action had 
+    x% more Global Sales than those categorized as Sports.  
+
+    Template: In the past <time range> years, <entry phrase> <pronoun> 
+    <label column phrase> <bigger label> had <rate phrase> <count column> 
+    than those <label column phrase> <smaller label>.
+    """
+    rate_phrase = phrase_numbers_for_comparisons(dict["rate"])
+
+    sentence = "In the past %d years, %s %s %s %s had %s %s than those %s %s." % (
+        dict["time_range"],
+        entry_phrase,
+        pronoun,
+        " ".join(column_phrase[dict["label_column"]]),
+        dict["bigger_label"],
+        rate_phrase,
+        dict["count_column"],
+        " ".join(column_phrase[dict["label_column"]]),
+        dict["smaller_label"]
+    )
+    return capitalize_first_word(sentence)
+
 def create_sentence_3(dict, entry_phrase, pronoun, column_phrase):
     """
     Sample: Over the past 20 years, the total number of CS professors who 
@@ -145,6 +193,29 @@ def create_sentence_3(dict, entry_phrase, pronoun, column_phrase):
     )
     return capitalize_first_word(sentence)
 
+
+def create_sentence_3a(dict, entry_phrase, pronoun, column_phrase):
+    """
+    #Numerical, Time
+
+    Sample: Over the past 20 years, the total Global Sales for games 
+    categorized as Action and released by Nintendo grew x times. 
+
+    Template: Over the past <time_range> years, the total <count column> for <entry phrase>
+    <pronoun> <column phrase1> <label1> and <column phrase2> <label2> <growth phrase>. 
+    """
+    rate_phrase = phrase_numbers_for_change(dict["rate"])
+    sentence = "Over the past %d years, the total %s for %s %s %s %s and %s %s %s." (
+        dict["time_range"],
+        dict["count_column"],
+        entry_phrase,
+        pronoun,
+        " ".join(column_phrase[dict["column1"]]),
+        dict["label1"],
+        " ".join(column_phrase[dict["column2"]]),
+        dict["label2"],
+        rate_phrase      
+    )
 
 def create_sentence_4(dict, entry_phrase, pronoun, column_phrase):
     """
@@ -182,7 +253,6 @@ def create_sentence_5(dict, entry_phrase, column_phrase):
     than <column phrase-short> the average <column name.lower()> in the past <time_range> years. 
     """
     growth_phrase = phrase_numbers_for_comparisons(dict["rate"])
-
     sentence = "%s %s %s %s than %s the average %s in the past %d years." % (
         growth_phrase,
         entry_phrase,
@@ -193,6 +263,32 @@ def create_sentence_5(dict, entry_phrase, column_phrase):
         dict["time_range"]        
     )
     return capitalize_first_word(sentence)
+
+
+def create_sentence_5a(dict, entry_phrase, pronoun, column_phrase):
+    """
+    #Numerical, #Time
+
+    Sample: In the past 25 years, games released by Nintendo had 
+    7 times higher Global Sales than those released by the average company. 
+
+    Template: In the past <time range> years, <entry phrase> <pronoun> <label_column_phrase> <max_label>
+    had <rate phrase> <count column> than those <label_column_phrase> the average
+    <label_column>.
+    """
+    growth_phrase = phrase_numbers_for_comparisons(dict["rate"])
+    sentence = "In the past %d years, %s %s %s %s had %s %s than those %s the average %s." (
+        dict["time_range"],
+        entry_phrase,
+        pronoun,
+        " ".join(column_phrase[dict["label_column"]]),
+        dict["max_label"],
+        growth_phrase,
+        dict["count_column"],
+        " ".join(column_phrase[dict["label_column"]]),
+        dict["label_column"]
+    )
+
 
 def create_sentence_6(dict, entry_phrase, column_phrase):
     """
@@ -236,11 +332,6 @@ def create_sentence_8(dict, entry_phrase, column_phrase, column_descriptor):
     Original sentence: [Proportion]% of entries share values for [column1] and [column2].
 
     25% of CS professors got their undergraduate degrees and doctorate degrees at the same university. 
-    went to the same university for their undergraduate and graduate degrees
-
-    got their undergraduate degrees at and  got their graduate degrees
-    did undergrad at and got their graduate degrees at the same university.
-
 
     Template: <dict-proportion> percent of <column phrase for total> in the database share values for
     the column about <column phrase for dict[column1]> and that about <column phrase for dict[column2]>.
@@ -388,7 +479,7 @@ if __name__ == "__main__":
         "Platform": ("were designed", "for"), # NOTE: should always be past tense!
         "Year": ("released", "in"),
         "Genre": ("were classified", "as"),
-        "Publisher": ("were published", "by"),
+        "Publisher": ("were released", "by"),
         "NA_Sales": ("had North American sales", "of"),
         "EU_Sales": ("had European sales", "of"),
         "JP_Sales": ("had Japanese sales", "of"),

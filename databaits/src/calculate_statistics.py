@@ -189,7 +189,8 @@ def generate_databait_2a(df, label_column, label1, label2, count_column, time_co
     return {
         "bigger_label": bigger_label,
         "smaller_label": smaller_label,
-        "column": count_column,
+        "count_column": count_column,
+        "label_column": label_column,
         "rate": optimal_rate * 100,
         "time_range": optimal_range,
     }
@@ -406,7 +407,7 @@ def generate_databait_5a(df, label_column, count_column, time_column):
 
     Template: In the past <time range> years, <entry phrase> <label_column_phrase> <max_label>
     had <rate phrase> higher <count column> than those <label_column_phrase> the average
-    <label>.
+    <label_column>.
     """
     # Preprocess data to remove NaN and non-numeric time column (year) values
     cleaned_df = df.dropna(subset=[time_column])[[time_column, label_column, count_column]]
@@ -592,7 +593,7 @@ def generate_databait_7a(df, label_column, label, count_column, time_column, eve
 
 def generate_databait_8(df, column1, column2):
     """
-    #Categorical, #Numerical
+    #Categorical
 
     Template:
     [Proportion]% of entries share values for [column1] and [column2].
