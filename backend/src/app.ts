@@ -7,14 +7,17 @@ import lusca from "lusca";
 import flash from "express-flash";
 import path from "path";
 import passport from "passport";
-import fs from "fs";
+import cookieParser from "cookie-parser";
+// import fs from "fs"; // sw unused for now
 import { DB_HOST, DB_USER, DB_PASSWORD, SESSION_SECRET } from "./util/secrets";
+import * as trafficLogger from "./controllers/traffic";
 
 // Create session file store
 // import sessionFileStore from "session-file-store";
 // const sessionStore = sessionFileStore(session); // FileStore
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const MySQLStore = require("express-mysql-session")(session); // MySQLStore
+console.log(MySQLStore);
 
 // Ctrls (route handlers)
 import * as helpCtrl from "./controllers/help";
@@ -40,7 +43,11 @@ app.disable("x-powered-by");
 app.set("port", process.env.PORT || 3000);
 app.set("trust proxy", true); // sw: for production reverse proxy
 
-//static files
+// global view logger middleware
+app.use(cookieParser());
+app.use(trafficLogger.trafficLogger);
+
+// static files
 app.use("/csopenrankingstest", middlewareTests.urls, express.static("/vol/csopenrankings"));
 app.use("/csopenrankings", express.static("/vol/csopenrankings"));
 app.use("/csopenrankingslocal", express.static(path.join(__dirname, "../../../../CSRankings"), { maxAge: 30000 }));
@@ -69,13 +76,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 // home site rendering
-app.get("/flask", homeCtrl.flaskTest);
 app.get("/", homeCtrl.index);
 
 // Session
 const days = 10800; // we will manually manage sessions
 const age = days * 24 * 60 * 60 * 1000; // days * hours * minutes * seconds * milliseconds
-
 app.use(session({
     secret: SESSION_SECRET,
     name: "security_protection",
@@ -118,12 +123,6 @@ app.use(helmet());
 //GLOBAL MIDDLEWARE
 app.use(userCtrl.checkSessionUser);
 app.use(userCtrl.checkSessionId);
-/* sw - commenting out for now since we are not using the FileStore sessions
-app.use((req, res, next) => {
-    res.locals.user = req.user;
-    next();
-});
-*/
 
 /**
  * Primary app routes.
