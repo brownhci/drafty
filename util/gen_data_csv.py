@@ -64,26 +64,36 @@ row = '\"' + str(idRowPrev) + '\",' + new_cell(sugg)
 body = ''
 
 blanks = 0
-
+i = 0
 for r in rows:
     idSugg = r[0]
     idCol  = r[1]
     idRow  = r[2]
     sugg   = r[3]
 
+
+    ### check if last suggestion in that row is
     if idRow != idRowPrev: # new row?
         if blanks < 10:
             body += row[:-1] + '\n'
         row = '\"' + str(idRow) + '\",'
         blanks = 0
-    if idCol != idColPrev: # new cell?
+    ### check if new column
+    if idCol != idColPrev: 
         sugg = str(sugg).strip()
         row +=  new_cell(sugg)
         if sugg == '':
             blanks += 1
+    ### check if last suggestion in that row is
+    if (i+1) == len(rows):
+        if blanks < 10:
+            body += row[:-1] + '\n'
+        row = '\"' + str(idRow) + '\",'
 
     idColPrev = idCol
     idRowPrev = idRow
+    i += 1
+
 
 filepath = f'../backend/data_sharing/{args.database}.csv'
 with open(filepath, 'w+') as f:
