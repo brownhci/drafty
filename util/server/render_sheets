@@ -11,4 +11,6 @@
 # * * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_edit_history.py --database csprofessors csprofessors_edits.csv
 
 ### csv version
-* * * * * root cd /vol/drafty_source/drafty/util/ && python3 gen_data_csv.py --database csprofessors
+#* * * * * root cd /vol/drafty_source/drafty/util/ && python3 gen_data_csv.py --database csprofessors
+
+* * * * * root cd /vol/csopenrankings/backend/generators/ && python3 prof_data_normalizer.py && python3 best_paper_normalizer.py && python3 csrankings_normalizer.py && python3 pageRank_normalizer.py && python3 us_news_rank_normalizer.py && python3 deptSize_normalizer.py
