@@ -100,7 +100,7 @@ export const postNewRow = async (req: Request, res: Response) => {
   const idSession: number = req.session.user.idSession;
 
   const idInteractionType = 6; // 6 = editRecord
-  const idEntryType = 2; // 2 = EditOnline
+  const idEntryType = 1; // 1 = NewRow
   const mode = "normal"; // normal is default
 
   const rowValues = req.body.newRowValues;
