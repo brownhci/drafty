@@ -11,8 +11,9 @@ db_pass = 'test'
 
 # sw: there are different variations of the sql, how the first sql runs everything in one goroutine
 # thus making the python code simplistic
-sql = """
-select us.idProfile, i.idSession, e1.idUniqueID as idRow, 'edit cell' as editType, name.suggestion as FullName, uni.suggestion as University, e1.name as columnName, e1.suggestion as chosen, e2.suggestion as previous,i.timestamp
+limit = 100
+sql = f"""
+select us.idProfile, i.idSession, e1.idUniqueID as idRow, 'edit cell' as editType, name.suggestion as FullName, uni.suggestion as University, CONCAT(name.suggestion,' (',uni.suggestion,')') as who, e1.name as columnName, e1.suggestion as chosen, e2.suggestion as previous,i.timestamp
 from Interaction i
 inner join users.Session us on us.idSession = i.idSession
 inner join Edit e on e.IdInteraction = i.idInteraction
@@ -51,7 +52,7 @@ inner join (
     on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
 ) uni on uni.idUniqueID = e1.idUniqueID
 UNION
-select us.idProfile, i.idSession, e1.idUniqueID as idRow, 'new row' as editType, name.suggestion as FullName, uni.suggestion as University, e1.name as columnName, e1.suggestion as chosen, '' as previous,i.timestamp
+select us.idProfile, i.idSession, e1.idUniqueID as idRow, 'new row' as editType, name.suggestion as FullName, uni.suggestion as University, CONCAT(name.suggestion,' (',uni.suggestion,')') as who, e1.name as columnName, e1.suggestion as chosen, '' as previous,i.timestamp
 from Interaction i
 inner join users.Session us on us.idSession = i.idSession
 inner join Edit e on e.IdInteraction = i.idInteraction
@@ -82,7 +83,7 @@ inner join (
     inner join csprofessors.Suggestions s
     on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
 ) uni on uni.idUniqueID = e1.idUniqueID
-order by timestamp desc;
+order by timestamp desc limit {limit};
 """
 
 sql_edits_online = """
@@ -186,19 +187,27 @@ def report_error(e):
     print(exc_tb.tb_lineno)
 
 def create_thead():
-    thead = """
+    cssClass = 'column-label'
+    cssBoxShadow = ''
+    thead = f"""
+    <colgroup>
+        <col id="col0" style="width: 92px;">
+        <col id="col1" style="width: 86px;">
+        <col id="col2" style="width: 300px;">
+        <col id="col3" style="width: 120px;">
+        <col id="col4" style="width: 400px;">
+        <col id="col5" style="width: 400px;">
+        <col id="col6" style="width: 185px;">
+    </colgroup>
     <thead>
         <tr>
-            <th>id Profile</th>
-            <th>id Session</th>
-            <th>id Row</th>
-            <th>Edit Type</th>
-            <th>Full Name</th>
-            <th>University</th>
-            <th>Column</th>
-            <th>New Value</th>
-            <th>Previous Value</th>
-            <th>Timestamp</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">Editor ID</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">Action</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">Who was Edited?</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">Column</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">New Value</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">Prev Value</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">Timestamp</th>
         </tr>
     </thead>
     """
@@ -210,16 +219,21 @@ def build_table_file(cursor):
         table = '<table>'
         table += create_thead()
         table += '<tbody>\n'
+        columns_to_ignore = ['idSession','idRow','FullName','University']
         for row in cursor.fetchall():
             table += '<tr>\n'
             for k,v in row.items():
-                table += f'\t<td>{v}</td>\n'
+                if k not in columns_to_ignore:
+                    table += f"""
+                                \t<td>
+                                    {v}
+                                </td>\n
+                            """
             table += '</tr>\n'
         table += '</tbody>\n</table>\n'
         return table
     except Exception as e:
         report_error(e)
-
 
 def save_to_file(output_file, cursor):
     with atomic_write(output_file, overwrite=True) as f:
