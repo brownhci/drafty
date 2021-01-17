@@ -3,7 +3,8 @@ import { safeLoad } from "js-yaml";
 import logger from "../util/logger"; 
 
 const yamlPath = "sheets.yaml";
-const dir = "sheets/";
+const dirSheets = "sheets/";
+const dirEditHistory = "edit_history/";
 const sheetsUrl = "";
 
 export const sheetsData = new Map();
@@ -55,7 +56,7 @@ export async function getRequestedSheetName(urlName: string) {
 
 export async function getRequestedSheetPath(urlName: string) {
     try {
-        const path: PathLike = dir + urlName;
+        const path: PathLike = dirSheets + urlName;
         return path;
         /* sw - this is performance hit on page loads
         const file_path: PathLike = 'views/partials/' + path + fileExt;
@@ -63,6 +64,15 @@ export async function getRequestedSheetPath(urlName: string) {
             return path;
         }
         */
+    } catch(err) {
+        logger.error("ERROR - path does not exists",err);
+    }    
+}
+
+export async function getRequestedEditHistorySheetPath(urlName: string) {
+    try {
+        const path: PathLike = dirEditHistory + urlName;
+        return path;
     } catch(err) {
         logger.error("ERROR - path does not exists",err);
     }    
