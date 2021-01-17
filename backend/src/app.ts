@@ -109,7 +109,8 @@ app.use(lusca.csp({
   policy: {
     "default-src": "'self'",
     "frame-ancestors": "'none'",
-    "img-src": "'self' data:"
+    "img-src": "'self' data:",
+    "style-src": "'self' 'unsafe-inline'"
   }
 }));
 app.use(lusca.xframe("SAMEORIGIN"));
@@ -176,7 +177,7 @@ app.post("/suggestions/new", suggestionCtrl.postNewSuggestion);
 
 // sheets
 app.get("/:sheet", userCtrl.checkReturnPath, sheetCtrl.getSheet);
-
+app.get("/:sheet/edit_history", userCtrl.checkReturnPath, sheetCtrl.getSheetEditHistory);
 
 // handle missing pages
 app.get("*", function(req, res) {
