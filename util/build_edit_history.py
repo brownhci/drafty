@@ -6,6 +6,9 @@ import sys
 import pymysql
 from atomicwrites import atomic_write
 
+db_user = 'test'
+db_pass = 'test'
+
 # sw: there are different variations of the sql, how the first sql runs everything in one goroutine
 # thus making the python code simplistic
 sql = """
@@ -172,3 +175,52 @@ sql_row_identifier = """
     and s.idSuggestionType = mx.idSuggestionType
     and s.confidence = mx.maxconf;
 """
+
+def report_error(e):
+    print('ERROR exiting...')
+    print(e)
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    print(exc_type)
+    print(fname)
+    print(exc_tb.tb_lineno)
+
+def save_to_file(output_file, cursor):
+    with atomic_write(output_file, overwrite=True) as f:
+        f.write('\"worker_id\",\"edit\",\"column\",\"timestamp\",\"professor_name\",\"university\",\"user_id_profile\",\"user_id_session\",\"user_id_session_hash\",\"user_data_dump\"\n')
+        f.write(build_csv_file(cursor))
+
+
+def get_db_creds():
+    with open('../backend/.env', 'r') as fh:
+        for line in fh.readlines():
+            kv = line.strip().split('=')
+            k = kv[0]
+            if k == 'DB_USER':
+                dbuser = kv[1]
+            if k == 'DB_PASSWORD':
+                dbpass = kv[1]
+    return dbuser, dbpass
+
+
+if __name__ == '__main__':
+    # python3 build_edit_history.py --host localhost --database 2300profs 2300profs.hbs
+    parser = argparse.ArgumentParser(description='Write edit history to csv file.')
+    parser.add_argument('--database', default='csprofessors', help='The database to be outputtted')
+    parser.add_argument('outfile', help='where the HTML markup will be written to')
+    args = parser.parse_args()
+
+    db_user, db_pass = get_db_creds()
+    db = pymysql.connect(host='localhost', user=db_user,
+                         password=db_pass,
+                         db=args.database, charset='utf8mb4',
+                         cursorclass=pymysql.cursors.DictCursor)
+
+    try:
+        with db.cursor() as cursor:
+            filepath = f'../backend/data_sharing/{args.outfile}'
+            save_to_file(filepath, cursor)
+    except Exception as e:
+        report_error(e)
+    finally:
+        db.close()
