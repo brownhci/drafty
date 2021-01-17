@@ -177,7 +177,7 @@ def build_table_data_sections(cursor):
 
 
 def build_table_file(cursor):
-    table_placeholder = build_placeholder_table(cursor)
+    table_placeholder  = build_placeholder_table(cursor)
     table_data_sections = build_table_data_sections(cursor)
     return f'{table_placeholder}{table_data_sections}'
 
