@@ -185,10 +185,45 @@ def report_error(e):
     print(fname)
     print(exc_tb.tb_lineno)
 
+def create_thead():
+    thead = """
+    <thead>
+        <tr>
+            <th>id Profile</th>
+            <th>id Session</th>
+            <th>id Row</th>
+            <th>Edit Type</th>
+            <th>Full Name</th>
+            <th>University</th>
+            <th>Column</th>
+            <th>New Value</th>
+            <th>Previous Value</th>
+            <th>Timestamp</th>
+        </tr>
+    </thead>
+    """
+    return thead
+
+def build_table_file(cursor):
+    try:
+        cursor.execute(sql)
+        table = '<table>'
+        table += create_thead()
+        table += '<tbody>\n'
+        for row in cursor.fetchall():
+            table += '<tr>\n'
+            for k,v in row.items():
+                table += f'\t<td>{v}</td>\n'
+            table += '</tr>\n'
+        table += '</tbody>\n</table>\n'
+        return table
+    except Exception as e:
+        report_error(e)
+
+
 def save_to_file(output_file, cursor):
     with atomic_write(output_file, overwrite=True) as f:
-        f.write('\"worker_id\",\"edit\",\"column\",\"timestamp\",\"professor_name\",\"university\",\"user_id_profile\",\"user_id_session\",\"user_id_session_hash\",\"user_data_dump\"\n')
-        f.write(build_csv_file(cursor))
+        f.write(build_table_file(cursor))
 
 
 def get_db_creds():
@@ -204,23 +239,34 @@ def get_db_creds():
 
 
 if __name__ == '__main__':
-    # python3 build_edit_history.py --host localhost --database 2300profs 2300profs.hbs
-    parser = argparse.ArgumentParser(description='Write edit history to csv file.')
-    parser.add_argument('--database', default='csprofessors', help='The database to be outputtted')
-    parser.add_argument('outfile', help='where the HTML markup will be written to')
+    # python3 build_edit_history.py --host=localhost --database=csprofessors csprofessors.hbs
+    parser = argparse.ArgumentParser(description='Write database data to table HTML file.')
+    parser.add_argument('--host', default='localhost',
+                        help='The host of the MySQL database')
+    parser.add_argument('--database', default='csprofessors',
+                        help='The database to be outputtted')
+    parser.add_argument('outfile',
+                        help='where the HTML markup will be written to')
     args = parser.parse_args()
 
+    db_name = args.database
     db_user, db_pass = get_db_creds()
-    db = pymysql.connect(host='localhost', user=db_user,
+    db = pymysql.connect(host=args.host, user=db_user,
                          password=db_pass,
                          db=args.database, charset='utf8mb4',
                          cursorclass=pymysql.cursors.DictCursor)
 
     try:
         with db.cursor() as cursor:
-            filepath = f'../backend/data_sharing/{args.outfile}'
+            filepath = f'../backend/views/partials/edit_history/{args.outfile}'
             save_to_file(filepath, cursor)
     except Exception as e:
-        report_error(e)
+        print('ERROR exiting...')
+        print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type)
+        print(fname)
+        print(exc_tb.tb_lineno)
     finally:
         db.close()
