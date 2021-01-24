@@ -15,7 +15,7 @@ limit = 100
 sql = f"""
 select 
 i.timestamp,
-us.idProfile, 
+if(p.email is not null, p.email, us.idProfile) as 'editor',
 i.idSession, 
 e1.idUniqueID as idRow, 
 'edit cell' as editType, 
@@ -28,6 +28,7 @@ e1.suggestion as chosen
 
 from Interaction i
 inner join users.Session us on us.idSession = i.idSession
+inner join users.Profile p on p.idProfile = us.idProfile
 inner join Edit e on e.IdInteraction = i.idInteraction
 inner join (
     select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_Suggestion es
@@ -69,7 +70,7 @@ UNION
 select 
 
 i.timestamp,
-us.idProfile, 
+if(p.email is not null, p.email, us.idProfile) as 'editor',
 i.idSession, 
 e1.idUniqueID as idRow, 
 'new row' as editType, 
@@ -82,6 +83,7 @@ e1.suggestion as chosen
 
 from Interaction i
 inner join users.Session us on us.idSession = i.idSession
+inner join users.Profile p on p.idProfile = us.idProfile
 inner join Edit e on e.IdInteraction = i.idInteraction
 inner join (
     select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_NewRow es
@@ -218,8 +220,8 @@ def create_thead():
     cssBoxShadow = ''
     thead = f"""
     <colgroup>
-        <col id="col6" style="width: 185px;">
-        <col id="col0" style="width: 86px;">
+        <col id="col6" style="width: 167px;">
+        <col id="col0" style="width: 140px;">
         <col id="col1" style="width: 86px;">
         <col id="col2" style="width: 300px;">
         <col id="col3" style="width: 120px;">
@@ -266,6 +268,15 @@ def build_table_file(cursor):
                     cell = v
                     dataValue = ''
                     cellClass = ''
+
+                    # prep cell for the Editor
+                    if k == 'editor':
+                        if '@' in cell:
+                            cell = cell.split('@')[0]
+                        elif cell.isdigit():
+                            cell = f'anon{cell}'
+
+                    # prep cell for Who was edited
                     if k == 'who':
                         cellClass = 'no-border-bottom'
                         if idRowPrev == row['idRow']:
