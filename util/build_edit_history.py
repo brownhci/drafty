@@ -13,7 +13,19 @@ db_pass = 'test'
 # thus making the python code simplistic
 limit = 100
 sql = f"""
-select us.idProfile, i.idSession, e1.idUniqueID as idRow, 'edit cell' as editType, name.suggestion as FullName, uni.suggestion as University, CONCAT(name.suggestion,' (',uni.suggestion,')') as who, e1.name as columnName, e1.suggestion as chosen, e2.suggestion as previous,i.timestamp
+select 
+i.timestamp,
+us.idProfile, 
+i.idSession, 
+e1.idUniqueID as idRow, 
+'edit cell' as editType, 
+name.suggestion as FullName, 
+uni.suggestion as University, 
+CONCAT(name.suggestion,' (',uni.suggestion,')') as who, 
+e1.name as columnName,
+e2.suggestion as previous,
+e1.suggestion as chosen
+
 from Interaction i
 inner join users.Session us on us.idSession = i.idSession
 inner join Edit e on e.IdInteraction = i.idInteraction
@@ -51,8 +63,23 @@ inner join (
     inner join csprofessors.Suggestions s
     on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
 ) uni on uni.idUniqueID = e1.idUniqueID
+
 UNION
-select us.idProfile, i.idSession, e1.idUniqueID as idRow, 'new row' as editType, name.suggestion as FullName, uni.suggestion as University, CONCAT(name.suggestion,' (',uni.suggestion,')') as who, e1.name as columnName, e1.suggestion as chosen, '' as previous,i.timestamp
+
+select 
+
+i.timestamp,
+us.idProfile, 
+i.idSession, 
+e1.idUniqueID as idRow, 
+'new row' as editType, 
+name.suggestion as FullName, 
+uni.suggestion as University, 
+CONCAT(name.suggestion,' (',uni.suggestion,')') as who, 
+e1.name as columnName,
+'' as previous,
+e1.suggestion as chosen
+
 from Interaction i
 inner join users.Session us on us.idSession = i.idSession
 inner join Edit e on e.IdInteraction = i.idInteraction
@@ -191,45 +218,66 @@ def create_thead():
     cssBoxShadow = ''
     thead = f"""
     <colgroup>
-        <col id="col0" style="width: 92px;">
+        <col id="col6" style="width: 185px;">
+        <col id="col0" style="width: 86px;">
         <col id="col1" style="width: 86px;">
         <col id="col2" style="width: 300px;">
         <col id="col3" style="width: 120px;">
         <col id="col4" style="width: 400px;">
         <col id="col5" style="width: 400px;">
-        <col id="col6" style="width: 185px;">
     </colgroup>
     <thead>
         <tr>
-            <th class="{cssClass}" style="{cssBoxShadow}">Editor ID</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">Timestamp</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">Editor</th>
             <th class="{cssClass}" style="{cssBoxShadow}">Action</th>
             <th class="{cssClass}" style="{cssBoxShadow}">Who was Edited?</th>
             <th class="{cssClass}" style="{cssBoxShadow}">Column</th>
-            <th class="{cssClass}" style="{cssBoxShadow}">New Value</th>
             <th class="{cssClass}" style="{cssBoxShadow}">Prev Value</th>
-            <th class="{cssClass}" style="{cssBoxShadow}">Timestamp</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">New Value</th>
         </tr>
     </thead>
     """
     return thead
 
+def newRowStyle(cssRow):
+    cssRowLight = 'tr-light'
+    cssRowDark = 'tr-dark'
+    if cssRow == cssRowLight:
+        return cssRowDark
+    else:
+         return cssRowLight
+
 def build_table_file(cursor):
     try:
+        idRowPrev = -1
+        cssRowClass = 'tr-dark'
         cursor.execute(sql)
         table = '<table>'
         table += create_thead()
         table += '<tbody>\n'
         columns_to_ignore = ['idSession','idRow','FullName','University']
         for row in cursor.fetchall():
-            table += '<tr>\n'
+            if idRowPrev != row['idRow']:
+                cssRowClass = newRowStyle(cssRowClass) 
+            table += f"""<tr class="{cssRowClass}">\n"""
             for k,v in row.items():
                 if k not in columns_to_ignore:
+                    cell = v
+                    dataValue = ''
+                    if k == 'who':
+                        if idRowPrev == row['idRow']:
+                            cell = ''
+                        dataValue = row['FullName'].replace(' ', '%20')
+                        print(dataValue)
+                        
                     table += f"""
-                                \t<td>
-                                    {v}
+                                \t<td id="{k}" data-value={dataValue}>
+                                    {cell}
                                 </td>\n
                             """
             table += '</tr>\n'
+            idRowPrev = row['idRow']
         table += '</tbody>\n</table>\n'
         return table
     except Exception as e:
