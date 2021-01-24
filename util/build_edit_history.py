@@ -220,12 +220,12 @@ def create_thead():
     cssBoxShadow = ''
     thead = f"""
     <colgroup>
-        <col id="col6" style="width: 167px;">
+        <col id="col6" style="width: 157px;">
         <col id="col0" style="width: 140px;">
         <col id="col1" style="width: 86px;">
-        <col id="col2" style="width: 300px;">
+        <col id="col2" style="width: 320px;">
         <col id="col3" style="width: 120px;">
-        <col id="col4" style="width: 400px;">
+        <col id="col4" style="width: 390px;">
         <col id="col5" style="width: 400px;">
     </colgroup>
     <thead>
@@ -255,7 +255,7 @@ def build_table_file(cursor):
         idRowPrev = -1
         cssRowClass = 'tr-dark'
         cursor.execute(sql)
-        table = '<table>'
+        table = f'<table id="table-edit-history">'
         table += create_thead()
         table += '<tbody>\n'
         columns_to_ignore = ['idSession','idRow','FullName','University']
@@ -268,6 +268,11 @@ def build_table_file(cursor):
                     cell = v
                     dataValue = ''
                     cellClass = ''
+
+                    # prep cell for the Timestamp - remove seconds
+                    if k == 'timestamp':
+                        timestamp = str(cell).split(':')
+                        cell = f'{timestamp[0]}:{timestamp[1]}'
 
                     # prep cell for the Editor
                     if k == 'editor':
