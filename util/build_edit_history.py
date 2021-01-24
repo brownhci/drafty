@@ -11,7 +11,7 @@ db_pass = 'test'
 
 # sw: there are different variations of the sql, how the first sql runs everything in one goroutine
 # thus making the python code simplistic
-limit = 100
+limit = 200
 sql = f"""
 select 
 i.timestamp,
