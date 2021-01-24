@@ -1,4 +1,9 @@
-$nav-icons: ("sheet": ("before": $fa-var-table, "after": $fa-var-caret-down), "credits": ("before": $fa-var-award), "addrow": ("before": $fa-var-plus-square), "delrow": ("before": $fa-var-minus-square), "user": ("before": $fa-var-user-circle, "after": $fa-var-caret-down));
+$nav-icons: (
+  "sheet": ("before": $fa-var-table, "after": $fa-var-caret-down), 
+  "credits": ("before": $fa-var-history), 
+  "addrow": ("before": $fa-var-plus-square), 
+  "delrow": ("before": $fa-var-minus-square),
+  "user": ("before": $fa-var-user-circle, "after": $fa-var-caret-down));
 $zindex-nav: 2000;
 $zindex-sheet-dropdown: $zindex-nav + 1;
 $navbar-height: 60px;
