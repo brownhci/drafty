@@ -230,13 +230,13 @@ def create_thead():
     </colgroup>
     <thead>
         <tr>
-            <th class="{cssClass}" style="{cssBoxShadow}">Timestamp</th>
-            <th class="{cssClass}" style="{cssBoxShadow}">Editor</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">When?</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">Edited by</th>
             <th class="{cssClass}" style="{cssBoxShadow}">Action</th>
             <th class="{cssClass}" style="{cssBoxShadow}">Who was Edited?</th>
             <th class="{cssClass}" style="{cssBoxShadow}">Column</th>
-            <th class="{cssClass}" style="{cssBoxShadow}">Prev Value</th>
-            <th class="{cssClass}" style="{cssBoxShadow}">New Value</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">Changed from</th>
+            <th class="{cssClass}" style="{cssBoxShadow}">Changed to</th>
         </tr>
     </thead>
     """
