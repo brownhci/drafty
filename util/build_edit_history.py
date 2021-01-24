@@ -290,7 +290,7 @@ def build_table_file(cursor):
                         dataValue = row['FullName'].replace(' ', '%20')
                         
                     table += f"""
-                                \t<td id="{k}" class="{cellClass}" data-value={dataValue}>
+                                \t<td id="{k}" class="{cellClass}" data-value="{dataValue}">
                                     {cell}
                                 </td>\n
                             """
