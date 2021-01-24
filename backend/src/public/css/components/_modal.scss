@@ -1,0 +1,60 @@
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 9001; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    //overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  
+/* Modal Content/Box */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    overflow-wrap: anywhere;
+    @media screen and (max-width: 640px) {
+        width: 80%; /* Could be more or less, depending on screen size */
+    }
+    @media screen and (min-width: 640px) {
+        width: 570px; /* Could be more or less, depending on screen size */
+    }
+}
+  
+/* The Close Button */
+.close-modal {
+    color: #aaa;
+    text-align: right;
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 0.25em;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-close {
+    background: $gray-600;
+    border-color: $gray-700;
+}
+
+.btn-close-new {
+    background: rgb(233, 236, 239);
+    border-color: rgb(108, 117, 125);
+    color: rgb(108, 117, 125);
+    &.hover {
+        background: rgb(223, 226, 229);
+        color: rgb(108, 117, 125);
+        border-color: rgb(108, 117, 125);
+    }
+}
