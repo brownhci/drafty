@@ -265,14 +265,16 @@ def build_table_file(cursor):
                 if k not in columns_to_ignore:
                     cell = v
                     dataValue = ''
+                    cellClass = ''
                     if k == 'who':
+                        cellClass = 'no-border-bottom'
                         if idRowPrev == row['idRow']:
                             cell = ''
+                            cellClass = 'no-border'
                         dataValue = row['FullName'].replace(' ', '%20')
-                        print(dataValue)
                         
                     table += f"""
-                                \t<td id="{k}" data-value={dataValue}>
+                                \t<td id="{k}" class="{cellClass}" data-value={dataValue}>
                                     {cell}
                                 </td>\n
                             """
