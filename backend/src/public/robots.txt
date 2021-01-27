@@ -1,0 +1,8 @@
+User-agent: *
+disallow: /webfonts
+disallow: /images
+disallow: /fonts
+disallow: /login
+disallow: /forget
+disallow: /signup
+Sitemap: https://drafty.cs.brown.edu/sitemap.xml
