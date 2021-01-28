@@ -83,7 +83,7 @@ nav {
   }
   .nav-item {
     @extend .clickable;
-    @extend .px-2;
+    @extend .px-4;
     @extend .text-capitalize;
     a {
       @extend .text-decoration-none;

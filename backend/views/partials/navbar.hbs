@@ -1,9 +1,13 @@
 <nav>
     <a class="navbar-brand" href="/">Drafty</a>
-    {{#if editHistoryPath}}
-        <span class="navbar-brand" href="#"><i class="fas fa-history"></i> Edit History</span>
-    {{/if}}
     <button class="navbar-toggler" type="button" data-toggle="collapse" aria-label="Toggle navigation"></button>
+    
+    <!--
+    {{#if editHistoryPath}}
+        <span class="navbar-brand" href="#"><i class="fas fa-history"></i> Edit History1</span>
+    {{/if}}
+    -->
+
     <ul class="navbar-nav-sm">
         <li id="list-sheets">
             Sheets
@@ -15,6 +19,9 @@
                 {{/eachInMap}}
             </div>
         </li>
+        {{#if editHistoryPath}}
+            <li class="navbar-brand" href="#"><i class="fas fa-history"></i> Edit History nav1</li>
+        {{/if}}
         <li data-href="/account">Your Profile</li>
         <!-- not available yet <li data-href="/account/edits">Your edits</li> -->
         <li data-href="/help">Help</li>
@@ -26,26 +33,31 @@
              <li data-href="/logout">Sign out</li>
          {{/if}}
     </ul>
+
     <div class="collapse navbar-collapse">
          <ul id="navbar-nav" class="navbar-nav">
             <li class="nav-item dropdown">
-                 <span id="navbar-sheet">
-                     {{#if sheetName}}
-                         {{sheetName}}
-                     {{else}}
-                         All sheets
-                     {{/if}}
-                 </span>
-                 <div class="dropdown-menu">
-                     {{#eachInMap sheetNameToURL}}
-                         <a class="dropdown-item" href="/{{value}}">
-                            {{key}}
-                         </a>
-                     {{/eachInMap}}
-                 </div>
-             </li>
+                <span id="navbar-sheet">
+                    {{#if sheetName}}
+                        {{sheetName}}
+                    {{else}}
+                        All sheets
+                    {{/if}}
+                </span>
+                <div class="dropdown-menu">
+                    {{#eachInMap sheetNameToURL}}
+                        <a class="dropdown-item" href="/{{value}}">
+                        {{key}}
+                        </a>
+                    {{/eachInMap}}
+                </div>
+            </li>
+            {{#if editHistoryPath}}
+                <li class="nav-item text-white font-weight-bold" href="#"><i class="fas fa-history"></i> Edit History</li>
+            {{/if}}
          </ul>
     </div>
+
     <div class="collapse navbar-collapse justify-content-end">
          <ul class="navbar-nav">
              <li class="nav-item dropdown">
@@ -55,11 +67,6 @@
                      <a class="dropdown-item" href="/account">
                          Your Profile
                      </a>
-                     <!-- not available right now
-                     <a class="dropdown-item" href="/account/edits">
-                         Your edits
-                     </a>
-                     -->
                      <div class="dropdown-divider"></div>
                      <a class="dropdown-item" href="/help">
                          Help

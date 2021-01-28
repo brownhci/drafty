@@ -1,8 +1,9 @@
 import { StatusMode, tableFoot } from "./table-foot";
 
+const navBar: HTMLElement = document.getElementById("navbar-nav");
+
 const deleteRowModal: HTMLElement = document.getElementById("deleteRowModal");
 const btnCloseModal: HTMLElement = document.getElementById("btn-modal-close");
-const navBar: HTMLElement = document.getElementById("navbar-nav");
 
 const navBarNewRow: HTMLElement = document.createElement("li");
 navBarNewRow.className = "navbar-item";
@@ -34,6 +35,8 @@ navBarEditHistory.innerHTML = `
                             </a>
                         </li>`;
 
+navBar.appendChild(navBarEditHistory);
+
 navBar.appendChild(navBarNewRow);
 navBarNewRow.addEventListener("click", function(event: MouseEvent) {
     tableFoot.toggle(StatusMode.Insertion);
@@ -50,5 +53,3 @@ btnCloseModal.addEventListener("click", function(event: MouseEvent) {
     deleteRowModal.style.display = "none";
     event.stopPropagation();
 }, true);
-
-navBar.appendChild(navBarEditHistory);
