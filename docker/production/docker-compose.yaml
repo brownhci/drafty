@@ -10,13 +10,6 @@ services:
             - MYSQL_ROOT_PASSWORD=<your_db_password>
             - MYSQL_DATABASE=test
         image: mariadb
-    phpmyadmin:
-        container_name: myadmin
-        links:
-            - 'mariadb:db'
-        ports:
-            - '8888:80'
-        image: phpmyadmin/phpmyadmin
     portainer:
         container_name: portainer
         ports:
