@@ -7,9 +7,9 @@ services:
         ports:
             - '3306:3306'
         environment:
-            - MYSQL_ROOT_PASSWORD=<your_db_password>
+            - MYSQL_ROOT_PASSWORD=<your_db_pass>
             - MYSQL_DATABASE=test
-        image: mariadb
+        image: mariadb:10.4.17
     portainer:
         container_name: portainer
         ports:
