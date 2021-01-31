@@ -15,6 +15,14 @@ import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElemen
 import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams } from "./modules/dom/sheet";
 import { isInput, isTableData, isTableHead, isTableCell } from "./modules/dom/types";
 
+/* // testing function logic
+const startTime = performance.now();
+
+// your normal code that might take too long
+
+const duration = performance.now() - startTime;
+console.log(`someMethodIThinkMightBeSlow took ${duration}ms`);
+*/
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
 
@@ -360,14 +368,23 @@ tableElement.addEventListener("keydown", function(event: KeyboardEvent) {
   event.stopPropagation();
 }, true);
 
+/* sw - removing this for now
+// it helps recude lag time and Chrome timing violations
+// also now when someone presses X it clears it without also having to clear the search box
+tableHeadSearchElement.addEventListener("focus", function(event: FocusEvent) {
+  const startTime = performance.now();
 
-tableElement.addEventListener("focus", function(event: FocusEvent) {
   const target = event.target as HTMLElement;
-  if (isInput(target) && isTableHead(target.parentElement)) {
+  console.log(target.id);
+  if (isInput(target)) {
     columnSuggestions.activate(target.parentElement as HTMLTableCellElement);
   }
   event.stopPropagation();
+
+  const duration = performance.now() - startTime;
+  console.log(`someMethodIThinkMightBeSlow took ${duration}ms`);
 }, true);
+*/
 
 /* mouse events */
 // mouse event handlers
