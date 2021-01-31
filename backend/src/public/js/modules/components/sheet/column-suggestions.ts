@@ -49,7 +49,6 @@ class ColumnSuggestions {
     }
   }
 
-
   private get suggestionFetchURL() {
     const identifier = this.suggestionIdentifier;
     if (this.isSuggestionsForColumnSearch) {
@@ -113,6 +112,13 @@ class ColumnSuggestions {
     }), true);
   }
 
+  handleBodyClick(event: Event) {
+    const target = event.target as HTMLElement;
+    if (columnSuggestions.isActive && target !== this.inputElement) {
+      this.deactivate();
+    }
+  }
+
   activate(target: HTMLTableCellElement) {
     this.target = target;
     this.inputElement = target.querySelector("input");
@@ -120,10 +126,13 @@ class ColumnSuggestions {
     this.updateFuseSelect().then(() => {
       this.fuseSelect.query(this.inputElement.value);
     });
+    document.body.addEventListener("click", this.handleBodyClick, true);
   }
 
   deactivate() {
+    console.log('deactivate()');
     this.container.classList.remove(activeClass);
+    document.body.removeEventListener("click", this.handleBodyClick, true);
   }
 
   private async getSuggestions(
