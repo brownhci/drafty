@@ -112,13 +112,6 @@ class ColumnSuggestions {
     }), true);
   }
 
-  handleBodyClick(event: Event) {
-    const target = event.target as HTMLElement;
-    if (columnSuggestions.isActive && target !== this.inputElement) {
-      this.deactivate();
-    }
-  }
-
   activate(target: HTMLTableCellElement) {
     this.target = target;
     this.inputElement = target.querySelector("input");
@@ -130,9 +123,19 @@ class ColumnSuggestions {
   }
 
   deactivate() {
-    console.log('deactivate()');
     this.container.classList.remove(activeClass);
     document.body.removeEventListener("click", this.handleBodyClick, true);
+  }
+
+  callLog(val: string) {
+    console.log(val);
+  }
+
+  handleBodyClick(event: Event) {
+    const target = event.target as HTMLElement;
+    if (columnSuggestions.isActive && target !== this.inputElement) {
+      columnSuggestions.deactivate();
+    }
   }
 
   private async getSuggestions(
