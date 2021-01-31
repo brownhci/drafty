@@ -9,6 +9,8 @@ export const tableElement: HTMLTableElement = document.getElementById("table") a
 export const tableScrollContainer: HTMLElement = tableElement.parentElement;
 /* <thead> */
 export const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
+/* unused */
+// export const tableHeadSearchElement: HTMLTableSectionElement = document.getElementById("column-search-row") as HTMLTableSectionElement;
 /* <tbody> */
 export const tableBodyElement: HTMLTableSectionElement = document.getElementById("view") as HTMLTableSectionElement;
 /* <tfoot> */
