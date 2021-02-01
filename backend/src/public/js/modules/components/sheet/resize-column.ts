@@ -41,11 +41,7 @@ function isResizingLast() {
 function activateResizeVisualCue() {
   resizeVisualCue.classList.add(activeClass);
   if (isResizingLast()) {
-    const viewportWidth = getViewportWidth();
-    const lastTableHeadWidth = tableHeadAtMouseLeft.clientWidth;
-    const temporaryTableHeadWidth = bound(viewportWidth - lastTableHeadWidth, 0, lastTableHeadWidth);
-
-    temporaryTableHead.style.width = `${temporaryTableHeadWidth}px`;
+    temporaryTableHead.style.width = `80px`;
     tableColumnLabels.appendChild(temporaryTableHead);
     tableScrollContainer.scrollLeft = tableElement.clientWidth;
   }
