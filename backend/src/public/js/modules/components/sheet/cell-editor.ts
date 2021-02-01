@@ -318,7 +318,7 @@ class CellEditor {
 
       // remount the fuse select
       this.fuseSelect.mount(element => this.mountFuseSelect(element));
-      updateFuseSelect(this.fuseSelect, getIdSuggestion(this.cellElement), getIdSuggestionType(columnLabel), () => {});
+      updateFuseSelect(this.fuseSelect, getIdSuggestion(this.cellElement), getIdSuggestionType(columnLabel));
 
       this.alignTableCellInputForm(); 
       this.showHelpWhenInactivityReached();
