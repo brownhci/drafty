@@ -2,8 +2,6 @@ import { activeClass } from "../../constants/css-classes";
 import { getMinimumColumnWidth, updateTableCellWidth } from "./column-width";
 import { isColumnLabel, isFirstTableCell, isLastTableCell, tableColumnLabels, tableElement, tableScrollContainer } from "../../dom/sheet";
 import { getLeftTableCellElement, getRightTableCellElement } from "../../dom/navigate";
-import { getViewportWidth } from "../../utils/length";
-import { bound } from "../../utils/math";
 
 const distanceConsideredNearToBorder = 5;
 
