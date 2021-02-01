@@ -8,7 +8,7 @@ import { getColumnSuggestionURL, getEditSuggestionURL } from "../../api/endpoint
 import { getIdSuggestion, getIdSuggestionType } from "../../api/record-interactions";
 import { activeClass } from "../../constants/css-classes";
 import { getCellInTableRow, getEnclosingTableCell } from "../../dom/navigate";
-import { getColumnLabel, isColumnSearchInput, tableElement } from "../../dom/sheet";
+import { getColumnLabel, isColumnSearchInput, tableHeadSearchElement } from "../../dom/sheet";
 import { isInput } from "../../dom/types";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 import { debounce } from "../../utils/debounce";
@@ -83,7 +83,8 @@ class ColumnSuggestions {
     });
     this.fuseSelect.mount(element => this.container.appendChild(element));
 
-    tableElement.addEventListener("focus", (event: Event) => {
+    // sw: changing from tableElement (<- the entire table) to tableHeadSearchElement
+    tableHeadSearchElement.addEventListener("focus", (event: Event) => {
       const target = event.target as HTMLElement;
 
       if (this.isActive && target !== this.inputElement) {
@@ -99,9 +100,8 @@ class ColumnSuggestions {
       }
     }, true);
 
-    // sw: removing this breaks nothing
-    /* 
-    tableElement.addEventListener("input", debounce((event: Event) => {
+    // sw: change from tableElement to tableHeadSearchElement
+    tableHeadSearchElement.addEventListener("input", debounce((event: Event) => {
       console.log('tableElement input')
       const target = event.target as HTMLElement;
       if (this.isActive && target === this.inputElement) {
@@ -113,7 +113,7 @@ class ColumnSuggestions {
         }
       }
     }), true);
-    */
+    
   }
 
   activate(target: HTMLTableCellElement) {

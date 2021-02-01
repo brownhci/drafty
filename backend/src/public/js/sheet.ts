@@ -2,7 +2,7 @@ import { recordCellClick, recordCellDoubleClick } from "./modules/api/record-int
 import { activeClass, activeAccompanyClass } from "./modules/constants/css-classes";
 import "./modules/components/welcome-screen";
 import "./modules/components/sheet/navbar";
-import { tableHeadOnMouseDown, tableHeadOnMouseMove, tableHeadOnMouseUp } from "./modules/components/sheet/resize-column";
+import { tableHeadOnMouseDown, tableHeadOnMouseMove} from "./modules/components/sheet/resize-column";
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
 import { cellEditor } from "./modules/components/sheet/cell-editor";
 import "./modules/components/sheet/column-search";
@@ -12,7 +12,7 @@ import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } f
 import { tableFoot } from "./modules/components/sheet/table-foot";
 import { TabularView } from "./modules/components/sheet/tabular-view";
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
-import { tableElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams } from "./modules/dom/sheet";
+import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams } from "./modules/dom/sheet";
 import { isInput, isTableData, isTableHead, isTableCell } from "./modules/dom/types";
 
 /* // testing function logic
@@ -387,24 +387,15 @@ tableHeadSearchElement.addEventListener("focus", function(event: FocusEvent) {
 */
 
 /* mouse events */
-// mouse event handlers
-tableElement.addEventListener("mousedown", function(event: MouseEvent) {
+tableHeadTopRowElement.addEventListener("mousedown", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableHead(target)) {
     tableHeadOnMouseDown(target as HTMLTableCellElement, event);
   }
 }, {passive: true, capture: true});
-tableElement.addEventListener("mousemove", function(event: MouseEvent) {
+tableHeadTopRowElement.addEventListener("mousemove", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
-  if (isTableHead(target)) {
-    tableHeadOnMouseMove(target as HTMLTableCellElement, event);
-  }
-  event.stopPropagation();
-}, {passive: true, capture: true});
-tableElement.addEventListener("mouseup", function(event: MouseEvent) {
-  cellEditor.onMouseUp(event);
-  tableHeadOnMouseUp(event);
-  event.stopPropagation();
+  tableHeadOnMouseMove(event);
 }, {passive: true, capture: true});
 
 // initially sort on University A-Z

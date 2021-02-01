@@ -73,10 +73,8 @@ function getAllowedLeftmostPosition(resizeElement: HTMLTableCellElement) {
 
 
 function repositionResizeVisualCue(resizeElement: HTMLTableCellElement, newXPos: number) {
-  if (resizeElement) {
-    const minX = getAllowedLeftmostPosition(resizeElement);
-    newXPos = Math.max(minX, newXPos);
-  }
+  const minX = getAllowedLeftmostPosition(resizeElement);
+  newXPos = Math.max(minX, newXPos);
   resizeVisualCue.style.left = `${newXPos}px`;
 }
 
@@ -119,9 +117,11 @@ function handleMouseMoveOnColumnLabel(tableCellElement: HTMLTableCellElement, ev
         setTableHeadAtMouseRight(getRightTableCellElement(tableCellElement));
       }
     }
+    event.stopPropagation();
 }
 
-export function tableHeadOnMouseMove(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
+export function tableHeadOnMouseMove(event: MouseEvent) {
+  const tableCellElement: HTMLTableCellElement = event.target as HTMLTableCellElement;
   if (isResizing) {
     repositionResizeVisualCue(tableHeadAtMouseLeft, event.pageX);
   } else {
@@ -135,14 +135,24 @@ export function tableHeadOnMouseMove(tableCellElement: HTMLTableCellElement, eve
 }
 
 export function tableHeadOnMouseDown(tableCellElement: HTMLTableCellElement, event: MouseEvent) {
-  if (isColumnLabel(tableCellElement)) {
-    if (nearElementLeftBorder(tableCellElement) || nearElementRightBorder(tableCellElement)) {
-      isResizing = true;
-      resizeStartX = event.pageX;
-      repositionResizeVisualCue(tableHeadAtMouseLeft, resizeStartX);
-      activateResizeVisualCue();
-    }
+  if (nearElementLeftBorder(tableCellElement) || nearElementRightBorder(tableCellElement)) {
+    isResizing = true;
+    resizeStartX = event.pageX;
+    repositionResizeVisualCue(tableHeadAtMouseLeft, resizeStartX);
+    activateResizeVisualCue();
+    addResizeListeners();
   }
+  event.stopPropagation();
+}
+
+function addResizeListeners() {
+  tableElement.addEventListener("mousemove", tableHeadOnMouseMove, true);
+  tableElement.addEventListener("mouseup", tableHeadOnMouseUp, true);
+}
+
+function removeResizeListeners() {
+  tableElement.removeEventListener("mousemove", tableHeadOnMouseMove, true);
+  tableElement.removeEventListener("mouseup", tableHeadOnMouseUp, true);
 }
 
 export function tableHeadOnMouseUp(event: MouseEvent) {
@@ -160,6 +170,8 @@ export function tableHeadOnMouseUp(event: MouseEvent) {
       updateTableCellWidth(tableHeadAtMouseLeft, resizeAmount);
     }
   }
-  deactivateResizeVisualCue();
   isResizing = false;
+  deactivateResizeVisualCue();
+  removeResizeListeners();
+  event.stopPropagation();
 }
