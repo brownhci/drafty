@@ -10,7 +10,7 @@ import { FuseSelect } from "../../fuse/sheet-fuse";
 import { initializeFuseSelect, updateFuseSelect } from "./suggestions";
 import { alignElementHorizontally } from "./align";
 import { activeClass, inputtingClass, invalidClass, userEditClass } from "../../constants/css-classes";
-import { getViewportHeight, getViewportWidth, measureTextWidth } from "../../utils/length";
+import { getViewportHeight, getViewportWidth } from "../../utils/length";
 import { debounce } from "../../utils/debounce";
 import { getColumnLabel, getTableRow, isColumnAutocompleteOnly, isTableCellEditable, setTableDataText, tableScrollContainer } from "../../dom/sheet";
 import { getRightTableCellElement } from "../../dom/navigate";
