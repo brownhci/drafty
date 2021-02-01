@@ -48,7 +48,7 @@ class CellEditor {
   }
   set formInput(value: string) {
     this.formInputElement.value = value;
-    this.resizeFormToFitText(value, 108);
+    //this.resizeFormToFitText(value, 108); // sw: this gets called twice
   }
 
   private get formWidth(): number {
@@ -167,7 +167,6 @@ class CellEditor {
     });
 
     this.formInputElement.addEventListener("input", (event) => {
-      //console.log('INPUT on fuse-select');
       this.fuseSelect.query(this.formInput); // sw: TODO replace fuse
       event.stopPropagation();
     }, { passive: true });
@@ -302,44 +301,26 @@ class CellEditor {
   }
 
   activateForm(cellElement: HTMLTableCellElement, searchVal: string) {
-    if (this.isActive) {
-      this.deactivateForm();
-    }
-
     if (cellElement && isTableCellEditable(cellElement)) {
       if (!this.willFormDeactivateWhenCellNoLongerReachable) {
         // one-time setup for automatic deactivation of cell editor
         this.deactivateFormWhenCellNoLongerReachable();
         this.willFormDeactivateWhenCellNoLongerReachable = true;
       }
-      
+
       this.cellElement = cellElement;
-      this.formElement.classList.add(activeClass);
-      this.focusFormInput();
       const columnIndex = this.cellElement.cellIndex;
       const columnLabel = getColumnLabel(columnIndex);
-      if (columnLabel) {
-        columnLabel.classList.add(inputtingClass);
-      }
+      this.resizeFormToFitText(columnLabel.offsetWidth);
+
+      this.formElement.classList.add(activeClass); // sw: shows edit input on DOM
+      this.focusFormInput();
 
       // remount the fuse select
       this.fuseSelect.mount(element => this.mountFuseSelect(element));
-      updateFuseSelect(this.fuseSelect, getIdSuggestion(this.cellElement), getIdSuggestionType(columnLabel), () => {
-        // resize form editor
+      updateFuseSelect(this.fuseSelect, getIdSuggestion(this.cellElement), getIdSuggestionType(columnLabel), () => {});
 
-        // sw: this resize/align is causing alignElementHorizontally to trigger twice
-        /*
-        this.resizeFormToFitText(this.fuseSelect.longestText, 88);
-        this.alignTableCellInputForm();
-        */
-
-        this.fuseSelect.query(searchVal); // sw: for initial search value
-        this.formInput = searchVal;
-      });
-
-      // sw: TODO - resizeFormToFitText taking too long before align is triggered
-      this.resizeFormToFitText(this.fuseSelect.longestText, 88);
-      this.alignTableCellInputForm();
+      this.alignTableCellInputForm(); 
       this.showHelpWhenInactivityReached();
     }
   }
@@ -453,10 +434,9 @@ class CellEditor {
    * @param {string} - The text to be fit.
    * @param {slack} - An addition term to be added on the text width. This could be used to account for padding, margin...
    */
-  private resizeFormToFitText(text: string, slack: number = 0) {
-    const textWidth = measureTextWidth(text);
-    const width = textWidth + slack;
-    this.formWidth = width;
+  private resizeFormToFitText(textWidth: number, slack: number = 0) {
+    //this.formWidth = measureTextWidth(text) + slack;
+    this.formWidth = textWidth + slack;
   }
 
   /**
