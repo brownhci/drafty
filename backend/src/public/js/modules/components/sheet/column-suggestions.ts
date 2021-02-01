@@ -8,11 +8,10 @@ import { getColumnSuggestionURL, getEditSuggestionURL } from "../../api/endpoint
 import { getIdSuggestion, getIdSuggestionType } from "../../api/record-interactions";
 import { activeClass } from "../../constants/css-classes";
 import { getCellInTableRow, getEnclosingTableCell } from "../../dom/navigate";
-import { getColumnLabel, isColumnSearchInput, tableHeadSearchElement } from "../../dom/sheet";
+import { getColumnLabel, isColumnSearchInput, tableHeadSearchElement, tableFootElement } from "../../dom/sheet";
 import { isInput } from "../../dom/types";
 import { FuseSelect } from "../../fuse/sheet-fuse";
 import { debounce } from "../../utils/debounce";
-import { measureTextWidth } from "../../utils/length";
 import { tableDataManager, updateActiveTableCellElement } from "../../../sheet";
 
 interface Option {
@@ -83,37 +82,35 @@ class ColumnSuggestions {
     });
     this.fuseSelect.mount(element => this.container.appendChild(element));
 
-    // sw: changing from tableElement (<- the entire table) to tableHeadSearchElement
-    tableHeadSearchElement.addEventListener("focus", (event: Event) => {
-      const target = event.target as HTMLElement;
+    tableHeadSearchElement.addEventListener("focus", debounce(this.inputHandler)), true;
+    tableHeadSearchElement.addEventListener("input", debounce(this.inputHandler)), true;
+    tableFootElement.addEventListener("focus", debounce(this.inputHandler)), true;
+    tableFootElement.addEventListener("input", debounce(this.inputHandler)), true;
+  }
 
-      if (this.isActive && target !== this.inputElement) {
-        // another element receives focus
-        this.deactivate();
+  focusHandler(event: Event) {
+    const target = event.target as HTMLElement;
+    if (columnSuggestions.isActive && target !== columnSuggestions.inputElement) {
+      columnSuggestions.deactivate(); // another element receives focus
+    }
+    if (isInput(target)) {
+      const tableCellElement = getEnclosingTableCell(target);
+      if (tableCellElement) {
+        updateActiveTableCellElement(tableCellElement, false);
       }
+    }
+  }
 
-      if (isInput(target)) {
-        const tableCellElement = getEnclosingTableCell(target);
-        if (tableCellElement) {
-          updateActiveTableCellElement(tableCellElement, false);
-        }
-      }
-    }, true);
-
-    // sw: change from tableElement to tableHeadSearchElement
-    tableHeadSearchElement.addEventListener("input", debounce((event: Event) => {
-      console.log('tableElement input')
-      const target = event.target as HTMLElement;
-      if (this.isActive && target === this.inputElement) {
+  inputHandler(event: Event) {
+    const target = event.target as HTMLElement;
+      if (columnSuggestions.isActive && target === columnSuggestions.inputElement) {
         // the input for searching, filter the suggestions
-        this.fuseSelect.query(this.inputElement.value); 
-        if (!this.isSuggestionsForColumnSearch) {
-          // if the suggestion window is for column search, then there is no need to re-align
-          this.align();
+        columnSuggestions.fuseSelect.query(columnSuggestions.inputElement.value); 
+        if (!columnSuggestions.isSuggestionsForColumnSearch) {
+          // if the suggestion window is for column search, then no need to re-align
+          columnSuggestions.align();
         }
       }
-    }), true);
-    
   }
 
   activate(target: HTMLTableCellElement) {
@@ -177,8 +174,9 @@ class ColumnSuggestions {
   }
 
   private align() {
-    const longestText = this.fuseSelect.longestText;
-    this.containerWidth = measureTextWidth(longestText) + 88;
+    //const longestText = this.fuseSelect.longestText;
+    //this.containerWidth = measureTextWidth(longestText) + 88; // sw: kills performance
+    this.containerWidth = columnSuggestions.inputElement.offsetWidth + 80;
 
     const targetDimensions = this.inputElement.getBoundingClientRect();
     alignElementHorizontally(this.container, targetDimensions);
