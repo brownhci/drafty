@@ -435,7 +435,7 @@ class CellEditor {
    * @param {slack} - An addition term to be added on the text width. This could be used to account for padding, margin...
    */
   private resizeFormToFitText(textWidth: number, slack: number = 0) {
-    //this.formWidth = measureTextWidth(text) + slack;
+    //this.formWidth = measureTextWidth(text) + slack; // measureTextWidth is a huge performance hit
     this.formWidth = textWidth + slack;
   }
 
