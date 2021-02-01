@@ -245,6 +245,7 @@ function sortPanelSorterDeleteButtonOnClick(sorterDeleteButton: HTMLElement) {
   }
 
   updateDisabledOptions();
+  reorderSortingFunctionFromSortPanel();
 }
 columnSortPanel.addEventListener("click", function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
