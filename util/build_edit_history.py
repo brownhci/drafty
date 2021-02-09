@@ -220,7 +220,7 @@ def create_thead():
     cssBoxShadow = ''
     thead = f"""
     <colgroup>
-        <col id="col6" style="width: 160px;">
+        <col id="col6" style="width: 162px;">
         <col id="col0" style="width: 140px;">
         <col id="col1" style="width: 86px;">
         <col id="col2" style="width: 320px;">
