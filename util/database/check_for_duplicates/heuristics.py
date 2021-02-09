@@ -17,6 +17,8 @@ def sqlUpdate(id,idDel):
 def cleanName(name):
     cleaned = name.replace('.','')
     cleaned = re.sub("\s[A-Za-z]\s", " ", cleaned)
+    cleaned_by_name = cleaned.split(' ')
+    cleaned = cleaned_by_name[0] + cleaned_by_name[(len(cleaned_by_name)-1)]
     return cleaned
 
 def checkIfNameBachMatch(df):
@@ -33,7 +35,7 @@ def checkIfNameBachMatch(df):
         bach = row['Bachelors']
         
         if name == prevName:
-            print(name,bach)
+            print(name,bach,id,prevId)
             #print(sqlUpdate(id,prevId))
 
         prevId = id
