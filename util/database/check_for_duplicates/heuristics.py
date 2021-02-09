@@ -24,19 +24,27 @@ def cleanName(name):
 def checkIfNameBachMatch(df):
     df.sort_values(by=['Bachelors','FullName'], inplace=True)
 
-    toDeactivate = []
-
     prevId = ''
     prevName = ''
     prevBach = ''
     for index, row in df.iterrows():
         id = row['UniqueId']
-        name = cleanName(row['FullName'])
+        nm   = row['FullName']
+        name = cleanName(nm)
+        uni  = row['University']
         bach = row['Bachelors']
-        
+
+        if name not in name_uni:
+            name_uni[name] = [id,uni]
+        else:
+            prof1 = f'({id}) {uni}'
+            prof2 = f'({name_uni[name][0]}) {name_uni[name][1]}'
+            print(f'NameDup for {nm} ',prof1,' :: ',prof2)
+
+        """ sw -> already checked
         if name == prevName:
-            print(name,bach,id,prevId)
-            #print(sqlUpdate(id,prevId))
+            print('NAME/BACH',name,bach,id,prevId)
+        """
 
         prevId = id
         prevName = name
