@@ -1,4 +1,9 @@
 # install pip3
+# we need: 
+# docker
+# node v14
+# and python 3.7
+
 apt-get install python3-pip
 
 ### for drafty
