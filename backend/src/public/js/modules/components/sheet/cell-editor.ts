@@ -158,7 +158,11 @@ class CellEditor {
             this.closeForm(false);
             break;
           case "Enter":
-            this.closeForm(true);
+            let noEdit: boolean = true;
+            if (this.cellElement.innerHTML === this.formInput) {
+              noEdit = false;
+            }
+            this.closeForm(noEdit);
             event.preventDefault();
             break;
         }
