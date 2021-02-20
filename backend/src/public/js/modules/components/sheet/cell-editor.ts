@@ -158,11 +158,7 @@ class CellEditor {
             this.closeForm(false);
             break;
           case "Enter":
-            let noEdit: boolean = true;
-            if (this.cellElement.innerHTML === this.formInput) {
-              noEdit = false;
-            }
-            this.closeForm(noEdit);
+            this.closeForm(true);
             event.preventDefault();
             break;
         }
@@ -292,6 +288,9 @@ class CellEditor {
    * @param {boolean} saveEdit - Whether `this.formInput` will be saved and recorded.
    */
   closeForm(saveEdit: boolean) {
+    if (this.cellElement.innerHTML === this.formInput) {
+      saveEdit = false;
+    }
     if (saveEdit) {
       if (this.saveEdit()) {
         const cellToActivate = getRightTableCellElement(this.cellElement) || this.cellElement;
