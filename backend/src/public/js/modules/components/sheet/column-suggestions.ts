@@ -11,6 +11,7 @@ import { getCellInTableRow, getEnclosingTableCell } from "../../dom/navigate";
 import { getColumnLabel, isColumnSearchInput, tableHeadSearchElement, tableFootElement } from "../../dom/sheet";
 import { isInput } from "../../dom/types";
 import { FuseSelect } from "../../fuse/sheet-fuse";
+import { FuzzySelect } from "../../fuzzysort/sheet-fuzzysort";
 import { debounce } from "../../utils/debounce";
 import { tableDataManager, updateActiveTableCellElement } from "../../../sheet";
 
@@ -25,6 +26,7 @@ class ColumnSuggestions {
   private inputElement: HTMLInputElement;
 
   private fuseSelect: FuseSelect = new FuseSelect();
+  private fuzzySelect: FuzzySelect = new FuzzySelect();
 
   get isActive(): boolean {
     return this.container.classList.contains(activeClass);
@@ -139,7 +141,7 @@ class ColumnSuggestions {
     }
   }
 
-  private async getSuggestions(
+  private async getSuggestionsNew(
     handlerForCachedSuggestions?: (options: Array<Option>) => void,
     handlerForPulledSuggestions?: (options: Array<Option>) => void
   ) {
@@ -152,10 +154,26 @@ class ColumnSuggestions {
     });
   }
 
+  private async getSuggestions(
+    handlerForCachedSuggestions?: (options: Array<Option>) => void,
+    handlerForPulledSuggestions?: (options: Array<Option>) => void
+  ) {
+    const forColumnSearch: boolean = this.isSuggestionsForColumnSearch;
+    const suggestionManager = forColumnSearch ? columnSuggestionManager : editSuggestionManager;
+    return await suggestionManager.get(this.suggestionFetchURL, this.suggestionIdentifier.toString(), handlerForCachedSuggestions, (options) => {
+      // if suggestions are not pulled for column search, they are pulled for edit row and in that case. Previous edit should be filtered out
+      //options = options.filter(option => option.suggestion !== "" && (forColumnSearch || option.prevSugg === 0));
+      handlerForPulledSuggestions(options);
+    });
+  }
+
   private async updateFuseSelect() {
+    this.fuzzySelect.test();
+    
     return await this.getSuggestions(
       options => {
         this.fuseSelect.options = options ? options : [];
+        //console.log('options 1 ')
         this.fuseSelect.sync();
         this.align();
       },
@@ -164,6 +182,7 @@ class ColumnSuggestions {
           // no autocomplete options to show
           this.deactivate();
         } else {
+          //console.log('options 2 ')
           this.fuseSelect.options = options;
           this.fuseSelect.sync();
           this.container.classList.add(activeClass);

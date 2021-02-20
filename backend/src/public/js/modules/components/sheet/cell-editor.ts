@@ -288,6 +288,8 @@ class CellEditor {
    * @param {boolean} saveEdit - Whether `this.formInput` will be saved and recorded.
    */
   closeForm(saveEdit: boolean) {
+    console.log(this.cellElement)
+    console.log(this.formInput)
     if (saveEdit) {
       if (this.saveEdit()) {
         const cellToActivate = getRightTableCellElement(this.cellElement) || this.cellElement;

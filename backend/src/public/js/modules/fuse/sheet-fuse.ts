@@ -201,7 +201,6 @@ export class FuseSelect {
   private patch(options: Array<Option>) {
     const optionElements = this.optionContainer.querySelectorAll(`.${optionClass}`);
     const numOptions = options.length;
-
     let optionIndex = 0;
     for (const optionElement of optionElements) {
       if (optionIndex < numOptions) {

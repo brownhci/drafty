@@ -127,6 +127,7 @@ export async function insertNewRowSuggestionUserCredit(idProfile: number, idUniq
  */
 export async function selectSuggestionsForEdit(idSuggestion: number) {
   try {
+      console.log(`stmtSelectSuggestionsForEdit - idSuggestion ${idSuggestion}`)
       const [results] = await db.query(stmtSelectSuggestionsForEdit, [idSuggestion,idSuggestion,idSuggestion]);
       return [null, results];
   } catch (error) {
@@ -158,6 +159,7 @@ export async function getValidationRule() {
 export async function getSuggestionsWithSuggestionType(idSuggestionType: number) {
   try {
     // only pull by idSuggestionType; add GROUP BY to reduce duplicates, and apply a default sorting
+    console.log(`stmtSelectSuggestionsWithSuggestionType - idSuggestionType ${idSuggestionType}`)
     const [results] = await db.query(stmtSelectSuggestionsWithSuggestionType, [idSuggestionType]);
     return [null, results];
   } catch (error) {

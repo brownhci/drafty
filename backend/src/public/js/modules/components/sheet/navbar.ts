@@ -10,7 +10,7 @@ navBarNewRow.className = "navbar-item";
 navBarNewRow.innerHTML = `
                         <li class="nav-item">
                             <span id="navbar-addrow">
-                                Row
+                                Add Row
                             </span>
                         </li>`;
 
@@ -19,7 +19,7 @@ navBarDelRow.className = "navbar-item";
 navBarDelRow.innerHTML = `
                         <li class="nav-item">
                                 <span id="navbar-delrow">
-                                    Row
+                                    Delete Row
                                 </span>
                             </a>
                         </li>`;
