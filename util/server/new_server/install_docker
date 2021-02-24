@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+apt-get purge docker lxc-docker docker-engine docker.io
+cd ~
+curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+apt-cache policy docker-ce
+apt-get install apt-transport-https 
+apt-get install ca-certificates 
+apt-get install curl 
+apt-get install curl 
+apt-get install gnupg2
+apt-get install software-properties-common
+apt-get install docker-ce
+apt-get install docker-compose
