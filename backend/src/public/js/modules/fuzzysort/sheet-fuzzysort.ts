@@ -1,13 +1,13 @@
 import fuzzysort from "./fuzzysort";
 import { Option as Opt } from "../components/sheet/suggestions";
-import { fuseSelectRootContainerClass, autocompleteSuggestionClass, previousEditClass, optionContainerClass, optionClass, optionTextClass } from "../constants/css-classes";
+import { fuseSelectRootContainerClass, optionContainerClass, optionTextClass } from "../constants/css-classes";
 import { activeClass } from "../constants/css-classes";
-import { executeAtLeisure } from "../utils/defer";
-import { tableDataManager, dataTemplate, tableRows } from "../../sheet";
+import { tableDataManager } from "../../sheet";
+import { getCellInTableRow } from "../dom/navigate";
 
 // sw: convert to class so it can be reused
 const fuzzySortOptions = {
-    threshold: -1000, // Don't return matches worse than this (higher is faster)
+    threshold: -10000, // Don't return matches worse than this (higher is faster)
     limit: 200,       // Don't return more results than this (lower is faster)
     allowTypo: true,  // Allwos a snigle transpoes (false is faster)
 
@@ -78,24 +78,25 @@ export class FuzzySelect {
         this.mounted = false;
     }
 
-    async getColumn(table: any, col: number) {
-        let n: number = table.rows.length;
+    async getColumn(col: number) {
+        let n: number = tableDataManager.source.length;
         let arr: Array<String> = [];
-
         for (let row = 0; row < n; ++row) {
-            const newVal = table.rows[row].cells[col].innerHTML;
-            if (!arr.includes(newVal)) {
-                arr.push(newVal);
+            const rowEle = tableDataManager.source[row].element_ as HTMLTableRowElement;
+            const cellValue = getCellInTableRow(rowEle, col).innerHTML;
+            if (!arr.includes(cellValue)) {
+                arr.push(cellValue);
             }
         }
         arr.sort();
-
         return arr;
     }
 
-   async test() {
-        const colValues = await this.getColumn(tableRows, 1);
-        const results2 = fuzzysort.go('mit', colValues, fuzzySortOptions)
-        console.log(results2);
+   async test(searchVal: string, columnIndex: number) {
+        const colValues = await this.getColumn(columnIndex);
+        const results = fuzzysort.go(searchVal, colValues, fuzzySortOptions)
+        console.log(colValues);
+        console.log(searchVal, columnIndex);
+        console.log(results);
     }
 }
