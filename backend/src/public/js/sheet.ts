@@ -26,9 +26,6 @@ console.log(`someMethodIThinkMightBeSlow took ${duration}ms`);
 
 export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
 
-export const dataTemplate: any = document.getElementById("table-data");
-export const tableRows: HTMLCollection = dataTemplate.content.children[0];
-
 /* which table column is active: a table column is activated when associated head is clicked */
 export let activeTableColElement: HTMLTableColElement = null;
 
