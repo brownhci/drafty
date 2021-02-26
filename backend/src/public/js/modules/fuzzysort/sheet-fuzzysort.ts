@@ -95,7 +95,7 @@ export class FuzzySelect {
    async test(searchVal: string, columnIndex: number) {
         const colValues = await this.getColumn(columnIndex);
         const results = fuzzysort.go(searchVal, colValues, fuzzySortOptions)
-        console.log(colValues);
+        //console.log(colValues);
         console.log(searchVal, columnIndex);
         console.log(results);
     }

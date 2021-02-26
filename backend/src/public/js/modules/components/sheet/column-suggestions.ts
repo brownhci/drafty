@@ -86,8 +86,6 @@ class ColumnSuggestions {
 
     tableHeadSearchElement.addEventListener("focus", debounce(this.inputHandler)), true;
     tableHeadSearchElement.addEventListener("input", debounce(this.inputHandler)), true;
-    tableFootElement.addEventListener("focus", debounce(this.inputHandler)), true;
-    tableFootElement.addEventListener("input", debounce(this.inputHandler)), true;
   }
 
   focusHandler(event: Event) {
@@ -105,21 +103,22 @@ class ColumnSuggestions {
 
   inputHandler(event: Event) {
     const target = event.target as HTMLElement;
-      if (columnSuggestions.isActive && target === columnSuggestions.inputElement) {
-        // the input for searching, filter the suggestions
-        columnSuggestions.fuseSelect.query(columnSuggestions.inputElement.value); 
-        if (!columnSuggestions.isSuggestionsForColumnSearch) {
-          // if the suggestion window is for column search, then no need to re-align
-          columnSuggestions.align();
-        }
+    if (columnSuggestions.isActive && target === columnSuggestions.inputElement) {
+      // the input for searching, filter the suggestions
+      columnSuggestions.fuzzySelect.test(columnSuggestions.inputElement.value, columnSuggestions.target.cellIndex);
+      columnSuggestions.fuseSelect.query(columnSuggestions.inputElement.value); 
+      if (!columnSuggestions.isSuggestionsForColumnSearch) {
+        // if the suggestion window is for column search, then no need to re-align
+        columnSuggestions.align();
       }
+    }
   }
 
   activate(target: HTMLTableCellElement) {
     this.target = target;
     this.inputElement = target.querySelector("input");
-
     this.updateFuseSelect().then(() => {
+      this.fuzzySelect.test(this.inputElement.value, this.target.cellIndex);
       this.fuseSelect.query(this.inputElement.value);
     });
     document.body.addEventListener("click", this.handleBodyClick, true);
@@ -141,19 +140,6 @@ class ColumnSuggestions {
     }
   }
 
-  private async getSuggestionsNew(
-    handlerForCachedSuggestions?: (options: Array<Option>) => void,
-    handlerForPulledSuggestions?: (options: Array<Option>) => void
-  ) {
-    const forColumnSearch: boolean = this.isSuggestionsForColumnSearch;
-    const suggestionManager = forColumnSearch ? columnSuggestionManager : editSuggestionManager;
-    return await suggestionManager.get(this.suggestionFetchURL, this.suggestionIdentifier.toString(), handlerForCachedSuggestions, (options) => {
-      // if suggestions are not pulled for column search, they are pulled for edit row and in that case. Previous edit should be filtered out
-      options = options.filter(option => option.suggestion !== "" && (forColumnSearch || option.prevSugg === 0));
-      handlerForPulledSuggestions(options);
-    });
-  }
-
   private async getSuggestions(
     handlerForCachedSuggestions?: (options: Array<Option>) => void,
     handlerForPulledSuggestions?: (options: Array<Option>) => void
@@ -161,14 +147,12 @@ class ColumnSuggestions {
     const forColumnSearch: boolean = this.isSuggestionsForColumnSearch;
     const suggestionManager = forColumnSearch ? columnSuggestionManager : editSuggestionManager;
     return await suggestionManager.get(this.suggestionFetchURL, this.suggestionIdentifier.toString(), handlerForCachedSuggestions, (options) => {
-      // if suggestions are not pulled for column search, they are pulled for edit row and in that case. Previous edit should be filtered out
-      //options = options.filter(option => option.suggestion !== "" && (forColumnSearch || option.prevSugg === 0));
       handlerForPulledSuggestions(options);
     });
   }
 
   private async updateFuseSelect() {
-    this.fuzzySelect.test();
+    this.fuzzySelect.test(this.inputElement.value, this.target.cellIndex);
     
     return await this.getSuggestions(
       options => {
@@ -193,8 +177,6 @@ class ColumnSuggestions {
   }
 
   private align() {
-    //const longestText = this.fuseSelect.longestText;
-    //this.containerWidth = measureTextWidth(longestText) + 88; // sw: kills performance
     this.containerWidth = columnSuggestions.inputElement.offsetWidth + 80;
 
     const targetDimensions = this.inputElement.getBoundingClientRect();
