@@ -218,7 +218,8 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
     @extend .border-bottom-0;
     table-layout: fixed;
     border-collapse: collapse;
-
+    font-size: 14px;
+    
     col {
       width: 10vw;
       &.active {
@@ -349,6 +350,8 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
       }
     }
     tbody {
+      line-height: 1.25em;
+      
       td {
         &.active {
           @include vendor-prefix(box-shadow, inset 0 0 0 $shadow-width $primary, webkit ms);
