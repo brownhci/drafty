@@ -1,0 +1,14 @@
+# proxy all requests
+drafty.cs.brown.edu
+
+reverse_proxy localhost:3000
+
+encode gzip
+
+log {
+	output file /var/log/access.log {
+		roll_size 1gb
+		roll_keep 5
+		roll_keep_for 720h
+	}
+}
