@@ -19,7 +19,7 @@ navBarDelRow.className = "navbar-item";
 navBarDelRow.innerHTML = `
                         <li class="nav-item">
                                 <span id="navbar-delrow">
-                                    Del Row
+                                    Delete Row
                                 </span>
                             </a>
                         </li>`;
