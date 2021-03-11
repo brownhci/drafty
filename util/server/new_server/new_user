@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-if [ "$1" -gt "-1" ]
-    USERNAME=$1
-    adduser --home /home/$USERNAME $USERNAME
-    usermod -aG sudo $USERNAME
-else 
-    echo "add username as an arg: ./new_user <username>"
-fi

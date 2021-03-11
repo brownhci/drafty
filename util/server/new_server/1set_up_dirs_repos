@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+MAINDIR="vol"
+cd / && mkdir $MAINDIR && cd $MAINDIR
+
+mkdir /$MAINDIR/docker/
+mkdir /$MAINDIR/docker/caddy
+mkdir /$MAINDIR/docker/mysql
+mkdir /$MAINDIR/docker/mysql/datadir
+
+git clone https://github.com/brownhci/drafty
+
+git clone https://github.com/brownhci/csOpenRankings/
