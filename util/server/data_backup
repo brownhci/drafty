@@ -1,2 +1,0 @@
-# backup data directory every hour to /vol
-0 * * * * cp -r /docker/mysql/datadir /vol/docker/data-backups
