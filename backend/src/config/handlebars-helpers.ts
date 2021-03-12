@@ -41,8 +41,12 @@ const helpers = {
 
     return output;
   },
-  mapLength: function(map: Map<string, string>) {
-    return Object.keys(map).length;
+  menuHasMultipleSheets: function(map: Map<string, string>) {
+    if (map.size > 1) {
+      return true;
+    } else {
+      return false;
+    }
   },
   times: function(n: number, block: any) {
     let accum = "";
