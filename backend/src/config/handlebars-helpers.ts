@@ -41,6 +41,9 @@ const helpers = {
 
     return output;
   },
+  mapLength: function(map: Map<string, string>) {
+    return Object.keys(map).length;
+  },
   times: function(n: number, block: any) {
     let accum = "";
     for(let i = 0; i < n; ++i)
