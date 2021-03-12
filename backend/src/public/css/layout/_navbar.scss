@@ -1,5 +1,6 @@
 $nav-icons: (
-  "sheet": ("before": $fa-var-table, "after": $fa-var-caret-down), 
+  "sheet": ("before": $fa-var-table), 
+  "sheets": ("before": $fa-var-table, "after": $fa-var-caret-down),
   "credits": ("before": $fa-var-history), 
   "addrow": ("before": $fa-var-plus-square), 
   "delrow": ("before": $fa-var-minus-square),
