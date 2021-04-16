@@ -13,6 +13,7 @@ apt-get install python3-pip -y
 python3 -m pip install PyMySQL
 pip3 install pandas
 pip3 install atomicwrites
+pip3 install pymysql
 
 ### for cs open rankings
 pip3 install requests_cache
