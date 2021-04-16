@@ -18,7 +18,7 @@ args = parser.parse_args()
 
 # Open database connection
 db_user, db_pass = get_db_creds()
-db = pymysql.connect("localhost", db_user, db_pass, args.database)
+db = pymysql.connect(host="localhost", user=db_user, password=db_pass, db=args.database)
 
 # prepare a cursor object using cursor() method
 cursor = db.cursor()
