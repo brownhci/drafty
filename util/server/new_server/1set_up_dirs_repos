@@ -15,3 +15,6 @@ mkdir /$MAINDIR/drafty_source/drafty/backend/data_sharing/
 
 mkdir /$MAINDIR/csopenrankings/
 git clone https://github.com/brownhci/csOpenRankings/
+
+cp config_files/Caddyfile /$MAINDIR/docker/caddy/Caddyfile
+cp config_files/my.cnf /$MAINDIR/docker/mysql/my.cnf
