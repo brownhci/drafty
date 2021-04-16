@@ -32,6 +32,7 @@ Steps:
     - run with `npm start` for normal build
 1. In production we recommend using pm2 to perpetually run the application.
     - For near zero downtimes:
+    - npm -- run serve --source-map-support --node-args="--max_old_space_size=2048"
     - pm2 scale <appname> 3
     - pm2 reload <appname>
 
