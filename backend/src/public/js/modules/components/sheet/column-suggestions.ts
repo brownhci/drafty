@@ -74,6 +74,8 @@ class ColumnSuggestions {
   }
 
   constructor() {
+
+    /*
     this.fuseSelect.handleClickOnOption((text: string) => {
       // this dictates what happens when an autocompletion option is clicked
       if (this.inputElement) {
@@ -83,6 +85,17 @@ class ColumnSuggestions {
       }
     });
     this.fuseSelect.mount(element => this.container.appendChild(element));
+    */
+
+    this.fuzzySelect.handleClickOnOption((text: string) => {
+      // this dictates what happens when an autocompletion option is clicked
+      if (this.inputElement) {
+        this.inputElement.value = text;
+        this.inputElement.dispatchEvent(new Event("input"));
+        this.deactivate();
+      }
+    });
+    this.fuzzySelect.mount(element => this.container.appendChild(element));
 
     tableHeadSearchElement.addEventListener("focus", debounce(this.inputHandler)), true;
     tableHeadSearchElement.addEventListener("input", debounce(this.inputHandler)), true;
@@ -105,8 +118,13 @@ class ColumnSuggestions {
     const target = event.target as HTMLElement;
     if (columnSuggestions.isActive && target === columnSuggestions.inputElement) {
       // the input for searching, filter the suggestions
-      columnSuggestions.fuzzySelect.test(columnSuggestions.inputElement.value, columnSuggestions.target.cellIndex);
-      columnSuggestions.fuseSelect.query(columnSuggestions.inputElement.value); 
+
+      // FUZZY new
+      columnSuggestions.fuzzySelect.query(columnSuggestions.inputElement.value, columnSuggestions.target.cellIndex);
+
+      // FUSE old
+      //columnSuggestions.fuseSelect.query(columnSuggestions.inputElement.value);
+
       if (!columnSuggestions.isSuggestionsForColumnSearch) {
         // if the suggestion window is for column search, then no need to re-align
         columnSuggestions.align();
@@ -118,8 +136,8 @@ class ColumnSuggestions {
     this.target = target;
     this.inputElement = target.querySelector("input");
     this.updateFuseSelect().then(() => {
-      this.fuzzySelect.test(this.inputElement.value, this.target.cellIndex);
-      this.fuseSelect.query(this.inputElement.value);
+      this.fuzzySelect.query(this.inputElement.value, this.target.cellIndex);
+      //this.fuseSelect.query(this.inputElement.value);
     });
     document.body.addEventListener("click", this.handleBodyClick, true);
   }
@@ -152,8 +170,8 @@ class ColumnSuggestions {
   }
 
   private async updateFuseSelect() {
-    this.fuzzySelect.test(this.inputElement.value, this.target.cellIndex);
-    
+    //this.fuzzySelect.query(this.inputElement.value, this.target.cellIndex);
+
     return await this.getSuggestions(
       options => {
         this.fuseSelect.options = options ? options : [];
