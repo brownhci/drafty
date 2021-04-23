@@ -23,9 +23,9 @@ const stmtInsertNewRowSuggestionUserCredit: string = "CALL new_user_credit_sugge
 
 const stmtSelectSuggestionsWithSuggestionType: string = "SELECT suggestion FROM Suggestions WHERE idSuggestionType = ? AND active = 1 GROUP BY suggestion ORDER BY suggestion asc";
 const stmtSelectSuggestionsForEdit: string = "SELECT suggestion, 1 as prevSugg FROM Suggestions  WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = ?) "
-                                          + " UNION "
-                                          + " SELECT stv.value as suggestion, 0 as prevSugg  FROM (SELECT * FROM SuggestionTypeValues WHERE active = 1) stv WHERE stv.idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) "
-                                          + " ORDER BY prevSugg DESC, suggestion ASC ";
+  + " UNION "
+  + " SELECT stv.value as suggestion, 0 as prevSugg  FROM (SELECT * FROM SuggestionTypeValues WHERE active = 1) stv WHERE stv.idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) "
+  + " ORDER BY prevSugg DESC, suggestion ASC ";
 
 const stmtGetSuggestionTypeValidationRule: string = "SELECT idSuggestionType, regex FROM SuggestionType;";
 
@@ -34,16 +34,16 @@ const stmtGetSuggestionTypeValidationRule: string = "SELECT idSuggestionType, re
  */
 export async function newSuggestion(idSuggestion: number, suggestion: string, idProfile: number, idSession: number, idInteractionType: number, idEntryType: number, mode: string) {
   try {
-      const [results] = await db.query(stmtProcedureEdit, [idSuggestion,suggestion,idProfile]);
+    const [results] = await db.query(stmtProcedureEdit, [idSuggestion, suggestion, idProfile]);
 
-      //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
-      const idSuggestionPrev = idSuggestion;
-      const pos = Object.keys(results).pop(); // get last
-      const idSuggestionChosen = (results as any)[pos][0]["idSuggestion"]; // sw: this is bc of how procedures return data
+    //idSuggestionPrev_var, idSuggestionChosen_var, idSession_var, idInteractionType_var, idEntryType_var, mode_var
+    const idSuggestionPrev = idSuggestion;
+    const pos = Object.keys(results).pop(); // get last
+    const idSuggestionChosen = (results as any)[pos][0]["idSuggestion"]; // sw: this is bc of how procedures return data
 
-      db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode, idProfile]);
+    db.query(stmtProcedureEditSuggestions, [idSuggestionPrev, idSuggestionChosen, idSession, idInteractionType, idEntryType, mode, idProfile]);
 
-      return [null, idSuggestionChosen];
+    return [null, idSuggestionChosen];
   } catch (error) {
     logDbErr(error, "error during newSuggestion procedure", "warn");
     return [error];
@@ -56,13 +56,13 @@ export async function newSuggestion(idSuggestion: number, suggestion: string, id
  *
  ***/
 export async function insertNewRowId() {
-    try {
-        const [results] = await db.query(stmtInsertUniqueId);
-        return [null, results];
-    } catch (error) {
-        logDbErr(error, "error during insert row (UniqueID)", "warn");
-        return error;
-    }
+  try {
+    const [results] = await db.query(stmtInsertUniqueId);
+    return [null, results];
+  } catch (error) {
+    logDbErr(error, "error during insert row (UniqueID)", "warn");
+    return error;
+  }
 }
 
 /***
@@ -76,9 +76,9 @@ export async function insertInteractionAndEdit(idSession: number, idInteractionT
     const [results] = await db.query(stmtInsertInteractionAndEdit, [idSession, idInteractionType, idEntryType, mode]);
     return [null, results];
   } catch (error) {
-      console.log(error);
-      logDbErr(error, "error during insertInteractionAndEdit", "warn");
-      return error;
+    console.log(error);
+    logDbErr(error, "error during insertInteractionAndEdit", "warn");
+    return error;
   }
 }
 
@@ -101,8 +101,8 @@ export async function insertNewRowSuggestion(suggestion: string, idEdit: number,
 
     return idSuggestionNew;
   } catch (error) {
-      console.log(error);
-      logDbErr(error, "error during insertNewRowSuggestion", "warn");
+    console.log(error);
+    logDbErr(error, "error during insertNewRowSuggestion", "warn");
   }
 }
 
@@ -116,8 +116,8 @@ export async function insertNewRowSuggestionUserCredit(idProfile: number, idUniq
     //console.log("stmtInsertNewRowSuggestionUserCredit: ", idProfile, idUniqueId);
     db.query(stmtInsertNewRowSuggestionUserCredit, [idProfile, idUniqueId]);
   } catch (error) {
-      console.log(error);
-      logDbErr(error, "error during insertNewRowSuggestionUserCredit", "warn");
+    console.log(error);
+    logDbErr(error, "error during insertNewRowSuggestionUserCredit", "warn");
   }
 }
 
@@ -127,12 +127,12 @@ export async function insertNewRowSuggestionUserCredit(idProfile: number, idUniq
  */
 export async function selectSuggestionsForEdit(idSuggestion: number) {
   try {
-      console.log(`stmtSelectSuggestionsForEdit - idSuggestion ${idSuggestion}`)
-      const [results] = await db.query(stmtSelectSuggestionsForEdit, [idSuggestion,idSuggestion,idSuggestion]);
-      return [null, results];
+    console.log(`stmtSelectSuggestionsForEdit - idSuggestion ${idSuggestion}`)
+    const [results] = await db.query(stmtSelectSuggestionsForEdit, [idSuggestion, idSuggestion, idSuggestion]);
+    return [null, results];
   } catch (error) {
-      logDbErr(error, "error during selectSuggestionsForEdit", "warn");
-      return [error];
+    logDbErr(error, "error during selectSuggestionsForEdit", "warn");
+    return [error];
   }
 }
 
@@ -142,11 +142,11 @@ export async function selectSuggestionsForEdit(idSuggestion: number) {
  */
 export async function getValidationRule() {
   try {
-      const [results] = await db.query(stmtGetSuggestionTypeValidationRule);
-      return [null, results];
+    const [results] = await db.query(stmtGetSuggestionTypeValidationRule);
+    return [null, results];
   } catch (error) {
-      logDbErr(error, "error during retrieving validation rules", "warn");
-      return [error];
+    logDbErr(error, "error during retrieving validation rules", "warn");
+    return [error];
   }
 }
 
@@ -159,7 +159,7 @@ export async function getValidationRule() {
 export async function getSuggestionsWithSuggestionType(idSuggestionType: number) {
   try {
     // only pull by idSuggestionType; add GROUP BY to reduce duplicates, and apply a default sorting
-    console.log(`stmtSelectSuggestionsWithSuggestionType - idSuggestionType ${idSuggestionType}`)
+    //console.log(`stmtSelectSuggestionsWithSuggestionType - idSuggestionType ${idSuggestionType}`)
     const [results] = await db.query(stmtSelectSuggestionsWithSuggestionType, [idSuggestionType]);
     return [null, results];
   } catch (error) {
