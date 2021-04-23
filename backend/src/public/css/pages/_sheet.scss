@@ -4,13 +4,14 @@ $visual-cue-width: 5px;
 $resize-color: #B0D0D3;
 
 $border-top: inset 0px 1px 0px 0px $table-border-color;
-$border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0px 0px $table-border-color;
+$border-top-bottom: inset 0px 1px 0px 0px $table-border-color,
+inset 0px -1px 0px 0px $table-border-color;
 
 %cell-overflow {
-    @extend .overflow-hidden;
-    @extend .text-nowrap;
-    @extend .text-break;
-    text-overflow: ellipsis;
+  @extend .overflow-hidden;
+  @extend .text-nowrap;
+  @extend .text-break;
+  text-overflow: ellipsis;
 }
 
 #noscript-modal {
@@ -18,9 +19,10 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
   @extend .d-block;
   z-index: $zindex-nav + 2;
   background-color: rgba(0, 0, 0, 0.5);
+
   .modal-dialog {
     @extend .modal-lg;
-    @extend  .modal-dialog-centered;
+    @extend .modal-dialog-centered;
 
     .modal-body {
       @extend .px-4;
@@ -35,10 +37,11 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
   @extend .px-0;
   @extend .position-relative;
 
-  & > div {
+  &>div {
     @extend .w-100;
     @extend .h-100;
     @extend .overflow-auto;
+
     #resize-visual-cue {
       @extend .h-100;
       @extend .position-absolute;
@@ -48,6 +51,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
       width: $visual-cue-width !important;
       top: 0;
       left: 0;
+
       &.active {
         z-index: $zindex-popover;
         @extend .d-block;
@@ -99,6 +103,7 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
             @extend .text-primary;
           }
         }
+
         .column-sorter-sortby-text {
           @extend .text-nowrap;
           @extend .d-inline-block;
@@ -116,9 +121,11 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
           @extend .fas;
           @extend .clickable;
           @extend .fa-sort-alpha-down;
+
           &.desc {
             @extend .fa-sort-alpha-down-alt;
           }
+
           &:hover {
             @extend .text-dark;
           }
@@ -142,67 +149,86 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
       @extend .float-window;
       max-width: 90vw;
       cursor: move;
+
       #locate-cell {
         @extend .btn;
         @extend .btn-primary;
         @extend .btn-sm;
         @extend .d-none;
         @extend .w-100;
+
         #locate-cell-icon {
           @extend .fas;
           @extend .fa-map-marker-alt;
         }
+
         #locate-cell-row-col {
           @extend .font-size-small;
-          #locate-cell-associated-row, #locate-cell-associated-col {
+
+          #locate-cell-associated-row,
+          #locate-cell-associated-col {
             @extend .font-weight-bold;
           }
         }
+
         #locate-cell-explanation {
           @extend .d-none;
         }
+
         &:hover {
-          #locate-cell-icon, #locate-cell-row-col {
+
+          #locate-cell-icon,
+          #locate-cell-row-col {
             @extend .d-none;
           }
+
           #locate-cell-explanation {
             @extend .d-inline-block;
           }
         }
+
         &.active {
           @extend .d-inline-block;
         }
       }
+
       #table-cell-input-feedback {
         @extend .invalid-feedback;
         padding-left: 0.75em;
+
         &:active {
           @extend .d-block;
         }
       }
+
       #table-cell-input-save {
         @extend .btn;
         @extend .btn-primary;
         @extend .btn-sm;
         @extend .float-right;
       }
+
       #input-form-legend {
         @extend .font-size-small;
         @extend .unselectable;
         @extend .text-right;
+
         span:nth-child(2) {
           @extend .text-muted;
         }
+
         span:nth-child(3) {
           color: $orange;
         }
       }
+
       #input-form-legend-orange {
         @extend .font-size-small;
         @extend .text-right;
         color: $orange;
       }
-      & > div {
+
+      &>div {
         @extend .mb-0;
         @extend .px-1;
       }
@@ -219,9 +245,10 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
     table-layout: fixed;
     border-collapse: collapse;
     font-size: 14px;
-    
+
     col {
       width: 10vw;
+
       &.active {
         background-color: rgba($primary, 0.1);
       }
@@ -237,19 +264,24 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
       }
     }
 
-    th, td {
+    th,
+    td {
       @extend %cell-overflow;
       @extend .unselectable;
+
       &:focus {
         outline: none;
       }
+
       &[contenteditable="false"] {
         @extend .text-muted;
       }
     }
 
-    thead, tfoot {
+    thead,
+    tfoot {
       @extend .thead-light;
+
       tr {
         &#column-label-row {
           &.resize-border {
@@ -257,91 +289,116 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
           }
         }
       }
+
       th {
         border-bottom-width: 1px;
+
         .sort-btn {
           @extend .btn;
           @extend .btn-sm;
           @extend .d-none;
           @extend .float-right;
           @extend .fas;
+
           &.clicked {
             @extend .d-inline-block;
           }
+
           @extend .fa-sort-alpha-down;
+
           &.desc {
             @extend .fa-sort-alpha-down-alt;
           }
         }
+
         &.hover {
           .sort-btn {
             @extend .d-inline-block;
             @extend .btn-outline-primary;
+
             &.clicked {
               @extend .btn-primary;
             }
           }
         }
-        &.active, &.inputting {
+
+        &.active,
+        &.inputting {
           @extend .bg-primary;
           @extend .text-white;
+
           .sort-btn {
             @extend .d-inline-block;
             @extend .btn-outline-light;
+
             &.clicked {
               @extend .btn-light;
             }
           }
         }
+
         &.copied {
           @extend .bg-info;
           @extend .text-white;
         }
+
         &.active-accompany {
           // disable highlighting in accompany cells
           // @extend .bg-secondary;
           // @extend .text-white;
         }
-        &.near-left-border, &.near-right-border {
+
+        &.near-left-border,
+        &.near-right-border {
           cursor: col-resize;
         }
+
         @keyframes barberpole {
-          from { background-position: 0 0; }
-          to   { background-position: 98px 49px; }
+          from {
+            background-position: 0 0;
+          }
+
+          to {
+            background-position: 98px 49px;
+          }
         }
+
         &.near-right-border {
           background-size: 49px 49px;
-          background-image: linear-gradient(
-            45deg,
-            rgba($resize-color, 0.1)  25%,
-            transparent       25%,
-            transparent       50%,
-            rgba($resize-color, 0.1)  50%,
-            rgba($resize-color, 0.1)  75%,
-            transparent       75%,
-            transparent
-          );
+          background-image: linear-gradient(45deg,
+              rgba($resize-color, 0.1) 25%,
+              transparent 25%,
+              transparent 50%,
+              rgba($resize-color, 0.1) 50%,
+              rgba($resize-color, 0.1) 75%,
+              transparent 75%,
+              transparent);
           animation: barberpole 1s linear infinite;
           @include vendor-prefix(box-shadow, (inset $resize-shadow-width 0 0 0 $resize-color, inset (-$resize-shadow-width) 0 0 0 $resize-color), webkit ms);
         }
+
         &.column-label {
           // patch for Chrome
           @extend .position-sticky;
           top: 0;
         }
+
         &#resize-temporary-column {
           background-color: transparent !important;
           @extend .border-0;
         }
+
         &.column-search {
           @extend .border-bottom-0;
           @include vendor-prefix(box-shadow, $border-top-bottom, webkit ms);
           // patch for Chrome
           @extend .position-sticky;
-          top: 3em;
+          top: 39px;
+
           input {
             @extend .w-100;
             @extend .form-control;
+
             &:placeholder-shown {
               @extend .font-awesome;
             }
@@ -349,9 +406,10 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
         }
       }
     }
+
     tbody {
       line-height: 1.25em;
-      
+
       td {
         &.active {
           @include vendor-prefix(box-shadow, inset 0 0 0 $shadow-width $primary, webkit ms);
@@ -359,11 +417,13 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
 
         &.user-edit {
           background-color: rgba($success, 0.1);
+
           &::after {
             @extend .font-awesome;
             @extend .text-success;
             @extend .float-right;
           }
+
           &:hover::after {
             content: "\f4ff";
           }
@@ -371,11 +431,13 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
 
         &.pasted {
           background-color: rgba($primary, 0.1);
+
           &::after {
             @extend .font-awesome;
             @extend .text-primary;
             @extend .float-right;
           }
+
           &:hover::after {
             content: "\f0ea";
           }
@@ -383,31 +445,39 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
 
         &.copied {
           background-color: rgba($info, 0.25);
+
           &::after {
             @extend .font-awesome;
             @extend .text-info;
             @extend .float-right;
           }
+
           &:hover::after {
             content: "\f0c5";
           }
         }
       }
     }
+
     tfoot {
       @extend .position-sticky;
       bottom: 0;
-      tr:nth-child(1) { // insertion table row
+
+      tr:nth-child(1) {
+        // insertion table row
         @extend .thead-light;
         @extend .d-none;
+
         &.active {
           display: table-row !important;
         }
+
         th {
           // patch for Chrome
           @extend .position-sticky;
           @include vendor-prefix(box-shadow, $border-top, webkit ms);
           bottom: 49px;
+
           input {
             @extend .w-100;
             @extend .form-control;
@@ -415,53 +485,71 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
         }
       }
 
-      tr:nth-child(2) { // status table row
+      tr:nth-child(2) {
+
+        // status table row
         &.idle {
           th {
             @extend .d-none;
           }
         }
-        &.cellcopy, &.columncopy, &.celleditor-help, &.insertion-verification {
+
+        &.cellcopy,
+        &.columncopy,
+        &.celleditor-help,
+        &.insertion-verification {
           th {
             @extend .font-size-large;
             @extend .bg-white;
           }
         }
-        &.cellcopy, &.columncopy, &.celleditor-help, &.insertion-verification {
+
+        &.cellcopy,
+        &.columncopy,
+        &.celleditor-help,
+        &.insertion-verification {
           th {
             @extend .text-info;
           }
         }
-        &.insertion-success, &.insertion-failure {
+
+        &.insertion-success,
+        &.insertion-failure {
           th {
             @extend .font-size-large;
             @extend .text-white;
           }
         }
+
         &.insertion-success {
           th {
             @extend .bg-success;
           }
         }
+
         &.insertion-failure {
           th {
             @extend .bg-danger;
           }
         }
+
         &.insertion-verification {
           th {
             @extend .text-info;
+
             .spinner-grow {
               @extend .mr-2;
               @extend .align-middle;
             }
           }
         }
+
         &.rowcount {
           th {
             @extend .text-left;
           }
         }
+
         th {
           @extend .text-center;
           // patch for Chrome
@@ -471,12 +559,16 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
           bottom: 0;
         }
 
-        button#confirm-newrow, button#discard-newrow, button#close-newrow {
+        button#confirm-newrow,
+        button#discard-newrow,
+        button#close-newrow {
           @extend .btn;
           @extend .position-absolute;
           top: 50%;
           transform: translateY(-50%);
-          &::before, &::after {
+
+          &::before,
+          &::after {
             @extend .font-awesome;
           }
         }
@@ -484,21 +576,26 @@ $border-top-bottom: inset 0px 1px 0px 0px $table-border-color, inset 0px -1px 0p
         button#confirm-newrow {
           @extend .btn-success;
           left: $table-cell-padding;
+
           &::before {
             content: "\f0c7";
             @extend .mr-2;
           }
         }
+
         button#discard-newrow {
           @extend .btn-outline-secondary;
           left: 142px;
+
           &::before {
             content: "\f2ea";
           }
         }
+
         button#close-newrow {
           @extend .btn-outline-secondary;
           left: 240px;
+
           &::before {
             content: "\f00d";
           }
