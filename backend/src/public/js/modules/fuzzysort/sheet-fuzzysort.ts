@@ -8,14 +8,14 @@ import { getCellInTableRow } from "../dom/navigate";
 type Option = Partial<Opt>;
 
 // sw: convert to class so it can be reused
-const fuzzySortOptions = {
-    threshold: -10000, // Don't return matches worse than this (higher is faster)
-    limit: 100,       // Don't return more results than this (lower is faster)
-    allowTypo: true,  // Allows a single transpose (false is faster)
+const fuzzySortOptions: Fuzzysort.Options = {
+    threshold: -10000,  // Don't return matches worse than this (higher is faster)
+    limit: 100,         // Don't return more results than this (lower is faster)
+    allowTypo: true,    // Allows a single transpose (false is faster)
 
-    key: null, // For when targets are objects (see its example usage)
-    keys: null, // For when targets are objects (see its example usage)
-    scoreFn: null, // For use with `keys` (see its example usage)
+    //key: null,      // For when targets are objects (see its example usage)
+    //keys: null,     // For when targets are objects (see its example usage)
+    //scoreFn: null,  // For use with `keys` (see its example usage)
 }
 
 export class FuzzySelect {
@@ -40,8 +40,8 @@ export class FuzzySelect {
     }
 
     private addOptionsContainer() {
-        //const optionsContainer = this.createOptionContainer();
-        //this.rootContainer.appendChild(optionsContainer);
+        const optionsContainer = this.createOptionContainer(this.options);
+        this.rootContainer.appendChild(optionsContainer);
     }
 
     private createOptionContainer(options: Array<Object>): HTMLElement {
@@ -77,6 +77,27 @@ export class FuzzySelect {
         return this.optionContainer = optionContainer;
     }
 
+    handleClickOnOption(callback: (text: string) => void) {
+        this.rootContainer.addEventListener("click", function (event: MouseEvent) {
+            let optionTextElement = (event.target as HTMLElement);
+
+            if (optionTextElement.nodeName === "B") {
+                // sw: this handles when someone clicks on a bold letter
+                // when clicking on bold letter it return <b>some text</b> instead of the 
+                // div required element containing the 'fuse-select-option' css class
+                optionTextElement = optionTextElement.parentElement.parentElement.querySelector(`.${optionTextClass}`);
+            } else if (!optionTextElement.classList.contains(optionTextClass)) {
+                optionTextElement = optionTextElement.querySelector(`.${optionTextClass}`);
+            }
+
+            if (optionTextElement) {
+                callback(optionTextElement.textContent);
+                // the "click" event is fully handled here
+                event.stopPropagation();
+            }
+        });
+    }
+
     mount(mountMethod: (element: HTMLElement) => void, forceMount: boolean = false) {
         if (!this.mounted || forceMount) {
             mountMethod(this.rootContainer);
@@ -103,21 +124,9 @@ export class FuzzySelect {
         return arr;
     }
 
-    async test(searchVal: string, columnIndex: number) {
+    async query(searchVal: string, columnIndex: number) {
         const colValues = await this.getColumn(columnIndex);
-        const results: Array<Fuzzysort.Result> = Fuzzy.go(searchVal, colValues, fuzzySortOptions)
-
-        console.log('\n');
-
-        /*
-        console.log(fuzzysort.highlight(fuzzysort.single('tt', 'test'), '*', '*'))
-    
-        console.log('search val and col index =', searchVal, columnIndex);
-        console.log('length =', results.length);
-        console.log(results[0]);
-        console.log(results);
-        */
-
+        const results: Array<any> = Fuzzy.go(searchVal, colValues, fuzzySortOptions)
         this.createOptionContainer(results)
     }
 }
