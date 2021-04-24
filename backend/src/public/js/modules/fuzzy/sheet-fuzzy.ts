@@ -1,11 +1,9 @@
 import fuzzysort from "fuzzysort";
-import { Option as Opt } from "../components/sheet/suggestions";
+//import { Option as Opt } from "../components/sheet/suggestions";
 import { fuseSelectRootContainerClass, autocompleteSuggestionClass, previousEditClass, optionContainerClass, optionClass, optionTextClass } from "../constants/css-classes";
 import { activeClass } from "../constants/css-classes";
 import { tableDataManager } from "../../sheet";
 import { getCellInTableRow } from "../dom/navigate";
-
-type Option = Partial<Opt>;
 
 // sw: convert to class so it can be reused
 const fuzzySortOptions = {
@@ -15,9 +13,11 @@ const fuzzySortOptions = {
 
     key: "",      // For when targets are objects (see its example usage)
     keys: [] as string[],     // For when targets are objects (see its example usage)
-    //scoreFn: null,  // For use with `keys` (see its example usage)
+    // scoreFn: null,  // For use with `keys` (see its example usage)
     // comment scoreFn to avoid TS errors
 };
+fuzzySortOptions.key = null;
+fuzzySortOptions.keys = null;
 
 export class FuzzySelect {
 
@@ -28,7 +28,7 @@ export class FuzzySelect {
     private mounted: boolean = false;
     options: Fuzzysort.Results;
 
-    constructor(options: Fuzzysort.Results = null) {
+    constructor(options: Fuzzysort.Results = fuzzysort.go("", [], fuzzySortOptions)) {
         this.options = options;
         this.initializeSelect();
     }
@@ -51,9 +51,9 @@ export class FuzzySelect {
             optionContainer.classList.add(activeClass);
         }
 
-        for (let i = 0; i < options.length; i++) {
+        for (let i = 0; i < options.total; i++) {
 
-            const option: Record<string, any> = options[i];
+            const option: Fuzzysort.Result = options[i];
             const optionElement = document.createElement("div");
             const optionTextElement = document.createElement("span");
 
@@ -61,9 +61,8 @@ export class FuzzySelect {
             optionElement.classList.add(optionContainerClass);
             optionTextElement.classList.add(optionTextClass);
 
-            const result: any = options[i]; // TODO: sw improve this
-            optionTextElement.title = result.target;
-            optionTextElement.innerHTML = fuzzysort.highlight(result, "<b>", "</b>");
+            optionTextElement.title = option.target;
+            optionTextElement.innerHTML = fuzzysort.highlight(option, "<b>", "</b>");
 
             optionElement.appendChild(optionTextElement);
             optionContainer.appendChild(optionElement);
@@ -73,7 +72,7 @@ export class FuzzySelect {
             // if there is already an option container mounted, replace the option container in DOM also
             this.optionContainer.replaceWith(optionContainer);
         }
-        console.log(optionContainer);
+        //console.log(optionContainer);
         return this.optionContainer = optionContainer;
     }
 
@@ -125,7 +124,7 @@ export class FuzzySelect {
     }
 
     async query(searchVal: string, columnIndex: number) {
-        const colValues = await this.getColumn(columnIndex);
+        const colValues: Array<string> = await this.getColumn(columnIndex);
         const results: Fuzzysort.Results = fuzzysort.go(searchVal, colValues, fuzzySortOptions);
         this.createOptionContainer(results);
     }
