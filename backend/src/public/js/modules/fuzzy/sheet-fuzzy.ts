@@ -20,17 +20,31 @@ fuzzySortOptions.key = null;
 fuzzySortOptions.keys = null;
 
 export class FuzzySelect {
+    private options: Fuzzysort.Results;
+
+    /**
+    * @returns The count of suggestions that are actually rendered.
+    */
+    get activeSuggestionCount(): number {
+        return this.optionContainer.childElementCount;
+    }
+
+    private suggestions: Set<string>;
+    private suggestionsLookup: Set<string>;
 
     private optionContainer: HTMLElement;
     longestText: string;
 
     rootContainer: HTMLElement;
     private mounted: boolean = false;
-    options: Fuzzysort.Results;
 
     constructor(options: Fuzzysort.Results = fuzzysort.go("", [], fuzzySortOptions)) {
         this.options = options;
         this.initializeSelect();
+    }
+
+    hasSuggestion(query: string): boolean {
+        return this.suggestionsLookup.has(query.toLowerCase());
     }
 
     private initializeSelect() {
@@ -39,28 +53,52 @@ export class FuzzySelect {
         this.addOptionsContainer();
     }
 
+    private hideOptionContainerIfNoOptions() {
+        if (this.optionContainer) {
+            // hide the option container wrapper when there are no options
+            if (this.options.total) {
+                this.optionContainer.classList.add(activeClass);
+            } else {
+                this.optionContainer.classList.remove(activeClass);
+            }
+        }
+    }
+
     private addOptionsContainer() {
-        const optionsContainer = this.createOptionContainer(this.options);
+        const optionsContainer = this.createNewResultsContainer(this.options);
         this.rootContainer.appendChild(optionsContainer);
     }
 
-    private createOptionContainer(options: Fuzzysort.Results): HTMLElement {
+    private createOptionContainer(options: any): HTMLElement {
         const optionContainer = document.createElement("div");
         optionContainer.classList.add(optionContainerClass);
         if (options) {
             optionContainer.classList.add(activeClass);
         }
+        return optionContainer;
+    }
+
+    private createOptionElement(): HTMLElement {
+        const optionElement = document.createElement("div");
+        optionElement.classList.add(autocompleteSuggestionClass);
+        optionElement.classList.add(optionContainerClass);
+        return optionElement;
+    }
+
+    private createOptionText(): HTMLElement {
+        const optionTextElement = document.createElement("span");
+        optionTextElement.classList.add(optionTextClass);
+        return optionTextElement;
+    }
+
+    private createNewResultsContainer(options: Fuzzysort.Results): HTMLElement {
+        const optionContainer = this.createOptionContainer(options);
 
         for (let i = 0; i < options.total; i++) {
+            const optionElement = this.createOptionElement();
+            const optionTextElement = this.createOptionText();
 
             const option: Fuzzysort.Result = options[i];
-            const optionElement = document.createElement("div");
-            const optionTextElement = document.createElement("span");
-
-            optionElement.classList.add(autocompleteSuggestionClass);
-            optionElement.classList.add(optionContainerClass);
-            optionTextElement.classList.add(optionTextClass);
-
             optionTextElement.title = option.target;
             optionTextElement.innerHTML = fuzzysort.highlight(option, "<b>", "</b>");
 
@@ -69,11 +107,35 @@ export class FuzzySelect {
         }
 
         if (this.optionContainer) {
-            // if there is already an option container mounted, replace the option container in DOM also
+            // if there is already an option container mounted, 
+            // replace the option container in DOM also
             this.optionContainer.replaceWith(optionContainer);
         }
-        //console.log(optionContainer);
+        console.log(optionContainer);
         return this.optionContainer = optionContainer;
+    }
+
+    private createDefaultResultsContainer(options: Array<string>) {
+        const optionContainer = this.createOptionContainer(options);
+
+        for (let i = 0; i < options.length; i++) {
+            const optionElement = this.createOptionElement();
+            const optionTextElement = this.createOptionText();
+
+            const option: string = options[i];
+            optionTextElement.title = option;
+            optionTextElement.innerHTML = option;
+
+            optionElement.appendChild(optionTextElement);
+            optionContainer.appendChild(optionElement);
+        }
+
+        if (this.optionContainer) {
+            // if there is already an option container mounted, 
+            // replace the option container in DOM also
+            this.optionContainer.replaceWith(optionContainer);
+        }
+        console.log(optionContainer);
     }
 
     handleClickOnOption(callback: (text: string) => void) {
@@ -126,6 +188,11 @@ export class FuzzySelect {
     async query(searchVal: string, columnIndex: number) {
         const colValues: Array<string> = await this.getColumn(columnIndex);
         const results: Fuzzysort.Results = fuzzysort.go(searchVal, colValues, fuzzySortOptions);
-        this.createOptionContainer(results);
+        console.log(`results total = ${results.total}`)
+        if (results.total > 0) {
+            this.createNewResultsContainer(results);
+        } else {
+            this.createDefaultResultsContainer(colValues);
+        }
     }
 }
