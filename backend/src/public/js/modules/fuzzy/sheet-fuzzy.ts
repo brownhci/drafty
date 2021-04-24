@@ -1,4 +1,4 @@
-import * as Fuzzy from "./fuzzysort";
+import fuzzysort from "fuzzysort";
 import { Option as Opt } from "../components/sheet/suggestions";
 import { fuseSelectRootContainerClass, autocompleteSuggestionClass, previousEditClass, optionContainerClass, optionClass, optionTextClass } from "../constants/css-classes";
 import { activeClass } from "../constants/css-classes";
@@ -8,15 +8,16 @@ import { getCellInTableRow } from "../dom/navigate";
 type Option = Partial<Opt>;
 
 // sw: convert to class so it can be reused
-const fuzzySortOptions: Fuzzysort.Options = {
+const fuzzySortOptions = {
     threshold: -10000,  // Don't return matches worse than this (higher is faster)
     limit: 100,         // Don't return more results than this (lower is faster)
     allowTypo: true,    // Allows a single transpose (false is faster)
 
-    //key: null,      // For when targets are objects (see its example usage)
-    //keys: null,     // For when targets are objects (see its example usage)
+    key: "",      // For when targets are objects (see its example usage)
+    keys: [] as string[],     // For when targets are objects (see its example usage)
     //scoreFn: null,  // For use with `keys` (see its example usage)
-}
+    // comment scoreFn to avoid TS errors
+};
 
 export class FuzzySelect {
 
@@ -25,11 +26,10 @@ export class FuzzySelect {
 
     rootContainer: HTMLElement;
     private mounted: boolean = false;
-    options: Array<Object>;
+    options: Fuzzysort.Results;
 
-    constructor(options: Array<Object> = []) {
+    constructor(options: Fuzzysort.Results = null) {
         this.options = options;
-
         this.initializeSelect();
     }
 
@@ -44,7 +44,7 @@ export class FuzzySelect {
         this.rootContainer.appendChild(optionsContainer);
     }
 
-    private createOptionContainer(options: Array<Object>): HTMLElement {
+    private createOptionContainer(options: Fuzzysort.Results): HTMLElement {
         const optionContainer = document.createElement("div");
         optionContainer.classList.add(optionContainerClass);
         if (options) {
@@ -53,7 +53,7 @@ export class FuzzySelect {
 
         for (let i = 0; i < options.length; i++) {
 
-            const option: Object = options[i];
+            const option: Record<string, any> = options[i];
             const optionElement = document.createElement("div");
             const optionTextElement = document.createElement("span");
 
@@ -63,7 +63,7 @@ export class FuzzySelect {
 
             const result: any = options[i]; // TODO: sw improve this
             optionTextElement.title = result.target;
-            optionTextElement.innerHTML = Fuzzy.highlight(result, '<b>', '</b>')
+            optionTextElement.innerHTML = fuzzysort.highlight(result, "<b>", "</b>");
 
             optionElement.appendChild(optionTextElement);
             optionContainer.appendChild(optionElement);
@@ -73,7 +73,7 @@ export class FuzzySelect {
             // if there is already an option container mounted, replace the option container in DOM also
             this.optionContainer.replaceWith(optionContainer);
         }
-        console.log(optionContainer)
+        console.log(optionContainer);
         return this.optionContainer = optionContainer;
     }
 
@@ -111,8 +111,8 @@ export class FuzzySelect {
     }
 
     async getColumn(col: number) {
-        let n: number = tableDataManager.source.length;
-        let arr: Array<String> = [];
+        const n: number = tableDataManager.source.length;
+        const arr: Array<string> = [];
         for (let row = 0; row < n; ++row) {
             const rowEle = tableDataManager.source[row].element_ as HTMLTableRowElement;
             const cellValue = getCellInTableRow(rowEle, col).innerHTML;
@@ -126,7 +126,7 @@ export class FuzzySelect {
 
     async query(searchVal: string, columnIndex: number) {
         const colValues = await this.getColumn(columnIndex);
-        const results: Array<any> = Fuzzy.go(searchVal, colValues, fuzzySortOptions)
-        this.createOptionContainer(results)
+        const results: Fuzzysort.Results = fuzzysort.go(searchVal, colValues, fuzzySortOptions);
+        this.createOptionContainer(results);
     }
 }

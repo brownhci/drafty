@@ -11,7 +11,7 @@ import { getCellInTableRow, getEnclosingTableCell } from "../../dom/navigate";
 import { getColumnLabel, isColumnSearchInput, tableHeadSearchElement, tableFootElement } from "../../dom/sheet";
 import { isInput } from "../../dom/types";
 import { FuseSelect } from "../../fuse/sheet-fuse";
-import { FuzzySelect } from "../../fuzzysort/sheet-fuzzysort";
+import { FuzzySelect } from "../../fuzzy/sheet-fuzzy";
 import { debounce } from "../../utils/debounce";
 import { tableDataManager, updateActiveTableCellElement } from "../../../sheet";
 

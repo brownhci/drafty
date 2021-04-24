@@ -127,7 +127,7 @@ export async function insertNewRowSuggestionUserCredit(idProfile: number, idUniq
  */
 export async function selectSuggestionsForEdit(idSuggestion: number) {
   try {
-    console.log(`stmtSelectSuggestionsForEdit - idSuggestion ${idSuggestion}`)
+    console.log(`stmtSelectSuggestionsForEdit - idSuggestion ${idSuggestion}`);
     const [results] = await db.query(stmtSelectSuggestionsForEdit, [idSuggestion, idSuggestion, idSuggestion]);
     return [null, results];
   } catch (error) {
