@@ -67,6 +67,8 @@ export class FuzzySelect {
     private addOptionsContainer() {
         const optionsContainer = this.createNewResultsContainer(this.options);
         this.rootContainer.appendChild(optionsContainer);
+        console.log("addOptionsContainer()")
+        console.log(this.rootContainer)
     }
 
     private createOptionContainer(options: any): HTMLElement {
@@ -80,8 +82,8 @@ export class FuzzySelect {
 
     private createOptionElement(): HTMLElement {
         const optionElement = document.createElement("div");
+        optionElement.classList.add(optionClass);
         optionElement.classList.add(autocompleteSuggestionClass);
-        optionElement.classList.add(optionContainerClass);
         return optionElement;
     }
 
@@ -100,7 +102,8 @@ export class FuzzySelect {
 
             const option: Fuzzysort.Result = options[i];
             optionTextElement.title = option.target;
-            optionTextElement.innerHTML = fuzzysort.highlight(option, "<b>", "</b>");
+            optionTextElement.innerHTML = option.target;
+            //optionTextElement.innerHTML = fuzzysort.highlight(option, "<b>", "</b>");
 
             optionElement.appendChild(optionTextElement);
             optionContainer.appendChild(optionElement);
@@ -112,6 +115,10 @@ export class FuzzySelect {
             this.optionContainer.replaceWith(optionContainer);
         }
         console.log(optionContainer);
+
+        console.log("createNewResultsContainer()")
+        console.log(this.rootContainer)
+
         return this.optionContainer = optionContainer;
     }
 
@@ -186,9 +193,10 @@ export class FuzzySelect {
     }
 
     async query(searchVal: string, columnIndex: number) {
+        console.log("new search... at column = " + columnIndex);
         const colValues: Array<string> = await this.getColumn(columnIndex);
         const results: Fuzzysort.Results = fuzzysort.go(searchVal, colValues, fuzzySortOptions);
-        console.log(`results total = ${results.total}`)
+        console.log(`results total = ${results.total}`);
         if (results.total > 0) {
             this.createNewResultsContainer(results);
         } else {

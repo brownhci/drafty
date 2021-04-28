@@ -9,13 +9,13 @@ type Option = Partial<Opt>;
 
 /* in memory cache */
 const fuseOptions: Fuse.IFuseOptions<Option> = {
-    includeMatches: true,
-    shouldSort: true,
-    findAllMatches: true,
-    keys: [
-      "suggestion"
-    ]
-  };
+  includeMatches: true,
+  shouldSort: true,
+  findAllMatches: true,
+  keys: [
+    "suggestion"
+  ]
+};
 
 export class FuseSelect {
   private _options: Array<Option>;
@@ -59,7 +59,6 @@ export class FuseSelect {
 
   constructor(options: Array<Option> = []) {
     this.options = options;
-
     this.initializeSelect();
   }
 
@@ -86,7 +85,7 @@ export class FuseSelect {
 
   handleClickOnOption(callback: (text: string) => void) {
     // sw: setting to optionContainer only handles first click - 
-    this.rootContainer.addEventListener("click", function (event: MouseEvent) {  
+    this.rootContainer.addEventListener("click", function (event: MouseEvent) {
       let optionTextElement = (event.target as HTMLElement);
 
       if (optionTextElement.nodeName === "B") {
@@ -320,7 +319,7 @@ export class FuseSelect {
     optionTextElement.classList.add(optionTextClass);
 
     optionTextElement.title = text;
-    
+
     /* sw - not registering
     optionTextElement.addEventListener("click", function (event: MouseEvent) {  
       let optionElement = (event.target as HTMLElement);

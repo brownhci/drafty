@@ -122,9 +122,6 @@ class ColumnSuggestions {
       // FUZZY new
       columnSuggestions.fuzzySelect.query(columnSuggestions.inputElement.value, columnSuggestions.target.cellIndex);
 
-      // FUSE old
-      //columnSuggestions.fuseSelect.query(columnSuggestions.inputElement.value);
-
       if (!columnSuggestions.isSuggestionsForColumnSearch) {
         // if the suggestion window is for column search, then no need to re-align
         columnSuggestions.align();
@@ -135,10 +132,16 @@ class ColumnSuggestions {
   activate(target: HTMLTableCellElement) {
     this.target = target;
     this.inputElement = target.querySelector("input");
+    // activate and align column-suggestions element
+    this.container.classList.add(activeClass);
+    this.align();
+    // perform query
+    this.fuzzySelect.query(this.inputElement.value, this.target.cellIndex);
+    /*
     this.updateFuseSelect().then(() => {
-      this.fuzzySelect.query(this.inputElement.value, this.target.cellIndex);
-      //this.fuseSelect.query(this.inputElement.value);
+      this.fuseSelect.query(this.inputElement.value);
     });
+    */
     document.body.addEventListener("click", this.handleBodyClick, true);
   }
 
@@ -173,6 +176,14 @@ class ColumnSuggestions {
     //this.fuzzySelect.query(this.inputElement.value, this.target.cellIndex);
 
     return await this.getSuggestions(
+      /*
+      options => {
+        this.fuzzySelect.query(this.inputElement.value, this.target.cellIndex);
+        this.align();
+      }
+      */
+
+
       options => {
         this.fuseSelect.options = options ? options : [];
         //console.log('options 1 ')
