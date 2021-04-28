@@ -67,8 +67,6 @@ export class FuzzySelect {
     private addOptionsContainer() {
         const optionsContainer = this.createNewResultsContainer(this.options);
         this.rootContainer.appendChild(optionsContainer);
-        console.log("addOptionsContainer()")
-        console.log(this.rootContainer)
     }
 
     private createOptionContainer(options: any): HTMLElement {
@@ -109,15 +107,15 @@ export class FuzzySelect {
             optionContainer.appendChild(optionElement);
         }
 
+        // not working
         if (this.optionContainer) {
             // if there is already an option container mounted, 
             // replace the option container in DOM also
             this.optionContainer.replaceWith(optionContainer);
         }
-        console.log(optionContainer);
 
-        console.log("createNewResultsContainer()")
-        console.log(this.rootContainer)
+        // working
+        this.rootContainer.replaceWith(optionContainer);
 
         return this.optionContainer = optionContainer;
     }
@@ -137,12 +135,15 @@ export class FuzzySelect {
             optionContainer.appendChild(optionElement);
         }
 
+        // not working
         if (this.optionContainer) {
             // if there is already an option container mounted, 
             // replace the option container in DOM also
             this.optionContainer.replaceWith(optionContainer);
         }
-        console.log(optionContainer);
+
+        // working
+        this.rootContainer.replaceWith(optionContainer);
     }
 
     handleClickOnOption(callback: (text: string) => void) {
@@ -179,6 +180,7 @@ export class FuzzySelect {
     }
 
     async getColumn(col: number) {
+        console.log("new search... at column = " + col);
         const n: number = tableDataManager.source.length;
         const arr: Array<string> = [];
         for (let row = 0; row < n; ++row) {
@@ -193,7 +195,6 @@ export class FuzzySelect {
     }
 
     async query(searchVal: string, columnIndex: number) {
-        console.log("new search... at column = " + columnIndex);
         const colValues: Array<string> = await this.getColumn(columnIndex);
         const results: Fuzzysort.Results = fuzzysort.go(searchVal, colValues, fuzzySortOptions);
         console.log(`results total = ${results.total}`);
