@@ -8,7 +8,7 @@ import { getCellInTableRow } from "../dom/navigate";
 // sw: convert to class so it can be reused
 const fuzzySortOptions = {
     threshold: -10000,  // Don't return matches worse than this (higher is faster)
-    limit: 100,         // Don't return more results than this (lower is faster)
+    limit: 50,         // Don't return more results than this (lower is faster)
     allowTypo: true,    // Allows a single transpose (false is faster)
 
     key: "",      // For when targets are objects (see its example usage)
@@ -94,14 +94,14 @@ export class FuzzySelect {
     private createNewResultsContainer(options: Fuzzysort.Results): HTMLElement {
         const optionContainer = this.createOptionContainer(options);
 
-        for (let i = 0; i < options.total; i++) {
+        for (let i = 0; i < options.length; i++) {
             const optionElement = this.createOptionElement();
             const optionTextElement = this.createOptionText();
 
             const option: Fuzzysort.Result = options[i];
             optionTextElement.title = option.target;
             optionTextElement.innerHTML = option.target;
-            //optionTextElement.innerHTML = fuzzysort.highlight(option, "<b>", "</b>");
+            optionTextElement.innerHTML = fuzzysort.highlight(option, "<b>", "</b>");
 
             optionElement.appendChild(optionTextElement);
             optionContainer.appendChild(optionElement);
@@ -142,8 +142,8 @@ export class FuzzySelect {
             this.optionContainer.replaceWith(optionContainer);
         }
 
-        // working
-        this.rootContainer.replaceWith(optionContainer);
+        // not working
+        //this.rootContainer.replaceWith(optionContainer);
     }
 
     handleClickOnOption(callback: (text: string) => void) {
@@ -180,7 +180,6 @@ export class FuzzySelect {
     }
 
     async getColumn(col: number) {
-        console.log("new search... at column = " + col);
         const n: number = tableDataManager.source.length;
         const arr: Array<string> = [];
         for (let row = 0; row < n; ++row) {
@@ -197,7 +196,11 @@ export class FuzzySelect {
     async query(searchVal: string, columnIndex: number) {
         const colValues: Array<string> = await this.getColumn(columnIndex);
         const results: Fuzzysort.Results = fuzzysort.go(searchVal, colValues, fuzzySortOptions);
-        console.log(`results total = ${results.total}`);
+        console.log(
+            `results total = ${results.total}, 
+            val = ${searchVal}, 
+            col = ${columnIndex}`
+        );
         if (results.total > 0) {
             this.createNewResultsContainer(results);
         } else {
