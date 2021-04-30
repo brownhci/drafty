@@ -11,6 +11,7 @@ import { getCellInTableRow, getEnclosingTableCell } from "../../dom/navigate";
 import { getColumnLabel, isColumnSearchInput, tableHeadSearchElement, tableFootElement } from "../../dom/sheet";
 import { isInput } from "../../dom/types";
 import { FuseSelect } from "../../fuse/sheet-fuse";
+import { FuzzySelect } from "../../fuzzy/sheet-fuzzy";
 import { debounce } from "../../utils/debounce";
 import { tableDataManager, updateActiveTableCellElement } from "../../../sheet";
 
@@ -25,6 +26,7 @@ class ColumnSuggestions {
   private inputElement: HTMLInputElement;
 
   private fuseSelect: FuseSelect = new FuseSelect();
+  private fuzzySelect: FuzzySelect = new FuzzySelect();
 
   get isActive(): boolean {
     return this.container.classList.contains(activeClass);
@@ -72,7 +74,7 @@ class ColumnSuggestions {
   }
 
   constructor() {
-    this.fuseSelect.handleClickOnOption((text: string) => {
+    this.fuzzySelect.handleClickOnOption((text: string) => {
       // this dictates what happens when an autocompletion option is clicked
       if (this.inputElement) {
         this.inputElement.value = text;
@@ -80,12 +82,10 @@ class ColumnSuggestions {
         this.deactivate();
       }
     });
-    this.fuseSelect.mount(element => this.container.appendChild(element));
+    this.fuzzySelect.mount(element => this.container.appendChild(element));
 
     tableHeadSearchElement.addEventListener("focus", debounce(this.inputHandler)), true;
     tableHeadSearchElement.addEventListener("input", debounce(this.inputHandler)), true;
-    tableFootElement.addEventListener("focus", debounce(this.inputHandler)), true;
-    tableFootElement.addEventListener("input", debounce(this.inputHandler)), true;
   }
 
   focusHandler(event: Event) {
@@ -103,23 +103,32 @@ class ColumnSuggestions {
 
   inputHandler(event: Event) {
     const target = event.target as HTMLElement;
-      if (columnSuggestions.isActive && target === columnSuggestions.inputElement) {
-        // the input for searching, filter the suggestions
-        columnSuggestions.fuseSelect.query(columnSuggestions.inputElement.value); 
-        if (!columnSuggestions.isSuggestionsForColumnSearch) {
-          // if the suggestion window is for column search, then no need to re-align
-          columnSuggestions.align();
-        }
+    if (columnSuggestions.isActive && target === columnSuggestions.inputElement) {
+      // the input for searching, filter the suggestions
+
+      // FUZZY new
+      columnSuggestions.fuzzySelect.query(columnSuggestions.inputElement.value, columnSuggestions.target.cellIndex);
+
+      if (!columnSuggestions.isSuggestionsForColumnSearch) {
+        // if the suggestion window is for column search, then no need to re-align
+        columnSuggestions.align();
       }
+    }
   }
 
   activate(target: HTMLTableCellElement) {
     this.target = target;
     this.inputElement = target.querySelector("input");
-
+    // activate and align column-suggestions element
+    this.container.classList.add(activeClass);
+    this.align();
+    // perform query
+    this.fuzzySelect.query(this.inputElement.value, this.target.cellIndex);
+    /*
     this.updateFuseSelect().then(() => {
       this.fuseSelect.query(this.inputElement.value);
     });
+    */
     document.body.addEventListener("click", this.handleBodyClick, true);
   }
 
@@ -146,16 +155,25 @@ class ColumnSuggestions {
     const forColumnSearch: boolean = this.isSuggestionsForColumnSearch;
     const suggestionManager = forColumnSearch ? columnSuggestionManager : editSuggestionManager;
     return await suggestionManager.get(this.suggestionFetchURL, this.suggestionIdentifier.toString(), handlerForCachedSuggestions, (options) => {
-      // if suggestions are not pulled for column search, they are pulled for edit row and in that case. Previous edit should be filtered out
-      options = options.filter(option => option.suggestion !== "" && (forColumnSearch || option.prevSugg === 0));
       handlerForPulledSuggestions(options);
     });
   }
 
   private async updateFuseSelect() {
+    //this.fuzzySelect.query(this.inputElement.value, this.target.cellIndex);
+
     return await this.getSuggestions(
+      /*
+      options => {
+        this.fuzzySelect.query(this.inputElement.value, this.target.cellIndex);
+        this.align();
+      }
+      */
+
+
       options => {
         this.fuseSelect.options = options ? options : [];
+        //console.log('options 1 ')
         this.fuseSelect.sync();
         this.align();
       },
@@ -164,6 +182,7 @@ class ColumnSuggestions {
           // no autocomplete options to show
           this.deactivate();
         } else {
+          //console.log('options 2 ')
           this.fuseSelect.options = options;
           this.fuseSelect.sync();
           this.container.classList.add(activeClass);
@@ -174,8 +193,6 @@ class ColumnSuggestions {
   }
 
   private align() {
-    //const longestText = this.fuseSelect.longestText;
-    //this.containerWidth = measureTextWidth(longestText) + 88; // sw: kills performance
     this.containerWidth = columnSuggestions.inputElement.offsetWidth + 80;
 
     const targetDimensions = this.inputElement.getBoundingClientRect();

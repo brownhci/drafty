@@ -65,7 +65,7 @@ class CellEditor {
   }
 
   private get buttonHeight(): number {
-    return this.isLocateCellActive? this.locateCellButtonElement.offsetHeight: 0;
+    return this.isLocateCellActive ? this.locateCellButtonElement.offsetHeight : 0;
   }
 
   private mouseMoveStartX: number = 0;
@@ -95,7 +95,7 @@ class CellEditor {
    *    + is not a descendant of autocompletion container
    */
   private willStartReposition(target: HTMLElement) {
-    if(target === this.formInputElement || target === this.locateCellButtonElement) {
+    if (target === this.formInputElement || target === this.locateCellButtonElement) {
       return false;
     }
 
@@ -143,7 +143,7 @@ class CellEditor {
 
     tableScrollContainer.addEventListener("scroll", debounce(() => this.activateLocateCell()), { passive: true });
 
-    this.formElement.addEventListener("submit", function(event: Event) {
+    this.formElement.addEventListener("submit", function (event: Event) {
       // disable submitting
       event.stopPropagation();
       event.preventDefault();
@@ -288,6 +288,11 @@ class CellEditor {
    * @param {boolean} saveEdit - Whether `this.formInput` will be saved and recorded.
    */
   closeForm(saveEdit: boolean) {
+    /*
+    console.log(this.cellElement);
+    console.log(this.formInput);
+    */
+    // sw --- is this if stmt necessary?
     if (this.cellElement.innerHTML === this.formInput) {
       saveEdit = false;
     }
@@ -323,7 +328,7 @@ class CellEditor {
       this.fuseSelect.mount(element => this.mountFuseSelect(element));
       updateFuseSelect(this.fuseSelect, getIdSuggestion(this.cellElement), getIdSuggestionType(columnLabel));
 
-      this.alignTableCellInputForm(); 
+      this.alignTableCellInputForm();
       this.showHelpWhenInactivityReached();
     }
   }
@@ -362,8 +367,8 @@ class CellEditor {
     const targetCellElement = this.cellElement;
     const cellDimensions = targetCellElement.getBoundingClientRect();
     const cellHeight = cellDimensions.height;
-    let {top: cellTop, bottom: cellBottom} = cellDimensions;
-    let {width: formWidth, height: formHeight} = this.formElement.getBoundingClientRect();
+    let { top: cellTop, bottom: cellBottom } = cellDimensions;
+    let { width: formWidth, height: formHeight } = this.formElement.getBoundingClientRect();
 
     const verticalScrollBarWidth = tableScrollContainer.offsetWidth - tableScrollContainer.clientWidth;
     const viewportWidth = getViewportWidth() - verticalScrollBarWidth;

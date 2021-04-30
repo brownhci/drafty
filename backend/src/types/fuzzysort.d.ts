@@ -28,7 +28,7 @@ declare namespace Fuzzysort {
     *
     * 0 is a perfect match; -1000 is a bad match
     */
-   readonly score: number
+    readonly score: number
 
     /** Your original object */
     readonly obj: T
@@ -67,7 +67,7 @@ declare namespace Fuzzysort {
   }
   interface KeysOptions<T> extends Options {
     keys: ReadonlyArray<string | ReadonlyArray<string>>
-    scoreFn?: (keysResult:ReadonlyArray<KeyResult<T>>) => number
+    scoreFn?: (keysResult: ReadonlyArray<KeyResult<T>>) => number
   }
 
   interface Fuzzysort {
@@ -93,6 +93,6 @@ declare namespace Fuzzysort {
 }
 
 declare module "fuzzysort" {
-  const fuzzysort:Fuzzysort.Fuzzysort
+  const fuzzysort: Fuzzysort.Fuzzysort
   export = fuzzysort
 }
