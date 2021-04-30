@@ -74,19 +74,6 @@ class ColumnSuggestions {
   }
 
   constructor() {
-
-    /*
-    this.fuseSelect.handleClickOnOption((text: string) => {
-      // this dictates what happens when an autocompletion option is clicked
-      if (this.inputElement) {
-        this.inputElement.value = text;
-        this.inputElement.dispatchEvent(new Event("input"));
-        this.deactivate();
-      }
-    });
-    this.fuseSelect.mount(element => this.container.appendChild(element));
-    */
-
     this.fuzzySelect.handleClickOnOption((text: string) => {
       // this dictates what happens when an autocompletion option is clicked
       if (this.inputElement) {

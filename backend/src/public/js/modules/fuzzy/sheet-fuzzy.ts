@@ -115,7 +115,7 @@ export class FuzzySelect {
         }
 
         // working
-        this.rootContainer.replaceWith(optionContainer);
+        //this.rootContainer.replaceWith(optionContainer);
 
         return this.optionContainer = optionContainer;
     }
@@ -139,7 +139,7 @@ export class FuzzySelect {
         if (this.optionContainer) {
             // if there is already an option container mounted, 
             // replace the option container in DOM also
-            this.optionContainer.replaceWith(optionContainer);
+            //this.optionContainer.replaceWith(optionContainer);
         }
 
         // not working
@@ -196,11 +196,13 @@ export class FuzzySelect {
     async query(searchVal: string, columnIndex: number) {
         const colValues: Array<string> = await this.getColumn(columnIndex);
         const results: Fuzzysort.Results = fuzzysort.go(searchVal, colValues, fuzzySortOptions);
+        /*
         console.log(
             `results total = ${results.total}, 
             val = ${searchVal}, 
             col = ${columnIndex}`
         );
+        */
         if (results.total > 0) {
             this.createNewResultsContainer(results);
         } else {
