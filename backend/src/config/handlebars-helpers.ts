@@ -41,6 +41,13 @@ const helpers = {
 
     return output;
   },
+  menuHasMultipleSheets: function(map: Map<string, string>) {
+    if (map.size > 1) {
+      return true;
+    } else {
+      return false;
+    }
+  },
   times: function(n: number, block: any) {
     let accum = "";
     for(let i = 0; i < n; ++i)

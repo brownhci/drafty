@@ -1,24 +1,27 @@
 <main id="account-container" class="centered-section-layout">
     <div>
         <h1>Hi, <span id="username">{{username}}</span></h1>
+        <!--
         <p>
             To receive credit at <i>Amazon Mechanical Turk</i>, please use this <b>animal code</b>:
             <br><b>rabbit_{{idProfile}}_{{idSession}}_{{idExpress}}</b>
         </p>
+        -->
         <section>
             {{#if signedIn}}
-                <h2>Reset your password</h2>
-                <form method="post" action="/account/password" id="password-reset-form" class="custom-validation" autocomplete novalidate>
-                    {{> csrf }}
-                    {{> account/password-input-component showPasswordUsageExplanation=true }}
-                    {{> account/confirm-input-component }}
-                    <button type="submit">Update password</button>
-                </form>
+            <h2>Reset your password</h2>
+            <form method="post" action="/account/password" id="password-reset-form" class="custom-validation"
+                autocomplete novalidate>
+                {{> csrf }}
+                {{> account/password-input-component showPasswordUsageExplanation=true }}
+                {{> account/confirm-input-component }}
+                <button type="submit">Update password</button>
+            </form>
             {{else}}
-                <h2>Sign in</h2>
-                {{> account/signin-modal }}
-                <h2>Create your account</h2>
-                {{> account/signup-modal showEmailUsageExplanation=true }}
+            <h2>Sign in</h2>
+            {{> account/signin-modal }}
+            <h2>Create your account</h2>
+            {{> account/signup-modal showEmailUsageExplanation=true }}
             {{/if}}
         </section>
         <section>
@@ -30,7 +33,8 @@
             -->
             <div>
                 <p>To <b>edit data <i class="far fa-edit"></i></b>, double-click a cell.</p>
-                <p>To <b>add a new row <i class="far fa-edit"></i></b> click the top menu item or right-click on a cell and select <b>Add Row.</b></p>
+                <p>To <b>add a new row <i class="far fa-edit"></i></b> click the top menu item or right-click on a cell
+                    and select <b>Add Row.</b></p>
                 <p>To search google right-click on a cell and select <b>Search Google.</b></p>
                 Need additional <a href="/help">help</a>?
             </div>
@@ -39,7 +43,7 @@
             <h2>Proud of yourself</h2>
             <div>
                 <p>
-                    You are a valuable contributor to Drafty!
+                    Thank you, you are a valuable contributor to Drafty!
                 </p>
             </div>
         </section>

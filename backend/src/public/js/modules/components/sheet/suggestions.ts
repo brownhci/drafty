@@ -133,8 +133,15 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
   // TODO: sw - not handling clicks correctly
   fuseSelect.handleClickOnOption((text: string) => {
     inputElement.value = text;
-    inputElement.dispatchEvent(new Event("input"));
-    inputElement.focus();
+    const keyboardEvent = new KeyboardEvent("keydown", {
+      code: "Enter",
+      key: "Enter",
+      view: window,
+      bubbles: true
+    });
+    inputElement.dispatchEvent(keyboardEvent);
+    //inputElement.dispatchEvent(new Event("input"));
+    //inputElement.focus(); we want to accept a click as an edit, and not have the user press enter
   });
   fuseSelect.mount(mountMethod);
   return fuseSelect;

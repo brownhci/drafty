@@ -48,7 +48,6 @@ app.use(cookieParser());
 app.use(trafficLogger.trafficLogger);
 
 // static files
-app.use("/csopenrankingstest", middlewareTests.urls, express.static("/vol/csopenrankings"));
 app.use("/csopenrankings", express.static("/vol/csopenrankings"));
 app.use("/csopenrankingslocal", express.static(path.join(__dirname, "../../../../CSRankings"), { maxAge: 30000 }));
 app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));

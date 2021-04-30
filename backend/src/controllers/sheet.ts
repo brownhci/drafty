@@ -29,7 +29,7 @@ export async function getSheet(req: Request, res: Response) {
   } else {
     const sheetName = await getRequestedSheetName(sheetURL);
     const sheetPath = await getRequestedSheetPath(sheetURL);
-    res.render("pages/sheet", makeRenderObject({ title: `Sheet: ${sheetName}`, sheetName: sheetName, sheetPath: sheetPath }, req));
+    res.render("pages/sheet", makeRenderObject({ title: `${sheetName}`, sheetName: sheetName, sheetPath: sheetPath, sheetURL: sheetURL }, req));
   }
 }
 
@@ -55,6 +55,6 @@ export async function getSheetEditHistory(req: Request, res: Response) {
   } else {
     const sheetName = await getRequestedSheetName(sheetURL);
     const editHistoryPath = await getRequestedEditHistorySheetPath(sheetURL);
-    res.render("pages/edit_history", makeRenderObject({ title: `Sheet: ${sheetName}`, sheetName: sheetName, editHistoryPath: editHistoryPath }, req));
+    res.render("pages/edit_history", makeRenderObject({ title: `${sheetName}`, sheetName: sheetName, sheetURL: sheetURL, editHistoryPath: editHistoryPath }, req));
   }
 }

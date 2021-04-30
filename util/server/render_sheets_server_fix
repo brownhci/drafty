@@ -1,0 +1,19 @@
+# /etc/cron.d/
+
+# Start job every 1 minute
+
+### render sheets
+* * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_spreadsheet.py --host=localhost --database=csprofessors csprofessors.hbs
+#* * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_spreadsheet.py --host=localhost --database=2300profs 2300profs.hbs
+
+### edit history
+* * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_edit_history.py --host=localhost --database=csprofessors csprofessors.hbs
+
+### csv version
+* * * * * root cd /vol/drafty_source/drafty/util/ && python3 gen_data_csv.py --database csprofessors
+
+### regen data for CSOpenRankings
+#* * * * * root cd /vol/csopenrankings/backend/generators/ && python makeAllJson.py 
+* * * * * root cd /vol/csopenrankings/backend/generators/ && python3 prof_data_normalizer.py && python3 best_paper_normalizer.py && python3 csrankings_normalizer.py && python3 pageRank_normalizer.py && python3 us_news_rank_normalizer.py && python3 deptSize_normalizer.py
+* * * * * root cd /vol/csopenrankings/backend/generators/ && python3 update_date.py
+* * * * * root cd /vol/csopenrankings/backend/generators/ && python3 create_static_table.py

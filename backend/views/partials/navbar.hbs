@@ -30,22 +30,33 @@
 
     <div class="collapse navbar-collapse">
          <ul id="navbar-nav" class="navbar-nav">
-            <li class="nav-item dropdown">
-                <span id="navbar-sheet">
-                    {{#if sheetName}}
-                        {{sheetName}}
-                    {{else}}
-                        All sheets
-                    {{/if}}
-                </span>
-                <div class="dropdown-menu">
-                    {{#eachInMap sheetNameToURL}}
-                        <a class="dropdown-item" href="/{{value}}">
-                        {{key}}
-                        </a>
-                    {{/eachInMap}}
-                </div>
-            </li>
+            {{#if (menuHasMultipleSheets sheetNameToURL)}}
+                <li class="nav-item dropdown">
+                    <span id="navbar-sheets">
+                        {{#if sheetName}}
+                            {{sheetName}}
+                        {{else}}
+                            All sheets
+                        {{/if}}
+                    </span>
+                    <div class="dropdown-menu">
+                        {{#eachInMap sheetNameToURL}}
+                            <a class="dropdown-item" href="/{{value}}">
+                            {{key}}
+                            </a>
+                        {{/eachInMap}}
+                    </div>
+                </li>
+                
+            {{else}}
+                <li class="nav-item">
+                    <a href="/{{sheetURL}}">
+                        <span id="navbar-sheet">
+                            {{sheetName}}
+                        </span>
+                    </a>
+                </li>
+            {{/if}}
             {{#if editHistoryPath}}
                 <li class="nav-item text-white font-weight-bold" href="#"><i class="fas fa-history"></i> Edit History</li>
             {{/if}}

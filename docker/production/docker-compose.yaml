@@ -4,6 +4,7 @@ services:
         container_name: mariadb
         volumes:
             - '/vol/docker/mysql/datadir:/var/lib/mysql'
+            - '/vol/docker/mysql/my.cnf:/etc/mysql/my.cnf'
         ports:
             - '3306:3306'
         environment:

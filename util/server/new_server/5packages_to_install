@@ -1,15 +1,19 @@
+### general server packages
+apt-get install git -y
+
 # install pip3
 # we need: 
 # docker
 # node v14
 # and python 3.7
 
-apt-get install python3-pip
+apt-get install python3-pip -y
 
 ### for drafty
 python3 -m pip install PyMySQL
 pip3 install pandas
 pip3 install atomicwrites
+pip3 install pymysql
 
 ### for cs open rankings
 pip3 install requests_cache

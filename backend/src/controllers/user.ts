@@ -472,7 +472,7 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
  * GLOBAL MIDDLEWARE
  */
 export async function checkReturnPath(req: Request, res: Response, next: NextFunction) {
-  if(req.path.includes("/favicon.ico")) {
+  if(!req.path.includes("/favicon.ico")) {
     req.session.returnTo = req.path;
   }
   next();

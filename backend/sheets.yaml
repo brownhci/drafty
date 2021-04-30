@@ -10,7 +10,7 @@ csprofessors:
     admin_only: 1
     in_menu: 0
     on_homepage: 0
-    name: "CS Professors"
+    name: "CS Professors Study"
 
 demo:
     login_required: 1
