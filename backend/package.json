@@ -61,7 +61,7 @@
         "handlebars": "^4.7.6",
         "helmet": "^3.22.0",
         "js-yaml": "^3.14.0",
-        "lodash": "^4.17.19",
+        "lodash": "^4.17.21",
         "lusca": "^1.6.1",
         "moment": "^2.26.0",
         "mustache": "^4.0.1",
