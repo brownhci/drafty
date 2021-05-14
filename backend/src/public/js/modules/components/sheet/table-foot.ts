@@ -1,4 +1,4 @@
-import { columnSuggestions } from "./column-suggestions";
+import { cellEditNewRow } from "./cell-editor-new-row";
 import { columnLabelInsertRowMenuItem } from "./contextmenu";
 import { verifyEdit } from "./edit-validation";
 import { ViewModel } from "./table-data-manager/ViewModel";
@@ -302,7 +302,7 @@ class TableFoot {
     if (isColumnAutocompleteOnly(columnLabel)) {
       if (!isInputRequired && inputValue === "") {
         // empty input is accepted no non-required autocomplete-only input
-      } else if (!await columnSuggestions.hasSuggestion(inputValue, columnIndex, inputElement)) {
+      } else if (!await cellEditNewRow.hasSuggestion(inputValue, columnIndex, inputElement)) {
         // this input's value should come from suggestion
         this.reportInvalidInput(inputElement, "Value must come from suggestions");
         return false;
