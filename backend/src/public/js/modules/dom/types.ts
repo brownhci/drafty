@@ -15,6 +15,24 @@ export function isTableCell(element: HTMLElement): boolean {
 export function isTableBody(element: HTMLElement): boolean {
   return element && element.tagName === "TBODY";
 }
+// sw does not work
+export function isTableFoot(element: HTMLElement): boolean {
+  return element && element.tagName === "TFOOT";
+}
+export function isColumnSearchInput(element: HTMLElement): boolean {
+  if (element.id.includes("column-search-input")) {
+    return element && element.tagName === "INPUT";
+  } else {
+    return false;
+  }
+}
+export function isNewRowInput(element: HTMLElement): boolean {
+  if (element.id.includes("add-new-row-input")) {
+    return element && element.tagName === "INPUT";
+  } else {
+    return false;
+  }
+}
 export function isInput(element: HTMLElement): boolean {
   return element && element.tagName === "INPUT";
 }
