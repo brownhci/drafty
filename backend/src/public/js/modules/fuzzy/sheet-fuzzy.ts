@@ -29,7 +29,6 @@ export class FuzzySelect {
         return this.optionContainer.childElementCount;
     }
 
-    private suggestions: Set<string>;
     private suggestionsLookup: Set<string>;
 
     private optionContainer: HTMLElement;
@@ -51,17 +50,6 @@ export class FuzzySelect {
         this.rootContainer = document.createElement("div");
         this.rootContainer.classList.add(fuseSelectRootContainerClass);
         this.addOptionsContainer();
-    }
-
-    private hideOptionContainerIfNoOptions() {
-        if (this.optionContainer) {
-            // hide the option container wrapper when there are no options
-            if (this.options.total) {
-                this.optionContainer.classList.add(activeClass);
-            } else {
-                this.optionContainer.classList.remove(activeClass);
-            }
-        }
     }
 
     private addOptionsContainer() {
@@ -107,16 +95,7 @@ export class FuzzySelect {
             optionContainer.appendChild(optionElement);
         }
 
-        // not working
-        if (this.optionContainer) {
-            // if there is already an option container mounted, 
-            // replace the option container in DOM also
-            this.optionContainer.replaceWith(optionContainer);
-        }
-
-        // working
-        //this.rootContainer.replaceWith(optionContainer);
-
+        this.replaceOptionContainer(optionContainer);
         return this.optionContainer = optionContainer;
     }
 
@@ -135,15 +114,16 @@ export class FuzzySelect {
             optionContainer.appendChild(optionElement);
         }
 
-        // not working
+        this.replaceOptionContainer(optionContainer);
+        return this.optionContainer = optionContainer;
+    }
+
+    replaceOptionContainer(optionContainer: HTMLElement) {
         if (this.optionContainer) {
             // if there is already an option container mounted, 
             // replace the option container in DOM also
-            //this.optionContainer.replaceWith(optionContainer);
+            this.optionContainer.replaceWith(optionContainer);
         }
-
-        // not working
-        //this.rootContainer.replaceWith(optionContainer);
     }
 
     handleClickOnOption(callback: (text: string) => void) {
