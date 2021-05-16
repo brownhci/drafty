@@ -21,7 +21,7 @@ import { throws } from "assert";
 export const getLogin = (req: Request, res: Response) => {
   if (req.user) {
     // current user is already logged in
-    req.flash("info", {msg: "You are already logged in, please log out first"});
+    req.flash("info", { msg: "You are already logged in, please log out first" });
     return res.redirect(req.session.returnTo || "/");
   }
   res.render("account/login", makeRenderObject({ title: "Login" }, req));
@@ -32,29 +32,29 @@ export const getLogin = (req: Request, res: Response) => {
  * Sign in using email and password.
  */
 export const postLogin = async (req: Request, res: Response, next: NextFunction) => {
-    // check for errors
-    if (await isValidUsername(req) === false ||
-        await checkPasswordLength(req) === false) {
-        return res.redirect("/login");
+  // check for errors
+  if (await isValidUsername(req) === false ||
+    await checkPasswordLength(req) === false) {
+    return res.redirect("/login");
+  }
+  // we're good, do something
+  passport.authenticate("local", (err: Error, user: UserModel) => {
+    if (err) { return next(err); }
+    if (!user) {
+      // authentication error
+      return res.redirect("/login");
     }
-    // we're good, do something
-    passport.authenticate("local", (err: Error, user: UserModel) => {
-        if (err) { return next(err); }
-        if (!user) {
-          // authentication error
-          return res.redirect("/login");
-        }
-        req.login(user, (err) => {
-          if (err) { return next(err); }
-          // update the sessions user.idProfile to match and update the Session tables idProfile
-          const idProfile = user.idProfile;
-          updateSession(idProfile, req.session.user.idSession);
-          req.session.user.idProfile = idProfile;
-          req.session.isAuth = true;
-          req.session.user.isAuth = true;
-          res.redirect(req.session.returnTo || "/");
-        });
-    })(req, res, next);
+    req.login(user, (err) => {
+      if (err) { return next(err); }
+      // update the sessions user.idProfile to match and update the Session tables idProfile
+      const idProfile = user.idProfile;
+      updateSession(idProfile, req.session.user.idSession);
+      req.session.user.idProfile = idProfile;
+      req.session.isAuth = true;
+      req.session.user.isAuth = true;
+      res.redirect(req.session.returnTo || "/");
+    });
+  })(req, res, next);
 };
 
 /**
@@ -76,11 +76,11 @@ export const logout = async (req: Request, res: Response) => {
  * Signup page.
  */
 export const getSignup = (req: Request, res: Response) => {
-    if (req.user) {
-        req.flash("info", {msg: "You are already logged in, please log out first"});
-        return res.redirect("/");
-    }
-    res.render("account/signup", makeRenderObject({ title: "Signup", showEmailUsageExplanation: true }, req));
+  if (req.user) {
+    req.flash("info", { msg: "You are already logged in, please log out first" });
+    return res.redirect("/");
+  }
+  res.render("account/signup", makeRenderObject({ title: "Signup", showEmailUsageExplanation: true }, req));
 };
 
 /**
@@ -121,8 +121,8 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
       req.session.isAuth = true;
       res.redirect(req.session.returnTo || "/");
     });
-  } catch(err) {
-      logger.error(err);
+  } catch (err) {
+    logger.error(err);
   }
 };
 
@@ -137,22 +137,22 @@ export async function createAnonUser() {
     [emailFieldName]: email,
     [passwordFieldName]: password,
   };
-  try{
+  try {
     const [error, results] = await createUser(newUser);
-    if(error) {
+    if (error) {
       throws;
     }
     return results.insertId;
-  } catch(err) {
-      logger.error(err);
+  } catch (err) {
+    logger.error(err);
   }
 }
 
 /**
  * Function to create new Session in our DB (not express-session)
  */
-export async function createSessionDB(idProfile: number,idExpressSession: string) {
-  const idSession = await insertSession(idProfile,idExpressSession);
+export async function createSessionDB(idProfile: number, idExpressSession: string) {
+  const idSession = await insertSession(idProfile, idExpressSession);
   return idSession;
 }
 
@@ -219,9 +219,9 @@ export const postUpdateProfile = async (req: Request, res: Response, next: NextF
  */
 export const postUpdatePassword = async (req: Request, res: Response, next: NextFunction) => {
   if (await checkPasswordLength(req) === false ||
-      await confirmMatchPassword(req) === false
+    await confirmMatchPassword(req) === false
   ) {
-      return res.redirect("/account");
+    return res.redirect("/account");
   }
 
   const user = req.user as Partial<UserModel>;
@@ -231,7 +231,7 @@ export const postUpdatePassword = async (req: Request, res: Response, next: Next
     [passwordFieldName]: password,
   };
 
-  const [error] = await updateUser(updatedUser, {[emailFieldName]: email});
+  const [error] = await updateUser(updatedUser, { [emailFieldName]: email });
   if (error) {
     return next(error);
   }
@@ -253,8 +253,8 @@ export const getReset = async (req: Request, res: Response, next: NextFunction) 
   const token = req.params.token;
   const [error, user] = await findUserByField(passwordResetToken, token);
   if (user == null) {
-      req.flash("errors", { msg: "Password reset token is invalid" });
-      return res.redirect("/forget");
+    req.flash("errors", { msg: "Password reset token is invalid" });
+    return res.redirect("/forget");
   }
   if (!user) {
     return next(error);
@@ -276,9 +276,9 @@ export const getReset = async (req: Request, res: Response, next: NextFunction) 
  */
 export const postReset = async (req: Request, res: Response, next: NextFunction) => {
   if (await checkPasswordLength(req) === false ||
-      await confirmMatchPassword(req) === false
+    await confirmMatchPassword(req) === false
   ) {
-      return res.redirect("back");
+    return res.redirect("back");
   }
 
   async.waterfall([
@@ -286,8 +286,8 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
       const token = req.params.token;
       const [error, user] = await findUserByField(passwordResetToken, token);
       if (user == null) {
-          req.flash("errors", { msg: "Password reset token is invalid" });
-          return res.redirect("back");
+        req.flash("errors", { msg: "Password reset token is invalid" });
+        return res.redirect("back");
       }
       if (!user) {
         return next(error);
@@ -306,29 +306,29 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
         [passwordResetExpires]: null,
       };
 
-      const [updateError] = await updateUser(updatedUser, {[passwordResetToken]: token});
+      const [updateError] = await updateUser(updatedUser, { [passwordResetToken]: token });
       if (updateError) {
         return done(updateError);
       }
       Object.assign(user, updatedUser);
       req.logIn(user, (err) => {
-          done(err, user);
+        done(err, user);
       });
     },
     async function sendResetPasswordEmail(user: UserModel, done: Function) {
       const mailOptions = {
-          to: user.email,
-          from: userPasswordResetEmailAccount,
-          subject: "Your password has been changed",
-          text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
+        to: user.email,
+        from: userPasswordResetEmailAccount,
+        subject: "Your password has been changed",
+        text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
       };
       const [error] = await sendMail(mailOptions);
       req.flash("success", { msg: "Success! Your password has been changed." });
       done(error);
     }
   ], (err) => {
-      if (err) { return next(err); }
-      res.redirect("/");
+    if (err) { return next(err); }
+    res.redirect("/");
   });
 };
 
@@ -337,10 +337,10 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
  * Forget Password page.
  */
 export const getForget = (req: Request, res: Response) => {
-    if (req.isAuthenticated()) {
-        return res.redirect("/");
-    }
-    res.render("account/forget", makeRenderObject({ title: "Forget Password" }, req));
+  if (req.isAuthenticated()) {
+    return res.redirect("/");
+  }
+  res.render("account/forget", makeRenderObject({ title: "Forget Password" }, req));
 };
 
 /**
@@ -349,23 +349,23 @@ export const getForget = (req: Request, res: Response) => {
  */
 export const postForget = async (req: Request, res: Response, next: NextFunction) => {
   if (await isValidUsername(req) === false ||
-      await emailExists(req) === false) {
+    await emailExists(req) === false) {
     return res.redirect("/forget");
   }
 
   const email = req.body.email;
   async.waterfall([
-      function createRandomToken(done: Function) {
-        crypto.randomBytes(256, (err, buf) => {
-            const token = buf.toString("hex");
-            done(err, token);
-        });
-      },
+    function createRandomToken(done: Function) {
+      crypto.randomBytes(256, (err, buf) => {
+        const token = buf.toString("hex");
+        done(err, token);
+      });
+    },
     async function setRandomToken(token: string, done: Function) {
       const [error, user] = await findUserByField(emailFieldName, email);
       if (user == null) {
-          req.flash("errors", { msg: "Account with that name does not exist." });
-          return res.redirect("/forget");
+        req.flash("errors", { msg: "Account with that name does not exist." });
+        return res.redirect("/forget");
       }
       if (!user) {
         // QueryError or cannot find user by given email
@@ -379,7 +379,7 @@ export const postForget = async (req: Request, res: Response, next: NextFunction
         [passwordResetExpires]: expiration.toDate(),
       };
 
-      const [updateError] = await updateUser(updatedUser, {[emailFieldName]: email});
+      const [updateError] = await updateUser(updatedUser, { [emailFieldName]: email });
       if (updateError) {
         return done(updateError);
       }
@@ -389,10 +389,10 @@ export const postForget = async (req: Request, res: Response, next: NextFunction
     },
     async function sendForgetPasswordEmail(token: string, user: UserModel, done: Function) {
       const mailOptions = {
-          to: user.email,
-          from: userPasswordResetEmailAccount,
-          subject: "Reset your password on Drafty",
-          text: `You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n
+        to: user.email,
+        from: userPasswordResetEmailAccount,
+        subject: "Reset your password on Drafty",
+        text: `You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n
     Please click on the following link, or paste this into your browser to complete the process:\n\n
     http://${req.headers.host}/reset/${token}\n\n
     If you did not request this, please ignore this email and your password will remain unchanged.\n`
@@ -402,8 +402,8 @@ export const postForget = async (req: Request, res: Response, next: NextFunction
       done(error);
     }
   ], (err) => {
-      if (err) { return next(err); }
-      res.redirect("/forget");
+    if (err) { return next(err); }
+    res.redirect("/forget");
   });
 };
 
@@ -426,10 +426,12 @@ export const postSeenWelcome = (req: Request, res: Response) => {
  * GLOBAL MIDDLEWARE
  */
 export async function checkSessionUser(req: Request, res: Response, next: NextFunction) {
+  const uuid = req.cookies["draftyUnique"];
+  const url = req.url;
   //console.log('Referer = ',req.header('Referer'));
   //console.log(req.headers);
-  if (await !req.session.user) {
-    if(req.user) {
+  if (!req.session.user) {
+    if (req.user) {
       logger.debug(req.sessionID + " :: NO USER but there is a passport :: " + req.user);
     }
     // sw: only place to create a new idProfile - this will get triggered before any login
@@ -439,6 +441,8 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
       isAuth: false,
       isAdmin: false,
       views: 0,
+      trafficUUID: uuid,
+      lastURL: url,
       seenWelcome: 0,
       lastInteraction: Date.now(),
       failedLoginAttempts: 0
@@ -446,6 +450,8 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
     //logger.debug("NEW Profile created! " + req.sessionID + " :: " + req.session.user.idProfile);
     next();
   } else {
+    req.session.user.trafficUUID = uuid;
+    req.session.user.lastURL = url;
     // logger.debug(req.sessionID + " :: " + req.session.user.idProfile + " :: " + req.session.user.isAuth  + " :: " + req.session.isAuth);
     // logger.debug(req.user); // sw: this is created by passport
     next();
@@ -460,8 +466,8 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
   const interactionTime = Date.now();
   //logger.debug(await req.session.user.lastInteraction + ' == ' + interactionTime);
   //logger.debug(interactionTime - await req.session.user.lastInteraction);
-  if(((interactionTime - await req.session.user.lastInteraction) > heartbeat) || (await req.session.user.idSession === -1)) {
-    req.session.user.idSession = await createSessionDB(req.session.user.idProfile,req.sessionID);
+  if (((interactionTime - await req.session.user.lastInteraction) > heartbeat) || (await req.session.user.idSession === -1)) {
+    req.session.user.idSession = await createSessionDB(req.session.user.idProfile, req.sessionID);
   }
   req.session.user.lastInteraction = interactionTime;
   req.session.user.views++;
@@ -472,7 +478,7 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
  * GLOBAL MIDDLEWARE
  */
 export async function checkReturnPath(req: Request, res: Response, next: NextFunction) {
-  if(!req.path.includes("/favicon.ico")) {
+  if (!req.path.includes("favicon")) {
     req.session.returnTo = req.path;
   }
   next();
