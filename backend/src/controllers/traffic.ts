@@ -21,14 +21,11 @@ export const trafficLogger = (req: Request, res: Response, next: NextFunction) =
             //console.log(req.session.user)
 
             if (!(cookieName in req.cookies)) {
-                console.log(`name not in cookie`)
                 const sid = uuidv4();
                 res.cookie(cookieName, sid);
                 insertTraffic(urlToCheck, fullUrl, host, origin, sid);
             } else {
-                console.log(`name in cookie!`)
                 const sid = req.cookies[cookieName];
-                console.log(sid)
                 insertTraffic(urlToCheck, fullUrl, host, origin, sid);
             }
         }

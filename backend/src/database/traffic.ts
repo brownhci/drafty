@@ -8,7 +8,9 @@ const stmtInsertTraffic: string = "INSERT INTO users.Traffic (idTraffic, url, fu
 // DB Code
 export async function insertTraffic(url: string, fullUrl: string, host: string, origin: string, sid: string) {
     try {
+        console.log('before traffic insert')
         await db.query(stmtInsertTraffic, [url, fullUrl, host, origin, sid]);
+        console.log('after traffic insert')
     } catch (error) {
         logDbErr(error, "error during insert traffic", "warn");
     }
