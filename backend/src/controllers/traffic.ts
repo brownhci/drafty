@@ -1,29 +1,35 @@
 import { Request, Response, NextFunction } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { insertTraffic } from "../database/traffic";
-import path from "path";
-import { isKnownBot } from "../util/isBot";
+import { checkBot } from "../util/isBot";
 
-const trackedViews = ["","csopenrankings","csprofessors","edit_history","account","login","signup","help"];
+const trackedViews = ["", "csopenrankings", "csprofessors", "edit_history", "account", "login", "signup", "help"];
 
 /**
  * GLOBAL MIDDLEWARE
  */
 export const trafficLogger = (req: Request, res: Response, next: NextFunction) => {
-    if(!isKnownBot) {
-        const urlToCheck  = path.basename(req.url);
-   
+    if (!checkBot(req.get('User-Agent')).isBot) {
+        const urlToCheck = req.path.replace(/\//g, '');
+
         if (trackedViews.includes(urlToCheck)) {
+            const fullUrl = req.url;
             const host = req.get("host");
             const origin = req.get("origin") || "none";
             const cookieName = "draftyUnique";
-            if(!(cookieName in req.cookies)) {
+
+            //console.log(req.session.user)
+
+            if (!(cookieName in req.cookies)) {
+                console.log(`name not in cookie`)
                 const sid = uuidv4();
                 res.cookie(cookieName, sid);
-                insertTraffic(req.url, host, origin, sid);  
+                insertTraffic(urlToCheck, fullUrl, host, origin, sid);
             } else {
+                console.log(`name in cookie!`)
                 const sid = req.cookies[cookieName];
-                insertTraffic(req.url, host, origin, sid);  
+                console.log(sid)
+                insertTraffic(urlToCheck, fullUrl, host, origin, sid);
             }
         }
     }
