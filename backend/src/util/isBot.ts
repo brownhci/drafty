@@ -9,7 +9,7 @@ const knownBotsToPattern = new Map([
 ]);
 
 // Detect if an incoming request belongs to a bot using its user agent
-export function isKnownBot(userAgent: string) {
+export function checkBot(userAgent: string): { isBot: boolean, nameBot: string } {
     for (const [knownBot, pattern] of knownBotsToPattern.entries()) {
         if (userAgent.match(pattern)) {
             return {
@@ -22,6 +22,7 @@ export function isKnownBot(userAgent: string) {
     }
 
     return {
-        isBot: false
+        isBot: false,
+        nameBot: 'none'
     };
 }
