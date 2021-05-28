@@ -21,7 +21,7 @@ const stmtSearchMulti: string = "INSERT INTO SearchMulti (idInteraction, idSugge
 
 const stmtInsertSearchGoogle: string = "INSERT INTO SearchGoogle (idInteraction, idUniqueID, idSuggestion, searchValues) VALUES (insert_interaction(?,?), ?, ?, ?);";
 
-const stmtInsertDataBaitVisit: string = "INSERT INTO DataBaitVisit (idInteraction, idDataBait) VALUES (insert_interaction(?,?), ?);";
+const stmtInsertDataBaitVisit: string = "INSERT INTO DataBaitVisit (idInteraction, idDataBait, source) VALUES (insert_interaction(?,?), ?, source);";
 
 /**
  * save new click
@@ -193,10 +193,10 @@ export async function insertSearchGoogle(idSession: string, idRow: number | stri
  * insert that someone came to draft from seeing a databait
  */
 //DB Code
-export async function insertDataBaitVisit(idSession: string, idDataBait: string) {
+export async function insertDataBaitVisit(idSession: string, idDataBait: string, source: string) {
     try {
         const idInteractionType: number = 19;
-        await db.query(stmtInsertDataBaitVisit, [idSession, idInteractionType, idDataBait);
+        await db.query(stmtInsertDataBaitVisit, [idSession, idInteractionType, idDataBait, source]);
     } catch (error) {
         logDbErr(error, "error during insert click", "warn");
     }
