@@ -56,7 +56,7 @@ app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }))
 import helpers from "./config/handlebars-helpers";
 // handlebars express config
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const hbs = require( "express-handlebars");
+const hbs = require("express-handlebars");
 app.engine("hbs", hbs({
   extname: "hbs",
   defaultView: "index",
@@ -81,22 +81,22 @@ app.get("/", homeCtrl.index);
 const days = 10800; // we will manually manage sessions
 const age = days * 24 * 60 * 60 * 1000; // days * hours * minutes * seconds * milliseconds
 app.use(session({
-    secret: SESSION_SECRET,
-    name: "security_protection",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        secure: false, // sw: should be set to true on production server; which means cookies will only be used over https
-        httpOnly: true,
-        sameSite: true,
-        maxAge: age
-    },
-    store: new MySQLStore({
-      host: DB_HOST,
-      user: DB_USER,
-      password: DB_PASSWORD,
-      database: "users", // sw: change this to create sessions only db
-    })
+  secret: SESSION_SECRET,
+  name: "security_protection",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: false, // sw: should be set to true on production server; which means cookies will only be used over https
+    httpOnly: true,
+    sameSite: true,
+    maxAge: age
+  },
+  store: new MySQLStore({
+    host: DB_HOST,
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: "users", // sw: change this to create sessions only db
+  })
 }));
 
 // passport.session has to be used after express.session in order to work properly
@@ -163,6 +163,7 @@ app.post("/sort", interactionCtrl.postSort);
 app.post("/search-partial", interactionCtrl.postSearchPartial);
 app.post("/search-full", interactionCtrl.postSearchFull);
 app.post("/search-google", interactionCtrl.postSearchGoogle);
+app.post("/databait-visit", interactionCtrl.postDataBaitVisit);
 app.post("/paste-cell", interactionCtrl.postPasteCell);
 app.post("/copy-cell", interactionCtrl.postCopyCell);
 app.post("/copy-column", interactionCtrl.postCopyColumn);
@@ -179,7 +180,7 @@ app.get("/:sheet", userCtrl.checkReturnPath, sheetCtrl.getSheet);
 app.get("/:sheet/edit_history", userCtrl.checkReturnPath, sheetCtrl.getSheetEditHistory);
 
 // handle missing pages
-app.get("*", function(req, res) {
+app.get("*", function (req, res) {
   console.log(`ERROR - Cannot find requested page ${req.originalUrl}`);
   //sw: bc homepage was moved flash errors do not show up 
   //req.flash("errors", { msg: `Cannot find requested page ${req.originalUrl}`});
