@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from "../dom/navigate";
 import { isTableData } from "../dom/types";
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from "../dom/sheet";
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postGoogleSearchURL } from "./endpoints";
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postGoogleSearchURL, postDataBaitVisit, postSearchColVisit } from "./endpoints";
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector("input[name='_csrf']");
 
@@ -74,12 +74,12 @@ function recordInteraction(
     },
     body: JSON.stringify(data),
   }).then(response => {
-      if (response.ok) {
-        successHandler(response);
-      } else {
-        failureHandler(response);
-      }
-    })
+    if (response.ok) {
+      successHandler(response);
+    } else {
+      failureHandler(response);
+    }
+  })
     .catch(error => console.error("Network error when posting interaction: ", error));
 }
 
@@ -98,35 +98,35 @@ export function recordCellClick(tableCellElement: HTMLTableCellElement) {
     const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
     const rowValues = getTableRowCellValues(tableRow);
     const idSuggestion = getIdSuggestion(tableCellElement);
-    recordInteraction(postCellClickURL(), {idSuggestion, rowValues});
+    recordInteraction(postCellClickURL(), { idSuggestion, rowValues });
   }
 }
 
 export function recordRowInsertion(rowValues: Array<string>, idSuggestionTypes: Array<number>, successHandler?: ResponseHandler, failureHandler?: ResponseHandler) {
   recordInteraction(postNewRowURL(), {
-      newRowValues: rowValues, newRowFields: idSuggestionTypes
-    }, successHandler, failureHandler);
+    newRowValues: rowValues, newRowFields: idSuggestionTypes
+  }, successHandler, failureHandler);
 }
 
 export function recordCellDoubleClick(tableCellElement: HTMLTableCellElement) {
   const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
   const rowValues = getTableRowCellValues(tableRow);
   const idSuggestion = getIdSuggestion(tableCellElement);
-  recordInteraction(postCellDoubleClickURL(), {idSuggestion, rowValues});
+  recordInteraction(postCellDoubleClickURL(), { idSuggestion, rowValues });
 }
 
 export function recordCellCopy(tableCellElement: HTMLTableCellElement) {
   const idSuggestion = getIdSuggestion(tableCellElement);
-  recordInteraction(postCellCopyURL(), {idSuggestion});
+  recordInteraction(postCellCopyURL(), { idSuggestion });
 }
 
 export function recordColumnCopy(columnLabel: HTMLTableCellElement) {
   const idSuggestionType = getIdSuggestionType(columnLabel);
-  recordInteraction(postColumnCopyURL(), {idSuggestionType});
+  recordInteraction(postColumnCopyURL(), { idSuggestionType });
 }
 
 export function recordPaste(pasteVal: string, pasteCellVal: string, pasteCellIdSuggestion: string, copyCellVal: string, copyCellIdSuggestion: string) {
-  recordInteraction(postPasteURL(), {pasteVal: pasteVal, pasteCellVal: pasteCellVal, pasteCellIdSuggestion: pasteCellIdSuggestion, copyCellVal: copyCellVal, copyCellIdSuggestion: copyCellIdSuggestion});
+  recordInteraction(postPasteURL(), { pasteVal: pasteVal, pasteCellVal: pasteCellVal, pasteCellIdSuggestion: pasteCellIdSuggestion, copyCellVal: copyCellVal, copyCellIdSuggestion: copyCellIdSuggestion });
 }
 
 function isMultipleColumnSearchInputFilled(limit: number = 2): boolean {
@@ -165,7 +165,7 @@ export function recordColumnSearch(columnSearch: HTMLTableCellElement, isFullSea
   });
 }
 
-export function recordColumnSort(columnIndex: number , sortingDirection: number) {
+export function recordColumnSort(columnIndex: number, sortingDirection: number) {
   const columnLabel: HTMLTableCellElement = getColumnLabel(columnIndex);
   recordInteraction(postColumnSortURL(), {
     idSuggestionType: getIdSuggestionType(columnLabel),
@@ -179,5 +179,19 @@ export function recordGoogleSearch(idSuggestion: string, idRow: string, tableRow
     idSuggestion: idSuggestion,
     idRow: idRow,
     searchValues: rowValues
+  });
+}
+
+export function recordDataBaitVisit(idDataBait: string, source: string) {
+  recordInteraction(postDataBaitVisit(), {
+    idDataBait: idDataBait,
+    source: source
+  });
+}
+
+export function recordSearchColVisit(idSuggestionType: string, value: string) {
+  recordInteraction(postSearchColVisit(), {
+    idSuggestionType: idSuggestionType,
+    value: value
   });
 }
