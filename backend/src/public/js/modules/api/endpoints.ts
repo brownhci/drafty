@@ -66,3 +66,11 @@ export function postColumnPartialSearchURL() {
 export function postGoogleSearchURL() {
   return "search-google";
 }
+
+export function postDataBaitVisit() {
+  return "databait-visit";
+}
+
+export function postSearchColVisit() {
+  return "searchcol-visit";
+}
