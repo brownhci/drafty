@@ -29,3 +29,4 @@ ALTER TABLE `DataBaitVisit`
   ADD CONSTRAINT `_fk_idDataBait_DataBaitVisit_b123gda` FOREIGN KEY (`idDataBait`) REFERENCES `Databaits` (`idDatabait`),
   ADD CONSTRAINT `_fk_idInteraction_DataBaitVisit_asdhjk16341` FOREIGN KEY (`IdInteraction`) REFERENCES `Interaction` (`idInteraction`);
 
+ALTER TABLE `Databaits` ADD `notes` VARCHAR(5000) NOT NULL AFTER `vals`;
