@@ -153,15 +153,38 @@ export const postSearchGoogle = (req: Request, res: Response) => {
  * 
  * @param {number} req.body.idDataBait
  *
- * @param {Array<string>} req.body.searchValues
+ * @param {string} req.body.source
  */
 export const postDataBaitVisit = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
   const idDataBait: string = req.body.idDataBait;
+  const source: string = req.body.source;
 
   try {
-    //console.log('postDataBaitVisit:', idDataBait);
-    insertDataBaitVisit(idSession, idDataBait);
+    //console.log('postDataBaitVisit:', idDataBait, source);
+    insertDataBaitVisit(idSession, idDataBait, source);
+    return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+};
+
+/**
+ * POST /searchcol-visit
+ * 
+ * @param {number} req.body.idSuggestionType
+ *
+ * @param {string} req.body.value
+ */
+export const postSearchColVisit = (req: Request, res: Response) => {
+  const idSession = req.session.user.idSession;
+  const idSuggestionType: string = req.body.idSuggestionType;
+  const value: string = req.body.value;
+
+  try {
+    //console.log('postDataBaitVisit:', idDataBait, source);
+    // sw: TODO - implement insertSearchColVisit + create DB structure
+    //insertSearchColVisit(idSession, idSuggestionType, value);
     return res.sendStatus(200);
   } catch (error) {
     return res.sendStatus(500);
