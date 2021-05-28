@@ -164,6 +164,7 @@ app.post("/search-partial", interactionCtrl.postSearchPartial);
 app.post("/search-full", interactionCtrl.postSearchFull);
 app.post("/search-google", interactionCtrl.postSearchGoogle);
 app.post("/databait-visit", interactionCtrl.postDataBaitVisit);
+app.post("/searchcol-visit", interactionCtrl.postSearchColVisit);
 app.post("/paste-cell", interactionCtrl.postPasteCell);
 app.post("/copy-cell", interactionCtrl.postCopyCell);
 app.post("/copy-column", interactionCtrl.postCopyColumn);
