@@ -14,3 +14,18 @@ ALTER TABLE `Databaits`
 
 ALTER TABLE `Databaits`
   MODIFY `idDatabait` int(11) NOT NULL AUTO_INCREMENT;
+
+
+CREATE TABLE `DataBaitVisit` (
+  `IdInteraction` int(11) NOT NULL,
+  `idDataBait` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `DataBaitVisit`
+  ADD UNIQUE KEY `_unique_id_interaction_databaitvisit` (`IdInteraction`),
+  ADD KEY `_fk_idDataBait_DataBaitVisit_b123gda` (`idDataBait`);
+
+ALTER TABLE `DataBaitVisit`
+  ADD CONSTRAINT `_fk_idDataBait_DataBaitVisit_b123gda` FOREIGN KEY (`idDataBait`) REFERENCES `Databaits` (`idDatabait`),
+  ADD CONSTRAINT `_fk_idInteraction_DataBaitVisit_asdhjk16341` FOREIGN KEY (`IdInteraction`) REFERENCES `Interaction` (`idInteraction`);
+
