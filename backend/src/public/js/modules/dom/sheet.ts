@@ -2,6 +2,7 @@ import { getCellInTableRow, getRightTableCellElement } from "./navigate";
 import { isInput } from "./types";
 import { columnLabelClass, columnLabelTextClass, columnSearchClass, columnSortButtonClass } from "../constants/css-classes";
 import { measureTextWidth } from "../utils/length";
+import { recordDataBaitVisit } from "../api/record-interactions";
 
 /* <table> */
 export const tableElement: HTMLTableElement = document.getElementById("table") as HTMLTableElement;
@@ -11,7 +12,7 @@ export const tableScrollContainer: HTMLElement = tableElement.parentElement;
 export const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
 /* unused */
 export const tableHeadSearchElement: HTMLTableSectionElement = document.getElementById("column-search-row") as HTMLTableSectionElement;
-/* top header row */ 
+/* top header row */
 export const tableHeadTopRowElement: HTMLTableSectionElement = document.getElementById("column-label-row") as HTMLTableSectionElement;
 /* <tbody> */
 export const tableBodyElement: HTMLTableSectionElement = document.getElementById("view") as HTMLTableSectionElement;
@@ -84,7 +85,7 @@ export function getLongestColumnTextWidth(): number {
   return textWidth;
 }
 export function isColumnSearch(element: HTMLElement): boolean {
-  return  element && element.classList.contains(columnSearchClass);
+  return element && element.classList.contains(columnSearchClass);
 }
 export function getColumnSearch(index: number): HTMLTableCellElement {
   return getCellInTableRow(tableColumnSearches, index);
@@ -200,17 +201,29 @@ export function checkUrlForSearchParams() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const searchInputElement: HTMLInputElement = document.getElementById(`column-search-input${urlParams.get("searchCol")}`) as HTMLInputElement;
-  if(urlParams.get("searchVal")) {
+
+  // check if user arrived bc of a databait
+  if (urlParams.get("databaitId")) {
+    let databaitSource: string = "unkown";
+    if (urlParams.get("databaitSource")) {
+      databaitSource = urlParams.get("databaitSource");
+    }
+    let databaitId: string = urlParams.get("databaitId");
+    recordDataBaitVisit(databaitId, databaitSource);
+  }
+
+  // populate search column
+  if (urlParams.get("searchVal")) {
     searchInputElement.value = urlParams.get("searchVal");
   }
 
-  const checkTableDataLoaded = setInterval(function() {
+  const checkTableDataLoaded = setInterval(function () {
     clearInterval(checkTableDataLoaded);
     if (document.getElementById("view").childNodes.length > 1) {
-        if(urlParams.has("searchCol") && urlParams.has("searchVal")) {
-          const eventInput = new Event("input");
-          searchInputElement.dispatchEvent(eventInput); 
-        }
+      if (urlParams.has("searchCol") && urlParams.has("searchVal")) {
+        const eventInput = new Event("input");
+        searchInputElement.dispatchEvent(eventInput);
+      }
     }
   }, 100); // check every 100ms
 }
