@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertCopyColumn, insertSearch, insertSort, insertSearchGoogle } from "../database/interaction";
+import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertCopyColumn, insertSearch, insertSort, insertSearchGoogle, insertDataBaitVisit } from "../database/interaction";
 
 /**
  * POST /click
@@ -14,7 +14,7 @@ export const postClick = (req: Request, res: Response) => {
   const rowvalues = req.body.rowValues;
   try {
     insertClick(idSession, idSuggestion, rowvalues);
-  return res.sendStatus(200);
+    return res.sendStatus(200);
   } catch (error) {
     return res.sendStatus(500);
   }
@@ -49,7 +49,7 @@ export const postClickDouble = (req: Request, res: Response) => {
  */
 export const postSort = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
-  const idSuggestionType: number|string = req.body.idSuggestionType;
+  const idSuggestionType: number | string = req.body.idSuggestionType;
   const isAsc: number = req.body.isAsc;
   // sw - multi column sorting is not implemented yet
   const isTrigger: number = 1;
@@ -75,7 +75,7 @@ export const postSort = (req: Request, res: Response) => {
  */
 export const postSearchPartial = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
-  const idSuggestionType: number|string = req.body.idSuggestionType;
+  const idSuggestionType: number | string = req.body.idSuggestionType;
 
   const isPartial: number = 1;
   const isMulti: number = req.body.isMulti;
@@ -106,7 +106,7 @@ export const postSearchPartial = (req: Request, res: Response) => {
  */
 export const postSearchFull = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
-  const idSuggestionType: number|string = req.body.idSuggestionType;
+  const idSuggestionType: number | string = req.body.idSuggestionType;
 
   const isPartial: number = 0;
   const isMulti: number = req.body.isMulti;
@@ -118,7 +118,7 @@ export const postSearchFull = (req: Request, res: Response) => {
 
   try {
     insertSearch(idSession, idSuggestionType, isPartial, isMulti, isFromUrl, value, matchedValues, multiSearchValues);
-  return res.sendStatus(200);
+    return res.sendStatus(200);
   } catch (error) {
     return res.sendStatus(500);
   }
@@ -126,7 +126,7 @@ export const postSearchFull = (req: Request, res: Response) => {
 
 /**
  * POST /search-google
- * Full search
+ * 
  * @param {number} req.body.idSuggestion
  * @param {number} req.body.idRow
  *
@@ -149,6 +149,26 @@ export const postSearchGoogle = (req: Request, res: Response) => {
 };
 
 /**
+ * POST /databait-visit
+ * 
+ * @param {number} req.body.idDataBait
+ *
+ * @param {Array<string>} req.body.searchValues
+ */
+export const postDataBaitVisit = (req: Request, res: Response) => {
+  const idSession = req.session.user.idSession;
+  const idDataBait: string = req.body.idDataBait;
+
+  try {
+    //console.log('postDataBaitVisit:', idDataBait);
+    insertDataBaitVisit(idSession, idDataBait);
+    return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+};
+
+/**
  * POST /paste-cell
  * Copy
  *
@@ -156,13 +176,13 @@ export const postSearchGoogle = (req: Request, res: Response) => {
 */
 export const postPasteCell = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
-  const pasteVal: string|any = req.body.pasteVal;
-  const pasteCellVal: string|any = req.body.pasteCellVal;
+  const pasteVal: string | any = req.body.pasteVal;
+  const pasteCellVal: string | any = req.body.pasteCellVal;
   const pasteCellIdSuggestion: number = req.body.pasteCellIdSuggestion;
-  const copyCellVal: string|any = req.body.copyCellVal;
+  const copyCellVal: string | any = req.body.copyCellVal;
   const copyCellIdSuggestion: number = req.body.copyCellIdSuggestion;
   try {
-    insertPasteCell(idSession,pasteVal,pasteCellVal,pasteCellIdSuggestion,copyCellVal,copyCellIdSuggestion);
+    insertPasteCell(idSession, pasteVal, pasteCellVal, pasteCellIdSuggestion, copyCellVal, copyCellIdSuggestion);
     return res.sendStatus(200);
   } catch (error) {
     return res.sendStatus(500);
@@ -177,9 +197,9 @@ export const postPasteCell = (req: Request, res: Response) => {
 */
 export const postCopyCell = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
-  const idSuggestion: number|string = req.body.idSuggestion;
+  const idSuggestion: number | string = req.body.idSuggestion;
   try {
-    insertCopyCell(idSession,idSuggestion);
+    insertCopyCell(idSession, idSuggestion);
     return res.sendStatus(200);
   } catch (error) {
     return res.sendStatus(500);
@@ -194,11 +214,11 @@ export const postCopyCell = (req: Request, res: Response) => {
  */
 export const postCopyColumn = (req: Request, res: Response) => {
   const idSession = req.session.user.idSession;
-  const idSuggestionType: number|string = req.body.idSuggestionType;
+  const idSuggestionType: number | string = req.body.idSuggestionType;
 
   try {
-    insertCopyColumn(idSession,idSuggestionType);
-  return res.sendStatus(200);
+    insertCopyColumn(idSession, idSuggestionType);
+    return res.sendStatus(200);
   } catch (error) {
     return res.sendStatus(500);
   }
