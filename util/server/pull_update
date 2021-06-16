@@ -6,13 +6,16 @@ git stash
 # git remote update
 # git status -uno
 git pull
-cd backend
+cd ../../backend
 
 if [ "$#" -gt 0 ] # if greater than 0
 then
-  npm update
+  # sw: leaving this out for now 
+  # do not unexpected errors
+  # npm update 
 fi
 
+# compiles css
 npm run build
 
 if [ "$#" -gt 0 ] # if greater than 0

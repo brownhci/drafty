@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 cd ~
+rm /etc/apt/sources.list.d/nodesource.list
 curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
 apt -y install nodejs
 apt -y install gcc g++ make
