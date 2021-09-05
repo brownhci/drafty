@@ -1,6 +1,6 @@
 import passport from "passport";
 import passportLocal from "passport-local";
-import { emailFieldName, passwordFieldName } from "../models/user";
+import { emailFieldName, passwordFieldName, UserModel } from "../models/user";
 import { findUserByField } from "../database/user";
 import { Request, Response, NextFunction } from "express";
 import { comparePassword } from "../util/encrypt";
@@ -9,7 +9,7 @@ import { emailValidationFailure, passwordValidationFailure } from "../validation
 
 const LocalStrategy = passportLocal.Strategy;
 
-passport.serializeUser<any, any>((user, done) => {
+passport.serializeUser(async (user: UserModel, done) => {
   done(null, user[emailFieldName]);
 });
 
