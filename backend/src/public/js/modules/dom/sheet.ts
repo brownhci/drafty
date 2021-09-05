@@ -208,7 +208,7 @@ export function checkUrlForSearchParams() {
     if (urlParams.get("databaitSource")) {
       databaitSource = urlParams.get("databaitSource");
     }
-    let databaitId: string = urlParams.get("databaitId");
+    const databaitId: string = urlParams.get("databaitId");
     recordDataBaitVisit(databaitId, databaitSource);
   }
 

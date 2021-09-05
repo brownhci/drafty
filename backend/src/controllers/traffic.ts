@@ -9,8 +9,8 @@ const trackedViews = ["", "csopenrankings", "csprofessors", "edit_history", "acc
  * GLOBAL MIDDLEWARE
  */
 export const trafficLogger = (req: Request, res: Response, next: NextFunction) => {
-    if (!checkBot(req.get('User-Agent')).isBot) {
-        const urlToCheck = req.path.replace(/\//g, '');
+    if (!checkBot(req.get("User-Agent")).isBot) {
+        const urlToCheck = req.path.replace(/\//g, "");
 
         if (trackedViews.includes(urlToCheck)) {
             const fullUrl = req.url;
