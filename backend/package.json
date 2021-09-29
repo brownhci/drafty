@@ -74,6 +74,8 @@
         "request": "^2.88.2",
         "request-promise": "^4.2.5",
         "session-file-store": "^1.4.0",
+        "set-value": "^4.0.1",
+        "tmpl": "^1.0.5",
         "uuid": "^8.3.1",
         "winston": "^3.2.1"
     },
