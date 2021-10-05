@@ -37,7 +37,13 @@ export const index = (req: Request, res: Response) => {
       {
         link: "https://jeffhuang.com/Final_Drafty_HCOMP17.pdf",
         name: "Drafty: Enlisting Users to be Editors who Maintain Structured Data",
-        description: "Shaun Wallace, Lucy van Kleunen, Marianne Aubin-Le Quere, Abraham Peterkin, Yirui Huang, Jeff Huang. HCOMP 2017"
+        description: "Shaun Wallace, Lucy van Kleunen, Marianne Aubin-Le Quere, Abraham Peterkin, Yirui Huang, Jeff Huang. HCOMP 2017",
+        source: true
+      },
+      {
+        link: "https://jeffhuang.com/papers/TabularDatasets_CSCW21.pdf",
+        name: "Case Studies on the Motivation and Performance of Contributors Who Verify and Maintain In-Flux Tabular Datasets",
+        description: "Shaun Wallace, Alexandra Papoutsaki, Neilly H. Tan, Hua Guo, Jeff Huang. CSCW 2021"
       },
     ]
   }, req));

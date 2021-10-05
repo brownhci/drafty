@@ -48,13 +48,18 @@
                     {{#each publications}}
                         <li class="publication">
                             <a class="publication-link" href="{{link}}">{{name}}</a>
-                            <p>{{description}} <a href="https://github.com/brownhci/drafty" target="_blank">[source code]</a></p>
+                            <p>{{description}}
+                            {{#if source}}
+                            	<a href="https://github.com/brownhci/drafty" target="_blank">[source code]</a>
+                            {{/if}}
+                            </p>
                         </li>
                     {{/each}}
                 </ul>
             </div>
             <p id="developers" class="footer">
-                  Developed by Shaun Wallace, Zhengyi Peng, Diana Lee, and others. 
+                  Developed by Shaun Wallace and others
+                  <br>
                   <a href="https://hci.cs.brown.edu" target="_blank">Brown University HCI Group</a>
             </p>
         </div>
