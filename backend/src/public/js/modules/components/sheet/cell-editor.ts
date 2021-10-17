@@ -136,7 +136,8 @@ class CellEditor {
     });
 
     tableScrollContainer.addEventListener("click", (event) => {
-      if (!this.formElement.contains(event.target as HTMLElement)) {
+      // sw: isActive is effectively checking for double clicks
+      if (!this.isActive && !this.formElement.contains(event.target as HTMLElement)) {
         this.deactivateForm();
       }
     });
