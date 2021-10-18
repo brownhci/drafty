@@ -38,6 +38,24 @@ const recentTimeLimit: number = 1000;
 export let activeTableCellElement: ActiveHTMLTableCellElement = null;
 /* activate */
 
+const editCaretId: string = 'edit-caret'
+const editCaret: string = `
+    <span id="${editCaretId}">
+      <i class="fas fa-caret-square-down"></i>
+    </span>
+`;
+function activateEditCaret() {
+  activeTableCellElement.innerHTML += editCaret;
+  const editCaretElement = document.getElementById(editCaretId);
+  editCaretElement.addEventListener("click", (event: MouseEvent) => {
+    activateCellEditor();
+  });
+}
+function deactivateEditCaret() {
+  const editCaretElement = document.getElementById(editCaretId);
+  editCaretElement.remove()
+  //activeTableCellElement.childNodes[1].remove()
+}
 /**
  * renew the timestamp on the active table cell element.
  */
@@ -51,6 +69,7 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
   }
   if (shouldGetFocus) {
     activeTableCellElement.focus();
+    activateEditCaret();
   }
 }
 function activateTableHead(shouldGetFocus = true) {
@@ -104,6 +123,7 @@ function activateTableCellElement(tableCellElement: HTMLTableCellElement, should
 }
 /* deactivate */
 function deactivateTableData() {
+  deactivateEditCaret();
   activeTableCellElement.classList.remove(activeClass);
   activeTableCellElement.lastActiveTimestamp = null;
 }
@@ -190,10 +210,7 @@ function activeElementOnRepeatedClick() {
   }
   if (isTableData(activeTableCellElement)) {
     if (isTableDataLastActivatedRecently()) {
-      cellEditor.formInput = getTableDataText(activeTableCellElement);
-      const initialSearchValue = ""; // bc we want users to see all options
-      cellEditor.activateForm(activeTableCellElement, initialSearchValue);
-      activeTableCellElement.lastActiveTimestamp = null;
+      activateCellEditor()
       recordCellDoubleClick(activeTableCellElement);
     } else {
       updateActiveTimestamp();
@@ -247,6 +264,13 @@ tableElement.addEventListener("contextmenu", function (event: MouseEvent) {
     }
   }
 }, true);
+
+function activateCellEditor() {
+  cellEditor.formInput = getTableDataText(activeTableCellElement).trim();
+  const initialSearchValue = ""; // bc we want users to see all options
+  cellEditor.activateForm(activeTableCellElement, initialSearchValue);
+  activeTableCellElement.lastActiveTimestamp = null;
+}
 
 interface ConsumableKeyboardEvent extends KeyboardEvent {
   consumed?: boolean;
