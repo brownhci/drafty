@@ -377,16 +377,12 @@ tableElement.addEventListener("keydown", function (event: KeyboardEvent) {
   if (isTableCell(target)) {
     tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
   } else if (isInput(target)) {
-
-    console.log(`tableFoot.statusMode = ${tableFoot.statusMode}`);
-    console.log(`cellEditNewRow.isActive = ${cellEditNewRow.isActive}`);
     // if footer is open 
     if (tableFoot.statusMode === "insertion") {
       // activate new row cell editor when new character is typed
       cellEditNewRow.activate(target.parentElement as HTMLTableCellElement);
     }
 
-    console.log(isColumnSearchInput(target));
     if (isColumnSearchInput(target)) {
       if (columnSuggestions.isActive) {
         if (event.key === "Escape" || event.key === "Enter") {
@@ -395,7 +391,6 @@ tableElement.addEventListener("keydown", function (event: KeyboardEvent) {
           event.preventDefault();
         }
       } else {
-        console.log(`activate col suggs!!!`);
         // activate column suggestions when new character is typed
         columnSuggestions.activate(target.parentElement as HTMLTableCellElement);
       }
