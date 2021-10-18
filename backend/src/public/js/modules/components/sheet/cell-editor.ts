@@ -294,7 +294,7 @@ class CellEditor {
     console.log(this.formInput);
     */
     // sw --- is this if stmt necessary?
-    if (this.cellElement.innerHTML === this.formInput) {
+    if (this.cellElement.innerText === this.formInput) {
       saveEdit = false;
     }
     if (saveEdit) {
