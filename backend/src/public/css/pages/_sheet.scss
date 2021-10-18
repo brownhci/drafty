@@ -154,6 +154,11 @@ inset 0px -1px 0px 0px $table-border-color;
       }
     }
 
+    #table-cell-input-entry {
+      padding-left: 0.3em;
+      padding-right: 0.3em;
+    }
+
     #table-cell-input-form {
       @extend .float-window;
       max-width: 90vw;

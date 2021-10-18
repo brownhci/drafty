@@ -38,7 +38,7 @@ const recentTimeLimit: number = 1000;
 export let activeTableCellElement: ActiveHTMLTableCellElement = null;
 /* activate */
 
-const editCaretId: string = 'edit-caret'
+const editCaretId: string = "edit-caret";
 const editCaret: string = `
     <span id="${editCaretId}">
       <i class="fas fa-caret-square-down"></i>
@@ -53,7 +53,7 @@ function activateEditCaret() {
 }
 function deactivateEditCaret() {
   const editCaretElement = document.getElementById(editCaretId);
-  editCaretElement.remove()
+  editCaretElement.remove();
   //activeTableCellElement.childNodes[1].remove()
 }
 /**
@@ -210,7 +210,7 @@ function activeElementOnRepeatedClick() {
   }
   if (isTableData(activeTableCellElement)) {
     if (isTableDataLastActivatedRecently()) {
-      activateCellEditor()
+      activateCellEditor();
       recordCellDoubleClick(activeTableCellElement);
     } else {
       updateActiveTimestamp();
