@@ -1,11 +1,20 @@
-$shadow-width: 3px;
-$resize-shadow-width: 3px;
+$shadow-width: 2px;
+$resize-shadow-width: 2px;
 $visual-cue-width: 5px;
 $resize-color: #B0D0D3;
 
 $border-top: inset 0px 1px 0px 0px $table-border-color;
 $border-top-bottom: inset 0px 1px 0px 0px $table-border-color,
 inset 0px -1px 0px 0px $table-border-color;
+
+#edit-caret {
+  cursor: pointer;
+  float: right;
+  color: lightgray;
+}
+#edit-caret:hover {
+  color: darkgrey;
+}
 
 %cell-overflow {
   @extend .overflow-hidden;
