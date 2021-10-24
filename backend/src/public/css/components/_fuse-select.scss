@@ -1,3 +1,8 @@
+.fuse-select {
+  height: 142.5px;
+  overflow: hidden;
+}
+
 .fuse-select-options {
   @extend .overflow-auto;
   @extend .my-1;

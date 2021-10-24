@@ -158,7 +158,7 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
  * @param {string} callback - A callback executed after the fetched suggestions are used.
 
  */
-export function updateFuseSelect(fuseSelect: FuseSelect, idSuggestion: number, idSuggestionType: number, callback: () => void = () => undefined) {
+export async function updateFuseSelect(fuseSelect: FuseSelect, idSuggestion: number, idSuggestionType: number, callback: () => void = () => undefined) {
   // TODO: sw localStorage.clear() if run out of space
   const url = getEditSuggestionURL(idSuggestion);
   editSuggestionManager.get(
