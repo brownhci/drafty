@@ -282,7 +282,7 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
   }
 
   async.waterfall([
-    async function resetPassword(done: Function) {
+    async function resetPassword(done: any) {
       const token = req.params.token;
       const [error, user] = await findUserByField(passwordResetToken, token);
       if (user == null) {
@@ -315,7 +315,7 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
         done(err, user);
       });
     },
-    async function sendResetPasswordEmail(user: UserModel, done: Function) {
+    async function sendResetPasswordEmail(user: UserModel, done: any) {
       const mailOptions = {
         to: user.email,
         from: userPasswordResetEmailAccount,
@@ -355,13 +355,13 @@ export const postForget = async (req: Request, res: Response, next: NextFunction
 
   const email = req.body.email;
   async.waterfall([
-    function createRandomToken(done: Function) {
+    function createRandomToken(done: any) {
       crypto.randomBytes(256, (err, buf) => {
         const token = buf.toString("hex");
         done(err, token);
       });
     },
-    async function setRandomToken(token: string, done: Function) {
+    async function setRandomToken(token: string, done: any) {
       const [error, user] = await findUserByField(emailFieldName, email);
       if (user == null) {
         req.flash("errors", { msg: "Account with that name does not exist." });
@@ -387,7 +387,7 @@ export const postForget = async (req: Request, res: Response, next: NextFunction
       Object.assign(user, updatedUser);
       done(error, token, user);
     },
-    async function sendForgetPasswordEmail(token: string, user: UserModel, done: Function) {
+    async function sendForgetPasswordEmail(token: string, user: UserModel, done: any) {
       const mailOptions = {
         to: user.email,
         from: userPasswordResetEmailAccount,

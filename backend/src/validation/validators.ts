@@ -57,7 +57,6 @@ export async function emailExists(req: Request) {
 }
 
 export async function isValidEmail(req: Request) {
-  // eslint-disable-next-line @typescript-eslint/camelcase
   const result = await body("email").normalizeEmail({ gmail_remove_dots: false }).isEmail().run(req);
   if (!validationResult(req).isEmpty()) {
     req.flash(emailValidationFailure, { msg: "Email not in valid format" });

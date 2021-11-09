@@ -36,7 +36,7 @@ export class ViewModel extends DOMForwardingInstantiation {
    *
    *    `element.dataset[ViewModel.identifierDatasetName_]`
    */
-  static readonly identifierDatasetName_ = "identifier_"
+  static readonly identifierDatasetName_ = "identifier_";
 
   protected forwardingTo_: HTMLElement;
 

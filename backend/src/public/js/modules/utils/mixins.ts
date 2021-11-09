@@ -16,4 +16,4 @@ export function applyMixins(derivedCtor: any, baseCtors: any[]) {
   });
 }
 
-export type Constructor<T = {}> = new (...args: any[]) => T;
+export type Constructor<T = unknown> = new (...args: any[]) => T;
