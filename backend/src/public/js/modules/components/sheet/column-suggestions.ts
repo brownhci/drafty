@@ -67,7 +67,6 @@ class ColumnSuggestions {
   */
 
   inputHandler(event: Event) {
-    console.log("input handler");
     const target = event.target as HTMLElement;
     if (columnSuggestions.isActive && target === columnSuggestions.inputElement) {
       // the input for searching, filter the suggestions
