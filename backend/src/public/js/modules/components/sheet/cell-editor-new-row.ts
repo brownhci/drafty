@@ -5,7 +5,7 @@
 import { alignElementHorizontally, placeElementAdjacently } from "./align";
 import { editSuggestionManager } from "./suggestions";
 import { getEditSuggestionURL } from "../../api/endpoints";
-import { getIdSuggestion, getIdSuggestionType } from "../../api/record-interactions";
+import { getIdSuggestion } from "../../api/record-interactions";
 import { activeClass } from "../../constants/css-classes";
 import { getCellInTableRow, getEnclosingTableCell } from "../../dom/navigate";
 import { tableFootElement } from "../../dom/sheet";
@@ -56,6 +56,7 @@ class CellEditNewRow {
     }
 
     constructor() {
+        this.fuseSelect.isNewRow = true;
         this.fuseSelect.handleClickOnOption((text: string) => {
             // this dictates what happens when an autocompletion option is clicked
             if (this.inputElement) {
@@ -128,11 +129,13 @@ class CellEditNewRow {
 
     private async updateFuseSelect() {
         return await this.getSuggestions(
+            // handles initial keystroke
             options => {
                 this.fuseSelect.options = options ? options : [];
                 this.fuseSelect.sync();
                 this.align();
             },
+            // handles other inputs
             options => {
                 if (options === null || options.length === 0) {
                     // no autocomplete options to show
