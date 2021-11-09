@@ -216,7 +216,7 @@ export class FuseSelect {
     for (; optionIndex < numOptions; optionIndex++) {
       const option = options[optionIndex];
       if(this.isNewRow && option.prevSugg) {
-        console.log('ignore! prev sugg new row -- on patch()')
+        //console.log("ignore! prev sugg new row -- on patch()");
       } else {
         this.optionContainer.appendChild(this.createOptionElement(option));
       }
