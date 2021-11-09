@@ -18,6 +18,7 @@ const fuseOptions: Fuse.IFuseOptions<Option> = {
 };
 
 export class FuseSelect {
+  public isNewRow: boolean = false;
   private _options: Array<Option>;
   get options(): Array<Option> {
     return this._options;
@@ -125,7 +126,7 @@ export class FuseSelect {
   query(q: string) {
     executeAtLeisure(() => {
       const fuseResult: Array<Fuse.FuseResult<Option>> = this.fuse.search(q);
-      //console.log('query - result :: ',q,' length = ',fuseResult.length);
+      //console.log('query - result :: ', q,' length = ',fuseResult.length);
       if (fuseResult.length > 0) {
         // recreate the option container from fuse search result
         this.createOptionContainerFromFuseResult(fuseResult);
@@ -214,7 +215,20 @@ export class FuseSelect {
 
     for (; optionIndex < numOptions; optionIndex++) {
       const option = options[optionIndex];
-      this.optionContainer.appendChild(this.createOptionElement(option));
+      if(this.isNewRow && option.prevSugg) {
+        console.log('ignore! prev sugg new row -- on patch()')
+      } else {
+        this.optionContainer.appendChild(this.createOptionElement(option));
+      }
+    }
+
+    if(this.isNewRow) {
+      const optionContainerChildren = Array.from(this.optionContainer.children);
+      optionContainerChildren.forEach((child) => {
+        if(child.className.includes(previousEditClass)) {
+          this.optionContainer.removeChild(child);
+        }
+      });
     }
   }
 
@@ -228,10 +242,6 @@ export class FuseSelect {
   }
 
   private patchOption(optionElement: HTMLElement, option: Option) {
-    const optionTextElement = optionElement.children[0] as HTMLElement;
-    const text = option.suggestion;
-    optionTextElement.textContent = text;
-    optionTextElement.title = text;
     if (option.prevSugg) {
       optionElement.classList.add(previousEditClass);
       optionElement.classList.remove(autocompleteSuggestionClass);
@@ -253,11 +263,13 @@ export class FuseSelect {
       optionContainer.classList.add(activeClass);
     }
 
+    /* sw - not necessary
     for (let i = 0; i < options.length; i++) {
       const option: Option = options[i];
       optionContainer.appendChild(this.createOptionElement(option));
     }
-
+    */
+   
     if (this.optionContainer) {
       // if there is already an option container mounted, replace the option container in DOM also
       this.optionContainer.replaceWith(optionContainer);
@@ -276,10 +288,14 @@ export class FuseSelect {
       optionContainer.classList.add(activeClass);
     }
 
+    //console.log('update options - on input')
     for (let i = 0; i < fuseResult.length; i++) {
       const { item: option, matches } = fuseResult[i];
-      optionContainer.appendChild(this.createOptionElement(option, matches));
-      //console.log(option,matches)
+      if(this.isNewRow && option.prevSugg) {
+        //console.log('ignore! prev sugg new row -- on input')
+      } else {
+        optionContainer.appendChild(this.createOptionElement(option, matches));
+      }
     }
 
     if (this.optionContainer) {
@@ -320,15 +336,7 @@ export class FuseSelect {
 
     optionTextElement.title = text;
 
-    /* sw - not registering
-    optionTextElement.addEventListener("click", function (event: MouseEvent) {  
-      let optionElement = (event.target as HTMLElement);
-      console.log('hello',optionElement);
-    });
-    */
-
     optionTextElement.appendChild(this.highlightMatchCharacter(text, matches)); // adds bold
-    //optionTextElement.appendChild(document.createTextNode(text));
 
     return optionTextElement;
   }
