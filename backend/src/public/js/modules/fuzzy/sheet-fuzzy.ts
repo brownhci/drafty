@@ -1,6 +1,6 @@
 import fuzzysort from "fuzzysort";
 //import { Option as Opt } from "../components/sheet/suggestions";
-import { fuseSelectRootContainerClass, autocompleteSuggestionClass, previousEditClass, optionContainerClass, optionClass, optionTextClass } from "../constants/css-classes";
+import { fuseSelectRootContainerClass, autocompleteSuggestionClass, optionContainerClass, optionClass, optionTextClass } from "../constants/css-classes";
 import { activeClass } from "../constants/css-classes";
 import { tableDataManager } from "../../sheet";
 import { getCellInTableRow } from "../dom/navigate";
