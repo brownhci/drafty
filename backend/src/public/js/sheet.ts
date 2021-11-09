@@ -378,7 +378,7 @@ tableElement.addEventListener("keydown", function (event: KeyboardEvent) {
     tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
   } else if (isInput(target)) {
     // if footer is open 
-    if (tableFoot.statusMode === "insertion") {
+    if (tableFoot.statusMode === "insertion" && !cellEditNewRow.isActive) {
       // activate new row cell editor when new character is typed
       cellEditNewRow.activate(target.parentElement as HTMLTableCellElement);
     }
