@@ -53,8 +53,9 @@ function activateEditCaret() {
 }
 function deactivateEditCaret() {
   const editCaretElement = document.getElementById(editCaretId);
-  editCaretElement.remove();
-  //activeTableCellElement.childNodes[1].remove()
+  if(editCaretElement) {
+    editCaretElement.remove();
+  }
 }
 /**
  * renew the timestamp on the active table cell element.
