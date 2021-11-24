@@ -475,7 +475,7 @@ inset 0px -1px 0px 0px $table-border-color;
 
     tfoot {
       @extend .position-sticky;
-      bottom: 0;
+      bottom: 3.5em;
 
       tr:nth-child(1) {
         // insertion table row
@@ -625,4 +625,18 @@ inset 0px -1px 0px 0px $table-border-color;
       }
     }
   }
+}
+
+.irb-footer {
+  z-index: 10000;
+  position: fixed;
+  bottom: 0;
+  padding: 1em;
+  width: 100%;
+  color: $gray-500;
+  background-color: $gray-200;
+  border-color: $gray-100;
+  text-shadow: 0 0 black;
+  text-align: center !important;
+  box-shadow: 0px -1px 3px black 5%;
 }
