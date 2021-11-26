@@ -113,3 +113,8 @@ ALTER TABLE `ExperimentRole`
 --
 ALTER TABLE `ExperimentRole_Session`
   ADD CONSTRAINT `_fk_experimentrole` FOREIGN KEY (`idExperimentRole`) REFERENCES `ExperimentRole` (`idExperimentRole`);
+
+--
+-- Unique Index for table `ExperimentRole_Session`
+--
+ALTER TABLE ExperimentRole_Session ADD UNIQUE unique_index(idSession, idExperimentRole);
