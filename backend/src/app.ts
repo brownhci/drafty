@@ -28,7 +28,7 @@ import * as contactCtrl from "./controllers/contact";
 import * as interactionCtrl from "./controllers/interaction";
 import * as suggestionCtrl from "./controllers/suggestion";
 import * as dataSharingCtrl from "./controllers/datasharing";
-import * as middlewareTests from "./util/middlewaretests";
+// import * as middlewareTests from "./util/middlewaretests";
 
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
