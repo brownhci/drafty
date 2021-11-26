@@ -8,6 +8,8 @@ const stmtUpdateUser: string = "UPDATE ?? SET ? WHERE ?";
 const stmtUpdateUserNewSignUp: string = "UPDATE users.Profile SET email = ?, password = ? WHERE idProfile = ?";
 const stmtInsertSession: string = "INSERT INTO users.Session (idProfile,idExpressSession) VALUES (?,?);";
 const stmtUpdateSession: string = "UPDATE users.Session SET idProfile = ? WHERE idSession = ?";
+const stmtSelExperiments: string    = "SELECT ers.idSession, er.role, e.experiment FROM ExperimentRole_Session ers INNER JOIN ExperimentRole er ON er.idExperimentRole = ers.idExperimentRole INNER JOIN Experiment e ON e.idExperiment = er.idExperiment WHERE ers.idSession = ?";
+const stmtInsertExperiments: string = "INSERT INTO ExperimentRole_Session (idSession, idExperimentRole, created) VALUES (?, ?, CURRENT_TIMESTAMP);";
 
 // Result type of findUserByField
 export type findUserByFieldResultType = UserModel | null | undefined;
@@ -60,6 +62,47 @@ export async function createUser(user: Partial<UserModel>) {
     return [null, results];
   } catch (error) {
     logDbErr(error, "error during creating user", "warn");
+    return [error];
+  }
+}
+
+/**
+ * Creates new experiment per session
+ *
+ * Args:
+ *    user: An object containing row fields to field values.
+ * Returns:
+ *    [error, results, fields]
+ *      - receive [error] if the insertion fails
+ *      - receive [null, results, fields] if the insertion succeeds
+ */
+ export async function createNewExperiments(idSession: string, idExperimentRole: string) {
+  try {
+    // sw: on insert assign idExperimentRole on random using subquery
+    const [results] = await db.query(stmtInsertExperiments, [idSession, idExperimentRole]);
+    return [null, results];
+  } catch (error) {
+    logDbErr(error, "error during creating new experiments for a user session", "warn");
+    return [error];
+  }
+}
+
+/**
+ * Gets experiment per session
+ *
+ * Args:
+ *    user: An object containing row fields to field values.
+ * Returns:
+ *    [error, results, fields]
+ *      - receive [error] if the select fails
+ *      - receive [null, results, fields] if the select succeeds
+ */
+ export async function getExperiments(idSession: string) {
+  try {
+    const [results] = await db.query(stmtSelExperiments, [idSession]);
+    return [null, results];
+  } catch (error) {
+    logDbErr(error, "error during selecting experiments for a user session", "warn");
     return [error];
   }
 }
