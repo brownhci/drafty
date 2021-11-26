@@ -6,7 +6,7 @@ import logger from "../util/logger";
 //import process from "../util/process"; sw - npm warning never used :/
 import { Request, Response, NextFunction } from "express";
 import { UserModel, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
-import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup } from "../database/user";
+import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup, createNewExperiments, getExperiments } from "../database/user";
 import { emailExists, emailNotTaken, isValidUsername, checkPasswordLength, confirmMatchPassword } from "../validation/validators";
 import { encryptPassword } from "../util/encrypt";
 import { sendMail, userPasswordResetEmailAccount } from "../util/email";
@@ -127,7 +127,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 };
 
 /**
- * Function to ceate AnonymousUser
+ * Function to create AnonymousUser
  */
 export async function createAnonUser() {
   const email: null = null;
@@ -145,6 +145,36 @@ export async function createAnonUser() {
     return results.insertId;
   } catch (err) {
     logger.error(err);
+  }
+}
+
+/**
+ * Function to get Active Experiments
+ * 
+ * check if experiments exist, if not update them
+ * 
+ */
+async function getActiveExperiments(newSession: boolean, idSession: string) {
+  if(newSession) {
+    try {
+      const [error, results] = await createNewExperiments(idSession);
+      if (error) {
+        throws;
+      }
+      return {databaits:"yes"}; // results.insertId; need to supply new IDs
+    } catch (err) {
+      logger.error(err);
+    }
+  } else {
+    try {
+      const [error, results] = await getExperiments(idSession);
+      if (error) {
+        throws;
+      }
+      return {databaits:"no"}; // results. ids?
+    } catch (err) {
+      logger.error(err);
+    }
   }
 }
 
@@ -440,6 +470,7 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
       idProfile: await createAnonUser(),
       isAuth: false,
       isAdmin: false,
+      activeExperiments: {},
       views: 0,
       trafficUUID: uuid,
       lastURL: url,
@@ -466,13 +497,17 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
   const interactionTime = Date.now();
   //logger.debug(await req.session.user.lastInteraction + ' == ' + interactionTime);
   //logger.debug(interactionTime - await req.session.user.lastInteraction);
+  let newSession: boolean = false;
   if (((interactionTime - await req.session.user.lastInteraction) > heartbeat) || (await req.session.user.idSession === -1)) {
     req.session.user.idSession = await createSessionDB(req.session.user.idProfile, req.sessionID);
+    newSession = true;
   }
   req.session.user.lastInteraction = interactionTime;
   req.session.user.views++;
+  req.session.user.activeExperiments = getActiveExperiments(newSession, req.session.user.idSession);
   next();
 }
+
 
 /**
  * GLOBAL MIDDLEWARE

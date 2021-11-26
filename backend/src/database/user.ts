@@ -76,9 +76,10 @@ export async function createUser(user: Partial<UserModel>) {
  *      - receive [error] if the insertion fails
  *      - receive [null, results, fields] if the insertion succeeds
  */
- export async function createNewExperiments(idSession: string, idExperimentRole: string) {
+ export async function createNewExperiments(idSession: string) {
   try {
     // sw: on insert assign idExperimentRole on random using subquery
+    const idExperimentRole = 1; // TODO randomize
     const [results] = await db.query(stmtInsertExperiments, [idSession, idExperimentRole]);
     return [null, results];
   } catch (error) {
