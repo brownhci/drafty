@@ -8,7 +8,7 @@ const stmtUpdateUser: string = "UPDATE ?? SET ? WHERE ?";
 const stmtUpdateUserNewSignUp: string = "UPDATE users.Profile SET email = ?, password = ? WHERE idProfile = ?";
 const stmtInsertSession: string = "INSERT INTO users.Session (idProfile,idExpressSession) VALUES (?,?);";
 const stmtUpdateSession: string = "UPDATE users.Session SET idProfile = ? WHERE idSession = ?";
-const stmtSelExperiments: string    = "SELECT ers.idSession, er.role, e.experiment FROM users.ExperimentRole_Session ers INNER JOIN users.ExperimentRole er ON er.idExperimentRole = ers.idExperimentRole INNER JOIN users.Experiment e ON e.idExperiment = er.idExperiment WHERE ers.idSession = ? and e.active = 1";
+const stmtSelExperiments: string    = "SELECT ers.idSession, er.role, e.experiment, e.idExperiment, e.active FROM Experiment e LEFT JOIN ExperimentRole er ON er.idExperiment = e.idExperiment LEFT JOIN ExperimentRole_Session ers ON ers.idExperimentRole = er.idExperimentRole WHERE ers.idSession = ? OR er.idExperimentRole IS NULL";
 const stmtInsertExperiments: string = "INSERT INTO users.ExperimentRole_Session (idSession, idExperimentRole, created) VALUES (?, (SELECT er.idExperimentRole FROM ExperimentRole er INNER JOIN users.Experiment e WHERE e.experiment = ? ORDER BY RAND() LIMIT 1), CURRENT_TIMESTAMP);";
 
 // Result type of findUserByField
@@ -105,7 +105,7 @@ export async function createUser(user: Partial<UserModel>) {
     const [results] = await db.query(stmtSelExperiments, [idSession]);
     console.log("getExperiments " + idSession);
     console.log(results);
-    
+
     return [null, results];
   } catch (error) {
     logDbErr(error, "error during selecting experiments for a user session", "warn");
