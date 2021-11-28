@@ -8,8 +8,8 @@ const stmtUpdateUser: string = "UPDATE ?? SET ? WHERE ?";
 const stmtUpdateUserNewSignUp: string = "UPDATE users.Profile SET email = ?, password = ? WHERE idProfile = ?";
 const stmtInsertSession: string = "INSERT INTO users.Session (idProfile,idExpressSession) VALUES (?,?);";
 const stmtUpdateSession: string = "UPDATE users.Session SET idProfile = ? WHERE idSession = ?";
-const stmtSelExperiments: string    = "SELECT ers.idSession, er.role, e.experiment FROM ExperimentRole_Session ers INNER JOIN ExperimentRole er ON er.idExperimentRole = ers.idExperimentRole INNER JOIN Experiment e ON e.idExperiment = er.idExperiment WHERE ers.idSession = ? and e.active = 1";
-const stmtInsertExperiments: string = "INSERT INTO ExperimentRole_Session (idSession, idExperimentRole, created) VALUES (?, (SELECT er.idExperimentRole FROM ExperimentRole er INNER JOIN Experiment e WHERE e.experiment = ? ORDER BY RAND() LIMIT 1), CURRENT_TIMESTAMP);";
+const stmtSelExperiments: string    = "SELECT ers.idSession, er.role, e.experiment FROM users.ExperimentRole_Session ers INNER JOIN users.ExperimentRole er ON er.idExperimentRole = ers.idExperimentRole INNER JOIN users.Experiment e ON e.idExperiment = er.idExperiment WHERE ers.idSession = ? and e.active = 1";
+const stmtInsertExperiments: string = "INSERT INTO users.ExperimentRole_Session (idSession, idExperimentRole, created) VALUES (?, (SELECT er.idExperimentRole FROM ExperimentRole er INNER JOIN users.Experiment e WHERE e.experiment = ? ORDER BY RAND() LIMIT 1), CURRENT_TIMESTAMP);";
 
 // Result type of findUserByField
 export type findUserByFieldResultType = UserModel | null | undefined;
@@ -78,9 +78,11 @@ export async function createUser(user: Partial<UserModel>) {
  */
  export async function createNewExperiments(idSession: string) {
   try {
-    // sw: on insert assign idExperimentRole on random using subquery
-    const idExperimentRole = 1; // TODO randomize
-    const [results] = await db.query(stmtInsertExperiments, [idSession, idExperimentRole]);
+    // sw: on insert assign idExperiment on random using subquery
+    const idExperiment = 1; // TODO randomize
+    const [results] = await db.query(stmtInsertExperiments, [idSession, idExperiment]);
+    console.log("createNewExperiments " + idSession);
+    console.log(results);
     return [null, results];
   } catch (error) {
     logDbErr(error, "error during creating new experiments for a user session", "warn");
@@ -101,6 +103,9 @@ export async function createUser(user: Partial<UserModel>) {
  export async function getExperiments(idSession: string) {
   try {
     const [results] = await db.query(stmtSelExperiments, [idSession]);
+    console.log("getExperiments " + idSession);
+    console.log(results);
+    
     return [null, results];
   } catch (error) {
     logDbErr(error, "error during selecting experiments for a user session", "warn");
