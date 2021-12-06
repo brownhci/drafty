@@ -8,8 +8,28 @@ const stmtUpdateUser: string = "UPDATE ?? SET ? WHERE ?";
 const stmtUpdateUserNewSignUp: string = "UPDATE users.Profile SET email = ?, password = ? WHERE idProfile = ?";
 const stmtInsertSession: string = "INSERT INTO users.Session (idProfile,idExpressSession) VALUES (?,?);";
 const stmtUpdateSession: string = "UPDATE users.Session SET idProfile = ? WHERE idSession = ?";
-const stmtSelExperiments: string    = "SELECT ers.idSession, er.role, e.experiment, e.idExperiment, e.active FROM Experiment e LEFT JOIN ExperimentRole er ON er.idExperiment = e.idExperiment LEFT JOIN ExperimentRole_Session ers ON ers.idExperimentRole = er.idExperimentRole WHERE ers.idSession = ? OR er.idExperimentRole IS NULL";
-const stmtInsertExperiments: string = "INSERT INTO users.ExperimentRole_Session (idSession, idExperimentRole, created) VALUES (?, (SELECT er.idExperimentRole FROM ExperimentRole er INNER JOIN users.Experiment e WHERE e.experiment = ? ORDER BY RAND() LIMIT 1), CURRENT_TIMESTAMP);";
+const stmtSelExperiments: string = `
+SELECT ers.idSession, ers.role, e.experiment, e.idExperiment, e.active
+FROM (
+	SELECT *
+    FROM users.Experiment e
+    WHERE e.active = 1
+) e
+LEFT JOIN (
+	SELECT ers.*, er.idExperiment, er.role
+    FROM users.ExperimentRole_Session ers
+	INNER JOIN users.ExperimentRole er ON er.idExperimentRole = ers.idExperimentRole
+    WHERE ers.idSession = ?
+) ers ON ers.idExperiment = e.idExperiment
+`;
+const stmtInsertExperiments: string = "INSERT INTO users.ExperimentRole_Session (idSession, idExperimentRole, created) VALUES (?, (SELECT er.idExperimentRole FROM users.ExperimentRole er INNER JOIN users.Experiment e WHERE e.experiment = ? ORDER BY RAND() LIMIT 1), CURRENT_TIMESTAMP);";
+const stmtSelUserExperiment: string = `
+SELECT idSession, experiment, role
+FROM users.ExperimentRole_Session esr 
+INNER JOIN users.ExperimentRole er ON er.idExperimentRole = esr.idExperimentRole
+INNER JOIN users.Experiment e ON e.idExperiment = er.idExperiment
+WHERE idSession = ? and e.experiment = ?
+`;
 
 // Result type of findUserByField
 export type findUserByFieldResultType = UserModel | null | undefined;
@@ -76,13 +96,10 @@ export async function createUser(user: Partial<UserModel>) {
  *      - receive [error] if the insertion fails
  *      - receive [null, results, fields] if the insertion succeeds
  */
- export async function createNewExperiments(idSession: string) {
+ export async function insertNewUserExperiment(idSession: string, experimentName: string) {
   try {
-    // sw: on insert assign idExperiment on random using subquery
-    const idExperiment = 1; // TODO randomize
-    const [results] = await db.query(stmtInsertExperiments, [idSession, idExperiment]);
-    console.log("createNewExperiments " + idSession);
-    console.log(results);
+    console.log(idSession, experimentName);
+    const [results] = await db.query(stmtInsertExperiments, [idSession, experimentName]);
     return [null, results];
   } catch (error) {
     logDbErr(error, "error during creating new experiments for a user session", "warn");
@@ -100,12 +117,9 @@ export async function createUser(user: Partial<UserModel>) {
  *      - receive [error] if the select fails
  *      - receive [null, results, fields] if the select succeeds
  */
- export async function getExperiments(idSession: string) {
+ export async function getUserExperiments(idSession: string) {
   try {
     const [results] = await db.query(stmtSelExperiments, [idSession]);
-    console.log("getExperiments " + idSession);
-    console.log(results);
-
     return [null, results];
   } catch (error) {
     logDbErr(error, "error during selecting experiments for a user session", "warn");
