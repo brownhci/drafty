@@ -6,7 +6,7 @@ import logger from "../util/logger";
 //import process from "../util/process"; sw - npm warning never used :/
 import { Request, Response, NextFunction } from "express";
 import { UserModel, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
-import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup, createNewExperiments, getExperiments } from "../database/user";
+import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup, getUserExperiments, insertNewUserExperiment } from "../database/user";
 import { emailExists, emailNotTaken, isValidUsername, checkPasswordLength, confirmMatchPassword } from "../validation/validators";
 import { encryptPassword } from "../util/encrypt";
 import { sendMail, userPasswordResetEmailAccount } from "../util/email";
@@ -142,6 +142,7 @@ export async function createAnonUser() {
     if (error) {
       throws;
     }
+    console.log(results.length);
     return results.insertId;
   } catch (err) {
     logger.error(err);
@@ -155,26 +156,32 @@ export async function createAnonUser() {
  * 
  */
 async function getActiveExperiments(newSession: boolean, idSession: string) {
-  if(newSession) {
-    try {
-      const [error, results] = await createNewExperiments(idSession);
-      if (error) {
-        throws;
-      }
-      return {databaits:"yes"}; // results.insertId; need to supply new IDs
-    } catch (err) {
-      logger.error(err);
+  try {
+    interface Experiment {
+      experiment: string
+        //idExperiment: string, 
+        //role: string
     }
-  } else {
-    try {
-      const [error, results] = await getExperiments(idSession);
-      if (error) {
-        throws;
-      }
-      return {databaits:"no"}; // results. ids?
-    } catch (err) {
-      logger.error(err);
+    // eslint-disable-next-line prefer-const
+    let experiments: Experiment;
+    const [error, results] = await getUserExperiments(idSession);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    results.forEach(function(experimentRole: any, index: number, array: any){
+      console.log(experimentRole);
+      const idExperiment: string = experimentRole.idExperiment;
+      const role: string = experimentRole.role;
+      if(experimentRole.idSession !== idSession) {
+        console.log("*** insertNewUserExperiment");
+        let results = insertNewUserExperiment(idSession, experimentRole.experiment);
+      } 
+      experiments[experimentRole.experiment] = { idExperiment: idExperiment, role: role  };
+    });
+    if (error) {
+      throws;
     }
+    return experiments; // results.insertId; need to supply new IDs
+  } catch (err) {
+    logger.error(err);
   }
 }
 
