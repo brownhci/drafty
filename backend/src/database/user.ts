@@ -1,34 +1,38 @@
-import { db, logDbErr } from "./mysql";
-import { tableName, validFieldNamesForLookup, UserModel } from "../models/user";
+import { db, logDbErr } from './mysql';
+import { tableName, validFieldNamesForLookup, UserModel } from '../models/user';
 
 // SQL Statements
-const stmtSelUser: string    = "SELECT * FROM ?? WHERE ?? = ?";
-const stmtInsertUser: string = "INSERT INTO ?? SET ?";
-const stmtUpdateUser: string = "UPDATE ?? SET ? WHERE ?";
-const stmtUpdateUserNewSignUp: string = "UPDATE users.Profile SET email = ?, password = ? WHERE idProfile = ?";
-const stmtInsertSession: string = "INSERT INTO users.Session (idProfile,idExpressSession) VALUES (?,?);";
-const stmtUpdateSession: string = "UPDATE users.Session SET idProfile = ? WHERE idSession = ?";
+const stmtSelUser: string    = 'SELECT * FROM ?? WHERE ?? = ?';
+const stmtInsertUser: string = 'INSERT INTO ?? SET ?';
+const stmtUpdateUser: string = 'UPDATE ?? SET ? WHERE ?';
+const stmtUpdateUserNewSignUp: string = 'UPDATE users.Profile SET email = ?, password = ? WHERE idProfile = ?';
+const stmtInsertSession: string = 'INSERT INTO users.Session (idProfile,idExpressSession) VALUES (?,?);';
+const stmtUpdateSession: string = 'UPDATE users.Session SET idProfile = ? WHERE idSession = ?';
 const stmtSelExperiments: string = `
-SELECT ers.idSession, ers.role, e.experiment, e.idExperiment, e.active
+SELECT ers.idSession, ers.role, e.experiment, e.idExperiment, e.active, err.randrole
 FROM (
 	SELECT *
     FROM users.Experiment e
     WHERE e.active = 1
 ) e
 LEFT JOIN (
-	SELECT ers.*, er.idExperiment, er.role
-    FROM users.ExperimentRole_Session ers
+	SELECT er.idExperiment, er.role, ers.idSession
+    FROM users.Experiment_Role_Session ers
 	INNER JOIN users.ExperimentRole er ON er.idExperimentRole = ers.idExperimentRole
     WHERE ers.idSession = ?
 ) ers ON ers.idExperiment = e.idExperiment
+LEFT JOIN (
+  SELECT er.idExperiment, substring_index(group_concat(er.role ORDER BY RAND()), ',', 1) as randrole
+  FROM ExperimentRole er
+  GROUP BY er.idExperiment
+) err ON err.idExperiment = e.idExperiment
 `;
-const stmtInsertExperiments: string = "INSERT INTO users.ExperimentRole_Session (idSession, idExperimentRole, created) VALUES (?, (SELECT er.idExperimentRole FROM users.ExperimentRole er INNER JOIN users.Experiment e WHERE e.experiment = ? ORDER BY RAND() LIMIT 1), CURRENT_TIMESTAMP);";
-const stmtSelUserExperiment: string = `
-SELECT idSession, experiment, role
-FROM users.ExperimentRole_Session esr 
-INNER JOIN users.ExperimentRole er ON er.idExperimentRole = esr.idExperimentRole
-INNER JOIN users.Experiment e ON e.idExperiment = er.idExperiment
-WHERE idSession = ? and e.experiment = ?
+const stmtInsertExperiments: string = `
+INSERT INTO users.Experiment_Role_Session (idSession, idExperiment, idExperimentRole, created) 
+VALUES (?, ?, 
+(
+  SELECT er.idExperimentRole FROM users.ExperimentRole er WHERE er.idExperiment = ? and er.role = ?), CURRENT_TIMESTAMP
+);
 `;
 
 // Result type of findUserByField
@@ -60,7 +64,7 @@ export async function findUserByField(fieldName: string, fieldValue: string | nu
       return [new Error(`Cannot find a user whose ${fieldName} is ${fieldValue}`), null];
     }
   } catch (error) {
-    logDbErr(error, "error during finding user", "warn");
+    logDbErr(error, 'error during finding user', 'warn');
     return [error];
   }
 }
@@ -81,7 +85,7 @@ export async function createUser(user: Partial<UserModel>) {
     const [results] = await db.query(stmtInsertUser, [tableName, user]);
     return [null, results];
   } catch (error) {
-    logDbErr(error, "error during creating user", "warn");
+    logDbErr(error, 'error during creating user', 'warn');
     return [error];
   }
 }
@@ -96,13 +100,12 @@ export async function createUser(user: Partial<UserModel>) {
  *      - receive [error] if the insertion fails
  *      - receive [null, results, fields] if the insertion succeeds
  */
- export async function insertNewUserExperiment(idSession: string, experimentName: string) {
+ export async function insertNewUserExperiment(idSession: string, idExperiment: string, role: string) {
   try {
-    console.log(idSession, experimentName);
-    const [results] = await db.query(stmtInsertExperiments, [idSession, experimentName]);
+    const [results] = await db.query(stmtInsertExperiments, [idSession, idExperiment, idExperiment, role]);
     return [null, results];
   } catch (error) {
-    logDbErr(error, "error during creating new experiments for a user session", "warn");
+    logDbErr(error, 'error during creating new experiments for a user session', 'warn');
     return [error];
   }
 }
@@ -122,7 +125,7 @@ export async function createUser(user: Partial<UserModel>) {
     const [results] = await db.query(stmtSelExperiments, [idSession]);
     return [null, results];
   } catch (error) {
-    logDbErr(error, "error during selecting experiments for a user session", "warn");
+    logDbErr(error, 'error during selecting experiments for a user session', 'warn');
     return [error];
   }
 }
@@ -144,7 +147,7 @@ export async function updateUser(updates: Partial<UserModel>, constraints: Parti
     const [results, fields] = await db.query(stmtUpdateUser, [tableName, updates, constraints]);
     return [null, results, fields];
   } catch (error) {
-    logDbErr(error, "error during updating existing user", "warn");
+    logDbErr(error, 'error during updating existing user', 'warn');
     return [error];
   }
 }
@@ -155,7 +158,7 @@ export async function updateUserNewSignup(email: string, password: string, idPro
     const [results, fields] = await db.query(stmtUpdateUserNewSignUp, [email, password, idProfile]);
     return [null, results, fields];
   } catch (error) {
-    logDbErr(error, "error during updating existing user", "warn");
+    logDbErr(error, 'error during updating existing user', 'warn');
     return [error];
   }
 }
@@ -176,7 +179,7 @@ export async function insertSession(idProfile: number, idExpressSession: string)
     const [results] = await db.query(stmtInsertSession, [idProfile,idExpressSession]);
     return (results as any).insertId;
   } catch (error) {
-    logDbErr(error, "error during creating session", "warn");
+    logDbErr(error, 'error during creating session', 'warn');
     return [error];
   }
 }
@@ -189,7 +192,7 @@ export async function updateSession(idProfile: number, idSession: number) {
     const [results] = await db.query(stmtUpdateSession, [idProfile, idSession]);
     return [results];
   } catch (error) {
-    logDbErr(error, "error during updating session", "warn");
+    logDbErr(error, 'error during updating session', 'warn');
     return [error];
   }
 }
