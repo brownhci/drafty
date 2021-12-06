@@ -1,18 +1,18 @@
-import async from "async";
-import crypto from "crypto";
-import moment from "moment";
-import passport from "passport";
-import logger from "../util/logger";
+import async from 'async';
+import crypto from 'crypto';
+import moment from 'moment';
+import passport from 'passport';
+import logger from '../util/logger';
 //import process from "../util/process"; sw - npm warning never used :/
-import { Request, Response, NextFunction } from "express";
-import { UserModel, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from "../models/user";
-import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup, getUserExperiments, insertNewUserExperiment } from "../database/user";
-import { emailExists, emailNotTaken, isValidUsername, checkPasswordLength, confirmMatchPassword } from "../validation/validators";
-import { encryptPassword } from "../util/encrypt";
-import { sendMail, userPasswordResetEmailAccount } from "../util/email";
-import { makeRenderObject } from "../config/handlebars-helpers";
-import "../config/passport";
-import { throws } from "assert";
+import { Request, Response, NextFunction } from 'express';
+import { UserModel, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from '../models/user';
+import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup, getUserExperiments, insertNewUserExperiment } from '../database/user';
+import { emailExists, emailNotTaken, isValidUsername, checkPasswordLength, confirmMatchPassword } from '../validation/validators';
+import { encryptPassword } from '../util/encrypt';
+import { sendMail, userPasswordResetEmailAccount } from '../util/email';
+import { makeRenderObject } from '../config/handlebars-helpers';
+import '../config/passport';
+import { throws } from 'assert';
 
 /**
  * GET /login
@@ -21,10 +21,10 @@ import { throws } from "assert";
 export const getLogin = (req: Request, res: Response) => {
   if (req.user) {
     // current user is already logged in
-    req.flash("info", { msg: "You are already logged in, please log out first" });
-    return res.redirect(req.session.returnTo || "/");
+    req.flash('info', { msg: 'You are already logged in, please log out first' });
+    return res.redirect(req.session.returnTo || '/');
   }
-  res.render("account/login", makeRenderObject({ title: "Login" }, req));
+  res.render('account/login', makeRenderObject({ title: 'Login' }, req));
 };
 
 /**
@@ -35,14 +35,14 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
   // check for errors
   if (await isValidUsername(req) === false ||
     await checkPasswordLength(req) === false) {
-    return res.redirect("/login");
+    return res.redirect('/login');
   }
   // we're good, do something
-  passport.authenticate("local", (err: Error, user: UserModel) => {
+  passport.authenticate('local', (err: Error, user: UserModel) => {
     if (err) { return next(err); }
     if (!user) {
       // authentication error
-      return res.redirect("/login");
+      return res.redirect('/login');
     }
     req.login(user, (err) => {
       if (err) { return next(err); }
@@ -52,7 +52,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
       req.session.user.idProfile = idProfile;
       req.session.isAuth = true;
       req.session.user.isAuth = true;
-      res.redirect(req.session.returnTo || "/");
+      res.redirect(req.session.returnTo || '/');
     });
   })(req, res, next);
 };
@@ -68,7 +68,7 @@ export const logout = async (req: Request, res: Response) => {
   req.logout();
   req.session.user.isAuth = false;
   req.session.isAuth = false;
-  res.redirect(req.session.returnTo || "/");
+  res.redirect(req.session.returnTo || '/');
 };
 
 /**
@@ -77,10 +77,10 @@ export const logout = async (req: Request, res: Response) => {
  */
 export const getSignup = (req: Request, res: Response) => {
   if (req.user) {
-    req.flash("info", { msg: "You are already logged in, please log out first" });
-    return res.redirect("/");
+    req.flash('info', { msg: 'You are already logged in, please log out first' });
+    return res.redirect('/');
   }
-  res.render("account/signup", makeRenderObject({ title: "Signup", showEmailUsageExplanation: true }, req));
+  res.render('account/signup', makeRenderObject({ title: 'Signup', showEmailUsageExplanation: true }, req));
 };
 
 /**
@@ -95,7 +95,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
       await confirmMatchPassword(req) === false ||
       await emailNotTaken(req) === false
     ) {
-      return res.redirect("/signup");
+      return res.redirect('/signup');
     }
 
     const email = req.body.email;
@@ -119,7 +119,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
       // need to update session
       req.session.user.isAuth = true;
       req.session.isAuth = true;
-      res.redirect(req.session.returnTo || "/");
+      res.redirect(req.session.returnTo || '/');
     });
   } catch (err) {
     logger.error(err);
@@ -149,6 +149,12 @@ export async function createAnonUser() {
   }
 }
 
+export interface ExperimentRole {
+  idExperiment: string;
+  experiment: string;
+  role: string;
+}
+
 /**
  * Function to get Active Experiments
  * 
@@ -157,23 +163,20 @@ export async function createAnonUser() {
  */
 async function getActiveExperiments(newSession: boolean, idSession: string) {
   try {
-    interface Experiment {
-      experiment: string
-        //idExperiment: string, 
-        //role: string
-    }
     // eslint-disable-next-line prefer-const
-    let experiments: Experiment;
+    let experiments: { [key: string]: any } = {};
     const [error, results] = await getUserExperiments(idSession);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     results.forEach(function(experimentRole: any, index: number, array: any){
       console.log(experimentRole);
       const idExperiment: string = experimentRole.idExperiment;
-      const role: string = experimentRole.role;
+      let role: string = experimentRole.role;
+      const randrole: string = experimentRole.randrole;
       if(experimentRole.idSession !== idSession) {
-        console.log("*** insertNewUserExperiment");
-        let results = insertNewUserExperiment(idSession, experimentRole.experiment);
+        insertNewUserExperiment(idSession, idExperiment, randrole);
+        role = randrole;
       } 
+      //experiments.push( { idExperiment: idExperiment, experiment: experimentRole.experiment, role: role  } );
       experiments[experimentRole.experiment] = { idExperiment: idExperiment, role: role  };
     });
     if (error) {
@@ -198,12 +201,12 @@ export async function createSessionDB(idProfile: number, idExpressSession: strin
  * Profile page.
  */
 export const getAccount = (req: Request, res: Response) => {
-  let username = "Anonymous User";
+  let username = 'Anonymous User';
   if (req.user) {
     const user = req.user as Partial<UserModel>;
     username = user.email;
   }
-  res.render("account/profile", makeRenderObject({ title: "Account Management", username: username, idProfile: req.session.user.idProfile, idSession: req.session.user.idSession, idExpress: req.sessionID }, req));
+  res.render('account/profile', makeRenderObject({ title: 'Account Management', username: username, idProfile: req.session.user.idProfile, idSession: req.session.user.idSession, idExpress: req.sessionID }, req));
 };
 
 /**
@@ -258,7 +261,7 @@ export const postUpdatePassword = async (req: Request, res: Response, next: Next
   if (await checkPasswordLength(req) === false ||
     await confirmMatchPassword(req) === false
   ) {
-    return res.redirect("/account");
+    return res.redirect('/account');
   }
 
   const user = req.user as Partial<UserModel>;
@@ -274,8 +277,8 @@ export const postUpdatePassword = async (req: Request, res: Response, next: Next
   }
 
   // successfully updated password
-  req.flash("success", { msg: "Password has been changed" });
-  res.redirect("/account");
+  req.flash('success', { msg: 'Password has been changed' });
+  res.redirect('/account');
 };
 
 /**
@@ -284,14 +287,14 @@ export const postUpdatePassword = async (req: Request, res: Response, next: Next
  */
 export const getReset = async (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) {
-    return res.redirect("/");
+    return res.redirect('/');
   }
 
   const token = req.params.token;
   const [error, user] = await findUserByField(passwordResetToken, token);
   if (user == null) {
-    req.flash("errors", { msg: "Password reset token is invalid" });
-    return res.redirect("/forget");
+    req.flash('errors', { msg: 'Password reset token is invalid' });
+    return res.redirect('/forget');
   }
   if (!user) {
     return next(error);
@@ -299,12 +302,12 @@ export const getReset = async (req: Request, res: Response, next: NextFunction) 
   const expiration = user[passwordResetExpires];
   if (moment().isSameOrAfter(expiration)) {
     // reset token has expired
-    req.flash("errors", { msg: "Password reset token has expired" });
-    return res.redirect("/forget");
+    req.flash('errors', { msg: 'Password reset token has expired' });
+    return res.redirect('/forget');
   }
 
   // successful password reset
-  res.render("account/reset", makeRenderObject({ title: "Reset", email: user.email }, req));
+  res.render('account/reset', makeRenderObject({ title: 'Reset', email: user.email }, req));
 };
 
 /**
@@ -315,7 +318,7 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
   if (await checkPasswordLength(req) === false ||
     await confirmMatchPassword(req) === false
   ) {
-    return res.redirect("back");
+    return res.redirect('back');
   }
 
   async.waterfall([
@@ -323,8 +326,8 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
       const token = req.params.token;
       const [error, user] = await findUserByField(passwordResetToken, token);
       if (user == null) {
-        req.flash("errors", { msg: "Password reset token is invalid" });
-        return res.redirect("back");
+        req.flash('errors', { msg: 'Password reset token is invalid' });
+        return res.redirect('back');
       }
       if (!user) {
         return next(error);
@@ -332,8 +335,8 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
       const expiration = user[passwordResetExpires];
       if (moment().isSameOrAfter(expiration)) {
         // reset token has expired
-        req.flash("errors", { msg: "Password reset token has expired" });
-        return res.redirect("back");
+        req.flash('errors', { msg: 'Password reset token has expired' });
+        return res.redirect('back');
       }
       // pass reset validation
       const password = req.body.password;
@@ -356,16 +359,16 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
       const mailOptions = {
         to: user.email,
         from: userPasswordResetEmailAccount,
-        subject: "Your password has been changed",
+        subject: 'Your password has been changed',
         text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
       };
       const [error] = await sendMail(mailOptions);
-      req.flash("success", { msg: "Success! Your password has been changed." });
+      req.flash('success', { msg: 'Success! Your password has been changed.' });
       done(error);
     }
   ], (err) => {
     if (err) { return next(err); }
-    res.redirect("/");
+    res.redirect('/');
   });
 };
 
@@ -375,9 +378,9 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
  */
 export const getForget = (req: Request, res: Response) => {
   if (req.isAuthenticated()) {
-    return res.redirect("/");
+    return res.redirect('/');
   }
-  res.render("account/forget", makeRenderObject({ title: "Forget Password" }, req));
+  res.render('account/forget', makeRenderObject({ title: 'Forget Password' }, req));
 };
 
 /**
@@ -387,22 +390,22 @@ export const getForget = (req: Request, res: Response) => {
 export const postForget = async (req: Request, res: Response, next: NextFunction) => {
   if (await isValidUsername(req) === false ||
     await emailExists(req) === false) {
-    return res.redirect("/forget");
+    return res.redirect('/forget');
   }
 
   const email = req.body.email;
   async.waterfall([
     function createRandomToken(done: any) {
       crypto.randomBytes(256, (err, buf) => {
-        const token = buf.toString("hex");
+        const token = buf.toString('hex');
         done(err, token);
       });
     },
     async function setRandomToken(token: string, done: any) {
       const [error, user] = await findUserByField(emailFieldName, email);
       if (user == null) {
-        req.flash("errors", { msg: "Account with that name does not exist." });
-        return res.redirect("/forget");
+        req.flash('errors', { msg: 'Account with that name does not exist.' });
+        return res.redirect('/forget');
       }
       if (!user) {
         // QueryError or cannot find user by given email
@@ -428,19 +431,19 @@ export const postForget = async (req: Request, res: Response, next: NextFunction
       const mailOptions = {
         to: user.email,
         from: userPasswordResetEmailAccount,
-        subject: "Reset your password on Drafty",
+        subject: 'Reset your password on Drafty',
         text: `You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n
     Please click on the following link, or paste this into your browser to complete the process:\n\n
     http://${req.headers.host}/reset/${token}\n\n
     If you did not request this, please ignore this email and your password will remain unchanged.\n`
       };
       const [error] = await sendMail(mailOptions);
-      req.flash("info", { msg: `An e-mail has been sent to ${user.email} with further instructions.` });
+      req.flash('info', { msg: `An e-mail has been sent to ${user.email} with further instructions.` });
       done(error);
     }
   ], (err) => {
     if (err) { return next(err); }
-    res.redirect("/forget");
+    res.redirect('/forget');
   });
 };
 
@@ -463,13 +466,13 @@ export const postSeenWelcome = (req: Request, res: Response) => {
  * GLOBAL MIDDLEWARE
  */
 export async function checkSessionUser(req: Request, res: Response, next: NextFunction) {
-  const uuid = req.cookies["draftyUnique"];
+  const uuid = req.cookies['draftyUnique'];
   const url = req.url;
   //console.log('Referer = ',req.header('Referer'));
   //console.log(req.headers);
   if (!req.session.user) {
     if (req.user) {
-      logger.debug(req.sessionID + " :: NO USER but there is a passport :: " + req.user);
+      logger.debug(req.sessionID + ' :: NO USER but there is a passport :: ' + req.user);
     }
     // sw: only place to create a new idProfile - this will get triggered before any login
     req.session.user = {
@@ -512,6 +515,7 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
   req.session.user.lastInteraction = interactionTime;
   req.session.user.views++;
   req.session.user.activeExperiments = getActiveExperiments(newSession, req.session.user.idSession);
+  console.log(req.session.user.activeExperiments);
   next();
 }
 
@@ -520,7 +524,7 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
  * GLOBAL MIDDLEWARE
  */
 export async function checkReturnPath(req: Request, res: Response, next: NextFunction) {
-  if (!req.path.includes("favicon")) {
+  if (!req.path.includes('favicon')) {
     req.session.returnTo = req.path;
   }
   next();
