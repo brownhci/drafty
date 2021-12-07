@@ -13,186 +13,6 @@ db_pass = 'test'
 # thus making the python code simplistic
 limit = 200
 sql = f"""
-select 
-i.timestamp,
-if(p.email is not null, p.email, us.idProfile) as 'editor',
-i.idSession, 
-e1.idUniqueID as idRow, 
-'edit cell' as editType, 
-name.suggestion as FullName, 
-uni.suggestion as University, 
-CONCAT(name.suggestion,' (',uni.suggestion,')') as who, 
-e1.name as columnName,
-e2.suggestion as previous,
-e1.suggestion as chosen
-
-from Interaction i
-inner join users.Session us on us.idSession = i.idSession
-inner join users.Profile p on p.idProfile = us.idProfile
-inner join Edit e on e.IdInteraction = i.idInteraction
-inner join (
-    select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_Suggestion es
-    inner join Suggestions s on s.idSuggestion = es.idSuggestion
-    inner join SuggestionType st on st.idSuggestionType = s.idSuggestionType
-    where isChosen = 1
-) e1 on e1.idEdit = e.idEdit
-inner join (
-    select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_Suggestion es
-    inner join Suggestions s on s.idSuggestion = es.idSuggestion
-    inner join SuggestionType st on st.idSuggestionType = s.idSuggestionType
-    where isPrevSuggestion = 1
-) e2 on e2.idEdit = e.idEdit
-inner join (
-    select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
-    from (
-        select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
-        from csprofessors.Suggestions
-        where idSuggestionType = 1 and active = 1
-        group by idUniqueID, idSuggestionType
-    ) as mx
-    inner join csprofessors.Suggestions s
-    on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
-) name on name.idUniqueID = e1.idUniqueID
-inner join (
-    select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
-    from (
-        select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
-        from csprofessors.Suggestions
-        where idSuggestionType = 2 and active = 1
-        group by idUniqueID, idSuggestionType
-    ) as mx
-    inner join csprofessors.Suggestions s
-    on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
-) uni on uni.idUniqueID = e1.idUniqueID
-
-UNION
-
-select 
-
-i.timestamp,
-if(p.email is not null, p.email, us.idProfile) as 'editor',
-i.idSession, 
-e1.idUniqueID as idRow, 
-'new row' as editType, 
-name.suggestion as FullName, 
-uni.suggestion as University, 
-CONCAT(name.suggestion,' (',uni.suggestion,')') as who, 
-e1.name as columnName,
-'' as previous,
-e1.suggestion as chosen
-
-from Interaction i
-inner join users.Session us on us.idSession = i.idSession
-inner join users.Profile p on p.idProfile = us.idProfile
-inner join Edit e on e.IdInteraction = i.idInteraction
-inner join (
-    select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_NewRow es
-    inner join Suggestions s on s.idSuggestion = es.idSuggestion
-    inner join SuggestionType st on st.idSuggestionType = s.idSuggestionType
-) e1 on e1.idEdit = e.idEdit
-inner join (
-    select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
-    from (
-        select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
-        from csprofessors.Suggestions
-        where idSuggestionType = 1 and active = 1
-        group by idUniqueID, idSuggestionType
-    ) as mx
-    inner join csprofessors.Suggestions s
-    on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
-) name on name.idUniqueID = e1.idUniqueID
-inner join (
-    select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
-    from (
-        select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
-        from csprofessors.Suggestions
-        where idSuggestionType = 2 and active = 1
-        group by idUniqueID, idSuggestionType
-    ) as mx
-    inner join csprofessors.Suggestions s
-    on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
-) uni on uni.idUniqueID = e1.idUniqueID
-order by timestamp desc limit {limit};
-"""
-
-sql_edits_online = """
-    select us.idProfile, i.idSession, e1.idUniqueID as idRow, 'edit cell' as editType, name.suggestion as FullName, uni.suggestion as University, e1.name as columnName, e1.suggestion as chosen, e2.suggestion as previous,i.timestamp
-    from Interaction i
-    inner join users.Session us on us.idSession = i.idSession
-    inner join Edit e on e.IdInteraction = i.idInteraction
-    inner join (
-        select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_Suggestion es
-        inner join Suggestions s on s.idSuggestion = es.idSuggestion
-        inner join SuggestionType st on st.idSuggestionType = s.idSuggestionType
-        where isChosen = 1
-    ) e1 on e1.idEdit = e.idEdit
-    inner join (
-        select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_Suggestion es
-        inner join Suggestions s on s.idSuggestion = es.idSuggestion
-        inner join SuggestionType st on st.idSuggestionType = s.idSuggestionType
-        where isPrevSuggestion = 1
-    ) e2 on e2.idEdit = e.idEdit
-    inner join (
-        select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
-        from (
-            select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
-            from csprofessors.Suggestions
-            where idSuggestionType = 1 and active = 1
-            group by idUniqueID, idSuggestionType
-        ) as mx
-        inner join csprofessors.Suggestions s
-        on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
-    ) name on name.idUniqueID = e1.idUniqueID
-    inner join (
-        select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
-        from (
-            select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
-            from csprofessors.Suggestions
-            where idSuggestionType = 2 and active = 1
-            group by idUniqueID, idSuggestionType
-        ) as mx
-        inner join csprofessors.Suggestions s
-        on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
-    ) uni on uni.idUniqueID = e1.idUniqueID
-    order by i.timestamp desc;
-"""
-
-sql_edits_new = """
-    select us.idProfile, i.idSession, e1.idUniqueID as idRow, 'new row' as editType, name.suggestion as FullName, uni.suggestion as University, e1.name as columnName, e1.suggestion as chosen, '' as previous,i.timestamp
-    from Interaction i
-    inner join users.Session us on us.idSession = i.idSession
-    inner join Edit e on e.IdInteraction = i.idInteraction
-    inner join ( 
-        select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_NewRow es
-        inner join Suggestions s on s.idSuggestion = es.idSuggestion
-        inner join SuggestionType st on st.idSuggestionType = s.idSuggestionType
-    ) e1 on e1.idEdit = e.idEdit
-    inner join (
-        select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
-        from (
-            select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
-            from csprofessors.Suggestions
-            where idSuggestionType = 1 and active = 1
-            group by idUniqueID, idSuggestionType
-        ) as mx
-        inner join csprofessors.Suggestions s
-        on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
-    ) name on name.idUniqueID = e1.idUniqueID
-    inner join (
-        select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
-        from (
-            select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
-            from csprofessors.Suggestions
-            where idSuggestionType = 2 and active = 1
-            group by idUniqueID, idSuggestionType
-        ) as mx
-        inner join csprofessors.Suggestions s
-        on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
-    ) uni on uni.idUniqueID = e1.idUniqueID
-    order by i.timestamp desc;
-"""
-
-sql_edits_del = """
 select
 i.timestamp,
 if(p.email is not null, p.email, us.idProfile) as 'editor',
@@ -306,7 +126,7 @@ name.suggestion as FullName,
 uni.suggestion as University,
 CONCAT(name.suggestion,' (',uni.suggestion,')') as who,
 ''           as columnName,
-''           as previous,
+CONCAT(name.suggestion,' (',uni.suggestion,')') as previous,
 '[row deleted]'    as chosen
 
 from Interaction i
@@ -344,7 +164,129 @@ inner join (
                            s.confidence = mx.maxconf
 ) uni on uni.idUniqueID = e1.idUniqueID
 
-order by timestamp desc limit 10;
+order by timestamp desc limit {limit};
+"""
+
+sql_edits_online = """
+    select us.idProfile, i.idSession, e1.idUniqueID as idRow, 'edit cell' as editType, name.suggestion as FullName, uni.suggestion as University, e1.name as columnName, e1.suggestion as chosen, e2.suggestion as previous,i.timestamp
+    from Interaction i
+    inner join users.Session us on us.idSession = i.idSession
+    inner join Edit e on e.IdInteraction = i.idInteraction
+    inner join (
+        select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_Suggestion es
+        inner join Suggestions s on s.idSuggestion = es.idSuggestion
+        inner join SuggestionType st on st.idSuggestionType = s.idSuggestionType
+        where isChosen = 1
+    ) e1 on e1.idEdit = e.idEdit
+    inner join (
+        select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_Suggestion es
+        inner join Suggestions s on s.idSuggestion = es.idSuggestion
+        inner join SuggestionType st on st.idSuggestionType = s.idSuggestionType
+        where isPrevSuggestion = 1
+    ) e2 on e2.idEdit = e.idEdit
+    inner join (
+        select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
+        from (
+            select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
+            from csprofessors.Suggestions
+            where idSuggestionType = 1 and active = 1
+            group by idUniqueID, idSuggestionType
+        ) as mx
+        inner join csprofessors.Suggestions s
+        on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
+    ) name on name.idUniqueID = e1.idUniqueID
+    inner join (
+        select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
+        from (
+            select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
+            from csprofessors.Suggestions
+            where idSuggestionType = 2 and active = 1
+            group by idUniqueID, idSuggestionType
+        ) as mx
+        inner join csprofessors.Suggestions s
+        on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
+    ) uni on uni.idUniqueID = e1.idUniqueID
+    order by i.timestamp desc;
+"""
+
+sql_edits_new = """
+    select us.idProfile, i.idSession, e1.idUniqueID as idRow, 'new row' as editType, name.suggestion as FullName, uni.suggestion as University, e1.name as columnName, e1.suggestion as chosen, '' as previous,i.timestamp
+    from Interaction i
+    inner join users.Session us on us.idSession = i.idSession
+    inner join Edit e on e.IdInteraction = i.idInteraction
+    inner join ( 
+        select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_NewRow es
+        inner join Suggestions s on s.idSuggestion = es.idSuggestion
+        inner join SuggestionType st on st.idSuggestionType = s.idSuggestionType
+    ) e1 on e1.idEdit = e.idEdit
+    inner join (
+        select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
+        from (
+            select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
+            from csprofessors.Suggestions
+            where idSuggestionType = 1 and active = 1
+            group by idUniqueID, idSuggestionType
+        ) as mx
+        inner join csprofessors.Suggestions s
+        on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
+    ) name on name.idUniqueID = e1.idUniqueID
+    inner join (
+        select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
+        from (
+            select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
+            from csprofessors.Suggestions
+            where idSuggestionType = 2 and active = 1
+            group by idUniqueID, idSuggestionType
+        ) as mx
+        inner join csprofessors.Suggestions s
+        on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and s.confidence = mx.maxconf
+    ) uni on uni.idUniqueID = e1.idUniqueID
+    order by i.timestamp desc;
+"""
+
+sql_edits_del = """
+select us.idProfile,
+       i.idSession,
+       e1.idUniqueID  as idRow, 'del row' as editType, name.suggestion as FullName,
+       uni.suggestion as University,
+       ''          as columnName,
+       'deleted'      as chosen,
+       ''           as previous,
+       i.timestamp
+from Interaction i
+inner join users.Session us on us.idSession = i.idSession
+inner join Edit e on e.IdInteraction = i.idInteraction
+inner join (
+    select es.idEdit, es.idUniqueID
+    from Edit_DelRow es
+) e1 on e1.idEdit = e.idEdit
+         inner join (
+    select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
+    from (
+             select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
+             from csprofessors.Suggestions
+             where idSuggestionType = 1
+               and active = 1
+             group by idUniqueID, idSuggestionType
+         ) as mx
+             inner join csprofessors.Suggestions s
+                        on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and
+                           s.confidence = mx.maxconf
+) name on name.idUniqueID = e1.idUniqueID
+         inner join (
+    select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
+    from (
+             select idUniqueID, idSuggestionType, suggestion, confidence, max(confidence) as maxconf
+             from csprofessors.Suggestions
+             where idSuggestionType = 2
+               and active = 1
+             group by idUniqueID, idSuggestionType
+         ) as mx
+             inner join csprofessors.Suggestions s
+                        on s.idUniqueID = mx.idUniqueID and s.idSuggestionType = mx.idSuggestionType and
+                           s.confidence = mx.maxconf
+) uni on uni.idUniqueID = e1.idUniqueID
+order by i.timestamp desc;
 """
 
 sql_row_identifier = """
