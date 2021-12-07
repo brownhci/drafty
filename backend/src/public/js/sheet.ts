@@ -9,7 +9,7 @@ import './modules/components/sheet/column-search';
 import { columnSuggestions } from './modules/components/sheet/column-suggestions';
 import { activateColumnLabelContextMenu, activateTableDataContextMenu, deactivateColumnLabelContextMenu, deactivateTableDataContextMenu } from './modules/components/sheet/contextmenu';
 import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from './modules/components/sheet/copy-paste';
-import { StatusMode, tableFoot } from './modules/components/sheet/table-foot';
+import { tableFoot } from './modules/components/sheet/table-foot';
 import { TabularView } from './modules/components/sheet/tabular-view';
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from './modules/dom/navigate';
 import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams } from './modules/dom/sheet';
@@ -205,6 +205,14 @@ function activeTableHeadOnRepeatedClick() {
     activateTableCol();
   }
 }
+
+function activateCellEditor() {
+  cellEditor.formInput = getTableDataText(activeTableCellElement).trim();
+  const initialSearchValue = ''; // bc we want users to see all options
+  cellEditor.activateForm(activeTableCellElement, initialSearchValue);
+  activeTableCellElement.lastActiveTimestamp = null;
+}
+
 function activeElementOnRepeatedClick() {
   if (!activeTableCellElement) {
     return;
@@ -265,13 +273,6 @@ tableElement.addEventListener('contextmenu', function (event: MouseEvent) {
     }
   }
 }, true);
-
-function activateCellEditor() {
-  cellEditor.formInput = getTableDataText(activeTableCellElement).trim();
-  const initialSearchValue = ''; // bc we want users to see all options
-  cellEditor.activateForm(activeTableCellElement, initialSearchValue);
-  activeTableCellElement.lastActiveTimestamp = null;
-}
 
 interface ConsumableKeyboardEvent extends KeyboardEvent {
   consumed?: boolean;
@@ -408,7 +409,6 @@ tableHeadTopRowElement.addEventListener('mousedown', function (event: MouseEvent
   }
 }, { passive: true, capture: true });
 tableHeadTopRowElement.addEventListener('mousemove', function (event: MouseEvent) {
-  const target: HTMLElement = event.target as HTMLElement;
   tableHeadOnMouseMove(event);
 }, { passive: true, capture: true });
 
