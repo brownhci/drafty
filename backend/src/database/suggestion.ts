@@ -134,7 +134,7 @@ export async function deactivateRow(idSession: number, idUniqueID: string, comme
   try {
     const idInteractionType: number = 17;
     db.query(stmtInsertDelRow, [idSession, idInteractionType, idUniqueID, comment]);
-    db.query(stmtDeactivateRow, [idUniqueID, comment]);
+    db.query(stmtDeactivateRow, [comment, idUniqueID]);
   } catch (error) {
     console.log(error);
     logDbErr(error, 'error during deactivateRow', 'warn');
