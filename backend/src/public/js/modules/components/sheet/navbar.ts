@@ -1,10 +1,11 @@
 import { StatusMode, tableFoot } from './table-foot';
 import { deleteRow } from './delete-row';
+import { activeTableCellElement } from '../../../sheet';
 
 const navBar: HTMLElement = document.getElementById('navbar-nav');
 
-const deleteRowModal: HTMLElement = document.getElementById('deleteRowModal');
-const btnCloseModal: HTMLElement = document.getElementById('btn-delrow-modal-close');
+const deleteRowModalError: HTMLElement = document.getElementById('deleteRowModal_error');
+const btnCloseModaError: HTMLElement = document.getElementById('btn-modal-close');
 
 const navBarNewRow: HTMLElement = document.createElement('li');
 navBarNewRow.className = 'navbar-item';
@@ -46,11 +47,16 @@ navBarNewRow.addEventListener('click', function(event: MouseEvent) {
 
 navBar.appendChild(navBarDelRow);
 navBarDelRow.addEventListener('click', function(event: MouseEvent) {
-    // TODO get active table element to send to deleteRow
+    if(activeTableCellElement === null || activeTableCellElement === undefined) {
+        deleteRowModalError.style.display = 'block';
+    } else {
+        deleteRow(activeTableCellElement);
+    }
     event.stopPropagation();
 }, true);
 
-btnCloseModal.addEventListener('click', function(event: MouseEvent) {
-    deleteRowModal.style.display = 'none';
+
+btnCloseModaError.addEventListener('click', function(event: MouseEvent) {
+    deleteRowModalError.style.display = 'none';
     event.stopPropagation();
 }, true);
