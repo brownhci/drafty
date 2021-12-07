@@ -157,8 +157,14 @@ export const postDelRow = async (req: Request, res: Response) => {
     const idSession: number = req.session.user.idSession;
     const idUniqueID: string = req.body.idUniqueID;
     const comment: string = req.body.comment;
+
+    const idInteractionType = 17; // 6 = delrow
+    const idEntryType = 8; // 1 = DelRow
+    const mode = 'normal'; // normal is default
+    const idEdit = await getIdEdit(idSession,idInteractionType,idEntryType,mode);
+
     //console.log(`postDelRow... ${idSession} for ${idUniqueID}; comment: ${comment}`);
-    deactivateRow(idSession, idUniqueID, comment);
+    deactivateRow(idSession, idUniqueID, idEdit, comment);
     return res.status(200);
   } catch (error) {
     return res.sendStatus(500);
