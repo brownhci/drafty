@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
-import { getSuggestionsWithSuggestionType, getValidationRule as _getValidationRule, newSuggestion, selectSuggestionsForEdit, insertNewRowId, insertInteractionAndEdit, insertNewRowSuggestion, insertNewRowSuggestionUserCredit } from "../database/suggestion";
-import { isValidIdSuggestionType } from "../validation/validators";
+import { Request, Response, NextFunction } from 'express';
+import { getSuggestionsWithSuggestionType, getValidationRule as _getValidationRule, newSuggestion, selectSuggestionsForEdit, insertNewRowId, insertInteractionAndEdit, insertNewRowSuggestion, insertNewRowSuggestionUserCredit, deactivateRow } from '../database/suggestion';
+import { isValidIdSuggestionType } from '../validation/validators';
 
 /**
  * GET /suggestions?idSuggestionType=...
@@ -70,7 +70,7 @@ export const postNewSuggestion = async (req: Request, res: Response, next: NextF
 
   const idInteractionType = 6; // 6 = editRecord
   const idEntryType = 2; // 2 = EditOnline
-  const mode = "normal"; // normal is default
+  const mode = 'normal'; // normal is default
 
   // will get new/old idSuggestion for the edited cell
   const [error, results] = await newSuggestion(idSuggestion, suggestion, idProfile, idSession, idInteractionType, idEntryType, mode);
@@ -82,7 +82,7 @@ export const postNewSuggestion = async (req: Request, res: Response, next: NextF
 };
 
 /**
- * POST /new-row
+ * POST /newrow
  * Add new row
  *
  * @param {Array<String>} req.body.newRowValues - Contains each value for the new row stored in an array.
@@ -101,7 +101,7 @@ export const postNewRow = async (req: Request, res: Response) => {
 
   const idInteractionType = 6; // 6 = editRecord
   const idEntryType = 1; // 1 = NewRow
-  const mode = "normal"; // normal is default
+  const mode = 'normal'; // normal is default
 
   const rowValues = req.body.newRowValues;
   const rowFields = req.body.newRowFields;
@@ -140,6 +140,28 @@ const getNewUniqueId = async () => {
     return error;
   }
   return results.insertId;
+};
+
+/**
+ * POST /delrow
+ * Deactivate Row
+ *
+ * @param {String} req.body.idUniqueID - idUniqueID for the row to be deactivated
+ * @param {String} req.body.comment - comment left by the user
+ * 
+ * @return nothing or confirmation?
+ * 
+ */
+export const delRow = async (req: Request, res: Response) => {
+  try {
+    const idSession: number = req.session.user.idSession;
+    const idUniqueID: string = req.body.idUniqueID;
+    const comment: string = req.body.comment;
+    await deactivateRow(idSession, idUniqueID, comment);
+    return res.status(200);
+  } catch (error) {
+    return res.sendStatus(400);
+  }
 };
 
 const getIdEdit = async (idSession: number,idInteractionType: number,idEntryType: number,mode: string) => {
