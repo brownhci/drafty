@@ -21,6 +21,10 @@ export enum StatusMode {
   InsertionSuccess = 'insertion-success',
   /** `statusTableRow` is used for reporting some error that happened during insertion */
   InsertionFailure = 'insertion-failure',
+  /** `statusTableRow` is used for reporting a new row has been inserted */
+  DeleteSuccess = 'delete-success',
+  /** `statusTableRow` is used for reporting some error that happened during insertion */
+  DeleteFailure = 'delete-failure',
   /** `statusTableRow` is used for reporting row count */
   RowCount = 'rowcount',
   /** `statusTableRow` is used for reporting cell copy */
@@ -92,6 +96,8 @@ class TableFoot {
         case StatusMode.InsertionVerification:
         case StatusMode.InsertionSuccess:
         case StatusMode.InsertionFailure:
+        case StatusMode.DeleteSuccess:
+        case StatusMode.DeleteFailure:
         case StatusMode.RowCount:
         case StatusMode.CellCopy:
         case StatusMode.ColumnCopy:
@@ -136,6 +142,12 @@ class TableFoot {
             <span>New row is being verified...</span>
           </span>
           `;
+          break;
+        case StatusMode.DeleteSuccess:
+          this.statusTableCell.textContent = 'Row delete success! (someone will review this shortly)';
+          break;
+        case StatusMode.DeleteFailure:
+          this.statusTableCell.textContent = 'Row delete failure :(';
           break;
         case StatusMode.CellEditorHelp:
           this.statusTableCell.innerHTML = 'Press <kbd>Enter</kbd> to save edit, <kbd>ESC</kbd> to discard edit';
