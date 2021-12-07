@@ -6,8 +6,8 @@ let idRow: string = undefined;
 const deleteRowModal: HTMLElement = document.getElementById('deleteRowModal');
 const deleteRowLabel: HTMLElement = document.getElementById('row-label');
 const deleteModalClose: HTMLElement = document.getElementById('deleteModalClose');
-const deleteRowComment: HTMLTextAreaElement = document.getElementById('deleteRowComment');
-const submitBtn: HTMLButtonElement = document.getElementById('btn-delrow-modal-close');
+const deleteRowComment = <HTMLTextAreaElement>document.getElementById('deleteRowComment');
+const submitBtn = <HTMLButtonElement>document.getElementById('btn-delrow-modal-close');
 
 const submitDelRow: string = `<i class="fas fa-times"></i> Submit to Remove Row`;
 const needReasonDelRow: string = `Please enter a reason first`;
