@@ -158,10 +158,10 @@ export const postDelRow = async (req: Request, res: Response) => {
     const idUniqueID: string = req.body.idUniqueID;
     const comment: string = req.body.comment;
     //console.log(`postDelRow... ${idSession} for ${idUniqueID}; comment: ${comment}`);
-    await deactivateRow(idSession, idUniqueID, comment);
+    deactivateRow(idSession, idUniqueID, comment);
     return res.status(200);
   } catch (error) {
-    return res.sendStatus(400);
+    return res.sendStatus(500);
   }
 };
 
