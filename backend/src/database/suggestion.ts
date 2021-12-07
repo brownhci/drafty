@@ -21,7 +21,7 @@ const stmtInsertNewRowSuggestion: string = 'SET @p0=?; SET @p1=?; SET @p2=?; SET
 //idProfile_var, idUniqueId_var
 const stmtInsertNewRowSuggestionUserCredit: string = 'CALL new_user_credit_suggestion_new_row(?, ?) ';
 
-const stmtInsertDelRow: string = 'INSERT INTO Edit_DelRow (idInteraction, idUniqueID, comment) VALUES (insert_interaction(?,?), ?, ?)';
+const stmtInsertDelRow: string = 'INSERT INTO Edit_DelRow (idInteraction, idUniqueID, idEdit, comment) VALUES (insert_interaction(?,?), ?, ?, ?)';
 
 const stmtDeactivateRow: string = 'UPDATE UniqueId SET active = 0, notes = ? WHERE idUniqueID = ?;';
 
@@ -130,10 +130,10 @@ export async function insertNewRowSuggestionUserCredit(idProfile: number, idUniq
 * Only used for Del Row
 *
 ***/
-export async function deactivateRow(idSession: number, idUniqueID: string, comment: string) {
+export async function deactivateRow(idSession: number, idUniqueID: string, idEdit: number, comment: string) {
   try {
     const idInteractionType: number = 17;
-    db.query(stmtInsertDelRow, [idSession, idInteractionType, idUniqueID, comment]);
+    db.query(stmtInsertDelRow, [idSession, idInteractionType, idUniqueID, idEdit, comment]);
     db.query(stmtDeactivateRow, [comment, idUniqueID]);
   } catch (error) {
     console.log(error);
