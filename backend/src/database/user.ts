@@ -23,7 +23,7 @@ LEFT JOIN (
 ) ers ON ers.idExperiment = e.idExperiment
 LEFT JOIN (
   SELECT er.idExperiment, substring_index(group_concat(er.role ORDER BY RAND()), ',', 1) as randrole
-  FROM ExperimentRole er
+  FROM users.ExperimentRole er
   GROUP BY er.idExperiment
 ) err ON err.idExperiment = e.idExperiment
 `;
