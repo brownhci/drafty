@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from '../dom/navigate';
 import { isTableData } from '../dom/types';
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postGoogleSearchURL, postDataBaitVisit, postSearchColVisit } from './endpoints';
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDataBaitVisit, postSearchColVisit } from './endpoints';
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
 
@@ -106,6 +106,10 @@ export function recordRowInsertion(rowValues: Array<string>, idSuggestionTypes: 
   recordInteraction(postNewRowURL(), {
     newRowValues: rowValues, newRowFields: idSuggestionTypes
   }, successHandler, failureHandler);
+}
+
+export function recordRowDelete(idUniqueID: string, comment: string, successHandler?: ResponseHandler, failureHandler?: ResponseHandler) {
+  recordInteraction(postDelRowURL(), { idUniqueID, comment }, successHandler, failureHandler);
 }
 
 export function recordCellDoubleClick(tableCellElement: HTMLTableCellElement) {
