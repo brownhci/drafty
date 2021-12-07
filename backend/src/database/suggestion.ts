@@ -23,6 +23,8 @@ const stmtInsertNewRowSuggestionUserCredit: string = 'CALL new_user_credit_sugge
 
 const stmtInsertDelRow: string = 'INSERT INTO Edit_DelRow (idInteraction, idUniqueID, comment) VALUES (insert_interaction(?,?), ?, ?)';
 
+const stmtDeactivateRow: string = 'UPDATE UniqueId SET active = 0, notes = ? WHERE idUniqueID = ?;';
+
 const stmtSelectSuggestionsWithSuggestionType: string = 'SELECT suggestion FROM Suggestions WHERE idSuggestionType = ? AND active = 1 GROUP BY suggestion ORDER BY suggestion asc';
 const stmtSelectSuggestionsForEdit: string = 'SELECT suggestion, 1 as prevSugg FROM Suggestions  WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = ?) '
   + ' UNION '
@@ -132,6 +134,7 @@ export async function deactivateRow(idSession: number, idUniqueID: string, comme
   try {
     const idInteractionType: number = 17;
     db.query(stmtInsertDelRow, [idSession, idInteractionType, idUniqueID, comment]);
+    db.query(stmtDeactivateRow, [idUniqueID, comment]);
   } catch (error) {
     console.log(error);
     logDbErr(error, 'error during deactivateRow', 'warn');
