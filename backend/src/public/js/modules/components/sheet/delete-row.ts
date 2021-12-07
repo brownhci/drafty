@@ -1,5 +1,6 @@
 import { getEnclosingTableRow } from '../../dom/navigate';
 import { recordRowDelete } from '../../api/record-interactions';
+import { StatusMode, tableFoot } from './table-foot';
 
 let idRow: string = undefined;
 
@@ -31,6 +32,7 @@ submitBtn.addEventListener('click', function() {
     // idRow, deleteRowComment.value
     recordRowDelete(idRow, deleteRowComment.value);
     deleteRowModal.style.display = 'none';
+    tableFoot.setStatusTimeout(StatusMode.DeleteSuccess, 4000);
 }, true);
 
 function getCSProfessorNameUniv(tableRow: HTMLTableRowElement) {
