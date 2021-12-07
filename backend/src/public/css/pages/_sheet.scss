@@ -558,6 +558,26 @@ inset 0px -1px 0px 0px $table-border-color;
           }
         }
 
+        &.delete-success,
+        &.delete-failure {
+          th {
+            @extend .font-size-large;
+            @extend .text-white;
+          }
+        }
+
+        &.delete-success {
+          th {
+            @extend .bg-success;
+          }
+        }
+
+        &.delete-failure {
+          th {
+            @extend .bg-danger;
+          }
+        }
+
         &.rowcount {
           th {
             @extend .text-left;
