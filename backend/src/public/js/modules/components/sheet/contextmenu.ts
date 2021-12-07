@@ -2,6 +2,7 @@ import { placeElementInViewport } from './align';
 import { cellEditor } from './cell-editor';
 import { copyTableCellElement, pasteToTableCellElement } from './copy-paste';
 import { openGoogleSearch } from './search-google';
+import { deleteRow } from './delete-row';
 import { StatusMode, tableFoot } from './table-foot';
 import { activeClass } from '../../constants/css-classes';
 import { isButton } from '../../dom/types';
@@ -160,6 +161,10 @@ tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
       menuItem.toggle();
       tableFoot.toggle(StatusMode.Insertion);
       break;
+    case 'Delete Row':
+        menuItem.toggle();
+        deleteRow(activeTableCellElement);
+        break;
     case 'Search Google':
       openGoogleSearch(activeTableCellElement);
       break;
