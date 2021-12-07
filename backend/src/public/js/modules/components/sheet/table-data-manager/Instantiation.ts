@@ -7,22 +7,22 @@
  * 		+ DOMForwardingInstantiation: extends ForwardingInstantiation with default descriptor that treat registered properties as a DOM attribute or JS property of the forwarding target.
  */
 
-import { Abstraction, Prop } from "./Abstraction";
-import { getProperty, setProperty } from "../../../dom/properties";
+import { Abstraction, Prop } from './Abstraction';
+import { getProperty, setProperty } from '../../../dom/properties';
 
 /**
  * Strips the getter-setter pair of functions from PropertyDescriptor so that access functions type annotations can be overriden.
  *
  * @see {@link https://microsoft.github.io/PowerBI-JavaScript/interfaces/_node_modules_typedoc_node_modules_typescript_lib_lib_es5_d_.propertydescriptor.html PropertyDescriptor} {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty}
  */
-type DataDescriptor = Omit<PropertyDescriptor, "get" | "set">;
+type DataDescriptor = Omit<PropertyDescriptor, 'get' | 'set'>;
 
 /**
  * Extracts the getter-setter pair of functions form PropertyDescriptor.
  *
  *    PropertyDescriptor = AccessFunctions + DataDescriptor
  */
-type AccessFunctions = Pick<PropertyDescriptor, "get" | "set">;
+type AccessFunctions = Pick<PropertyDescriptor, 'get' | 'set'>;
 
 /**
  * Adds the access functions back into the {@link DataDescriptor} but with different annotations: the argument list will end with `forwardingTo` which contains the forwarding target and `thisArgument` which contains the `ForwardingInstantiation` instance.
@@ -76,12 +76,12 @@ export class ForwardingInstantiation extends Abstraction {
    */
   private static __transformPropertyDescriptor(descriptor: Partial<ForwardingPropertyDescriptor>, thisArgument: ForwardingInstantiation): Partial<PropertyDescriptor> {
     const accessFunctions: AccessFunctions = { };
-		if ("get" in descriptor) {
+		if ('get' in descriptor) {
       accessFunctions.get = () => {
         return descriptor.get(thisArgument.forwardingTo_, thisArgument);
       };
 		}
-		if ("set" in descriptor) {
+		if ('set' in descriptor) {
 			accessFunctions.set = (v: any) => {
         return descriptor.set(v, thisArgument.forwardingTo_, thisArgument);
 			};
@@ -130,7 +130,7 @@ export class ForwardingInstantiation extends Abstraction {
    * @param {any} forwardingTo - A target to forward access / modification on regiserted properties.
    */
   setForwardingTo__(forwardingTo: any) {
-    Object.defineProperty(this, "forwardingTo_", {
+    Object.defineProperty(this, 'forwardingTo_', {
         configurable: false,
         enumerable: false,
         value: forwardingTo,

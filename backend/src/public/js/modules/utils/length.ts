@@ -18,12 +18,12 @@ export function em2px(em: number, fontSize = 16, element: HTMLElement | null = n
 
 // measure text width
 /* the element used to measure text width */
-let textWidthMeasureElement: HTMLElement = document.getElementById("text-width-measure");
+let textWidthMeasureElement: HTMLElement = document.getElementById('text-width-measure');
 function getTextWidthMeasureElement(): HTMLElement {
   if (!textWidthMeasureElement) {
     // initialize text width measure
-    textWidthMeasureElement = document.createElement("span");
-    textWidthMeasureElement.id = "text-width-measure";
+    textWidthMeasureElement = document.createElement('span');
+    textWidthMeasureElement.id = 'text-width-measure';
 		const bodyElement = document.body;
 		bodyElement.prepend(textWidthMeasureElement);
   }

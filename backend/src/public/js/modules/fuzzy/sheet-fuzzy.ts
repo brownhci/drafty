@@ -1,9 +1,9 @@
-import fuzzysort from "fuzzysort";
+import fuzzysort from 'fuzzysort';
 //import { Option as Opt } from "../components/sheet/suggestions";
-import { fuseSelectRootContainerClass, autocompleteSuggestionClass, optionContainerClass, optionClass, optionTextClass } from "../constants/css-classes";
-import { activeClass } from "../constants/css-classes";
-import { tableDataManager } from "../../sheet";
-import { getCellInTableRow } from "../dom/navigate";
+import { fuseSelectRootContainerClass, autocompleteSuggestionClass, optionContainerClass, optionClass, optionTextClass } from '../constants/css-classes';
+import { activeClass } from '../constants/css-classes';
+import { tableDataManager } from '../../sheet';
+import { getCellInTableRow } from '../dom/navigate';
 
 // sw: convert to class so it can be reused
 const fuzzySortOptions = {
@@ -11,7 +11,7 @@ const fuzzySortOptions = {
     limit: 50,         // Don't return more results than this (lower is faster)
     allowTypo: true,    // Allows a single transpose (false is faster)
 
-    key: "",      // For when targets are objects (see its example usage)
+    key: '',      // For when targets are objects (see its example usage)
     keys: [] as string[],     // For when targets are objects (see its example usage)
     // scoreFn: null,  // For use with `keys` (see its example usage)
     // comment scoreFn to avoid TS errors
@@ -37,7 +37,7 @@ export class FuzzySelect {
     rootContainer: HTMLElement;
     private mounted: boolean = false;
 
-    constructor(options: Fuzzysort.Results = fuzzysort.go("", [], fuzzySortOptions)) {
+    constructor(options: Fuzzysort.Results = fuzzysort.go('', [], fuzzySortOptions)) {
         this.options = options;
         this.initializeSelect();
     }
@@ -47,7 +47,7 @@ export class FuzzySelect {
     }
 
     private initializeSelect() {
-        this.rootContainer = document.createElement("div");
+        this.rootContainer = document.createElement('div');
         this.rootContainer.classList.add(fuseSelectRootContainerClass);
         this.addOptionsContainer();
     }
@@ -58,7 +58,7 @@ export class FuzzySelect {
     }
 
     private createOptionContainer(options: any): HTMLElement {
-        const optionContainer = document.createElement("div");
+        const optionContainer = document.createElement('div');
         optionContainer.classList.add(optionContainerClass);
         if (options) {
             optionContainer.classList.add(activeClass);
@@ -67,14 +67,14 @@ export class FuzzySelect {
     }
 
     private createOptionElement(): HTMLElement {
-        const optionElement = document.createElement("div");
+        const optionElement = document.createElement('div');
         optionElement.classList.add(optionClass);
         optionElement.classList.add(autocompleteSuggestionClass);
         return optionElement;
     }
 
     private createOptionText(): HTMLElement {
-        const optionTextElement = document.createElement("span");
+        const optionTextElement = document.createElement('span');
         optionTextElement.classList.add(optionTextClass);
         return optionTextElement;
     }
@@ -89,7 +89,7 @@ export class FuzzySelect {
             const option: Fuzzysort.Result = options[i];
             optionTextElement.title = option.target;
             optionTextElement.innerHTML = option.target;
-            optionTextElement.innerHTML = fuzzysort.highlight(option, "<b>", "</b>");
+            optionTextElement.innerHTML = fuzzysort.highlight(option, '<b>', '</b>');
 
             optionElement.appendChild(optionTextElement);
             optionContainer.appendChild(optionElement);
@@ -127,10 +127,10 @@ export class FuzzySelect {
     }
 
     handleClickOnOption(callback: (text: string) => void) {
-        this.rootContainer.addEventListener("click", function (event: MouseEvent) {
+        this.rootContainer.addEventListener('click', function (event: MouseEvent) {
             let optionTextElement = (event.target as HTMLElement);
 
-            if (optionTextElement.nodeName === "B") {
+            if (optionTextElement.nodeName === 'B') {
                 // sw: this handles when someone clicks on a bold letter
                 // when clicking on bold letter it return <b>some text</b> instead of the 
                 // div required element containing the 'fuse-select-option' css class

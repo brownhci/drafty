@@ -1,5 +1,5 @@
-import { PartialViewScrollHandler } from "./PartialViewScrollHandler";
-import { PartialView } from "./ViewFunction";
+import { PartialViewScrollHandler } from './PartialViewScrollHandler';
+import { PartialView } from './ViewFunction';
 
 function setupIntersectionObserverMock({
   observe = () => null,
@@ -13,27 +13,27 @@ function setupIntersectionObserverMock({
   }
   Object.defineProperty(
     window,
-    "IntersectionObserver",
+    'IntersectionObserver',
     { writable: true, configurable: true, value: IntersectionObserver }
   );
   Object.defineProperty(
     global,
-    "IntersectionObserver",
+    'IntersectionObserver',
     { writable: true, configurable: true, value: IntersectionObserver }
   );
 }
 setupIntersectionObserverMock();
 
 
-describe("changing view", () => {
+describe('changing view', () => {
   const source: Array<HTMLLIElement> = [];
   for (let i = 0; i < 10000; i++) {
-    const listItem = document.createElement("li");
+    const listItem = document.createElement('li');
     listItem.textContent = i.toString();
     source.push(listItem);
   }
   const partialView = new PartialView<HTMLLIElement>(source, 0, 9, 10);
-  const target = document.createElement("ul");
+  const target = document.createElement('ul');
   document.body.appendChild(target);
   const elementLength = 100;
   const handler = new PartialViewScrollHandler<HTMLLIElement>({
@@ -43,7 +43,7 @@ describe("changing view", () => {
   });
   const range = (startIndex: number) => Array.from(Array(10).keys()).map(v => v + startIndex);
 
-  test("set view", () => {
+  test('set view', () => {
     expect(handler.startSentinelIndex).toBeGreaterThanOrEqual(0);
     expect(handler.startSentinelIndex).toBeLessThan(10);
     expect(handler.endSentinelIndex).toBeGreaterThanOrEqual(0);

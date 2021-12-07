@@ -1,6 +1,6 @@
-import { LocalStorageCache } from "../../utils/local-storage";
-import { measureTextWidth, em2px } from "../../utils/length";
-import {getColumnLabel, getColumnLabelText, getTableColElement, tableColElements, getColumnSearchInput } from "../../dom/sheet";
+import { LocalStorageCache } from '../../utils/local-storage';
+import { measureTextWidth, em2px } from '../../utils/length';
+import {getColumnLabel, getColumnLabelText, getTableColElement, tableColElements, getColumnSearchInput } from '../../dom/sheet';
 
 
 const columnWidthCache = new LocalStorageCache(Number.POSITIVE_INFINITY);

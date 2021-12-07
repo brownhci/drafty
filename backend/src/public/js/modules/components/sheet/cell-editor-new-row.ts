@@ -2,24 +2,24 @@
  * @module
  * This handles the individual inputs for add new row.
  */
-import { alignElementHorizontally, placeElementAdjacently } from "./align";
-import { editSuggestionManager } from "./suggestions";
-import { getEditSuggestionURL } from "../../api/endpoints";
-import { getIdSuggestion } from "../../api/record-interactions";
-import { activeClass } from "../../constants/css-classes";
-import { getCellInTableRow, getEnclosingTableCell } from "../../dom/navigate";
-import { tableFootElement } from "../../dom/sheet";
-import { isInput } from "../../dom/types";
-import { FuseSelect } from "../../fuse/sheet-fuse";
-import { debounce } from "../../utils/debounce";
-import { tableDataManager, updateActiveTableCellElement } from "../../../sheet";
+import { alignElementHorizontally, placeElementAdjacently } from './align';
+import { editSuggestionManager } from './suggestions';
+import { getEditSuggestionURL } from '../../api/endpoints';
+import { getIdSuggestion } from '../../api/record-interactions';
+import { activeClass } from '../../constants/css-classes';
+import { getCellInTableRow, getEnclosingTableCell } from '../../dom/navigate';
+import { tableFootElement } from '../../dom/sheet';
+import { isInput } from '../../dom/types';
+import { FuseSelect } from '../../fuse/sheet-fuse';
+import { debounce } from '../../utils/debounce';
+import { tableDataManager, updateActiveTableCellElement } from '../../../sheet';
 
 interface Option {
     suggestion: string;
 }
 
 class CellEditNewRow {
-    private container: HTMLElement = document.getElementById("cell-editor-new-row");
+    private container: HTMLElement = document.getElementById('cell-editor-new-row');
 
     private target: HTMLTableCellElement;
     private inputElement: HTMLInputElement;
@@ -61,14 +61,14 @@ class CellEditNewRow {
             // this dictates what happens when an autocompletion option is clicked
             if (this.inputElement) {
                 this.inputElement.value = text;
-                this.inputElement.dispatchEvent(new Event("input"));
+                this.inputElement.dispatchEvent(new Event('input'));
                 this.deactivate();
             }
         });
         this.fuseSelect.mount(element => this.container.appendChild(element));
 
-        tableFootElement.addEventListener("infocus", debounce(this.inputHandler)), true;
-        tableFootElement.addEventListener("input", debounce(this.inputHandler)), true;
+        tableFootElement.addEventListener('infocus', debounce(this.inputHandler)), true;
+        tableFootElement.addEventListener('input', debounce(this.inputHandler)), true;
     }
 
 
@@ -97,17 +97,17 @@ class CellEditNewRow {
 
     activate(target: HTMLTableCellElement) {
         this.target = target;
-        this.inputElement = target.querySelector("input");
+        this.inputElement = target.querySelector('input');
 
         this.updateFuseSelect().then(() => {
             this.fuseSelect.query(this.inputElement.value);
         });
-        document.body.addEventListener("click", this.handleBodyClick, true);
+        document.body.addEventListener('click', this.handleBodyClick, true);
     }
 
     deactivate() {
         this.container.classList.remove(activeClass);
-        document.body.removeEventListener("click", this.handleBodyClick, true);
+        document.body.removeEventListener('click', this.handleBodyClick, true);
     }
 
     handleBodyClick(event: Event) {
@@ -122,7 +122,7 @@ class CellEditNewRow {
         handlerForPulledSuggestions?: (options: Array<Option>) => void
     ) {
         return await editSuggestionManager.get(this.suggestionFetchURL, this.suggestionIdentifier.toString(), handlerForCachedSuggestions, (options) => {
-            options = options.filter(option => option.suggestion !== "");
+            options = options.filter(option => option.suggestion !== '');
             handlerForPulledSuggestions(options);
         });
     }

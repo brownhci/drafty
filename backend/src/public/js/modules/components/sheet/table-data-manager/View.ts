@@ -1,10 +1,10 @@
-import { MutationReporter } from "./MutationReporter";
-import { PartialViewScrollHandler, Axis } from "./PartialViewScrollHandler";
-import { TaskQueue } from "./TaskQueue";
-import { ViewModel } from "./ViewModel";
-import { FilterFunction, FilteredView, PartialView, SortedView, SortingFunction, ViewFunctionChain } from "./ViewFunction";
-import { getViewportHeight, getViewportWidth } from "../../../utils/length";
-import { debounceWithCooldown } from "../../../utils/debounce";
+import { MutationReporter } from './MutationReporter';
+import { PartialViewScrollHandler, Axis } from './PartialViewScrollHandler';
+import { TaskQueue } from './TaskQueue';
+import { ViewModel } from './ViewModel';
+import { FilterFunction, FilteredView, PartialView, SortedView, SortingFunction, ViewFunctionChain } from './ViewFunction';
+import { getViewportHeight, getViewportWidth } from '../../../utils/length';
+import { debounceWithCooldown } from '../../../utils/debounce';
 
 
 /**
@@ -152,7 +152,7 @@ export class BasicView {
    * Set up a handler for the {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/resize_event resize} event. This handler will adjust the maximum window size so that a smaller screen has a smaller window size while a larger screen has a larger window size.
    */
   protected initializeResizeHandler() {
-    window.addEventListener("resize", debounceWithCooldown(() => this.adjustWindowSizeUpperBound(), 1000));
+    window.addEventListener('resize', debounceWithCooldown(() => this.adjustWindowSizeUpperBound(), 1000));
   }
 
   /**
@@ -233,7 +233,7 @@ export class BasicView {
           continue;
         }
 
-        if (mutation.type === "childList") {
+        if (mutation.type === 'childList') {
           this.onChildListMutation(mutation);
         }
       }

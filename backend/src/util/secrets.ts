@@ -1,26 +1,26 @@
-import logger from "./logger";
-import dotenv from "dotenv";
-import fs from "fs";
+import logger from './logger';
+import dotenv from 'dotenv';
+import fs from 'fs';
 
-if (fs.existsSync(".env")) {
+if (fs.existsSync('.env')) {
   // synchronously look for .env file in file system
-  logger.info("Using .env file to supply config environment variables");
-  dotenv.config({ path: ".env" });
-} else if (fs.existsSync(".env.example")) {
+  logger.info('Using .env file to supply config environment variables');
+  dotenv.config({ path: '.env' });
+} else if (fs.existsSync('.env.example')) {
   // synchronously look for .env.example file in file system
-  logger.warn("Using .env.example file to supply config environment variables -- this will often not work, please supply an .env file!");
-  dotenv.config({ path: ".env.example" });
+  logger.warn('Using .env.example file to supply config environment variables -- this will often not work, please supply an .env file!');
+  dotenv.config({ path: '.env.example' });
 } else {
-  logger.error("Both .env file and .env.example file do not exist! Please supply a .env file");
+  logger.error('Both .env file and .env.example file do not exist! Please supply a .env file');
   process.exit(1);
 }
 
 export const ENVIRONMENT = process.env.NODE_ENV;
-export const prod = ENVIRONMENT === "production"; // Anything else is treated as 'dev'
+export const prod = ENVIRONMENT === 'production'; // Anything else is treated as 'dev'
 
-export const SESSION_SECRET = process.env["SESSION_SECRET"];
+export const SESSION_SECRET = process.env['SESSION_SECRET'];
 if (!SESSION_SECRET) {
-    logger.error("No client secret. Set SESSION_SECRET environment variable.");
+    logger.error('No client secret. Set SESSION_SECRET environment variable.');
     process.exit(1);
 }
 
@@ -63,13 +63,13 @@ function resolveEnvironmentVariable(
 
 // Dot environment variables
 // Main Database
-export const DB_HOST = resolveEnvironmentVariable("DB_HOST");
-export const DB_USER = resolveEnvironmentVariable("DB_USER");
-export const DB_PASSWORD = resolveEnvironmentVariable("DB_PASSWORD");
-export const DB_DATABASE = resolveEnvironmentVariable("DB_DATABASE");
+export const DB_HOST = resolveEnvironmentVariable('DB_HOST');
+export const DB_USER = resolveEnvironmentVariable('DB_USER');
+export const DB_PASSWORD = resolveEnvironmentVariable('DB_PASSWORD');
+export const DB_DATABASE = resolveEnvironmentVariable('DB_DATABASE');
 
-export const EMAIL_HOST = resolveEnvironmentVariable("EMAIL_HOST");
-export const EMAIL_PORT = Number.parseInt(resolveEnvironmentVariable("EMAIL_PORT"));
-export const EMAIL_ACCOUNT_NAME = resolveEnvironmentVariable("EMAIL_ACCOUNT_NAME");
-export const EMAIL_ACCOUNT_USERNAME = resolveEnvironmentVariable("EMAIL_ACCOUNT_USERNAME");
-export const EMAIL_ACCOUNT_PASSWORD = resolveEnvironmentVariable("EMAIL_ACCOUNT_PASSWORD");
+export const EMAIL_HOST = resolveEnvironmentVariable('EMAIL_HOST');
+export const EMAIL_PORT = Number.parseInt(resolveEnvironmentVariable('EMAIL_PORT'));
+export const EMAIL_ACCOUNT_NAME = resolveEnvironmentVariable('EMAIL_ACCOUNT_NAME');
+export const EMAIL_ACCOUNT_USERNAME = resolveEnvironmentVariable('EMAIL_ACCOUNT_USERNAME');
+export const EMAIL_ACCOUNT_PASSWORD = resolveEnvironmentVariable('EMAIL_ACCOUNT_PASSWORD');

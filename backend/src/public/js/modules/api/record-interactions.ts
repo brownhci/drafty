@@ -3,12 +3,12 @@
  * This module contains functions to record interactions on sheet.
  */
 
-import { getEnclosingTableRow } from "../dom/navigate";
-import { isTableData } from "../dom/types";
-import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from "../dom/sheet";
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postGoogleSearchURL, postDataBaitVisit, postSearchColVisit } from "./endpoints";
+import { getEnclosingTableRow } from '../dom/navigate';
+import { isTableData } from '../dom/types';
+import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postGoogleSearchURL, postDataBaitVisit, postSearchColVisit } from './endpoints';
 
-const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector("input[name='_csrf']");
+const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
 
 export function getIdUniqueID(tableCellElement: HTMLTableCellElement): number {
   return Number.parseInt(getEnclosingTableRow(tableCellElement).dataset.id);
@@ -49,7 +49,7 @@ function getSearchValues(): string {
       searchValues.push(searchValue);
     }
   }
-  return searchValues.join("||");
+  return searchValues.join('||');
 }
 
 // Record Interaction
@@ -65,12 +65,12 @@ function recordInteraction(
   data: Record<any, any>,
   successHandler: ResponseHandler = () => undefined,
   failureHandler: ResponseHandler = response => console.error(`${response.status}: ${response.statusText}`)) {
-  data["_csrf"] = tableCellInputFormCSRFInput.value;
+  data['_csrf'] = tableCellInputFormCSRFInput.value;
 
   fetch(url, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
   }).then(response => {
@@ -80,15 +80,15 @@ function recordInteraction(
       failureHandler(response);
     }
   })
-    .catch(error => console.error("Network error when posting interaction: ", error));
+    .catch(error => console.error('Network error when posting interaction: ', error));
 }
 
 export function recordCellEdit(tableCellElement: HTMLTableCellElement, textContent: string) {
   // supply enough fields to update database entry for table cell, also updates the table cell with the new `idSuggestion` value
-  recordInteraction("/suggestions/new", {
-    "idUniqueID": getIdUniqueID(tableCellElement),
-    "idSuggestion": getIdSuggestion(tableCellElement),
-    "suggestion": textContent,
+  recordInteraction('/suggestions/new', {
+    'idUniqueID': getIdUniqueID(tableCellElement),
+    'idSuggestion': getIdSuggestion(tableCellElement),
+    'suggestion': textContent,
   }, (response) => response.json().then(idSuggestion => setIdSuggestion(tableCellElement, idSuggestion)));
 }
 
@@ -145,7 +145,7 @@ export function recordColumnSearch(columnSearch: HTMLTableCellElement, isFullSea
   const columnIndex: number = columnSearch.cellIndex;
   const columnLabel: HTMLTableCellElement = getColumnLabel(columnIndex);
   const columnSearchInput: HTMLInputElement = getColumnSearchInput(columnSearch);
-  const matchedValues = Array.from(new Set(getTableCellTextsInColumn(columnIndex, true, true))).join("|");
+  const matchedValues = Array.from(new Set(getTableCellTextsInColumn(columnIndex, true, true))).join('|');
   /*
     const idSuggestionType: number|string
     const isMulti: number

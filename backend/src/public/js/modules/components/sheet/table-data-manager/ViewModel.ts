@@ -1,6 +1,6 @@
-import { DOMForwardingInstantiation, ForwardingPropertyDescriptor } from "./Instantiation";
-import { MutationReporter, MutationReporterCallback } from "./MutationReporter";
-import { generateUUID  as uuid } from "../../../utils/uuid";
+import { DOMForwardingInstantiation, ForwardingPropertyDescriptor } from './Instantiation';
+import { MutationReporter, MutationReporterCallback } from './MutationReporter';
+import { generateUUID  as uuid } from '../../../utils/uuid';
 
 
 /**
@@ -36,7 +36,7 @@ export class ViewModel extends DOMForwardingInstantiation {
    *
    *    `element.dataset[ViewModel.identifierDatasetName_]`
    */
-  static readonly identifierDatasetName_ = "identifier_";
+  static readonly identifierDatasetName_ = 'identifier_';
 
   protected forwardingTo_: HTMLElement;
 
@@ -102,21 +102,21 @@ export class ViewModel extends DOMForwardingInstantiation {
     viewModelBuilders: ViewModelBuilder | Array<ViewModelBuilder> = []
   ) {
     super(propsToForward, forwardingTo);
-    Object.defineProperty(this, "identifier_", {
+    Object.defineProperty(this, 'identifier_', {
         configurable: false,
         enumerable: false,
         value: uuid(),
         writable: false
     });
     this.setForwardingTo__(forwardingTo);
-    Object.defineProperty(this, "parent_", {
+    Object.defineProperty(this, 'parent_', {
         configurable: false,
         enumerable: false,
         value: parent,
         writable: true
     });
     this.setChildren__(children);
-    Object.defineProperty(this, "_viewModelBuilders", {
+    Object.defineProperty(this, '_viewModelBuilders', {
         configurable: false,
         enumerable: false,
         value: viewModelBuilders,
@@ -142,7 +142,7 @@ export class ViewModel extends DOMForwardingInstantiation {
   static getElementByIdentifier(
     identifier: string,
     root: Document | DocumentFragment | Element = document,
-    selectors: string = ""
+    selectors: string = ''
   ): HTMLElement {
     return root.querySelector(`${selectors}[data-${ViewModel.identifierDatasetName_}="${identifier}"`);
   }
@@ -196,14 +196,14 @@ export class ViewModel extends DOMForwardingInstantiation {
       this._children.forEach(child => child.parent_ = null);
     }
 
-    Object.defineProperty(this, "_children", {
+    Object.defineProperty(this, '_children', {
         configurable: false,
         enumerable: false,
         value: children,
         writable: true
     });
 
-    Object.defineProperty(this, "_identifierToChild", {
+    Object.defineProperty(this, '_identifierToChild', {
         configurable: false,
         enumerable: false,
         value: new Map(),
@@ -322,7 +322,7 @@ export class ViewModel extends DOMForwardingInstantiation {
       this._mutationReporter.disconnect();
     }
 
-    Object.defineProperty(this, "_mutationReporter", {
+    Object.defineProperty(this, '_mutationReporter', {
       configurable: false,
       enumerable: false,
       value: new MutationReporter(callback),
@@ -337,7 +337,7 @@ export class ViewModel extends DOMForwardingInstantiation {
    */
   protected onMutation__(mutations: Array<MutationRecord>, observer: MutationObserver, originalMutations: Array<MutationRecord>, reporter: MutationReporter) {
     reporter.report(mutations);
-    if (mutations.some(mutation => mutation.type === "childList")) {
+    if (mutations.some(mutation => mutation.type === 'childList')) {
       // update child view models
       this.patchWithDOM__(this.element_);
     }

@@ -1,4 +1,4 @@
-import { isTableCell } from "./types";
+import { isTableCell } from './types';
 
 
 /* from child to parent */
@@ -10,7 +10,7 @@ import { isTableCell } from "./types";
  * @return {HTMLTableRowElement} An table row element that is closest to current element in its ancestor tree.
  */
 export function getEnclosingTableRow(element: HTMLElement): HTMLTableRowElement {
-  return element.closest("tr") as HTMLTableRowElement;
+  return element.closest('tr') as HTMLTableRowElement;
 }
 
 /**

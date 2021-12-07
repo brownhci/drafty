@@ -1,21 +1,21 @@
-import { getCellInTableRow, getRightTableCellElement } from "./navigate";
-import { isInput } from "./types";
-import { columnLabelClass, columnLabelTextClass, columnSearchClass, columnSortButtonClass } from "../constants/css-classes";
-import { measureTextWidth } from "../utils/length";
-import { recordDataBaitVisit } from "../api/record-interactions";
+import { getCellInTableRow, getRightTableCellElement } from './navigate';
+import { isInput } from './types';
+import { columnLabelClass, columnLabelTextClass, columnSearchClass, columnSortButtonClass } from '../constants/css-classes';
+import { measureTextWidth } from '../utils/length';
+import { recordDataBaitVisit } from '../api/record-interactions';
 
 /* <table> */
-export const tableElement: HTMLTableElement = document.getElementById("table") as HTMLTableElement;
+export const tableElement: HTMLTableElement = document.getElementById('table') as HTMLTableElement;
 /* the container inside which the table can be scrolled */
 export const tableScrollContainer: HTMLElement = tableElement.parentElement;
 /* <thead> */
 export const tableHeadElement: HTMLTableSectionElement = tableElement.tHead;
 /* unused */
-export const tableHeadSearchElement: HTMLTableSectionElement = document.getElementById("column-search-row") as HTMLTableSectionElement;
+export const tableHeadSearchElement: HTMLTableSectionElement = document.getElementById('column-search-row') as HTMLTableSectionElement;
 /* top header row */
-export const tableHeadTopRowElement: HTMLTableSectionElement = document.getElementById("column-label-row") as HTMLTableSectionElement;
+export const tableHeadTopRowElement: HTMLTableSectionElement = document.getElementById('column-label-row') as HTMLTableSectionElement;
 /* <tbody> */
-export const tableBodyElement: HTMLTableSectionElement = document.getElementById("view") as HTMLTableSectionElement;
+export const tableBodyElement: HTMLTableSectionElement = document.getElementById('view') as HTMLTableSectionElement;
 /* <tfoot> */
 export const tableFootElement: HTMLTableSectionElement = tableElement.tFoot;
 /* <tr>s */
@@ -31,7 +31,7 @@ export const columnSearchRowIndex = 1;
 export const tableColumnSearches: HTMLTableRowElement = tableRowElements[columnSearchRowIndex] as HTMLTableRowElement;
 
 /* <col>s */
-export const tableColElements: HTMLCollection = tableElement.getElementsByTagName("col");
+export const tableColElements: HTMLCollection = tableElement.getElementsByTagName('col');
 
 export function getTableRow(tableCellElement: HTMLTableCellElement): HTMLTableRowElement {
   return tableCellElement.parentElement as HTMLTableRowElement;
@@ -94,7 +94,7 @@ export function isColumnSearchInput(element: HTMLElement): boolean {
   return isInput(element) && isColumnSearch(element.parentElement);
 }
 export function getColumnSearchInput(columnSearch: HTMLTableCellElement): HTMLInputElement {
-  return columnSearch.querySelector("input");
+  return columnSearch.querySelector('input');
 }
 export function isColumnSearchInputFocused(): boolean {
   return isColumnSearchInput(document.activeElement as HTMLElement);
@@ -103,7 +103,7 @@ export function isColumnSearchFilled(columnSearch: HTMLTableCellElement): boolea
   if (!columnSearch) {
     return false;
   }
-  return getColumnSearchInput(columnSearch).value !== "";
+  return getColumnSearchInput(columnSearch).value !== '';
 }
 /**
  * Check whether new cell value for this column is restricted to column suggestions. In other words, whether user custom value is prohibited.
@@ -111,19 +111,19 @@ export function isColumnSearchFilled(columnSearch: HTMLTableCellElement): boolea
  * @param {HTMLTableCellElement} columnLabel - The column label of the column to check.
  */
 export function isColumnAutocompleteOnly(columnLabel: HTMLTableCellElement) {
-  return columnLabel.dataset.autocompleteOnly === "true";
+  return columnLabel.dataset.autocompleteOnly === 'true';
 }
 export function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
-  if (tableCellElement.contentEditable === "false") {
+  if (tableCellElement.contentEditable === 'false') {
     return false;
   }
   const columnLabel = getColumnLabel(tableCellElement.cellIndex);
-  if (columnLabel.contentEditable === "false") {
-    tableCellElement.contentEditable = "false";
+  if (columnLabel.contentEditable === 'false') {
+    tableCellElement.contentEditable = 'false';
     return false;
   }
 
-  tableCellElement.contentEditable = "true";
+  tableCellElement.contentEditable = 'true';
   return true;
 }
 
@@ -200,28 +200,28 @@ export function checkUrlForSearchParams() {
   //console.log(document.getElementById('view').childNodes.length);
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
-  const searchInputElement: HTMLInputElement = document.getElementById(`column-search-input${urlParams.get("searchCol")}`) as HTMLInputElement;
+  const searchInputElement: HTMLInputElement = document.getElementById(`column-search-input${urlParams.get('searchCol')}`) as HTMLInputElement;
 
   // check if user arrived bc of a databait
-  if (urlParams.get("databaitId")) {
-    let databaitSource: string = "unkown";
-    if (urlParams.get("databaitSource")) {
-      databaitSource = urlParams.get("databaitSource");
+  if (urlParams.get('databaitId')) {
+    let databaitSource: string = 'unkown';
+    if (urlParams.get('databaitSource')) {
+      databaitSource = urlParams.get('databaitSource');
     }
-    const databaitId: string = urlParams.get("databaitId");
+    const databaitId: string = urlParams.get('databaitId');
     recordDataBaitVisit(databaitId, databaitSource);
   }
 
   // populate search column
-  if (urlParams.get("searchVal")) {
-    searchInputElement.value = urlParams.get("searchVal");
+  if (urlParams.get('searchVal')) {
+    searchInputElement.value = urlParams.get('searchVal');
   }
 
   const checkTableDataLoaded = setInterval(function () {
     clearInterval(checkTableDataLoaded);
-    if (document.getElementById("view").childNodes.length > 1) {
-      if (urlParams.has("searchCol") && urlParams.has("searchVal")) {
-        const eventInput = new Event("input");
+    if (document.getElementById('view').childNodes.length > 1) {
+      if (urlParams.has('searchCol') && urlParams.has('searchVal')) {
+        const eventInput = new Event('input');
         searchInputElement.dispatchEvent(eventInput);
       }
     }

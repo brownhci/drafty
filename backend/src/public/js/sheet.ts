@@ -1,20 +1,20 @@
-import { recordCellClick, recordCellDoubleClick } from "./modules/api/record-interactions";
-import { activeClass, activeAccompanyClass } from "./modules/constants/css-classes";
-import "./modules/components/welcome-screen";
-import "./modules/components/sheet/navbar";
-import { tableHeadOnMouseDown, tableHeadOnMouseMove } from "./modules/components/sheet/resize-column";
-import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from "./modules/components/sheet/column-sort-panel";
-import { cellEditor } from "./modules/components/sheet/cell-editor";
-import "./modules/components/sheet/column-search";
-import { columnSuggestions } from "./modules/components/sheet/column-suggestions";
-import { activateColumnLabelContextMenu, activateTableDataContextMenu, deactivateColumnLabelContextMenu, deactivateTableDataContextMenu } from "./modules/components/sheet/contextmenu";
-import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from "./modules/components/sheet/copy-paste";
-import { StatusMode, tableFoot } from "./modules/components/sheet/table-foot";
-import { TabularView } from "./modules/components/sheet/tabular-view";
-import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from "./modules/dom/navigate";
-import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams } from "./modules/dom/sheet";
-import { isInput, isTableData, isTableHead, isTableCell, isColumnSearchInput } from "./modules/dom/types";
-import { cellEditNewRow } from "./modules/components/sheet/cell-editor-new-row";
+import { recordCellClick, recordCellDoubleClick } from './modules/api/record-interactions';
+import { activeClass, activeAccompanyClass } from './modules/constants/css-classes';
+import './modules/components/welcome-screen';
+import './modules/components/sheet/navbar';
+import { tableHeadOnMouseDown, tableHeadOnMouseMove } from './modules/components/sheet/resize-column';
+import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from './modules/components/sheet/column-sort-panel';
+import { cellEditor } from './modules/components/sheet/cell-editor';
+import './modules/components/sheet/column-search';
+import { columnSuggestions } from './modules/components/sheet/column-suggestions';
+import { activateColumnLabelContextMenu, activateTableDataContextMenu, deactivateColumnLabelContextMenu, deactivateTableDataContextMenu } from './modules/components/sheet/contextmenu';
+import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from './modules/components/sheet/copy-paste';
+import { StatusMode, tableFoot } from './modules/components/sheet/table-foot';
+import { TabularView } from './modules/components/sheet/tabular-view';
+import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from './modules/dom/navigate';
+import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams } from './modules/dom/sheet';
+import { isInput, isTableData, isTableHead, isTableCell, isColumnSearchInput } from './modules/dom/types';
+import { cellEditNewRow } from './modules/components/sheet/cell-editor-new-row';
 
 /* // testing function logic
 const startTime = performance.now();
@@ -25,7 +25,7 @@ const duration = performance.now() - startTime;
 console.log(`someMethodIThinkMightBeSlow took ${duration}ms`);
 */
 
-export const tableDataManager = new TabularView(document.getElementById("table-data"), tableBodyElement);
+export const tableDataManager = new TabularView(document.getElementById('table-data'), tableBodyElement);
 
 /* which table column is active: a table column is activated when associated head is clicked */
 export let activeTableColElement: HTMLTableColElement = null;
@@ -38,7 +38,7 @@ const recentTimeLimit: number = 1000;
 export let activeTableCellElement: ActiveHTMLTableCellElement = null;
 /* activate */
 
-const editCaretId: string = "edit-caret";
+const editCaretId: string = 'edit-caret';
 const editCaret: string = `
     <span id="${editCaretId}">
       <i class="fas fa-caret-square-down"></i>
@@ -47,7 +47,7 @@ const editCaret: string = `
 function activateEditCaret() {
   activeTableCellElement.innerHTML += editCaret;
   const editCaretElement = document.getElementById(editCaretId);
-  editCaretElement.addEventListener("click", (event: MouseEvent) => {
+  editCaretElement.addEventListener('click', (event: MouseEvent) => {
     activateCellEditor();
   });
 }
@@ -238,7 +238,7 @@ function tableCellElementOnClick(tableCellElement: HTMLTableCellElement, event: 
 }
 
 /* click event */
-tableElement.addEventListener("click", function (event: MouseEvent) {
+tableElement.addEventListener('click', function (event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
     tableCellElementOnClick(target as HTMLTableCellElement, event);
@@ -250,7 +250,7 @@ tableElement.addEventListener("click", function (event: MouseEvent) {
   //event.stopPropagation();
 }, true);
 
-tableElement.addEventListener("contextmenu", function (event: MouseEvent) {
+tableElement.addEventListener('contextmenu', function (event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
     if (isColumnLabel(target)) {
@@ -268,7 +268,7 @@ tableElement.addEventListener("contextmenu", function (event: MouseEvent) {
 
 function activateCellEditor() {
   cellEditor.formInput = getTableDataText(activeTableCellElement).trim();
-  const initialSearchValue = ""; // bc we want users to see all options
+  const initialSearchValue = ''; // bc we want users to see all options
   cellEditor.activateForm(activeTableCellElement, initialSearchValue);
   activeTableCellElement.lastActiveTimestamp = null;
 }
@@ -321,50 +321,50 @@ function tableCellElementOnDownKeyPressed(tableCellElement: HTMLTableCellElement
 function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   event.consumed = false;
   switch (event.key) {
-    case "Down": // IE/Edge specific value
-    case "ArrowDown":
+    case 'Down': // IE/Edge specific value
+    case 'ArrowDown':
       tableCellElementOnDownKeyPressed(tableCellElement);
       event.consumed = true;
       break;
-    case "Up": // IE/Edge specific value
-    case "ArrowUp":
+    case 'Up': // IE/Edge specific value
+    case 'ArrowUp':
       tableCellElementOnUpKeyPressed(tableCellElement);
       event.consumed = true;
       break;
-    case "Left": // IE/Edge specific value
-    case "ArrowLeft":
+    case 'Left': // IE/Edge specific value
+    case 'ArrowLeft':
       updateActiveTableCellElement(getLeftTableCellElement(tableCellElement));
       event.consumed = true;
       break;
-    case "Right": // IE/Edge specific value
-    case "ArrowRight":
-    case "Tab": // handle Tab as a pressing Right arrow
+    case 'Right': // IE/Edge specific value
+    case 'ArrowRight':
+    case 'Tab': // handle Tab as a pressing Right arrow
       updateActiveTableCellElement(getRightTableCellElement(tableCellElement));
       event.consumed = true;
       break;
-    case "c": // handle potential CTRL+c or CMD+c
+    case 'c': // handle potential CTRL+c or CMD+c
       tableCellElementOnCopyKeyPressed(tableCellElement, event);
       break;
-    case "v":
+    case 'v':
       tableCellElementOnPasteKeyPressed(tableCellElement, event);
       break;
-    case "Escape":
+    case 'Escape':
       deactivateSortPanel();
     // fallthrough
-    case "Alt":
-    case "AltLock":
-    case "CapsLock":
-    case "Control":
-    case "Fn":
-    case "FnLock":
-    case "Hyper":
-    case "Meta":
-    case "NumLock":
-    case "ScrollLock":
-    case "Shift":
-    case "Super":
-    case "Symbol":
-    case "SymbolLock":
+    case 'Alt':
+    case 'AltLock':
+    case 'CapsLock':
+    case 'Control':
+    case 'Fn':
+    case 'FnLock':
+    case 'Hyper':
+    case 'Meta':
+    case 'NumLock':
+    case 'ScrollLock':
+    case 'Shift':
+    case 'Super':
+    case 'Symbol':
+    case 'SymbolLock':
       event.consumed = true;
   }
   if (event.consumed) {
@@ -373,20 +373,20 @@ function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event
     tableCellElementOnInput(event);
   }
 }
-tableElement.addEventListener("keydown", function (event: KeyboardEvent) {
+tableElement.addEventListener('keydown', function (event: KeyboardEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableCell(target)) {
     tableCellElementOnKeyDown(target as HTMLTableCellElement, event);
   } else if (isInput(target)) {
     // if footer is open 
-    if (tableFoot.statusMode === "insertion" && !cellEditNewRow.isActive) {
+    if (tableFoot.statusMode === 'insertion' && !cellEditNewRow.isActive) {
       // activate new row cell editor when new character is typed
       cellEditNewRow.activate(target.parentElement as HTMLTableCellElement);
     }
 
     if (isColumnSearchInput(target)) {
       if (columnSuggestions.isActive) {
-        if (event.key === "Escape" || event.key === "Enter") {
+        if (event.key === 'Escape' || event.key === 'Enter') {
           // ESC pressed on column search
           columnSuggestions.deactivate();
           event.preventDefault();
@@ -401,19 +401,19 @@ tableElement.addEventListener("keydown", function (event: KeyboardEvent) {
 }, true);
 
 /* mouse events */
-tableHeadTopRowElement.addEventListener("mousedown", function (event: MouseEvent) {
+tableHeadTopRowElement.addEventListener('mousedown', function (event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isTableHead(target)) {
     tableHeadOnMouseDown(target as HTMLTableCellElement, event);
   }
 }, { passive: true, capture: true });
-tableHeadTopRowElement.addEventListener("mousemove", function (event: MouseEvent) {
+tableHeadTopRowElement.addEventListener('mousemove', function (event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   tableHeadOnMouseMove(event);
 }, { passive: true, capture: true });
 
 // initially sort on University A-Z
-tableCellSortButtonOnClick(tableElement.querySelectorAll(".sort-btn")[1] as HTMLButtonElement, false);
-tableCellSortButtonOnClick(tableElement.querySelectorAll(".sort-btn")[0] as HTMLButtonElement, false);
+tableCellSortButtonOnClick(tableElement.querySelectorAll('.sort-btn')[1] as HTMLButtonElement, false);
+tableCellSortButtonOnClick(tableElement.querySelectorAll('.sort-btn')[0] as HTMLButtonElement, false);
 
 checkUrlForSearchParams();

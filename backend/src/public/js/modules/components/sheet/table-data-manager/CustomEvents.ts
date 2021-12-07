@@ -54,7 +54,7 @@ export interface PropertyChangeEventDetail {
  * @augments CustomEvent
  */
 export class PropertyChangeEvent extends CustomEvent<PropertyChangeEventDetail> {
-  static readonly typeArg: string = "propertyChange";
+  static readonly typeArg: string = 'propertyChange';
 
   constructor(detail: PropertyChangeEventDetail = null) {
     super(PropertyChangeEvent.typeArg, {
@@ -102,7 +102,7 @@ export interface CharacterDataChangeEventDetail {
  * @augments CustomEvent
  */
 export class CharacterDataChangeEvent extends CustomEvent<CharacterDataChangeEventDetail> {
-  static readonly typeArg: string = "characterDataChange";
+  static readonly typeArg: string = 'characterDataChange';
 
   constructor(detail: CharacterDataChangeEventDetail = null) {
     super(CharacterDataChangeEvent.typeArg, {
@@ -139,7 +139,7 @@ export interface ChildListChangeEventDetail {
  * @augments CustomEvent
  */
 export class ChildListChangeEvent extends CustomEvent<ChildListChangeEventDetail> {
-  static readonly typeArg: string = "childListChange";
+  static readonly typeArg: string = 'childListChange';
 
   constructor(detail: ChildListChangeEventDetail = null) {
     super(ChildListChangeEvent.typeArg, {

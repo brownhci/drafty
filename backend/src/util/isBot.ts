@@ -1,11 +1,11 @@
 // Map bot name to regular expression used to detect them based
 // on their user-agent
 const knownBotsToPattern = new Map([
-    ["Headless Chrome", /HeadlessChrome/],
-    ["Wget", /[wW]get/],
-    ["Python urllib", /Python-urllib/],
-    ["PHP crawl", /phpcrawl/],
-    ["PhantomJS", /PhantomJS/]
+    ['Headless Chrome', /HeadlessChrome/],
+    ['Wget', /[wW]get/],
+    ['Python urllib', /Python-urllib/],
+    ['PHP crawl', /phpcrawl/],
+    ['PhantomJS', /PhantomJS/]
 ]);
 
 // Detect if an incoming request belongs to a bot using its user agent
@@ -23,6 +23,6 @@ export function checkBot(userAgent: string): { isBot: boolean; nameBot: string }
 
     return {
         isBot: false,
-        nameBot: "none"
+        nameBot: 'none'
     };
 }

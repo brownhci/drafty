@@ -1,8 +1,8 @@
-import { BasicView } from "./table-data-manager/View";
-import { SortingFunctionWithPriority } from "./table-data-manager/ViewFunction";
-import { ViewModel } from "./table-data-manager/ViewModel";
-import { getRowIndexInSection } from "../../dom/sheet";
-import { isFirefox } from "../../utils/platform";
+import { BasicView } from './table-data-manager/View';
+import { SortingFunctionWithPriority } from './table-data-manager/ViewFunction';
+import { ViewModel } from './table-data-manager/ViewModel';
+import { getRowIndexInSection } from '../../dom/sheet';
+import { isFirefox } from '../../utils/platform';
 
 
 function getOffsetFromPageTop(element: HTMLElement): number {

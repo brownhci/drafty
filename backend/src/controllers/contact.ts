@@ -1,7 +1,7 @@
 //import nodemailer from "nodemailer"; // sw - unused
-import { Request, Response } from "express";
-import { sendMail, userFeedbackEmailAccount } from "../util/email";
-import { fieldNonEmpty, isValidEmail } from "../validation/validators";
+import { Request, Response } from 'express';
+import { sendMail, userFeedbackEmailAccount } from '../util/email';
+import { fieldNonEmpty, isValidEmail } from '../validation/validators';
 
 /**
  * POST /contact
@@ -9,8 +9,8 @@ import { fieldNonEmpty, isValidEmail } from "../validation/validators";
  */
 export const postContact = async (req: Request, res: Response) => {
   if (await isValidEmail(req) === false ||
-      await fieldNonEmpty(req, "subject") === false) {
-    return res.redirect("/help");
+      await fieldNonEmpty(req, 'subject') === false) {
+    return res.redirect('/help');
   }
 
   const mailOptions = {
@@ -21,9 +21,9 @@ export const postContact = async (req: Request, res: Response) => {
   };
   const [error] = await sendMail(mailOptions);
   if (error) {
-      req.flash("errors", { msg: error.message });
+      req.flash('errors', { msg: error.message });
   } else {
-    req.flash("success", { msg: `Your email has been sent successfully to ${userFeedbackEmailAccount}!` });
+    req.flash('success', { msg: `Your email has been sent successfully to ${userFeedbackEmailAccount}!` });
   }
-  res.redirect("/help");
+  res.redirect('/help');
 };

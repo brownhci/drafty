@@ -1,7 +1,7 @@
-import logger from "../util/logger";
+import logger from '../util/logger';
 
-process.on("unhandledRejection", function(err) {
-    logger.error("ERROR - unhandledPromiseRejection");
+process.on('unhandledRejection', function(err) {
+    logger.error('ERROR - unhandledPromiseRejection');
     logger.error(err);
 });
 

@@ -4,7 +4,7 @@
  * This modules provides a MutationReporter class that encapsulates MutationObserver which is capable both observing DOM mutation and reporting mutation as custom events.
  */
 
-import { CharacterDataChangeEvent, ChildListChangeEvent, PropertyChangeEvent } from "./CustomEvents";
+import { CharacterDataChangeEvent, ChildListChangeEvent, PropertyChangeEvent } from './CustomEvents';
 
 
 /**
@@ -36,7 +36,7 @@ export type MutationReporterCallback = (mutations: Array<MutationRecord>, observ
  */
 export class MutationReporter {
   /** NodeList equivalent of empty array */
-  private static readonly emptyNodeList: NodeList = document.createElement("div").querySelectorAll("#empty-nodelist");
+  private static readonly emptyNodeList: NodeList = document.createElement('div').querySelectorAll('#empty-nodelist');
   private readonly mutationObserver: MutationObserver;
 
   /** A mapping from observed targets to their observing configuration (MutationObserverInit) */
@@ -156,11 +156,11 @@ export class MutationReporter {
       nextSibling = nextSibling.nextSibling;
     }
 
-    const oldValue: string = nodeTextContents.join("");
+    const oldValue: string = nodeTextContents.join('');
 
     /** {@link https://www.quirksmode.org/blog/archives/2017/11/mutation_observ.html} the childList change actually reflect a characterData change */
     return {
-      type: "characterData",
+      type: 'characterData',
       target: mutationRecord.target,
       addedNodes: this.emptyNodeList,
       removedNodes: this.emptyNodeList,
@@ -206,7 +206,7 @@ export class MutationReporter {
    */
   private static correctMutationRecord(mutationRecord: MutationRecord): Array<MutationRecord> {
     switch (mutationRecord.type) {
-      case "childList":
+      case 'childList':
         if (this.hasTextContentMutation(mutationRecord)) {
           return [MutationReporter.childListToCharacterData(mutationRecord), mutationRecord];
         }
@@ -344,21 +344,21 @@ export class MutationReporter {
       let event: Event;
       const target: Node = mutation.target;
       switch (mutation.type) {
-        case "attributes":
+        case 'attributes':
           event = new PropertyChangeEvent({
             target,
             attributeName: mutation.attributeName,
            oldAttributeValue: mutation.oldValue
           });
           break;
-        case "characterData":
+        case 'characterData':
           event = new CharacterDataChangeEvent({
             target,
             oldValue: mutation.oldValue,
             newValue: mutation.target.textContent
           });
           break;
-        case "childList":
+        case 'childList':
           event = new ChildListChangeEvent({
             target,
             addedNodes: mutation.addedNodes,

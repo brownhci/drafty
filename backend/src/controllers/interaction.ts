@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertCopyColumn, insertSearch, insertSort, insertSearchGoogle, insertDataBaitVisit } from "../database/interaction";
+import { Request, Response } from 'express';
+import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertCopyColumn, insertSearch, insertSort, insertSearchGoogle, insertDataBaitVisit } from '../database/interaction';
 
 /**
  * POST /click

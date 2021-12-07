@@ -1,10 +1,10 @@
-import { getColumnLabel, getColumnLabelSortButton, getLongestColumnTextWidth, getTableCellText } from "../../dom/sheet";
-import { activeClass } from "./../../constants/css-classes";
-import { alignElementHorizontally } from "./align";
-import { tableDataManager } from "../../../sheet";
-import { SortingFunction } from "./table-data-manager/ViewFunction";
-import { clickClass } from "../../constants/css-classes";
-import { recordColumnSort } from "../../api/record-interactions";
+import { getColumnLabel, getColumnLabelSortButton, getLongestColumnTextWidth, getTableCellText } from '../../dom/sheet';
+import { activeClass } from './../../constants/css-classes';
+import { alignElementHorizontally } from './align';
+import { tableDataManager } from '../../../sheet';
+import { SortingFunction } from './table-data-manager/ViewFunction';
+import { clickClass } from '../../constants/css-classes';
+import { recordColumnSort } from '../../api/record-interactions';
 
 enum SortingDirection {
   ASCENDING,
@@ -12,23 +12,23 @@ enum SortingDirection {
 }
 
 /** A class on an element that can toggle column sorter's direction between ascending and descending */
-const columnSorterOrderClass = "column-sorter-order";
+const columnSorterOrderClass = 'column-sorter-order';
 /** A class on an element that will delete current column sorter when clicked */
-const columnSorterDeleteClass = "column-sorter-delete";
+const columnSorterDeleteClass = 'column-sorter-delete';
 /** A class on a select element that can choose which column current sorter will operate on */
-const columnSorterColumnSelectClass: string = "column-sorter-column-select";
+const columnSorterColumnSelectClass: string = 'column-sorter-column-select';
 /** @live */
 const columnSorterColumnSelects: HTMLCollection = document.getElementsByClassName(columnSorterColumnSelectClass);
 /** a class on an element that adjusts the ordering (priority) of current sorter with respect to other sorters */
-const columnSorterReorderGripClass = "column-sorter-reorder-grip";
-const columnSorterClass: string = "column-sorter";
+const columnSorterReorderGripClass = 'column-sorter-reorder-grip';
+const columnSorterClass: string = 'column-sorter';
 
-const columnSortPanel: HTMLElement = document.getElementById("table-column-sort-panel");
+const columnSortPanel: HTMLElement = document.getElementById('table-column-sort-panel');
 /** @live */
-const columnSorterContainers: HTMLCollection = columnSortPanel.getElementsByTagName("div");
+const columnSorterContainers: HTMLCollection = columnSortPanel.getElementsByTagName('div');
 const columnSorterContainerTemplate: HTMLTemplateElement = columnSortPanel.firstElementChild as HTMLTemplateElement;
 
-const descendingClass: string = "desc";
+const descendingClass: string = 'desc';
 
 function isSortPanelSorterOrderButton(element: HTMLElement): boolean {
   return element && element.classList.contains(columnSorterOrderClass);
@@ -73,13 +73,13 @@ function getColumnSorterContainerFromChildElement(childElement: HTMLElement): HT
 function modifyColumnSorterContainer(container: HTMLElement, columnIndex: number, containerIndex: number) {
   container.dataset.columnIndex = columnIndex.toString();
 
-  const sortbyText = containerIndex === 0 ? "Sort by" : "Then by";
-  container.querySelector(".column-sorter-sortby-text").textContent = sortbyText;
+  const sortbyText = containerIndex === 0 ? 'Sort by' : 'Then by';
+  container.querySelector('.column-sorter-sortby-text').textContent = sortbyText;
 
   const columnLabel = getColumnLabel(columnIndex);
   const columnLabelSortButton = getColumnLabelSortButton(columnLabel);
   if (isDescendingSorted(columnLabelSortButton)) {
-    container.querySelector(".column-sorter-order").classList.add(descendingClass);
+    container.querySelector('.column-sorter-order').classList.add(descendingClass);
   }
 
   const columnSorterColumnSelect: HTMLSelectElement = container.querySelector(`.${columnSorterColumnSelectClass}`);
@@ -98,7 +98,7 @@ function updateDisabledOptions() {
   const disabledOptionIndices = new Set(tableDataManager.sortingFunctions.keys()) as Set<number>;
 
   for (const select of columnSorterColumnSelects) {
-    for (const disabledOption of select.querySelectorAll("option:disabled")) {
+    for (const disabledOption of select.querySelectorAll('option:disabled')) {
       if (!disabledOptionIndices.has((disabledOption as HTMLOptionElement).index)) {
         // if an option is disabled in the select and it will no longer be disabled, make it not disabled
         (disabledOption as HTMLOptionElement).disabled = false;
@@ -126,7 +126,7 @@ function reorderSortingFunctionFromSortPanel() {
     const columnIndex: number = getColumnIndexFromColumnSorterContainer(columnSorterContainer as HTMLElement);
     ordering.set(columnIndex, order);
 
-    columnSorterContainer.querySelector(".column-sorter-sortby-text").textContent = order === 0? "Sort by" : "Then by";
+    columnSorterContainer.querySelector('.column-sorter-sortby-text').textContent = order === 0? 'Sort by' : 'Then by';
 
     order--;
   }
@@ -247,7 +247,7 @@ function sortPanelSorterDeleteButtonOnClick(sorterDeleteButton: HTMLElement) {
   updateDisabledOptions();
   reorderSortingFunctionFromSortPanel();
 }
-columnSortPanel.addEventListener("click", function(event: MouseEvent) {
+columnSortPanel.addEventListener('click', function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isSortPanelSorterOrderButton(target)) {
     sortPanelSorterOrderButtonOnClick(target);
@@ -272,7 +272,7 @@ function sortPanelColumnSelectOnChange(selectElement: HTMLSelectElement) {
   updateDisabledOptions();
 }
 
-columnSortPanel.addEventListener("change", function(event: Event) {
+columnSortPanel.addEventListener('change', function(event: Event) {
   const target = event.target as HTMLElement;
   if (isColumnSorterColumnSelect(target)) {
     sortPanelColumnSelectOnChange(target as HTMLSelectElement);
@@ -322,7 +322,7 @@ function deactivateColumnSorterReorderGrip(event: MouseEvent) {
     activeColumnSorterReorderGrip = undefined;
   }
 }
-columnSortPanel.addEventListener("mousedown", function(event: MouseEvent) {
+columnSortPanel.addEventListener('mousedown', function(event: MouseEvent) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isColumnSorterReorderGrip(target)) {
     activateColumnSorterReorderGrip(target);
@@ -330,7 +330,7 @@ columnSortPanel.addEventListener("mousedown", function(event: MouseEvent) {
   }
   event.stopPropagation();
 }, true);
-columnSortPanel.addEventListener("mouseup", function(event: MouseEvent) {
+columnSortPanel.addEventListener('mouseup', function(event: MouseEvent) {
   deactivateColumnSorterReorderGrip(event);
   event.preventDefault();
   event.stopPropagation();

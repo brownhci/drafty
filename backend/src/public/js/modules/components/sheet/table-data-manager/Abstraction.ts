@@ -7,8 +7,8 @@
  * Read {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get getter} and {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/set setter} for inspiration.
  */
 
-import { NotImplemented } from "../../../utils/errors";
-import { isSubset } from "../../../utils/Set";
+import { NotImplemented } from '../../../utils/errors';
+import { isSubset } from '../../../utils/Set';
 
 /**
  * The key name of a property.
@@ -175,7 +175,7 @@ export abstract class Abstraction {
       }
     } else {
       // initialize this.propNames_
-      Object.defineProperty(this, "propNames_", {
+      Object.defineProperty(this, 'propNames_', {
         configurable: false,
         enumerable: false,
         value: new Set(Object.keys(props)),

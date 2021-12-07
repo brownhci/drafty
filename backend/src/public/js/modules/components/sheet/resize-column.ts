@@ -1,21 +1,21 @@
-import { activeClass } from "../../constants/css-classes";
-import { getMinimumColumnWidth, updateTableCellWidth } from "./column-width";
-import { isColumnLabel, isFirstTableCell, isLastTableCell, tableColumnLabels, tableElement, tableScrollContainer } from "../../dom/sheet";
-import { getLeftTableCellElement, getRightTableCellElement } from "../../dom/navigate";
+import { activeClass } from '../../constants/css-classes';
+import { getMinimumColumnWidth, updateTableCellWidth } from './column-width';
+import { isColumnLabel, isFirstTableCell, isLastTableCell, tableColumnLabels, tableElement, tableScrollContainer } from '../../dom/sheet';
+import { getLeftTableCellElement, getRightTableCellElement } from '../../dom/navigate';
 
 const distanceConsideredNearToBorder = 5;
 
-const resizeVisualCue: HTMLElement = document.getElementById("resize-visual-cue");
+const resizeVisualCue: HTMLElement = document.getElementById('resize-visual-cue');
 let isResizing: boolean = false;
 let resizeStartX: number = null;
 let tableHeadAtMouseLeft: HTMLTableCellElement;
 let tableHeadAtMouseRight: HTMLTableCellElement;
 
-const nearLeftBorderClass = "near-left-border";
-const nearRightBorderClass = "near-right-border";
+const nearLeftBorderClass = 'near-left-border';
+const nearRightBorderClass = 'near-right-border';
 
-const temporaryTableHead: HTMLTableCellElement = document.createElement("th");
-temporaryTableHead.id = "resize-temporary-column";
+const temporaryTableHead: HTMLTableCellElement = document.createElement('th');
+temporaryTableHead.id = 'resize-temporary-column';
 
 function setTableHeadAtMouseLeft(tableCellElement: HTMLTableCellElement) {
   tableHeadAtMouseLeft = tableCellElement;
@@ -140,13 +140,13 @@ export function tableHeadOnMouseDown(tableCellElement: HTMLTableCellElement, eve
 }
 
 function addResizeListeners() {
-  tableElement.addEventListener("mousemove", tableHeadOnMouseMove, true);
-  tableElement.addEventListener("mouseup", tableHeadOnMouseUp, true);
+  tableElement.addEventListener('mousemove', tableHeadOnMouseMove, true);
+  tableElement.addEventListener('mouseup', tableHeadOnMouseUp, true);
 }
 
 function removeResizeListeners() {
-  tableElement.removeEventListener("mousemove", tableHeadOnMouseMove, true);
-  tableElement.removeEventListener("mouseup", tableHeadOnMouseUp, true);
+  tableElement.removeEventListener('mousemove', tableHeadOnMouseMove, true);
+  tableElement.removeEventListener('mouseup', tableHeadOnMouseUp, true);
 }
 
 export function tableHeadOnMouseUp(event: MouseEvent) {

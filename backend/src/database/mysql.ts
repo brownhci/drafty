@@ -1,7 +1,7 @@
-import logger from "../util/logger";
-import mysql from "mysql2/promise";
-import { MysqlError } from "mysql";
-import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } from "../util/secrets";
+import logger from '../util/logger';
+import mysql from 'mysql2/promise';
+import { MysqlError } from 'mysql';
+import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } from '../util/secrets';
 
 /**
  * This file provides interface to MySQL (MariaDB database), it will:
@@ -47,10 +47,10 @@ pool.getConnection()
  * Returns:
  *    None, error will be logged.
  */
-function logDatabaseError(error: MysqlError, message="", level="warn") {
+function logDatabaseError(error: MysqlError, message='', level='warn') {
   logger.log({
     level: level,
-    message: `${error.code}: ${error.sqlMessage}${message ? " - " + message : ""}`
+    message: `${error.code}: ${error.sqlMessage}${message ? ' - ' + message : ''}`
   });
 }
 

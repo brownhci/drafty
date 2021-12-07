@@ -3,7 +3,7 @@ export function hasTextSelected(element: HTMLElement): boolean {
    if (!selection) {
      return false;
    }
-   if (selection.toString() === "") {
+   if (selection.toString() === '') {
      return false;
    }
    const range = selection.getRangeAt(0);

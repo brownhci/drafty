@@ -4,12 +4,12 @@
  * This module provides a scroll handler that updates rendering view based on scrolling position.
  */
 
-import { PartialView } from "./ViewFunction";
-import { ViewModel } from "./ViewModel";
-import { bound } from "../../../utils/math";
-import { debounceWithCooldown } from "../../../utils/debounce";
-import { fillerClass, startFillerClass, endFillerClass } from "../../../constants/css-classes";
-import { getScrollParent } from "../../../dom/scroll";
+import { PartialView } from './ViewFunction';
+import { ViewModel } from './ViewModel';
+import { bound } from '../../../utils/math';
+import { debounceWithCooldown } from '../../../utils/debounce';
+import { fillerClass, startFillerClass, endFillerClass } from '../../../constants/css-classes';
+import { getScrollParent } from '../../../dom/scroll';
 
 /**
  * Documents the optional object type which customizes the IntersectionObserver.
@@ -362,7 +362,7 @@ export class PartialViewScrollHandler<T> {
     if (elementLength) {
       this.elementLength = elementLength;
     } else { // measures element directly
-      const propName = this.scrollAxis === Axis.Vertical ? "clientHeight" : "clientWidth";
+      const propName = this.scrollAxis === Axis.Vertical ? 'clientHeight' : 'clientWidth';
       if (this.partialView.currentView.length > 0) {
         const renderedElement = this.convert(this.partialView.currentView[0]);
         this.elementLength = renderedElement[propName];
@@ -419,7 +419,7 @@ export class PartialViewScrollHandler<T> {
    */
   private initializeScrollEventListener() {
     const observeTarget = this.scrollTarget === document.documentElement ? window : this.scrollTarget;
-    observeTarget.addEventListener("scroll", debounceWithCooldown((event) => {
+    observeTarget.addEventListener('scroll', debounceWithCooldown((event) => {
       if (event.target === this.scrollTarget || (document === event.target && document.documentElement === this.scrollTarget)) {
         // only handle scroll event happening on observed scroll container
         const startIndex = this.getElementIndexFromScrollAmount();
@@ -437,21 +437,21 @@ export class PartialViewScrollHandler<T> {
    * Filler elements serves as special guard nodes: when they appear in view -- blank section is appearing in the viewport, a target view update is necessary to refill the viewport with content.
    */
   private initializeFillers() {
-    let tagName: string = "div";
+    let tagName: string = 'div';
     switch (this.target.parentElement.tagName) {
-      case "ol":
-      case "ul":
-        tagName = "li";
+      case 'ol':
+      case 'ul':
+        tagName = 'li';
         break;
-      case "dl":
-        tagName = "dt";
+      case 'dl':
+        tagName = 'dt';
         break;
-      case "table":
-      case "tbody":
-        tagName = "tr";
+      case 'table':
+      case 'tbody':
+        tagName = 'tr';
         break;
-      case "tr":
-        tagName = "td";
+      case 'tr':
+        tagName = 'td';
         break;
     }
 
@@ -488,7 +488,7 @@ export class PartialViewScrollHandler<T> {
     startFillerLength: number = this.startFillerLength,
     endFillerLength: number = this.endFillerLength
   ) {
-    const propName = this.scrollAxis === Axis.Vertical ? "height" : "width";
+    const propName = this.scrollAxis === Axis.Vertical ? 'height' : 'width';
     this.startFillerElement.style[propName] = `${startFillerLength}px`;
     this.endFillerElement.style[propName] = `${endFillerLength}px`;
   }

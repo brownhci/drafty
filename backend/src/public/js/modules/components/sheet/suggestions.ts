@@ -3,10 +3,10 @@
  * input form suggestions
  */
 
-import { LocalStorageCache } from "../../utils/local-storage";
-import { getEditSuggestionURL } from "../../api/endpoints";
-import { getJSON } from "../../api/requests";
-import { FuseSelect } from "../../fuse/sheet-fuse";
+import { LocalStorageCache } from '../../utils/local-storage';
+import { getEditSuggestionURL } from '../../api/endpoints';
+import { getJSON } from '../../api/requests';
+import { FuseSelect } from '../../fuse/sheet-fuse';
 
 export interface Option {
   suggestion: string;
@@ -100,8 +100,8 @@ export class SuggestionManager {
     }
 }
 
-export const editSuggestionManager: SuggestionManager = new SuggestionManager("edit");
-export const columnSuggestionManager: SuggestionManager = new SuggestionManager("column");
+export const editSuggestionManager: SuggestionManager = new SuggestionManager('edit');
+export const columnSuggestionManager: SuggestionManager = new SuggestionManager('column');
 
 /**
  * Suggestions will be filtered (empty string suggestion will be removed) and de-duplicated (only previous edit suggestion will be kept if both present).
@@ -114,7 +114,7 @@ function parseCellEditSuggestions(suggestions: Array<Option>): Array<Option> {
 
   for (const suggestion of suggestions) {
     const text = suggestion.suggestion;
-    if (text === "") {
+    if (text === '') {
       continue;
     }
 
@@ -133,9 +133,9 @@ export function initializeFuseSelect(inputElement: HTMLInputElement, mountMethod
   // TODO: sw - not handling clicks correctly
   fuseSelect.handleClickOnOption((text: string) => {
     inputElement.value = text;
-    const keyboardEvent = new KeyboardEvent("keydown", {
-      code: "Enter",
-      key: "Enter",
+    const keyboardEvent = new KeyboardEvent('keydown', {
+      code: 'Enter',
+      key: 'Enter',
       view: window,
       bubbles: true
     });

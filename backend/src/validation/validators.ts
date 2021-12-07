@@ -1,13 +1,13 @@
-import { emailFieldName, minPasswordLength } from "../models/user";
-import { findUserByField } from "../database/user";
-import { Request } from "express";
-import { body, validationResult } from "express-validator";
-import { idSuggestionType as idSuggestionTypeFieldName } from "../models/suggestion";
-import { idSuggestionTypeLowerBound, idSuggestionTypeUpperBound } from "../models/suggestionType";
+import { emailFieldName, minPasswordLength } from '../models/user';
+import { findUserByField } from '../database/user';
+import { Request } from 'express';
+import { body, validationResult } from 'express-validator';
+import { idSuggestionType as idSuggestionTypeFieldName } from '../models/suggestion';
+import { idSuggestionTypeLowerBound, idSuggestionTypeUpperBound } from '../models/suggestionType';
 
-export const emailValidationFailure = "emailValidationFailure";
-export const passwordValidationFailure = "passwordValidationFailure";
-export const confirmValidationFailure = "confirmValidationFailure";
+export const emailValidationFailure = 'emailValidationFailure';
+export const passwordValidationFailure = 'passwordValidationFailure';
+export const confirmValidationFailure = 'confirmValidationFailure';
 
 export async function fieldNonEmpty(req: Request, fieldName: string) {
   const result = await body(fieldName).not().isEmpty().run(req);
@@ -28,7 +28,7 @@ export async function emailNotTaken(req: Request) {
 
   if (!user || error) {
     // QueryError
-    req.flash("errors", { msg: "Internal server error, please contact developer from help page" });
+    req.flash('errors', { msg: 'Internal server error, please contact developer from help page' });
     return false;
   }
 
@@ -48,7 +48,7 @@ export async function emailExists(req: Request) {
 
   if (!user || error) {
     // QueryError
-    req.flash("errors", { msg: "Internal server error, please contact developer from help page" });
+    req.flash('errors', { msg: 'Internal server error, please contact developer from help page' });
     return false;
   }
 
@@ -57,9 +57,9 @@ export async function emailExists(req: Request) {
 }
 
 export async function isValidEmail(req: Request) {
-  const result = await body("email").normalizeEmail({ gmail_remove_dots: false }).isEmail().run(req);
+  const result = await body('email').normalizeEmail({ gmail_remove_dots: false }).isEmail().run(req);
   if (!validationResult(req).isEmpty()) {
-    req.flash(emailValidationFailure, { msg: "Email not in valid format" });
+    req.flash(emailValidationFailure, { msg: 'Email not in valid format' });
     return false;
   }
   return result;
@@ -67,27 +67,27 @@ export async function isValidEmail(req: Request) {
 
 
 export async function isValidUsername(req: Request) {
-  const result = await body("email").notEmpty().isString().run(req);
+  const result = await body('email').notEmpty().isString().run(req);
   if (!validationResult(req).isEmpty()) {
-    req.flash(emailValidationFailure, { msg: "Username not in valid format" });
+    req.flash(emailValidationFailure, { msg: 'Username not in valid format' });
     return false;
   }
   return result;
 }
 
 export async function checkPasswordLength(req: Request) {
-  const result = await body("password").isLength({min: minPasswordLength}).run(req);
+  const result = await body('password').isLength({min: minPasswordLength}).run(req);
   if (!validationResult(req).isEmpty()) {
-    req.flash(passwordValidationFailure, { msg: "Password should be at least 4 characters long" });
+    req.flash(passwordValidationFailure, { msg: 'Password should be at least 4 characters long' });
     return false;
   }
   return result;
 }
 
 export async function confirmMatchPassword(req: Request) {
-  const result = await body("confirm").equals(req.body.password).run(req);
+  const result = await body('confirm').equals(req.body.password).run(req);
   if (!validationResult(req).isEmpty()) {
-    req.flash(confirmValidationFailure, { msg: "Confirm password should match picked password" });
+    req.flash(confirmValidationFailure, { msg: 'Confirm password should match picked password' });
     return false;
   }
   return result;
@@ -110,7 +110,7 @@ export async function isValidIdSuggestionType(req: Request) {
   }
 
   if (!result) {
-    req.flash("errors", { msg: `Invalid suggestion type ${suggestionType} passed` });
+    req.flash('errors', { msg: `Invalid suggestion type ${suggestionType} passed` });
   }
 
   return result;

@@ -1,4 +1,4 @@
-const editHistoryTable: HTMLTableElement = document.getElementById("table-edit-history") as HTMLTableElement;
+const editHistoryTable: HTMLTableElement = document.getElementById('table-edit-history') as HTMLTableElement;
 
 const offset = new Date().getTimezoneOffset(); // 
 
@@ -26,10 +26,10 @@ function convertDateToLocalTimezone(date: string) {
     const myDate = new Date(date);
     const convertedDate = new Date(myDate.getTime() - offset * 60000);
     
-    return convertedDate.getFullYear() + "-" + 
-    cleanDateNumber(convertedDate.getMonth(), true) + "-" + 
-    cleanDateNumber(convertedDate.getDate())  + " " + 
-    cleanDateNumber(convertedDate.getHours()) + ":" + 
+    return convertedDate.getFullYear() + '-' + 
+    cleanDateNumber(convertedDate.getMonth(), true) + '-' + 
+    cleanDateNumber(convertedDate.getDate())  + ' ' + 
+    cleanDateNumber(convertedDate.getHours()) + ':' + 
     cleanDateNumber(convertedDate.getMinutes());
 }
 

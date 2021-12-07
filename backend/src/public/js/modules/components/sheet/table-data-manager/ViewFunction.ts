@@ -10,8 +10,8 @@
  *    + chainable: see {@link ViewFunctionChain}. The target view of a view function can be passed as source view for another view function. This chaining is still efficient since view generation is avoided when possible at every view function and at the aggregate view function. Therefore, if a view function in the chain changed while the initial source view does not change, the target views before that changed view function is reused while every view function after it will regenerate its view.
  */
 
-import { TaskQueue } from "./TaskQueue";
-import { bound } from "../../../utils/math";
+import { TaskQueue } from './TaskQueue';
+import { bound } from '../../../utils/math';
 
 
 /**

@@ -1,8 +1,8 @@
-import Fuse from "./fuse";
-import { Option as Opt } from "../components/sheet/suggestions";
-import { fuseSelectRootContainerClass, autocompleteSuggestionClass, previousEditClass, optionContainerClass, optionClass, optionTextClass } from "../constants/css-classes";
-import { activeClass } from "../constants/css-classes";
-import { executeAtLeisure } from "../utils/defer";
+import Fuse from './fuse';
+import { Option as Opt } from '../components/sheet/suggestions';
+import { fuseSelectRootContainerClass, autocompleteSuggestionClass, previousEditClass, optionContainerClass, optionClass, optionTextClass } from '../constants/css-classes';
+import { activeClass } from '../constants/css-classes';
+import { executeAtLeisure } from '../utils/defer';
 
 
 type Option = Partial<Opt>;
@@ -13,7 +13,7 @@ const fuseOptions: Fuse.IFuseOptions<Option> = {
   shouldSort: true,
   findAllMatches: true,
   keys: [
-    "suggestion"
+    'suggestion'
   ]
 };
 
@@ -24,7 +24,7 @@ export class FuseSelect {
     return this._options;
   }
   set options(options: Array<Option>) {
-    this.longestText = "";
+    this.longestText = '';
     this.suggestions = new Set();
     this.suggestionsLookup = new Set();
     options.forEach(option => {
@@ -79,17 +79,17 @@ export class FuseSelect {
   }
 
   private initializeSelect() {
-    this.rootContainer = document.createElement("div");
+    this.rootContainer = document.createElement('div');
     this.rootContainer.classList.add(fuseSelectRootContainerClass);
     this.addOptionsContainer();
   }
 
   handleClickOnOption(callback: (text: string) => void) {
     // sw: setting to optionContainer only handles first click - 
-    this.rootContainer.addEventListener("click", function (event: MouseEvent) {
+    this.rootContainer.addEventListener('click', function (event: MouseEvent) {
       let optionTextElement = (event.target as HTMLElement);
 
-      if (optionTextElement.nodeName === "B") {
+      if (optionTextElement.nodeName === 'B') {
         // sw: this handles when someone clicks on a bold letter
         // when clicking on bold letter it return <b>some text</b> instead of the 
         // div required element containing the 'fuse-select-option' css class
@@ -173,7 +173,7 @@ export class FuseSelect {
       } else {
         if (rangeStart !== null) {
           // finish a matched range
-          const range = document.createElement("b");
+          const range = document.createElement('b');
           range.textContent = text.slice(rangeStart, i);
           highlightedTextFragment.appendChild(range);
           rangeStart = null;
@@ -190,7 +190,7 @@ export class FuseSelect {
       highlightedTextFragment.appendChild(textNode);
     } else {
       // last matched range
-      const range = document.createElement("b");
+      const range = document.createElement('b');
       range.textContent = text.slice(rangeStart);
       highlightedTextFragment.appendChild(range);
     }
@@ -257,7 +257,7 @@ export class FuseSelect {
   }
 
   private createOptionContainer(options: Array<Option>): HTMLElement {
-    const optionContainer = document.createElement("div");
+    const optionContainer = document.createElement('div');
     optionContainer.classList.add(optionContainerClass);
     if (options) {
       optionContainer.classList.add(activeClass);
@@ -279,7 +279,7 @@ export class FuseSelect {
 
   private createOptionContainerFromFuseResult(fuseResult: Array<Fuse.FuseResult<Option>>) {
     // sw TODO this is not creating the right class
-    const optionContainer = document.createElement("div");
+    const optionContainer = document.createElement('div');
     optionContainer.classList.add(optionContainerClass);
 
     // `fuseResult.length` represents the number of option to render
@@ -313,7 +313,7 @@ export class FuseSelect {
    * @returns {HTMLElement} A created element containing the suggestion.
    */
   private createOptionElement(option: Option, matches: ReadonlyArray<Fuse.FuseResultMatch> = []): HTMLElement {
-    const optionElement = document.createElement("div");
+    const optionElement = document.createElement('div');
     const suggestionClass = option.prevSugg ? previousEditClass : autocompleteSuggestionClass;
     optionElement.classList.add(optionClass, suggestionClass);
 
@@ -331,7 +331,7 @@ export class FuseSelect {
    * @returns {HTMLElement} A created element containing the suggestion.
    */
   private createOptionTextElement(text: string, matches: ReadonlyArray<Fuse.FuseResultMatch> = []): HTMLElement {
-    const optionTextElement = document.createElement("span");
+    const optionTextElement = document.createElement('span');
     optionTextElement.classList.add(optionTextClass);
 
     optionTextElement.title = text;

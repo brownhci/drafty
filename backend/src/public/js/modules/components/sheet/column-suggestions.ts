@@ -2,14 +2,14 @@
  * @module
  * As the name implies, this module provides autocomplete suggestions for a column. Therefore, it is different from {@link ./suggestions.ts} in that it does not bias a specific cell.
  */
-import { alignElementHorizontally, placeElementAdjacently } from "./align";
-import { activeClass } from "../../constants/css-classes";
-import { tableHeadSearchElement } from "../../dom/sheet";
-import { FuzzySelect } from "../../fuzzy/sheet-fuzzy";
-import { debounce } from "../../utils/debounce";
+import { alignElementHorizontally, placeElementAdjacently } from './align';
+import { activeClass } from '../../constants/css-classes';
+import { tableHeadSearchElement } from '../../dom/sheet';
+import { FuzzySelect } from '../../fuzzy/sheet-fuzzy';
+import { debounce } from '../../utils/debounce';
 
 class ColumnSuggestions {
-  private container: HTMLElement = document.getElementById("column-suggestions");
+  private container: HTMLElement = document.getElementById('column-suggestions');
 
   private target: HTMLTableCellElement;
   private inputElement: HTMLInputElement;
@@ -37,11 +37,11 @@ class ColumnSuggestions {
   constructor() {
 
     this.fuzzySelect.handleClickOnOption((text: string) => {
-      console.log("handleClickOnOption()");
+      console.log('handleClickOnOption()');
       // this dictates what happens when an autocompletion option is clicked
       if (this.inputElement) {
         this.inputElement.value = text;
-        this.inputElement.dispatchEvent(new Event("input"));
+        this.inputElement.dispatchEvent(new Event('input'));
 
         console.log(`deactivate --- fuzzy handle click option`);
         this.deactivate();
@@ -52,7 +52,7 @@ class ColumnSuggestions {
 
     //tableHeadSearchElement.addEventListener("click", debounce(this.clickHandler)), true;
     //tableHeadSearchElement.addEventListener("focusin", debounce(this.focusinHandler)), false;
-    tableHeadSearchElement.addEventListener("input", debounce(this.inputHandler)), true;
+    tableHeadSearchElement.addEventListener('input', debounce(this.inputHandler)), true;
   }
 
   // sw testing
@@ -78,18 +78,18 @@ class ColumnSuggestions {
 
   activate(target: HTMLTableCellElement) {
     this.target = target;
-    this.inputElement = target.querySelector("input");
+    this.inputElement = target.querySelector('input');
     // activate and align column-suggestions element
     this.container.classList.add(activeClass);
     this.align();
     // perform query
     this.fuzzySelect.query(this.inputElement.value, this.target.cellIndex);
-    document.body.addEventListener("click", this.handleBodyClick, true);
+    document.body.addEventListener('click', this.handleBodyClick, true);
   }
 
   deactivate() {
     this.container.classList.remove(activeClass);
-    document.body.removeEventListener("click", this.handleBodyClick, true);
+    document.body.removeEventListener('click', this.handleBodyClick, true);
   }
 
   handleBodyClick(event: Event) {

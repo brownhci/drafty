@@ -23,54 +23,54 @@ export function getColumnSuggestionURL(idSuggestionType: number) {
 }
 
 export function getValidationRuleURL() {
-  return "/suggestions/validation-rule";
+  return '/suggestions/validation-rule';
 }
 
 // interactions
 export function postNewRowURL() {
-  return "/newrow";
+  return '/newrow';
 }
 
 export function postCellClickURL() {
-  return "/click";
+  return '/click';
 }
 
 export function postCellDoubleClickURL() {
-  return "/click-double";
+  return '/click-double';
 }
 
 export function postPasteURL() {
-  return "/paste-cell";
+  return '/paste-cell';
 }
 
 export function postCellCopyURL() {
-  return "/copy-cell";
+  return '/copy-cell';
 }
 
 export function postColumnCopyURL() {
-  return "/copy-column";
+  return '/copy-column';
 }
 
 export function postColumnSortURL() {
-  return "sort";
+  return 'sort';
 }
 
 export function postColumnCompleteSearchURL() {
-  return "search-full";
+  return 'search-full';
 }
 
 export function postColumnPartialSearchURL() {
-  return "search-full";
+  return 'search-full';
 }
 
 export function postGoogleSearchURL() {
-  return "search-google";
+  return 'search-google';
 }
 
 export function postDataBaitVisit() {
-  return "databait-visit";
+  return 'databait-visit';
 }
 
 export function postSearchColVisit() {
-  return "searchcol-visit";
+  return 'searchcol-visit';
 }

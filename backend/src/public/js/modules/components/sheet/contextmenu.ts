@@ -1,16 +1,16 @@
-import { placeElementInViewport } from "./align";
-import { cellEditor } from "./cell-editor";
-import { copyTableCellElement, pasteToTableCellElement } from "./copy-paste";
-import { openGoogleSearch } from "./search-google";
-import { StatusMode, tableFoot } from "./table-foot";
-import { activeClass } from "../../constants/css-classes";
-import { isButton } from "../../dom/types";
-import { activeTableCellElement, activateTableCol } from "../../../sheet";
+import { placeElementInViewport } from './align';
+import { cellEditor } from './cell-editor';
+import { copyTableCellElement, pasteToTableCellElement } from './copy-paste';
+import { openGoogleSearch } from './search-google';
+import { StatusMode, tableFoot } from './table-foot';
+import { activeClass } from '../../constants/css-classes';
+import { isButton } from '../../dom/types';
+import { activeTableCellElement, activateTableCol } from '../../../sheet';
 
 
-const tableDataContextMenu: HTMLElement = document.getElementById("table-data-contextmenu");
-const columnLabelContextMenu: HTMLElement = document.getElementById("column-label-contextmenu");
-const contextMenuClass = "contextmenu";
+const tableDataContextMenu: HTMLElement = document.getElementById('table-data-contextmenu');
+const columnLabelContextMenu: HTMLElement = document.getElementById('column-label-contextmenu');
+const contextMenuClass = 'contextmenu';
 export function activateTableDataContextMenu(event: MouseEvent) {
   tableDataContextMenu.classList.add(activeClass);
   placeElementInViewport(tableDataContextMenu, event.clientX, event.clientY);
@@ -59,7 +59,7 @@ class MenuItem {
       return null;
     }
     if (!isButton(element)) {
-      element = element.closest("button");
+      element = element.closest('button');
     }
 
     return this.buttonToMenuItem.get(element as HTMLButtonElement);
@@ -143,44 +143,44 @@ export function isContextMenuButton(element: HTMLElement) {
 }
 
 // event handler
-tableDataContextMenu.addEventListener("click", function(event: MouseEvent) {
+tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
   const menuItem = MenuItem.find(event.target as HTMLElement);
   console.log(menuItem.action);
   switch (menuItem.action) {
-    case "Edit":
-      cellEditor.activateForm(activeTableCellElement,""); // initialSearchValue
+    case 'Edit':
+      cellEditor.activateForm(activeTableCellElement,''); // initialSearchValue
       break;
-    case "Copy":
+    case 'Copy':
       copyTableCellElement(activeTableCellElement);
       break;
-    case "Paste":
+    case 'Paste':
       pasteToTableCellElement(activeTableCellElement);
       break;
-    case "Add Row":
+    case 'Add Row':
       menuItem.toggle();
       tableFoot.toggle(StatusMode.Insertion);
       break;
-    case "Search Google":
+    case 'Search Google':
       openGoogleSearch(activeTableCellElement);
       break;
   }
   deactivateTableDataContextMenu();
   event.stopPropagation();
 }, true);
-columnLabelContextMenu.addEventListener("click", function(event: MouseEvent) {
+columnLabelContextMenu.addEventListener('click', function(event: MouseEvent) {
   const menuItem = MenuItem.find(event.target as HTMLElement);
   switch (menuItem.action) {
-    case "Copy Column":
+    case 'Copy Column':
       activateTableCol();
       // fallthrough
-    case "Copy":
+    case 'Copy':
       copyTableCellElement(activeTableCellElement);
       break;
-    case "Add Row":
+    case 'Add Row':
       menuItem.toggle();
       tableFoot.toggle(StatusMode.Insertion);
       break;
-    case "Count":
+    case 'Count':
       menuItem.toggle();
       tableFoot.toggle(StatusMode.RowCount);
       break;

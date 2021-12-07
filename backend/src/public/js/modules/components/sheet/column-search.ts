@@ -1,21 +1,21 @@
-import { FilterFunction } from "./table-data-manager/ViewFunction";
-import { updateTableColumnSearchWidth } from "./column-width";
-import { recordColumnSearch } from "../../api/record-interactions";
-import { getTableCellText, isColumnSearchInput, tableElement } from "../../dom/sheet";
-import { debounce } from "../../utils/debounce";
-import { tableDataManager } from "../../../sheet";
+import { FilterFunction } from './table-data-manager/ViewFunction';
+import { updateTableColumnSearchWidth } from './column-width';
+import { recordColumnSearch } from '../../api/record-interactions';
+import { getTableCellText, isColumnSearchInput, tableElement } from '../../dom/sheet';
+import { debounce } from '../../utils/debounce';
+import { tableDataManager } from '../../../sheet';
 
 let lastSearchColumnIndex: number;
 /** indicates whether last search is a full search or a partial search ( */
 let isLastSearchPartial: boolean = false;
 
 function updateTableColumnFilter(columnIndex: number, query: string) {
-  if (query == "") {
+  if (query == '') {
     tableDataManager.deleteFilterFunction(columnIndex);
   } else {
     let queryRegex: RegExp;
     try {
-      queryRegex = new RegExp(query, "i");
+      queryRegex = new RegExp(query, 'i');
     } catch (e) {
       // ignore if not a valid RegExp
       return;
@@ -26,7 +26,7 @@ function updateTableColumnFilter(columnIndex: number, query: string) {
 }
 
 /* handling partial searches */
-tableElement.addEventListener("input", debounce((event: Event) => {
+tableElement.addEventListener('input', debounce((event: Event) => {
   const target = event.target as HTMLElement;
   if (isColumnSearchInput(target)) {
     // inputting on column search
@@ -42,7 +42,7 @@ tableElement.addEventListener("input", debounce((event: Event) => {
 
 
 /* handling complete searches */
-tableElement.addEventListener("blur", function(event: Event) {
+tableElement.addEventListener('blur', function(event: Event) {
   const target: HTMLElement = event.target as HTMLElement;
   if (isColumnSearchInput(target)) {
     const columnSearch = target.parentElement as HTMLTableCellElement;

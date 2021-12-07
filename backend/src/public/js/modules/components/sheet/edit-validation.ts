@@ -4,14 +4,14 @@
  * This module verifies edit's validity.
  */
 
-import { getValidationRuleURL } from "../../api/endpoints";
-import { getJSON } from "../../api/requests";
-import { LocalStorageCache } from "../../utils/local-storage";
+import { getValidationRuleURL } from '../../api/endpoints';
+import { getJSON } from '../../api/requests';
+import { LocalStorageCache } from '../../utils/local-storage';
 
 
 /** A LocalStorage cache to store validation rule, valid for 1 day */
 const storage: LocalStorageCache = new LocalStorageCache(24 * 60 * 60 * 1000);
-const storageKey = "validation-rule";
+const storageKey = 'validation-rule';
 const validationRuleMap: Map<number, RegExp> = new Map();
 interface ValidationRule {
   idSuggestionType: number;

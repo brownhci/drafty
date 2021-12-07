@@ -1,4 +1,4 @@
-import { sheetNameToURL } from "../models/sheet";
+import { sheetNameToURL } from '../models/sheet';
 
 interface RequestWithUser {
     user?: any;
@@ -13,25 +13,25 @@ const helpers = {
     }
   },
   selected: function(target: string, toMatch: string) {
-    return target === toMatch ? " selected" : "";
+    return target === toMatch ? ' selected' : '';
   },
   reserveNavbarPaddingClass: function(ignoreHeader: undefined | boolean) {
     if (ignoreHeader === undefined || ignoreHeader) {
-      return " reserve-navbar-padding";
+      return ' reserve-navbar-padding';
     }
-    return "";
+    return '';
   },
   getUserSignedInClass: function(isSignedIn: boolean) {
-    return isSignedIn ? " active-user" : " anonymous-user";
+    return isSignedIn ? ' active-user' : ' anonymous-user';
   },
   getValidationClass: function(validationErrors: undefined | Array<string>) {
     if (Array.isArray(validationErrors) && validationErrors.length) {
-      return " is-invalid";
+      return ' is-invalid';
     }
-    return "";
+    return '';
   },
   eachInMap: function(map: Map<string, string>, block: any) {
-    let output = "";
+    let output = '';
 
     if (map) {
       for (const [ key, value ] of map) {
@@ -49,7 +49,7 @@ const helpers = {
     }
   },
   times: function(n: number, block: any) {
-    let accum = "";
+    let accum = '';
     for(let i = 0; i < n; ++i)
         accum += block.fn(i);
     return accum;
@@ -57,8 +57,8 @@ const helpers = {
 };
 
 export function makeRenderObject(renderObject: any, req: RequestWithUser) {
-  renderObject["signedIn"] = !!req.user;
-  renderObject["sheetNameToURL"] = sheetNameToURL;
+  renderObject['signedIn'] = !!req.user;
+  renderObject['sheetNameToURL'] = sheetNameToURL;
   return renderObject;
 }
 

@@ -1,5 +1,5 @@
-import { tableElement, tableScrollContainer } from "../../dom/sheet";
-import { getViewportWidth, getViewportHeight } from "../../utils/length";
+import { tableElement, tableScrollContainer } from '../../dom/sheet';
+import { getViewportWidth, getViewportHeight } from '../../utils/length';
 //import { tableDataManager } from "../../../sheet"; // sw: not used
 
 

@@ -1,10 +1,10 @@
-import passport from "passport";
-import passportLocal from "passport-local";
-import { emailFieldName, passwordFieldName, UserModel } from "../models/user";
-import { findUserByField } from "../database/user";
-import { Request, Response, NextFunction } from "express";
-import { comparePassword } from "../util/encrypt";
-import { emailValidationFailure, passwordValidationFailure } from "../validation/validators";
+import passport from 'passport';
+import passportLocal from 'passport-local';
+import { emailFieldName, passwordFieldName, UserModel } from '../models/user';
+import { findUserByField } from '../database/user';
+import { Request, Response, NextFunction } from 'express';
+import { comparePassword } from '../util/encrypt';
+import { emailValidationFailure, passwordValidationFailure } from '../validation/validators';
 
 
 const LocalStrategy = passportLocal.Strategy;
@@ -28,7 +28,7 @@ passport.deserializeUser(async (email: number, done) => {
  * Sign in using Email and Password.
  */
 passport.use(new LocalStrategy({
-  usernameField: "email",
+  usernameField: 'email',
   passReqToCallback: true
 },
   async (req, username, password, done) => {
@@ -47,7 +47,7 @@ passport.use(new LocalStrategy({
 
   const samePassword = await comparePassword(password, user[passwordFieldName]);
   if (!samePassword) {
-    const errorMessage = "Incorrect Password";
+    const errorMessage = 'Incorrect Password';
     req.flash(passwordValidationFailure, { msg: errorMessage });
     return done(null, false, { message: errorMessage });
   }
@@ -78,6 +78,6 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
   if (req.isAuthenticated()) {
       return next();
   }
-  req.flash("errors", { msg: "You need to log in first" });
-  return res.redirect("/login");
+  req.flash('errors', { msg: 'You need to log in first' });
+  return res.redirect('/login');
 };

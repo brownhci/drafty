@@ -1,13 +1,13 @@
-import { cellEditor } from "./cell-editor";
-import { StatusMode, tableFoot } from "./table-foot";
-import { clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyCopyBuffer, copyTextToCopyBuffer, hasCopyModifier, getCopyBuffer } from "../../utils/copy";
-import { hasTextSelected } from "../../utils/selection";
-import { recordCellCopy, recordColumnCopy, recordPaste } from "../../api/record-interactions";
-import { isTableData, isTableHead } from "../../dom/types";
-import { getColumnLabel, getTableCellText, getTableDataText, isColumnLabel, isColumnSearchInput, isTableCellEditable, tableElement } from "../../dom/sheet";
-import { activeTableCellElement, activeTableColElement, tableDataManager } from "../../../sheet";
+import { cellEditor } from './cell-editor';
+import { StatusMode, tableFoot } from './table-foot';
+import { clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyCopyBuffer, copyTextToCopyBuffer, hasCopyModifier, getCopyBuffer } from '../../utils/copy';
+import { hasTextSelected } from '../../utils/selection';
+import { recordCellCopy, recordColumnCopy, recordPaste } from '../../api/record-interactions';
+import { isTableData, isTableHead } from '../../dom/types';
+import { getColumnLabel, getTableCellText, getTableDataText, isColumnLabel, isColumnSearchInput, isTableCellEditable, tableElement } from '../../dom/sheet';
+import { activeTableCellElement, activeTableColElement, tableDataManager } from '../../../sheet';
 
-const copiedClass = "copied";
+const copiedClass = 'copied';
 
 type CopyTarget = HTMLTableColElement | HTMLTableCellElement;
 let copyTarget: CopyTarget = null;
@@ -30,14 +30,14 @@ function copyCellTextToCopyBuffer(tableCellElement: HTMLTableCellElement) {
   copyTextToCopyBuffer(getTableCellText(tableCellElement), tableCellElement.id);
 }
 function copyTableColumnToCopyBuffer(index: number) {
-  let textToCopy = "";
+  let textToCopy = '';
 
   for (const viewModel of tableDataManager.fullView) {
     const tableRow = viewModel.element_ as HTMLTableRowElement;
     const text = tableRow.cells[index].textContent;
     textToCopy += `${text}\n`;
   }
-  const id: string = ""; //sw: bc this was a copy column operation
+  const id: string = ''; //sw: bc this was a copy column operation
   copyTextToCopyBuffer(textToCopy.trimRight(),id);
 }
 export function copyTableCellElement(tableCellElement: HTMLTableCellElement, ignoreSelection: boolean = true) {
@@ -126,13 +126,13 @@ export function tableCellElementOnPasteKeyPressed(tableCellElement: HTMLTableCel
   pasteToTableCellElement(tableCellElement);
   event.consumed = true;
 }
-tableElement.addEventListener("paste", function (event: ClipboardEvent) {
-  const pasteContent = event.clipboardData.getData("text");
+tableElement.addEventListener('paste', function (event: ClipboardEvent) {
+  const pasteContent = event.clipboardData.getData('text');
   const target: HTMLElement = event.target as HTMLElement;
   if(isColumnSearchInput(target) || tableFoot.isNewRowInsertionInput(target)) {
     const targetInput: HTMLInputElement = event.target as HTMLInputElement;
     targetInput.value = pasteContent;
-    targetInput.dispatchEvent(new Event("input")); 
+    targetInput.dispatchEvent(new Event('input')); 
   } else if (isTableData(target) && isTableCellEditable(target as HTMLTableCellElement)) {
     tableCellElementOnPaste(target as HTMLTableCellElement, pasteContent); 
   }

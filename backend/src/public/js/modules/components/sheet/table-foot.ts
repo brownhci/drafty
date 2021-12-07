@@ -1,12 +1,12 @@
-import { cellEditNewRow } from "./cell-editor-new-row";
-import { columnLabelInsertRowMenuItem } from "./contextmenu";
-import { verifyEdit } from "./edit-validation";
-import { ViewModel } from "./table-data-manager/ViewModel";
-import { activeClass, disabledClass, invalidClass, userEditClass } from "../../constants/css-classes";
-import { getIdSuggestionType, recordRowInsertion, setIdSuggestion, setIdUniqueID } from "../../api/record-interactions";
-import { getColumnLabels, getColumnLabel, isColumnAutocompleteOnly, numTableColumns, tableElement, tableFootElement } from "../../dom/sheet";
-import { isInput } from "../../dom/types";
-import { tableDataManager } from ".././../../sheet";
+import { cellEditNewRow } from './cell-editor-new-row';
+import { columnLabelInsertRowMenuItem } from './contextmenu';
+import { verifyEdit } from './edit-validation';
+import { ViewModel } from './table-data-manager/ViewModel';
+import { activeClass, disabledClass, invalidClass, userEditClass } from '../../constants/css-classes';
+import { getIdSuggestionType, recordRowInsertion, setIdSuggestion, setIdUniqueID } from '../../api/record-interactions';
+import { getColumnLabels, getColumnLabel, isColumnAutocompleteOnly, numTableColumns, tableElement, tableFootElement } from '../../dom/sheet';
+import { isInput } from '../../dom/types';
+import { tableDataManager } from '.././../../sheet';
 
 
 /**
@@ -14,30 +14,30 @@ import { tableDataManager } from ".././../../sheet";
  */
 export enum StatusMode {
   /** `statusTableRow` is used for assisting `insertionTableRow` */
-  Insertion = "insertion",
+  Insertion = 'insertion',
   /** `statusTableRow` is used for reporting a new row has been submitted to backend for verification */
-  InsertionVerification = "insertion-verification",
+  InsertionVerification = 'insertion-verification',
   /** `statusTableRow` is used for reporting a new row has been inserted */
-  InsertionSuccess = "insertion-success",
+  InsertionSuccess = 'insertion-success',
   /** `statusTableRow` is used for reporting some error that happened during insertion */
-  InsertionFailure = "insertion-failure",
+  InsertionFailure = 'insertion-failure',
   /** `statusTableRow` is used for reporting row count */
-  RowCount = "rowcount",
+  RowCount = 'rowcount',
   /** `statusTableRow` is used for reporting cell copy */
-  CellCopy = "cellcopy",
+  CellCopy = 'cellcopy',
   /** `statusTableRow` is used for reporting column copy */
-  ColumnCopy = "columncopy",
+  ColumnCopy = 'columncopy',
   /** `statusTableRow` is used for showing help related to cell editor */
-  CellEditorHelp = "celleditor-help",
+  CellEditorHelp = 'celleditor-help',
   /** `statusTableRow` is not used for anything */
-  Idle = "idle"
+  Idle = 'idle'
 }
 
 class TableFoot {
   /** insertion table row is used to insert a new table row */
   insertionTableRow = tableFootElement.firstElementChild as HTMLTableRowElement;
 
-  private insertionInputs: Array<HTMLInputElement> = Array.from(this.insertionTableRow.getElementsByTagName("input"));
+  private insertionInputs: Array<HTMLInputElement> = Array.from(this.insertionTableRow.getElementsByTagName('input'));
 
   private get isValidInsertion(): boolean {
     return !this.insertionTableRow.querySelector(`.${invalidClass}`);
@@ -87,7 +87,7 @@ class TableFoot {
           this.insertionConfirmButton.remove();
           this.insertionDiscardButton.remove();
           this.insertionCloseButton.remove();
-          this.statusTableCell.textContent = "";
+          this.statusTableCell.textContent = '';
           break;
         case StatusMode.InsertionVerification:
         case StatusMode.InsertionSuccess:
@@ -96,7 +96,7 @@ class TableFoot {
         case StatusMode.CellCopy:
         case StatusMode.ColumnCopy:
         case StatusMode.CellEditorHelp:
-          this.statusTableCell.textContent = "";
+          this.statusTableCell.textContent = '';
           break;
       }
 
@@ -113,20 +113,20 @@ class TableFoot {
           this.updateRowCount();
           break;
         case StatusMode.CellCopy:
-          this.statusTableCell.textContent = "A cell copied";
+          this.statusTableCell.textContent = 'A cell copied';
           break;
         case StatusMode.ColumnCopy:
-          this.statusTableCell.textContent = "A column copied";
+          this.statusTableCell.textContent = 'A column copied';
           break;
         case StatusMode.InsertionFailure:
-          this.statusTableCell.textContent = "Row insertion failure";
+          this.statusTableCell.textContent = 'Row insertion failure';
           break;
         case StatusMode.InsertionSuccess:
           // deactivate contextmenu insert row menu item since insertion has finished
           columnLabelInsertRowMenuItem.deactivate();
           // previously inputted cell values has been saved
           this.discardInputValues();
-          this.statusTableCell.textContent = "A new row has been inserted";
+          this.statusTableCell.textContent = 'A new row has been inserted';
           break;
         case StatusMode.InsertionVerification:
           this.statusTableCell.innerHTML = `
@@ -138,7 +138,7 @@ class TableFoot {
           `;
           break;
         case StatusMode.CellEditorHelp:
-          this.statusTableCell.innerHTML = "Press <kbd>Enter</kbd> to save edit, <kbd>ESC</kbd> to discard edit";
+          this.statusTableCell.innerHTML = 'Press <kbd>Enter</kbd> to save edit, <kbd>ESC</kbd> to discard edit';
           break;
       }
     }
@@ -153,13 +153,13 @@ class TableFoot {
   private timeout: number;
 
   /** show in the status table row, used for confirming inserting the new row */
-  private insertionConfirmButton: HTMLButtonElement = document.createElement("button");
+  private insertionConfirmButton: HTMLButtonElement = document.createElement('button');
   /** show in the status table row, used for show the error associated with the active input */
-  private insertionErrorMessage: HTMLElement = document.createElement("span");
+  private insertionErrorMessage: HTMLElement = document.createElement('span');
   /** show in the status table row, used for discarding the data inputted for the new row */
-  private insertionDiscardButton: HTMLButtonElement = document.createElement("button");
+  private insertionDiscardButton: HTMLButtonElement = document.createElement('button');
   /** show in the status table row, used for closing the table footer */
-  private insertionCloseButton: HTMLButtonElement = document.createElement("button");
+  private insertionCloseButton: HTMLButtonElement = document.createElement('button');
   /** the HTML template for new row */
   private newRowTemplate: HTMLTableRowElement;
 
@@ -178,30 +178,30 @@ class TableFoot {
 
     // status row initialization
     /* button initialization */
-    this.insertionConfirmButton.type = "button";
-    this.insertionConfirmButton.id = "confirm-newrow";
-    this.insertionConfirmButton.textContent = "Save Row";
+    this.insertionConfirmButton.type = 'button';
+    this.insertionConfirmButton.id = 'confirm-newrow';
+    this.insertionConfirmButton.textContent = 'Save Row';
 
-    this.insertionDiscardButton.type = "button";
-    this.insertionDiscardButton.id = "discard-newrow";
-    const insertionDiscardScreenReaderText = document.createElement("span");
-    insertionDiscardScreenReaderText.textContent = "Reset";
-    insertionDiscardScreenReaderText.classList.add("sr-only", "sr-only-focusable");
+    this.insertionDiscardButton.type = 'button';
+    this.insertionDiscardButton.id = 'discard-newrow';
+    const insertionDiscardScreenReaderText = document.createElement('span');
+    insertionDiscardScreenReaderText.textContent = 'Reset';
+    insertionDiscardScreenReaderText.classList.add('sr-only', 'sr-only-focusable');
     this.insertionDiscardButton.appendChild(insertionDiscardScreenReaderText);
-    this.insertionDiscardButton.textContent = " Reset";
+    this.insertionDiscardButton.textContent = ' Reset';
 
-    this.insertionCloseButton.type = "button";
-    this.insertionCloseButton.id = "close-newrow";
-    const insertionCloseScreenReaderText = document.createElement("span");
-    insertionCloseScreenReaderText.textContent = "Close";
-    insertionCloseScreenReaderText.classList.add("sr-only", "sr-only-focusable");
+    this.insertionCloseButton.type = 'button';
+    this.insertionCloseButton.id = 'close-newrow';
+    const insertionCloseScreenReaderText = document.createElement('span');
+    insertionCloseScreenReaderText.textContent = 'Close';
+    insertionCloseScreenReaderText.classList.add('sr-only', 'sr-only-focusable');
     this.insertionCloseButton.appendChild(insertionCloseScreenReaderText);
-    this.insertionCloseButton.textContent = " Close";
+    this.insertionCloseButton.textContent = ' Close';
 
     /* error message initialization */
-    this.insertionErrorMessage.id = "newrow-error";
+    this.insertionErrorMessage.id = 'newrow-error';
 
-    tableElement.addEventListener("click", (event: MouseEvent) => {
+    tableElement.addEventListener('click', (event: MouseEvent) => {
       const target: HTMLElement = event.target as HTMLElement;
       if (this.isInserting) {
         if (target === this.insertionDiscardButton) {
@@ -230,7 +230,7 @@ class TableFoot {
       }
     }, true);
 
-    tableElement.addEventListener("input", (event: Event) => {
+    tableElement.addEventListener('input', (event: Event) => {
       const target = event.target as HTMLElement;
       if (this.isNewRowInsertionInput(target)) {
         const columnIndex = this.insertionInputs.indexOf(target as HTMLInputElement);
@@ -240,7 +240,7 @@ class TableFoot {
       }
     }, true);
 
-    tableElement.addEventListener("focus", (event: Event) => {
+    tableElement.addEventListener('focus', (event: Event) => {
       const target = event.target as HTMLElement;
       if (this.isNewRowInsertionInput(target) && target.classList.contains(invalidClass)) {
         this.insertionErrorMessage.textContent = target.dataset.errorMessage;
@@ -261,7 +261,7 @@ class TableFoot {
 
   private discardInputValues() {
     for (let columnIndex = 0; columnIndex < this.insertionInputs.length; columnIndex++) {
-      this.insertionInputs[columnIndex].value = "";
+      this.insertionInputs[columnIndex].value = '';
       this.verifyInputValue(columnIndex);
     }
   }
@@ -275,7 +275,7 @@ class TableFoot {
   }
 
   private reportInvalidInput(inputElement: HTMLInputElement, reason: string) {
-    inputElement.placeholder = "required...";
+    inputElement.placeholder = 'required...';
     inputElement.classList.add(invalidClass);
     inputElement.dataset.errorMessage = reason;
     this.insertionConfirmButton.classList.add(disabledClass);
@@ -286,25 +286,25 @@ class TableFoot {
     const inputValue = inputElement.value;
     const columnLabel = getColumnLabel(columnIndex);
     const isInputRequired = this.isRequiredInput(inputElement);
-    if (isInputRequired && inputValue === "") {
+    if (isInputRequired && inputValue === '') {
       // this input must be filled, but it is left unfilled
-      this.reportInvalidInput(inputElement, "This field is required");
+      this.reportInvalidInput(inputElement, 'This field is required');
       return false;
     }
 
     const idSuggestionType = getIdSuggestionType(columnLabel);
     if (!verifyEdit(inputValue, idSuggestionType)) {
       // this input does not pass defined validation rule
-      this.reportInvalidInput(inputElement, "Value does not pass validation");
+      this.reportInvalidInput(inputElement, 'Value does not pass validation');
       return false;
     }
 
     if (isColumnAutocompleteOnly(columnLabel)) {
-      if (!isInputRequired && inputValue === "") {
+      if (!isInputRequired && inputValue === '') {
         // empty input is accepted no non-required autocomplete-only input
       } else if (!await cellEditNewRow.hasSuggestion(inputValue, columnIndex, inputElement)) {
         // this input's value should come from suggestion
-        this.reportInvalidInput(inputElement, "Value must come from suggestions");
+        this.reportInvalidInput(inputElement, 'Value must come from suggestions');
         return false;
       }
     }

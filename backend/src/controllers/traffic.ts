@@ -1,22 +1,22 @@
-import { Request, Response, NextFunction } from "express";
-import { v4 as uuidv4 } from "uuid";
-import { insertTraffic } from "../database/traffic";
-import { checkBot } from "../util/isBot";
+import { Request, Response, NextFunction } from 'express';
+import { v4 as uuidv4 } from 'uuid';
+import { insertTraffic } from '../database/traffic';
+import { checkBot } from '../util/isBot';
 
-const trackedViews = ["", "csopenrankings", "csprofessors", "edit_history", "account", "login", "signup", "help"];
+const trackedViews = ['', 'csopenrankings', 'csprofessors', 'edit_history', 'account', 'login', 'signup', 'help'];
 
 /**
  * GLOBAL MIDDLEWARE
  */
 export const trafficLogger = (req: Request, res: Response, next: NextFunction) => {
-    if (!checkBot(req.get("User-Agent")).isBot) {
-        const urlToCheck = req.path.replace(/\//g, "");
+    if (!checkBot(req.get('User-Agent')).isBot) {
+        const urlToCheck = req.path.replace(/\//g, '');
 
         if (trackedViews.includes(urlToCheck)) {
             const fullUrl = req.url;
-            const host = req.get("host");
-            const origin = req.get("origin") || "none";
-            const cookieName = "draftyUnique";
+            const host = req.get('host');
+            const origin = req.get('origin') || 'none';
+            const cookieName = 'draftyUnique';
 
             //console.log(req.session.user)
 

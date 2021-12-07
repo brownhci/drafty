@@ -4,30 +4,30 @@
  * Input editor are a floating window that offers user the ability to edit table cell.
  */
 
-import { verifyEdit } from "./edit-validation";
-import { StatusMode, tableFoot } from "./table-foot";
-import { FuseSelect } from "../../fuse/sheet-fuse";
-import { initializeFuseSelect, updateFuseSelect } from "./suggestions";
-import { alignElementHorizontally } from "./align";
-import { activeClass, inputtingClass, invalidClass, userEditClass } from "../../constants/css-classes";
-import { getViewportHeight, getViewportWidth } from "../../utils/length";
-import { debounce } from "../../utils/debounce";
-import { getColumnLabel, getTableRow, isColumnAutocompleteOnly, isTableCellEditable, setTableDataText, tableScrollContainer } from "../../dom/sheet";
-import { getRightTableCellElement } from "../../dom/navigate";
-import { getIdSuggestion, getIdSuggestionType, recordCellEdit } from "../../api/record-interactions";
-import { tableDataManager, updateActiveTableCellElement } from "../../../sheet";
+import { verifyEdit } from './edit-validation';
+import { StatusMode, tableFoot } from './table-foot';
+import { FuseSelect } from '../../fuse/sheet-fuse';
+import { initializeFuseSelect, updateFuseSelect } from './suggestions';
+import { alignElementHorizontally } from './align';
+import { activeClass, inputtingClass, invalidClass, userEditClass } from '../../constants/css-classes';
+import { getViewportHeight, getViewportWidth } from '../../utils/length';
+import { debounce } from '../../utils/debounce';
+import { getColumnLabel, getTableRow, isColumnAutocompleteOnly, isTableCellEditable, setTableDataText, tableScrollContainer } from '../../dom/sheet';
+import { getRightTableCellElement } from '../../dom/navigate';
+import { getIdSuggestion, getIdSuggestionType, recordCellEdit } from '../../api/record-interactions';
+import { tableDataManager, updateActiveTableCellElement } from '../../../sheet';
 
 class CellEditor {
-  private readonly formElement = document.getElementById("table-cell-input-form") as HTMLFormElement;
+  private readonly formElement = document.getElementById('table-cell-input-form') as HTMLFormElement;
   /** everything except the CSRF input is contained inside this element */
   private readonly formContainerElement = this.formElement.lastElementChild;
-  public readonly formInputElement = document.getElementById("table-cell-input-entry") as HTMLInputElement;
-  private readonly inputInvalidFeedbackElement = document.getElementById("table-cell-input-feedback") as HTMLElement;
+  public readonly formInputElement = document.getElementById('table-cell-input-entry') as HTMLInputElement;
+  private readonly inputInvalidFeedbackElement = document.getElementById('table-cell-input-feedback') as HTMLElement;
 
   cellElement: HTMLTableCellElement;
 
   /** click to go to the associated cell */
-  private readonly locateCellButtonElement = document.getElementById("locate-cell") as HTMLButtonElement;
+  private readonly locateCellButtonElement = document.getElementById('locate-cell') as HTMLButtonElement;
   /** whether the location element is shown in the input editor */
 
   /** a flag indicates whether the form will automatically deactivate when cell is no longer reachable by scrolling */
@@ -115,7 +115,7 @@ class CellEditor {
   }
 
   private initializeEventListeners() {
-    this.locateCellButtonElement.addEventListener("click", (event) => {
+    this.locateCellButtonElement.addEventListener('click', (event) => {
       if (this.isLocateCellActive) {
         const tableRow = getTableRow(this.cellElement);
         if (tableDataManager.isElementInRenderingView(tableRow)) {
@@ -135,30 +135,30 @@ class CellEditor {
       event.stopPropagation();
     });
 
-    tableScrollContainer.addEventListener("click", (event) => {
+    tableScrollContainer.addEventListener('click', (event) => {
       // sw: isActive is effectively checking for double clicks
       if (!this.isActive && !this.formElement.contains(event.target as HTMLElement)) {
         this.deactivateForm();
       }
     });
 
-    tableScrollContainer.addEventListener("scroll", debounce(() => this.activateLocateCell()), { passive: true });
+    tableScrollContainer.addEventListener('scroll', debounce(() => this.activateLocateCell()), { passive: true });
 
-    this.formElement.addEventListener("submit", function (event: Event) {
+    this.formElement.addEventListener('submit', function (event: Event) {
       // disable submitting
       event.stopPropagation();
       event.preventDefault();
       return false;
     }, true);
 
-    this.formElement.addEventListener("keydown", (event: KeyboardEvent) => {
+    this.formElement.addEventListener('keydown', (event: KeyboardEvent) => {
       if (this.isActive) {
         switch (event.key) {
-          case "Esc": // IE/Edge specific value
-          case "Escape":
+          case 'Esc': // IE/Edge specific value
+          case 'Escape':
             this.closeForm(false);
             break;
-          case "Enter":
+          case 'Enter':
             this.closeForm(true);
             event.preventDefault();
             break;
@@ -167,13 +167,13 @@ class CellEditor {
       }
     });
 
-    this.formInputElement.addEventListener("input", (event) => {
+    this.formInputElement.addEventListener('input', (event) => {
       this.fuseSelect.query(this.formInput); // sw: TODO replace fuse
       event.stopPropagation();
     }, { passive: true });
 
     // mouse event handlers
-    this.formElement.addEventListener("mousedown", (event: MouseEvent) => {
+    this.formElement.addEventListener('mousedown', (event: MouseEvent) => {
       this.activateLocateCell();
       if (this.willStartReposition(event.target as HTMLElement)) {
         // start repositioning if the mouse drag starts at an element inside the form but neither the return to cell button nor the input
@@ -186,11 +186,11 @@ class CellEditor {
       }
     }, { capture: true });
 
-    tableScrollContainer.addEventListener("mousemove", debounce((event: MouseEvent) => {
+    tableScrollContainer.addEventListener('mousemove', debounce((event: MouseEvent) => {
       this.onMouseMove(event);
     }), { passive: true, capture: true });
 
-    this.formElement.addEventListener("mouseup", (event: MouseEvent) => {
+    this.formElement.addEventListener('mouseup', (event: MouseEvent) => {
       this.onMouseUp(event);
       event.stopPropagation();
     }, { passive: true, capture: true });
@@ -230,7 +230,7 @@ class CellEditor {
   }
 
   private deactivateInvalidFeedback() {
-    this.inputInvalidFeedbackElement.textContent = "";
+    this.inputInvalidFeedbackElement.textContent = '';
     this.inputInvalidFeedbackElement.classList.remove(activeClass);
     this.formInputElement.classList.remove(invalidClass);
   }
@@ -250,7 +250,7 @@ class CellEditor {
   deactivateForm() {
     this.deactivateInvalidFeedback();
     this.deactivateLocateCell();
-    this.formInput = "";
+    this.formInput = '';
     if (this.isActive) {
       this.formElement.classList.remove(activeClass);
       const columnIndex = this.cellElement.cellIndex;
@@ -360,7 +360,7 @@ class CellEditor {
   /* sw: this is getting called twice on cell input */
   alignTableCellInputForm() {
     // reset last shifting
-    this.formElement.style.transform = "";
+    this.formElement.style.transform = '';
     this.formElementXShift = 0;
     this.formElementYShift = 0;
 
@@ -465,12 +465,12 @@ class CellEditor {
     const idSuggestionType = getIdSuggestionType(getColumnLabel(cellElement.cellIndex));
     if (!verifyEdit(edit, idSuggestionType)) {
       validationResult = false;
-      invalidFeedback = "Value does not pass validation";
+      invalidFeedback = 'Value does not pass validation';
     }
     if (isColumnAutocompleteOnly(getColumnLabel(cellElement.cellIndex))) {
       if (!this.fuseSelect.hasSuggestion(edit)) {
         validationResult = false;
-        invalidFeedback = "Value must come from suggestions";
+        invalidFeedback = 'Value must come from suggestions';
       }
     }
     if (validationResult) {
