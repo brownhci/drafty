@@ -28,7 +28,6 @@ deleteRowComment.addEventListener('input', function() {
 }, false);
 
 submitBtn.addEventListener('click', function() {
-    console.log(`recordRowDelete : idRow = ${idRow}; comment = ${deleteRowComment.value}`);
     // idRow, deleteRowComment.value
     recordRowDelete(idRow, deleteRowComment.value);
     deleteRowModal.style.display = 'none';
@@ -42,11 +41,7 @@ export function deleteRow(tableCellElement: HTMLTableCellElement) {
     const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
     idRow = tableRow.getAttribute('data-id');
     if (window.location.pathname.includes('csprofessors')) {
-
         const profToDelete: string = getCSProfessorNameUniv(tableRow);
-        console.log(profToDelete);
-        console.log(idRow);
-
         deleteRowLabel.innerText = profToDelete;
         deleteRowModal.style.display = 'block';
     }
