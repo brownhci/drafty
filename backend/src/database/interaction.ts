@@ -1,27 +1,27 @@
-import { db, logDbErr } from "./mysql";
+import { db, logDbErr } from './mysql';
 
-const pipeDelim: string = "|";
+const pipeDelim: string = '|';
 
 // FUNCTION insert_interaction(idSession INT, idInteractionType INT)
-const stmtInsertInteraction: string = "INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)";
+const stmtInsertInteraction: string = 'INSERT INTO Interaction (idInteraction, idSession, idInteractionType) VALUES (null, ?, ?)';
 
-const stmtInsertClick: string = "INSERT INTO Click (idInteraction, idSuggestion, rowvalues) VALUES (insert_interaction(?,?), ?, ?);";
+const stmtInsertClick: string = 'INSERT INTO Click (idInteraction, idSuggestion, rowvalues) VALUES (insert_interaction(?,?), ?, ?);';
 
-const stmtInsertPaste: string = "INSERT INTO Paste (idInteraction, pasteValue, pasteCellValue, pasteCellIdSuggestion, copyCellValue, copyCellIdSuggestion) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?);";
+const stmtInsertPaste: string = 'INSERT INTO Paste (idInteraction, pasteValue, pasteCellValue, pasteCellIdSuggestion, copyCellValue, copyCellIdSuggestion) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?);';
 
-const stmtInsertCopy: string = "INSERT INTO Copy (idInteraction, idSuggestion) VALUES (insert_interaction(?,?), ?);";
+const stmtInsertCopy: string = 'INSERT INTO Copy (idInteraction, idSuggestion) VALUES (insert_interaction(?,?), ?);';
 
-const stmtInsertDoubleClick: string = "INSERT INTO DoubleClick (idInteraction, idSuggestion, rowvalues) VALUES (insert_interaction(?,?), ?, ?);";
+const stmtInsertDoubleClick: string = 'INSERT INTO DoubleClick (idInteraction, idSuggestion, rowvalues) VALUES (insert_interaction(?,?), ?, ?);';
 
-const stmtInsertSort: string = "INSERT INTO Sort (idInteraction, idSuggestionType, isAsc, isTrigger, isMulti) VALUES (insert_interaction(?,?), ?, ?, ?, ?);";
+const stmtInsertSort: string = 'INSERT INTO Sort (idInteraction, idSuggestionType, isAsc, isTrigger, isMulti) VALUES (insert_interaction(?,?), ?, ?, ?, ?);';
 
-const stmtSearch: string = "INSERT INTO Search (idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+const stmtSearch: string = 'INSERT INTO Search (idInteraction, idSuggestionType, idSearchType, isPartial, isMulti, isFromUrl, value, matchedValues) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 
-const stmtSearchMulti: string = "INSERT INTO SearchMulti (idInteraction, idSuggestionType, idSearchType, value) VALUES (?, ?, ?, ?)";
+const stmtSearchMulti: string = 'INSERT INTO SearchMulti (idInteraction, idSuggestionType, idSearchType, value) VALUES (?, ?, ?, ?)';
 
-const stmtInsertSearchGoogle: string = "INSERT INTO SearchGoogle (idInteraction, idUniqueID, idSuggestion, searchValues) VALUES (insert_interaction(?,?), ?, ?, ?);";
+const stmtInsertSearchGoogle: string = 'INSERT INTO SearchGoogle (idInteraction, idUniqueID, idSuggestion, searchValues) VALUES (insert_interaction(?,?), ?, ?, ?);';
 
-const stmtInsertDataBaitVisit: string = "INSERT INTO DataBaitVisit (idInteraction, idDataBait, source) VALUES (insert_interaction(?,?), ?, source);";
+const stmtInsertDataBaitVisit: string = 'INSERT INTO DataBaitVisit (idInteraction, idDataBait, source) VALUES (insert_interaction(?,?), ?, source);';
 
 /**
  * save new click
@@ -32,7 +32,7 @@ export async function insertClick(idSession: string, idSuggestion: string, rowva
         const idInteractionType: number = 1;
         await db.query(stmtInsertClick, [idSession, idInteractionType, idSuggestion, rowvalues.join(pipeDelim)]);
     } catch (error) {
-        logDbErr(error, "error during insert click", "warn");
+        logDbErr(error, 'error during insert click', 'warn');
     }
 }
 
@@ -45,7 +45,7 @@ export async function insertDoubleClick(idSession: string, idSuggestion: string,
         const idInteractionType: number = 10;
         await db.query(stmtInsertDoubleClick, [idSession, idInteractionType, idSuggestion, rowvalues.join(pipeDelim)]);
     } catch (error) {
-        logDbErr(error, "error during insert double-click", "warn");
+        logDbErr(error, 'error during insert double-click', 'warn');
     }
 }
 
@@ -59,7 +59,7 @@ export async function insertPasteCell(idSession: string, pasteVal: string, paste
         const idInteractionType: number = 9;
         await db.query(stmtInsertPaste, [idSession, idInteractionType, pasteVal, pasteCellVal, pasteCellIdSuggestion, copyCellVal, copyCellIdSuggestion]);
     } catch (error) {
-        logDbErr(error, "error during insert paste", "warn");
+        logDbErr(error, 'error during insert paste', 'warn');
     }
 }
 
@@ -72,7 +72,7 @@ export async function insertCopyCell(idSession: string, idSuggestion: number | s
         const idInteractionType: number = 8;
         await db.query(stmtInsertCopy, [idSession, idInteractionType, idSuggestion]);
     } catch (error) {
-        logDbErr(error, "error during insert copy", "warn");
+        logDbErr(error, 'error during insert copy', 'warn');
     }
 }
 
@@ -85,7 +85,7 @@ export async function insertCopyColumn(idSession: string, idSuggestionType: numb
         const idInteractionType: number = 14;
         await db.query(stmtInsertCopy, [idSession, idInteractionType, idSuggestionType]);
     } catch (error) {
-        logDbErr(error, "error during insert copy column", "warn");
+        logDbErr(error, 'error during insert copy column', 'warn');
     }
 }
 
@@ -98,7 +98,7 @@ export async function insertSort(idSession: string, idSuggestionType: number | s
         const idInteractionType: number = 4;
         db.query(stmtInsertSort, [idSession, idInteractionType, idSuggestionType, isAsc, isTrigger, isMulti]);
     } catch (error) {
-        logDbErr(error, "error during insert sort", "warn");
+        logDbErr(error, 'error during insert sort', 'warn');
     }
 }
 
@@ -111,7 +111,7 @@ async function insertInteraction(idSession: string, idInteractionType: number | 
         const [results] = await db.query(stmtInsertInteraction, [idSession, idInteractionType]);
         return (results as any).insertId;
     } catch (error) {
-        logDbErr(error, "error during insert interaction", "warn");
+        logDbErr(error, 'error during insert interaction', 'warn');
         return [error];
     }
 }
@@ -123,9 +123,9 @@ async function insertInteraction(idSession: string, idInteractionType: number | 
 export function insertSearchMulti(idInteraction: number, multiSearchValues: string) {
     try {
         // each col search input is separated by ||
-        const msVals: Array<string> = multiSearchValues.split("||");
+        const msVals: Array<string> = multiSearchValues.split('||');
         for (let i = 0; i < msVals.length; i++) {
-            const valsToInsert: Array<string> = msVals[i].split("|");
+            const valsToInsert: Array<string> = msVals[i].split('|');
 
             // idSuggestionType|idSearchType|value
             // value is the input on the search box
@@ -135,7 +135,7 @@ export function insertSearchMulti(idInteraction: number, multiSearchValues: stri
             db.query(stmtSearchMulti, [idInteraction, idSuggestionType, idSearchType, value]);
         }
     } catch (error) {
-        logDbErr(error, "error during insert insertSearchMulti", "warn");
+        logDbErr(error, 'error during insert insertSearchMulti', 'warn');
     }
 }
 
@@ -171,7 +171,7 @@ export async function insertSearch(idSession: string, idSuggestionType: number |
             insertSearchMulti(idInteraction, multiSearchValues);
         }
     } catch (error) {
-        logDbErr(error, "error during insert insertSearch", "warn");
+        logDbErr(error, 'error during insert insertSearch', 'warn');
     }
 }
 
@@ -184,7 +184,7 @@ export async function insertSearchGoogle(idSession: string, idRow: number | stri
         //console.log('insertSearchGoogle:',idSession, idInteractionType, idRow, idSuggestion, searchValues.join(pipeDelim));
         db.query(stmtInsertSearchGoogle, [idSession, idInteractionType, idRow, idSuggestion, searchValues.join(pipeDelim)]);
     } catch (error) {
-        logDbErr(error, "error during insert google search", "warn");
+        logDbErr(error, 'error during insert google search', 'warn');
     }
 }
 
@@ -198,6 +198,6 @@ export async function insertDataBaitVisit(idSession: string, idDataBait: string,
         const idInteractionType: number = 19;
         await db.query(stmtInsertDataBaitVisit, [idSession, idInteractionType, idDataBait, source]);
     } catch (error) {
-        logDbErr(error, "error during insert click", "warn");
+        logDbErr(error, 'error during insert click', 'warn');
     }
 }
