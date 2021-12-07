@@ -142,7 +142,6 @@ export async function createAnonUser() {
     if (error) {
       throws;
     }
-    console.log(results.length);
     return results.insertId;
   } catch (err) {
     logger.error(err);
@@ -168,7 +167,7 @@ async function getActiveExperiments(newSession: boolean, idSession: string) {
     const [error, results] = await getUserExperiments(idSession);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     results.forEach(function(experimentRole: any, index: number, array: any){
-      console.log(experimentRole);
+      //console.log(experimentRole);
       const idExperiment: string = experimentRole.idExperiment;
       let role: string = experimentRole.role;
       const randrole: string = experimentRole.randrole;
@@ -515,7 +514,6 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
   req.session.user.lastInteraction = interactionTime;
   req.session.user.views++;
   req.session.user.activeExperiments = getActiveExperiments(newSession, req.session.user.idSession);
-  console.log(req.session.user.activeExperiments);
   next();
 }
 
