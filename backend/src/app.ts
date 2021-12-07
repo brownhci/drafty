@@ -171,6 +171,7 @@ app.post('/copy-column', interactionCtrl.postCopyColumn);
 
 // suggestions
 app.post('/newrow', suggestionCtrl.postNewRow);
+app.post('/delrow', suggestionCtrl.postDelRow);
 app.get('/suggestions', suggestionCtrl.getSuggestions);
 app.get('/suggestions/validation-rule', suggestionCtrl.getValidationRule);
 app.get('/suggestions/foredit', suggestionCtrl.getSuggestionsForEdit);
