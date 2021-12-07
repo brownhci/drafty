@@ -152,7 +152,7 @@ const getNewUniqueId = async () => {
  * @return nothing or confirmation?
  * 
  */
-export const delRow = async (req: Request, res: Response) => {
+export const postDelRow = async (req: Request, res: Response) => {
   try {
     const idSession: number = req.session.user.idSession;
     const idUniqueID: string = req.body.idUniqueID;
