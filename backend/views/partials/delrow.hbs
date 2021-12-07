@@ -2,17 +2,35 @@
 <div id="deleteRowModal" class="modal">
   <!-- Modal content -->
   <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title" style="font-size: 1.5em;">Delete a Row</h1>
+      <button type="button" id="deleteModalClose" class="close" aria-label="Close">
+          <i data-dismiss="modal" class="fas fa-times"></i>
+      </button>
+    </div>
+    <form class="needs-validation">
+      <div class="form-group">
+        <label id="deleteRowLabel">Please enter a reason why <b><span id="row-label"></span></b> should be removed from the dataset: </label>
+          <textarea class="form-control" id="deleteRowComment" rows="3" maxlength=150 required placeholder="For example, they are a duplicate row, retired, or moved to industry to work at company X..."></textarea>
+      </div>
+    </form>
+    <button id='btn-delrow-modal-close' 
+            type="button" disabled
+            class="btn btn-secondary btn-block btn-close">
+            Please enter a reason first
+    </button>
+  </div>
+</div>
+
+<!-- The Modal -->
+<div id="deleteRowModal_error" class="modal">
+  <!-- Modal content -->
+  <div class="modal-content">
     <h5>To delete a row...</h5>
     <p>
-        Please email <b>shaun_wallace@brown.edu</b> with the following information:
-        <ul>
-            <li>The Professor's Full Name</li>
-            <li>The Professor's University <i>(as listed in Drafty)</i></li>
-            <li>And, the reason to delete a row.</li>
-        </ul>
-    </p>
-    <p>
-        <i>We are currently working on new functionality to delete a row.</i>
+      <div class="form-group">
+        <label id="deleteRowLabel">Please select / click on the intended row first.</label>
+      </div>
     </p>
     <button id='btn-modal-close' type="button" 
             class="btn btn-secondary btn-block btn-close">
