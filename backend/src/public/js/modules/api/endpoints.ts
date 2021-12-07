@@ -31,6 +31,10 @@ export function postNewRowURL() {
   return '/newrow';
 }
 
+export function postDelRowURL() {
+  return '/delrow';
+}
+
 export function postCellClickURL() {
   return '/click';
 }
