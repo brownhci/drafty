@@ -1,9 +1,10 @@
 import { StatusMode, tableFoot } from './table-foot';
+import { deleteRow } from './delete-row';
 
 const navBar: HTMLElement = document.getElementById('navbar-nav');
 
 const deleteRowModal: HTMLElement = document.getElementById('deleteRowModal');
-const btnCloseModal: HTMLElement = document.getElementById('btn-modal-close');
+const btnCloseModal: HTMLElement = document.getElementById('btn-delrow-modal-close');
 
 const navBarNewRow: HTMLElement = document.createElement('li');
 navBarNewRow.className = 'navbar-item';
@@ -45,7 +46,7 @@ navBarNewRow.addEventListener('click', function(event: MouseEvent) {
 
 navBar.appendChild(navBarDelRow);
 navBarDelRow.addEventListener('click', function(event: MouseEvent) {
-    deleteRowModal.style.display = 'block';
+    // TODO get active table element to send to deleteRow
     event.stopPropagation();
 }, true);
 
