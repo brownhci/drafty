@@ -475,7 +475,7 @@ inset 0px -1px 0px 0px $table-border-color;
 
     tfoot {
       @extend .position-sticky;
-      bottom: 3.5em;
+      bottom: 0;
 
       tr:nth-child(1) {
         // insertion table row
