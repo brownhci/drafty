@@ -4,6 +4,7 @@ import os
 import sys
 import pandas as pd
 import drafty_sql as sql
+import interaction_weights as weights
 import pymysql
 
 def get_row_values(cursor, data):
@@ -62,11 +63,9 @@ def all_interactions_test(cursor, profileID):
     return(all_row_values)
         
 
-
 class userInterestService():
     def __init__(self, columns):
         self.columns = columns
-
 
 
 # this potentially doesn't count edits if a person has never clicked on the row before, but I'm not sure how that's possible
@@ -77,17 +76,17 @@ class userInterestService():
                 search_col = interact['search_colName']
                 for matched_value in search_matchedValues:
                     try:
-                        self.columns[search_col][matched_value] += sql.interactionWeights[interact['interaction']]
+                        self.columns[search_col][matched_value] += weights.interactionWeights[interact['interaction']]
                     except:
-                        self.columns[search_col][matched_value] = sql.interactionWeights[interact['interaction']]
+                        self.columns[search_col][matched_value] = weights.interactionWeights[interact['interaction']]
             if interact['rowvalues'] != None:
                 row = interact['rowvalues'].split('|')
                 i = 0
                 for key in self.columns.keys():
                     try:
-                        self.columns[key][row[i]] += sql.interactionWeights[interact['interaction']]
+                        self.columns[key][row[i]] += weights.interactionWeights[interact['interaction']]
                     except:
-                        self.columns[key][row[i]] = sql.interactionWeights[interact['interaction']]
+                        self.columns[key][row[i]] = weights.interactionWeights[interact['interaction']]
                     i+=1
             else:
                 print(interact)
