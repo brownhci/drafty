@@ -11,6 +11,5 @@ interactionWeights = {
     "scrolling": 2,
     "dwell_time": 2,
     "highlight_duration": 2
-
 }
 
