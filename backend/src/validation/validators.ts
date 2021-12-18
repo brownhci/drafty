@@ -56,15 +56,6 @@ export async function emailExists(req: Request) {
   return true;
 }
 
-export async function isValidEmail(req: Request) {
-  const result = await body('email').normalizeEmail({ gmail_remove_dots: false }).isEmail().run(req);
-  if (!validationResult(req).isEmpty()) {
-    req.flash(emailValidationFailure, { msg: 'Email not in valid format' });
-    return false;
-  }
-  return result;
-}
-
 
 export async function isValidUsername(req: Request) {
   const result = await body('email').notEmpty().isString().run(req);
