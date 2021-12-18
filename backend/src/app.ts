@@ -24,7 +24,6 @@ import * as helpCtrl from './controllers/help';
 import * as homeCtrl from './controllers/home';
 import * as sheetCtrl from './controllers/sheet';
 import * as userCtrl from './controllers/user';
-import * as contactCtrl from './controllers/contact';
 import * as interactionCtrl from './controllers/interaction';
 import * as suggestionCtrl from './controllers/suggestion';
 import * as dataSharingCtrl from './controllers/datasharing';
@@ -143,9 +142,6 @@ app.get('/updatewelcome', userCtrl.postSeenWelcome);
 
 // getting help
 app.get('/help', helpCtrl.getHelp);
-
-// contacting developers
-app.post('/contact', contactCtrl.postContact);
 
 // passport accounts
 app.get('/account', userCtrl.checkReturnPath, userCtrl.getAccount);
