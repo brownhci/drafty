@@ -7,7 +7,7 @@ import logger from '../util/logger';
 import { Request, Response, NextFunction } from 'express';
 import { UserModel, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from '../models/user';
 import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup, getUserExperiments, insertNewUserExperiment } from '../database/user';
-import { emailExists, emailNotTaken, isValidUsername, checkPasswordLength, confirmMatchPassword } from '../validation/validators';
+import { emailExists, emailNotTaken, isNotEmail, isValidUsername, checkPasswordLength, confirmMatchPassword } from '../validation/validators';
 import { encryptPassword } from '../util/encrypt';
 import { makeRenderObject } from '../config/handlebars-helpers';
 import '../config/passport';
@@ -32,7 +32,9 @@ export const getLogin = (req: Request, res: Response) => {
  */
 export const postLogin = async (req: Request, res: Response, next: NextFunction) => {
   // check for errors
-  if (await isValidUsername(req) === false ||
+  if (
+    await isNotEmail(req) === false ||
+    await isValidUsername(req) === false ||
     await checkPasswordLength(req) === false) {
     return res.redirect('/login');
   }
@@ -89,7 +91,9 @@ export const getSignup = (req: Request, res: Response) => {
 export const postSignup = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // check for errors
-    if (await isValidUsername(req) === false ||
+    if (
+      await isNotEmail(req) === false ||
+      await isValidUsername(req) === false ||
       await checkPasswordLength(req) === false ||
       await confirmMatchPassword(req) === false ||
       await emailNotTaken(req) === false
@@ -375,7 +379,9 @@ export const getForget = (req: Request, res: Response) => {
  * Create a random token, then the send user an email with a reset link.
  */
 export const postForget = async (req: Request, res: Response, next: NextFunction) => {
-  if (await isValidUsername(req) === false ||
+  if (
+    await isNotEmail(req) === false ||
+    await isValidUsername(req) === false ||
     await emailExists(req) === false) {
     return res.redirect('/forget');
   }
