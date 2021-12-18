@@ -1,11 +1,11 @@
-import { emailFieldName, minPasswordLength } from '../models/user';
+import { usernameFieldName, minPasswordLength } from '../models/user';
 import { findUserByField } from '../database/user';
 import { Request } from 'express';
 import { body, validationResult } from 'express-validator';
 import { idSuggestionType as idSuggestionTypeFieldName } from '../models/suggestion';
 import { idSuggestionTypeLowerBound, idSuggestionTypeUpperBound } from '../models/suggestionType';
 
-export const emailValidationFailure = 'emailValidationFailure';
+export const usernameValidationFailure = 'usernameValidationFailure';
 export const passwordValidationFailure = 'passwordValidationFailure';
 export const confirmValidationFailure = 'confirmValidationFailure';
 
@@ -18,11 +18,11 @@ export async function fieldNonEmpty(req: Request, fieldName: string) {
   return result;
 }
 
-export async function emailNotTaken(req: Request) {
-  const email = req.body.email;
-  const [error, user] = await findUserByField(emailFieldName, email);
+export async function usernameNotTaken(req: Request) {
+  const username = req.body.username;
+  const [error, user] = await findUserByField(usernameFieldName, username);
   if (user == null) {
-    // email not taken
+    // username not taken
     return true;
   }
 
@@ -33,16 +33,16 @@ export async function emailNotTaken(req: Request) {
   }
 
   // conflicts with existing user
-  req.flash(emailValidationFailure, { msg: `Account ${email} already exists` });
+  req.flash(usernameValidationFailure, { msg: `Account ${username} already exists` });
   return false;
 }
 
-export async function emailExists(req: Request) {
-  const email = req.body.email;
-  const [error, user] = await findUserByField(emailFieldName, email);
+export async function usernameExists(req: Request) {
+  const username = req.body.username;
+  const [error, user] = await findUserByField(usernameFieldName, username);
   if (user == null) {
     // email not taken
-    req.flash(emailValidationFailure, { msg: `Account ${email} does not exists` });
+    req.flash(usernameValidationFailure, { msg: `Account ${username} does not exists` });
     return false;
   }
 
@@ -61,7 +61,7 @@ export async function isNotEmail(req: Request) {
   //const result = await body('username').matches('^[^@]*$').run(req);
   const username = req.body.username;
   if (username.includes('@')) {
-    req.flash(emailValidationFailure, { msg: 'Username cannot be an email :(' });
+    req.flash(usernameValidationFailure, { msg: 'Username cannot be an email :(' });
     return false;
   }
   return true;
@@ -70,7 +70,7 @@ export async function isNotEmail(req: Request) {
 export async function isValidUsername(req: Request) {
   const result = await body('username').notEmpty().isString().run(req);
   if (!validationResult(req).isEmpty()) {
-    req.flash(emailValidationFailure, { msg: 'Username not in valid format :(' });
+    req.flash(usernameValidationFailure, { msg: 'Username not in valid format :(' });
     return false;
   }
   return result;

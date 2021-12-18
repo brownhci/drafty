@@ -5,9 +5,9 @@ import passport from 'passport';
 import logger from '../util/logger';
 //import process from "../util/process"; sw - npm warning never used :/
 import { Request, Response, NextFunction } from 'express';
-import { UserModel, emailFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from '../models/user';
+import { UserModel, usernameFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from '../models/user';
 import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup, getUserExperiments, insertNewUserExperiment } from '../database/user';
-import { emailExists, emailNotTaken, isNotEmail, isValidUsername, checkPasswordLength, confirmMatchPassword } from '../validation/validators';
+import { usernameExists, usernameNotTaken, isNotEmail, isValidUsername, checkPasswordLength, confirmMatchPassword } from '../validation/validators';
 import { encryptPassword } from '../util/encrypt';
 import { makeRenderObject } from '../config/handlebars-helpers';
 import '../config/passport';
@@ -18,7 +18,7 @@ import { throws } from 'assert';
  * Login page
  */
 export const getLogin = (req: Request, res: Response) => {
-  if (req.user) {
+  if (req.session.user.isAuth) {
     // current user is already logged in
     req.flash('info', { msg: 'You are already logged in, please log out first' });
     return res.redirect(req.session.returnTo || '/');
@@ -31,22 +31,33 @@ export const getLogin = (req: Request, res: Response) => {
  * Sign in using email and password.
  */
 export const postLogin = async (req: Request, res: Response, next: NextFunction) => {
+  console.log('postLogin');
   // check for errors
   if (
     await isNotEmail(req) === false ||
     await isValidUsername(req) === false ||
     await checkPasswordLength(req) === false) {
+    console.log('error returning');
     return res.redirect('/login');
   }
   // we're good, do something
   passport.authenticate('local', (err: Error, user: UserModel) => {
-    if (err) { return next(err); }
+    if (err) { 
+      console.log('passport error - ' + err);
+      return next(err); 
+    }
+    console.log('passport user -- ' + user);
     if (!user) {
+      console.log('no user redirect');
       // authentication error
       return res.redirect('/login');
     }
     req.login(user, (err) => {
-      if (err) { return next(err); }
+      if (err) { 
+        console.log('req.login error - ' + err);
+        return next(err); 
+      }
+      console.log('about to update session -- ' +  user.idProfile);
       // update the sessions user.idProfile to match and update the Session tables idProfile
       const idProfile = user.idProfile;
       updateSession(idProfile, req.session.user.idSession);
@@ -77,7 +88,7 @@ export const logout = async (req: Request, res: Response) => {
  * Signup page.
  */
 export const getSignup = (req: Request, res: Response) => {
-  if (req.user) {
+  if (req.session.user.isAuth) {
     req.flash('info', { msg: 'You are already logged in, please log out first' });
     return res.redirect('/');
   }
@@ -96,20 +107,20 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
       await isValidUsername(req) === false ||
       await checkPasswordLength(req) === false ||
       await confirmMatchPassword(req) === false ||
-      await emailNotTaken(req) === false
+      await usernameNotTaken(req) === false
     ) {
       return res.redirect('/signup');
     }
 
-    const email = req.body.email;
+    const username = req.body.username;
     const password: string = await encryptPassword(req.body.password);
     // creates new user
     const newUser = {
-      [emailFieldName]: email,
+      [usernameFieldName]: username,
       [passwordFieldName]: password,
     };
 
-    const [error] = await updateUserNewSignup(email, password, req.session.user.idProfile);
+    const [error] = await updateUserNewSignup(username, password, req.session.user.idProfile);
     if (error) {
       return next(error);
     }
@@ -133,11 +144,11 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
  * Function to create AnonymousUser
  */
 export async function createAnonUser() {
-  const email: null = null;
+  const username: null = null;
   const password: null = null;
   // creates new user
   const newUser = {
-    [emailFieldName]: email,
+    [usernameFieldName]: username,
     [passwordFieldName]: password,
   };
   try {
@@ -145,6 +156,7 @@ export async function createAnonUser() {
     if (error) {
       throws;
     }
+    console.log(`anon user id = ${results.insertId}`);
     return results.insertId;
   } catch (err) {
     logger.error(err);
@@ -204,55 +216,11 @@ export async function createSessionDB(idProfile: number, idExpressSession: strin
  */
 export const getAccount = (req: Request, res: Response) => {
   let username = 'Anonymous User';
-  if (req.user) {
+  if (req.session.user.isAuth) {
     const user = req.user as Partial<UserModel>;
-    username = user.email;
+    username = user.username;
   }
   res.render('account/profile', makeRenderObject({ title: 'Account Management', username: username, idProfile: req.session.user.idProfile, idSession: req.session.user.idSession, idExpress: req.sessionID }, req));
-};
-
-/**
- * POST /account/profile
- * Update profile information.
- * 
- * TODO implement
- * 
- */
-export const postUpdateProfile = async (req: Request, res: Response, next: NextFunction) => {
-  // TODO implement this
-  // await body("email", "Please enter a valid email address.").isEmail() // eslint-disable-next-line @typescript-eslint/camelcase
-  //                                                           .normalizeEmail({ gmail_remove_dots: false });
-
-  // const errors = validationResult(req);
-
-  // if (!errors.isEmpty()) {
-  //     req.flash("errors", errors.array());
-  //     return res.redirect("/account");
-  // }
-
-  // const user = req.user as UserModel;
-  // const userid = user[idFieldName];
-  // const email: string = req.body.email || "";
-  // let [error] = await emailAlreadyTaken(email);
-  // if (error) {
-  //   req.flash("errors", { msg: error.message });
-  //   return res.redirect("/signup");
-  // }
-
-  // const updatedUser = {
-  //   [emailFieldName]: email,
-  // };
-
-  // [error] = await updateUser(updatedUser, {[idFieldName]: userid});
-  // if (error) {
-  //   return next(error);
-  // }
-
-  // // successful update
-  // req.flash("success", { msg: "Profile information has been updated." });
-  // res.redirect("/account");
-
-  next();
 };
 
 /**
@@ -267,13 +235,13 @@ export const postUpdatePassword = async (req: Request, res: Response, next: Next
   }
 
   const user = req.user as Partial<UserModel>;
-  const email = user.email;
+  const username = user.username;
   const password: string = await encryptPassword(req.body.password);
   const updatedUser = {
     [passwordFieldName]: password,
   };
 
-  const [error] = await updateUser(updatedUser, { [emailFieldName]: email });
+  const [error] = await updateUser(updatedUser, { [usernameFieldName]: username });
   if (error) {
     return next(error);
   }
@@ -309,7 +277,7 @@ export const getReset = async (req: Request, res: Response, next: NextFunction) 
   }
 
   // successful password reset
-  res.render('account/reset', makeRenderObject({ title: 'Reset', email: user.email }, req));
+  res.render('account/reset', makeRenderObject({ title: 'Reset', username: user.username }, req));
 };
 
 /**
@@ -376,17 +344,17 @@ export const getForget = (req: Request, res: Response) => {
 
 /**
  * POST /forget
- * Create a random token, then the send user an email with a reset link.
+ * Create a random token
  */
 export const postForget = async (req: Request, res: Response, next: NextFunction) => {
   if (
     await isNotEmail(req) === false ||
     await isValidUsername(req) === false ||
-    await emailExists(req) === false) {
+    await usernameExists(req) === false) {
     return res.redirect('/forget');
   }
 
-  const email = req.body.email;
+  const username = req.body.username;
   async.waterfall([
     function createRandomToken(done: any) {
       crypto.randomBytes(256, (err, buf) => {
@@ -395,7 +363,7 @@ export const postForget = async (req: Request, res: Response, next: NextFunction
       });
     },
     async function setRandomToken(token: string, done: any) {
-      const [error, user] = await findUserByField(emailFieldName, email);
+      const [error, user] = await findUserByField(usernameFieldName, username);
       if (user == null) {
         req.flash('errors', { msg: 'Account with that name does not exist.' });
         return res.redirect('/forget');
@@ -412,7 +380,7 @@ export const postForget = async (req: Request, res: Response, next: NextFunction
         [passwordResetExpires]: expiration.toDate(),
       };
 
-      const [updateError] = await updateUser(updatedUser, { [emailFieldName]: email });
+      const [updateError] = await updateUser(updatedUser, { [usernameFieldName]: username });
       if (updateError) {
         return done(updateError);
       }
