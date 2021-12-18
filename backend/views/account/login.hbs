@@ -3,7 +3,7 @@
         <h1>Sign in to Drafty</h1>
         <form action="/login" method="post" id="login-form" class="custom-validation" autocomplete novalidate>
             {{> csrf }}
-            {{> account/email-input-component }}
+            {{> account/username-input-component }}
             {{> account/password-input-component showForget=true }}
             <button type="submit">Submit</button>
         </form>

@@ -3,7 +3,7 @@
         <h1>Create your account</h1>
         <form action="/signup" method="post" id="signup-form" class="custom-validation" autocomplete novalidate>
             {{> csrf }}
-            {{> account/email-input-component }}
+            {{> account/username-input-component }}
             {{> account/password-input-component showPasswordUsageExplanation=true }}
             {{> account/confirm-input-component }}
             <button type="submit">Submit</button>
