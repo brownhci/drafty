@@ -10,17 +10,16 @@ import { usernameValidationFailure, passwordValidationFailure } from '../validat
 const LocalStrategy = passportLocal.Strategy;
 
 passport.serializeUser(async (user: UserModel, done) => {
-  //console.log('serializeUser', user[usernameFieldName]);
-  //console.log(user);
   done(null, user[usernameFieldName]);
 });
 
 passport.deserializeUser(async (username: number, done) => {
-  // finding the user by email when deserializing
+  console.log(`deserializeUser() username = ${username}`);
+  // finding the user by username when deserializing
   const [error, user] = await findUserByField(usernameFieldName, username);
-  //console.log(`passport deserializeUser error: ${error}`);
-  //console.log(`passport deserializeUser user: ${user}`);
   if (error) {
+    console.log(`ERROR passport.deserializeUser cannot findUserByField() - ${usernameFieldName} : ${username} \n`);
+    console.log(error);
     done(error);
   } else {
     done(null, user);
@@ -35,6 +34,7 @@ passport.use(new LocalStrategy({
   usernameField: 'username',
   passReqToCallback: true
 }, async (req, username, password, done) => {
+  
   // support login with email
   const [error, user] = await findUserByField(usernameFieldName, username);
   if (user == null) {

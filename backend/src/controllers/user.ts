@@ -31,33 +31,26 @@ export const getLogin = (req: Request, res: Response) => {
  * Sign in using email and password.
  */
 export const postLogin = async (req: Request, res: Response, next: NextFunction) => {
-  console.log('postLogin');
   // check for errors
   if (
     await isNotEmail(req) === false ||
     await isValidUsername(req) === false ||
     await checkPasswordLength(req) === false) {
-    console.log('error returning');
     return res.redirect('/login');
   }
   // we're good, do something
   passport.authenticate('local', (err: Error, user: UserModel) => {
     if (err) { 
-      console.log('passport error - ' + err);
       return next(err); 
     }
-    console.log('passport user -- ' + user);
     if (!user) {
-      console.log('no user redirect');
       // authentication error
       return res.redirect('/login');
     }
     req.login(user, (err) => {
       if (err) { 
-        console.log('req.login error - ' + err);
         return next(err); 
       }
-      console.log('about to update session -- ' +  user.idProfile);
       // update the sessions user.idProfile to match and update the Session tables idProfile
       const idProfile = user.idProfile;
       updateSession(idProfile, req.session.user.idSession);
@@ -156,7 +149,7 @@ export async function createAnonUser() {
     if (error) {
       throws;
     }
-    console.log(`anon user id = ${results.insertId}`);
+    //console.log(`anon user id = ${results.insertId}`);
     return results.insertId;
   } catch (err) {
     logger.error(err);
@@ -435,13 +428,10 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
       lastInteraction: Date.now(),
       failedLoginAttempts: 0
     };
-    //logger.debug("NEW Profile created! " + req.sessionID + " :: " + req.session.user.idProfile);
     next();
   } else {
     req.session.user.trafficUUID = uuid;
     req.session.user.lastURL = url;
-    // logger.debug(req.sessionID + " :: " + req.session.user.idProfile + " :: " + req.session.user.isAuth  + " :: " + req.session.isAuth);
-    // logger.debug(req.user); // sw: this is created by passport
     next();
   }
 }
