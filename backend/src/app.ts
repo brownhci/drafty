@@ -145,7 +145,6 @@ app.get('/help', helpCtrl.getHelp);
 
 // passport accounts
 app.get('/account', userCtrl.checkReturnPath, userCtrl.getAccount);
-app.post('/account/profile', passportConfig.isAuthenticated, userCtrl.postUpdateProfile);
 app.post('/account/password', passportConfig.isAuthenticated, userCtrl.postUpdatePassword);
 
 // data sharing
