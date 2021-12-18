@@ -9,7 +9,6 @@ import { UserModel, emailFieldName, passwordFieldName, passwordResetToken, passw
 import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup, getUserExperiments, insertNewUserExperiment } from '../database/user';
 import { emailExists, emailNotTaken, isValidUsername, checkPasswordLength, confirmMatchPassword } from '../validation/validators';
 import { encryptPassword } from '../util/encrypt';
-import { sendMail, userPasswordResetEmailAccount } from '../util/email';
 import { makeRenderObject } from '../config/handlebars-helpers';
 import '../config/passport';
 import { throws } from 'assert';
@@ -353,17 +352,6 @@ export const postReset = async (req: Request, res: Response, next: NextFunction)
       req.logIn(user, (err) => {
         done(err, user);
       });
-    },
-    async function sendResetPasswordEmail(user: UserModel, done: any) {
-      const mailOptions = {
-        to: user.email,
-        from: userPasswordResetEmailAccount,
-        subject: 'Your password has been changed',
-        text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
-      };
-      const [error] = await sendMail(mailOptions);
-      req.flash('success', { msg: 'Success! Your password has been changed.' });
-      done(error);
     }
   ], (err) => {
     if (err) { return next(err); }
@@ -425,20 +413,6 @@ export const postForget = async (req: Request, res: Response, next: NextFunction
       // successful
       Object.assign(user, updatedUser);
       done(error, token, user);
-    },
-    async function sendForgetPasswordEmail(token: string, user: UserModel, done: any) {
-      const mailOptions = {
-        to: user.email,
-        from: userPasswordResetEmailAccount,
-        subject: 'Reset your password on Drafty',
-        text: `You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n
-    Please click on the following link, or paste this into your browser to complete the process:\n\n
-    http://${req.headers.host}/reset/${token}\n\n
-    If you did not request this, please ignore this email and your password will remain unchanged.\n`
-      };
-      const [error] = await sendMail(mailOptions);
-      req.flash('info', { msg: `An e-mail has been sent to ${user.email} with further instructions.` });
-      done(error);
     }
   ], (err) => {
     if (err) { return next(err); }
