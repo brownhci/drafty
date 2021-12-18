@@ -13,7 +13,7 @@ passport.serializeUser(async (user: UserModel, done) => {
   done(null, user[usernameFieldName]);
 });
 
-passport.deserializeUser(async (username: number, done) => {
+passport.deserializeUser(async (username: string, done) => {
   console.log(`deserializeUser() username = ${username}`);
   // finding the user by username when deserializing
   const [error, user] = await findUserByField(usernameFieldName, username);
@@ -34,7 +34,7 @@ passport.use(new LocalStrategy({
   usernameField: 'username',
   passReqToCallback: true
 }, async (req, username, password, done) => {
-  
+
   // support login with email
   const [error, user] = await findUserByField(usernameFieldName, username);
   if (user == null) {

@@ -51,12 +51,15 @@ export type findUserByFieldCallbackType = (error: Error | null, user?: findUserB
  *      - if the query throws an error, error is the original error object
  *      - if the field name is not a member of validFieldNamesForLookup, error is custom Error about unsupported field name
  */
-export async function findUserByField(fieldName: string, fieldValue: string | number) {
+export async function findUserByField(fieldName: string, fieldValue: string ) {
   if (!validFieldNamesForLookup.includes(fieldName)) {
     return [new Error(`Cannot look up a user using field - ${fieldName}`)];
   }
   try {
     console.log(`${tableName} ${fieldName} ${fieldValue}`);
+    if(fieldValue.includes('@')) {
+      fieldValue = fieldValue.split('@')[0];
+    } 
     const [rows] = await db.query(stmtSelUser, [tableName, fieldName, fieldValue]);
     console.log(rows);
     if (Array.isArray(rows) && rows.length > 0) {
