@@ -1,7 +1,7 @@
 import { emailFieldName, minPasswordLength } from '../models/user';
 import { findUserByField } from '../database/user';
 import { Request } from 'express';
-import { body, param, validationResult } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import { idSuggestionType as idSuggestionTypeFieldName } from '../models/suggestion';
 import { idSuggestionTypeLowerBound, idSuggestionTypeUpperBound } from '../models/suggestionType';
 
@@ -57,18 +57,19 @@ export async function emailExists(req: Request) {
 }
 
 export async function isNotEmail(req: Request) {
-  const result = await body('username').isEmail().run(req);
+  // checks for email using regex
+  //const result = await body('username').matches('^[^@]*$').run(req);
   const username = req.body.username;
-  if ((result.context.errors.length === 0) || username.includes('@')) {
+  if (username.includes('@')) {
     req.flash(emailValidationFailure, { msg: 'Username cannot be an email :(' });
     return false;
   }
-  return result;
+  return true;
 }
 
 export async function isValidUsername(req: Request) {
   const result = await body('username').notEmpty().isString().run(req);
-  if (validationResult(req).isEmpty()) {
+  if (!validationResult(req).isEmpty()) {
     req.flash(emailValidationFailure, { msg: 'Username not in valid format :(' });
     return false;
   }
@@ -88,7 +89,7 @@ export async function checkPasswordLength(req: Request) {
 export async function confirmMatchPassword(req: Request) {
   const result = await body('confirm').equals(req.body.password).run(req);
   if (!validationResult(req).isEmpty()) {
-    req.flash(confirmValidationFailure, { msg: 'Confirm password should match picked password' });
+    req.flash(confirmValidationFailure, { msg: 'Passwords should match' });
     return false;
   }
   return result;
