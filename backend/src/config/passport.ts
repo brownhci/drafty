@@ -1,21 +1,25 @@
 import passport from 'passport';
 import passportLocal from 'passport-local';
-import { emailFieldName, passwordFieldName, UserModel } from '../models/user';
+import { passwordFieldName, UserModel, usernameFieldName } from '../models/user';
 import { findUserByField } from '../database/user';
 import { Request, Response, NextFunction } from 'express';
 import { comparePassword } from '../util/encrypt';
-import { emailValidationFailure, passwordValidationFailure } from '../validation/validators';
+import { usernameValidationFailure, passwordValidationFailure } from '../validation/validators';
 
 
 const LocalStrategy = passportLocal.Strategy;
 
 passport.serializeUser(async (user: UserModel, done) => {
-  done(null, user[emailFieldName]);
+  //console.log('serializeUser', user[usernameFieldName]);
+  //console.log(user);
+  done(null, user[usernameFieldName]);
 });
 
-passport.deserializeUser(async (email: number, done) => {
+passport.deserializeUser(async (username: number, done) => {
   // finding the user by email when deserializing
-  const [error, user] = await findUserByField(emailFieldName, email);
+  const [error, user] = await findUserByField(usernameFieldName, username);
+  //console.log(`passport deserializeUser error: ${error}`);
+  //console.log(`passport deserializeUser user: ${user}`);
   if (error) {
     done(error);
   } else {
@@ -25,18 +29,17 @@ passport.deserializeUser(async (email: number, done) => {
 
 
 /**
- * Sign in using Email and Password.
+ * Sign in using Username and Password.
  */
 passport.use(new LocalStrategy({
-  usernameField: 'email',
+  usernameField: 'username',
   passReqToCallback: true
-},
-  async (req, username, password, done) => {
+}, async (req, username, password, done) => {
   // support login with email
-  const [error, user] = await findUserByField(emailFieldName, username);
+  const [error, user] = await findUserByField(usernameFieldName, username);
   if (user == null) {
     const errorMessage = error.message;
-    req.flash(emailValidationFailure, { msg: errorMessage });
+    req.flash(usernameValidationFailure, { msg: errorMessage });
     return done(null, false, { message: errorMessage });
   }
 
