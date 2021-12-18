@@ -7,7 +7,7 @@ export const emailFieldName    = 'email';
 export const passwordFieldName = 'password';
 export const passwordResetToken = 'passwordResetToken';
 export const passwordResetExpires = 'passwordResetExpires';
-export const minPasswordLength = 4;
+export const minPasswordLength = 8;
 
 // supported fields that can be used to look up a user
 export const validFieldNamesForLookup = [idFieldName, usernameFieldName, emailFieldName, passwordResetToken];
