@@ -22,44 +22,6 @@
             <p>
                 Or, you can post issues, feature requests, and questions in <a href="https://github.com/brownhci/drafty/issues" target="_blank">Drafty's GitHub repository.</a>
             </p>
-            <!--
-            <form action="/contact" method="post" id="contact-form" class="custom-validation" autocomplete novalidate>
-                {{> csrf }}
-                {{> account/username-input-component }}
-                <div>
-                    <label for="subject">Subject</label>
-                    <input
-                        id="subject"
-                        type="text"
-                        name="subject"
-                        class="form-control{{getValidationClass messages.subjectValidationFailure}}"
-                        aria-describedby="contact-note"
-                        required
-                        >
-                        {{#if messages.subjectValidationFailure}}
-                            {{#with messages.subjectValidationFailure as |failure|}}
-                                {{#each failure}}
-                                    <div class="invalid-tooltip">
-                                        {{msg}}
-                                    </div>
-                            {{/each}}
-                        {{/with}}
-                    {{/if}}
-                    <div class="invalid-feedback">
-                        Please provide a subject
-                    </div>
-                </div>
-                <div>
-                    <label for="message">How can we help you?</label>
-                    <textarea id="message" name="message" rows="7" class="form-cotrol"></textarea>
-                </div>
-                <small id="contact-note" class="form-text">
-                    Thank you for writing us an email, your comment and feedback helps us to improve Drafty platform!
-                </small>
-
-                <button type="submit">Send Email</button>
-            </form>
-            -->
         </section>
     </div>
 </main>
