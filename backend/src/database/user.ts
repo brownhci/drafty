@@ -5,7 +5,7 @@ import { tableName, validFieldNamesForLookup, UserModel } from '../models/user';
 const stmtSelUser: string    = 'SELECT * FROM ?? WHERE ?? = ?';
 const stmtInsertUser: string = 'INSERT INTO ?? SET ?';
 const stmtUpdateUser: string = 'UPDATE ?? SET ? WHERE ?';
-const stmtUpdateUserNewSignUp: string = 'UPDATE users.Profile SET email = ?, password = ? WHERE idProfile = ?';
+const stmtUpdateUserNewSignUp: string = 'UPDATE users.Profile SET username = ?, email = ?, password = ? WHERE idProfile = ?';
 const stmtInsertSession: string = 'INSERT INTO users.Session (idProfile,idExpressSession) VALUES (?,?);';
 const stmtUpdateSession: string = 'UPDATE users.Session SET idProfile = ? WHERE idSession = ?';
 const stmtSelExperiments: string = `
@@ -53,10 +53,12 @@ export type findUserByFieldCallbackType = (error: Error | null, user?: findUserB
  */
 export async function findUserByField(fieldName: string, fieldValue: string | number) {
   if (!validFieldNamesForLookup.includes(fieldName)) {
-      return [new Error(`Cannot look up a user using field - ${fieldName}`)];
+    return [new Error(`Cannot look up a user using field - ${fieldName}`)];
   }
   try {
+    console.log(`${tableName} ${fieldName} ${fieldValue}`);
     const [rows] = await db.query(stmtSelUser, [tableName, fieldName, fieldValue]);
+    console.log(rows);
     if (Array.isArray(rows) && rows.length > 0) {
       const userRow = rows[0] as UserModel;
       return [null, userRow];
@@ -64,6 +66,7 @@ export async function findUserByField(fieldName: string, fieldValue: string | nu
       return [new Error(`Cannot find a user whose ${fieldName} is ${fieldValue}`), null];
     }
   } catch (error) {
+    console.log(`6`);
     logDbErr(error, 'error during finding user', 'warn');
     return [error];
   }
@@ -83,6 +86,7 @@ export async function findUserByField(fieldName: string, fieldValue: string | nu
 export async function createUser(user: Partial<UserModel>) {
   try {
     const [results] = await db.query(stmtInsertUser, [tableName, user]);
+    console.log(results);
     return [null, results];
   } catch (error) {
     logDbErr(error, 'error during creating user', 'warn');
@@ -153,9 +157,9 @@ export async function updateUser(updates: Partial<UserModel>, constraints: Parti
 }
 
 // sw: this is just way simpler way to do things
-export async function updateUserNewSignup(email: string, password: string, idProfile: number) {
+export async function updateUserNewSignup(username: string, password: string, idProfile: number) {
   try {
-    const [results, fields] = await db.query(stmtUpdateUserNewSignUp, [email, password, idProfile]);
+    const [results, fields] = await db.query(stmtUpdateUserNewSignUp, [username, username, password, idProfile]);
     return [null, results, fields];
   } catch (error) {
     logDbErr(error, 'error during updating existing user', 'warn');
