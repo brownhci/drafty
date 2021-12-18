@@ -72,7 +72,7 @@ Steps:
     + `partial/` Reusable components
     + `sheets/` Views for individual sheets
     + `*.hbs` Views for other pages
-+ **`.env.example`** Example configuration of database config, email config. Make sure to use a different `.env` file for production. **Do not commit actual `.env` file as it contains important secrets**.
++ **`.env.example`** Example configuration of the database config. Make sure to use a different `.env` file for production. **Do not commit actual `.env` file as it contains important secrets**.
 + `.eslintignore` Config settings for paths to exclude from linting
 + `.eslintrc` Config settings for ESLint code style checking
 + `.gitignore` Files and directories to be excluded from git commits
