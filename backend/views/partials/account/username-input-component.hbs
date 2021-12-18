@@ -1,10 +1,10 @@
 <div>
     <label for="username">Username</label>
     <input id="username" type="text" name="username"
-        class="form-control{{getValidationClass messages.emailValidationFailure}}"
+        class="form-control{{getValidationClass messages.usernameValidationFailure}}"
         aria-describedby="username-usage-explanation" placeholder="Enter username" required>
-    {{#if messages.emailValidationFailure}}
-    {{#with messages.emailValidationFailure as |failure|}}
+    {{#if messages.usernameValidationFailure}}
+    {{#with messages.usernameValidationFailure as |failure|}}
     {{#each failure}}
     <div class="invalid-tooltip">
         {{msg}}
