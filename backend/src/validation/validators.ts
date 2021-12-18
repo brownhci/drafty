@@ -1,7 +1,7 @@
 import { emailFieldName, minPasswordLength } from '../models/user';
 import { findUserByField } from '../database/user';
 import { Request } from 'express';
-import { body, validationResult } from 'express-validator';
+import { body, param, validationResult } from 'express-validator';
 import { idSuggestionType as idSuggestionTypeFieldName } from '../models/suggestion';
 import { idSuggestionTypeLowerBound, idSuggestionTypeUpperBound } from '../models/suggestionType';
 
@@ -58,7 +58,8 @@ export async function emailExists(req: Request) {
 
 export async function isNotEmail(req: Request) {
   const result = await body('username').isEmail().run(req);
-  if ((result.context.errors.length === 0) || body('username').contains('@')) {
+  const username = req.body.username;
+  if ((result.context.errors.length === 0) || username.includes('@')) {
     req.flash(emailValidationFailure, { msg: 'Username cannot be an email :(' });
     return false;
   }
