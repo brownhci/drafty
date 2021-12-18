@@ -1,11 +1,9 @@
 <main id="form-container">
     <div id="forget-component">
-        <h1>Reset your password</h1>
-        <form action="/forget" method="post" id="forget-form" class="custom-validation" autocomplete novalidate>
-            {{> csrf }}
-            {{> account/email-input-component }}
-            <button type="submit">Send password reset email</button>
-        </form>
+        <h1>Forgot your password?</h1>
+        <p>
+            We are sorry, since Drafy does not support emails we cannot reset your password. If you have questions, please email Shaun Wallace at <b>shaun_wallace@brown.edu</b>.
+        </p>
         {{> account/signup-modal }}
     </div>
 </main>
