@@ -1,8 +1,8 @@
 <div>
-    <label for="username">Unique Account Name</label>
+    <label for="username">Username</label>
     <input id="username" type="text" name="username"
         class="form-control{{getValidationClass messages.emailValidationFailure}}"
-        aria-describedby="username-usage-explanation" placeholder="Enter account name" required>
+        aria-describedby="username-usage-explanation" placeholder="Enter username" required>
     {{#if messages.emailValidationFailure}}
     {{#with messages.emailValidationFailure as |failure|}}
     {{#each failure}}
