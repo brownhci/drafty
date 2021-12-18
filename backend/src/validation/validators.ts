@@ -56,11 +56,19 @@ export async function emailExists(req: Request) {
   return true;
 }
 
+export async function isNotEmail(req: Request) {
+  const result = await body('username').isEmail().run(req);
+  if ((result.context.errors.length === 0) || body('username').contains('@')) {
+    req.flash(emailValidationFailure, { msg: 'Username cannot be an email :(' });
+    return false;
+  }
+  return result;
+}
 
 export async function isValidUsername(req: Request) {
-  const result = await body('email').notEmpty().isString().run(req);
-  if (!validationResult(req).isEmpty()) {
-    req.flash(emailValidationFailure, { msg: 'Username not in valid format' });
+  const result = await body('username').notEmpty().isString().run(req);
+  if (validationResult(req).isEmpty()) {
+    req.flash(emailValidationFailure, { msg: 'Username not in valid format :(' });
     return false;
   }
   return result;
@@ -69,7 +77,8 @@ export async function isValidUsername(req: Request) {
 export async function checkPasswordLength(req: Request) {
   const result = await body('password').isLength({min: minPasswordLength}).run(req);
   if (!validationResult(req).isEmpty()) {
-    req.flash(passwordValidationFailure, { msg: 'Password should be at least 4 characters long' });
+    const pwdMsg = `Password should be at least ${minPasswordLength} characters long`;
+    req.flash(passwordValidationFailure, { msg: pwdMsg });
     return false;
   }
   return result;
