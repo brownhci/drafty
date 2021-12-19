@@ -6,7 +6,6 @@ import { Request, Response, NextFunction } from 'express';
 import { comparePassword } from '../util/encrypt';
 import { usernameValidationFailure, passwordValidationFailure } from '../validation/validators';
 
-
 const LocalStrategy = passportLocal.Strategy;
 
 passport.serializeUser(async (user: UserModel, done) => {
@@ -14,7 +13,6 @@ passport.serializeUser(async (user: UserModel, done) => {
 });
 
 passport.deserializeUser(async (username: string, done) => {
-  console.log(`deserializeUser() username = ${username}`);
   // finding the user by username when deserializing
   const [error, user] = await findUserByField(usernameFieldName, username);
   if (error) {
