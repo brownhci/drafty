@@ -1,0 +1,926 @@
+/*
+how to get only the used css on a page
+https://stackoverflow.com/questions/4361007/is-there-a-way-to-check-which-css-styles-are-being-used-or-not-used-on-a-web-pag
+*/
+
+:root {
+    --blue: #007bff;
+    --indigo: #6610f2;
+    --purple: #6f42c1;
+    --pink: #e83e8c;
+    --red: #dc3545;
+    --orange: #fd7e14;
+    --yellow: #ffc107;
+    --green: #28a745;
+    --teal: #20c997;
+    --cyan: #17a2b8;
+    --white: #fff;
+    --gray: #6c757d;
+    --gray-dark: #343a40;
+    --primary: #1089ff;
+    --secondary: #6c757d;
+    --success: #28a745;
+    --info: #17a2b8;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --light: #f8f9fa;
+    --dark: #343a40;
+    --breakpoint-xs: 0;
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-family: sans-serif;
+    line-height: 1.15;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
+    display: block;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    text-align: left;
+    background-color: #fff;
+}
+
+ol, ul, dl {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+a {
+    color: #1089ff;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+th {
+    text-align: inherit;
+}
+
+label {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+button {
+    border-radius: 0;
+}
+
+input, button, select, optgroup, textarea {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+button, input {
+    overflow: visible;
+}
+
+button, select {
+    text-transform: none;
+}
+
+button, [type="button"], [type="reset"], [type="submit"] {
+    -webkit-appearance: button;
+}
+
+button:not(:disabled), [type="button"]:not(:disabled), [type="reset"]:not(:disabled), [type="submit"]:not(:disabled) {
+    cursor: pointer;
+}
+
+[type="search"] {
+    outline-offset: -2px;
+    -webkit-appearance: none;
+}
+
+template {
+    display: none;
+}
+
+.list-unstyled, nav .navbar-nav-sm, #homepage-container ul {
+    padding-left: 0;
+    list-style: none;
+}
+
+.container-fluid, main {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.table, #table-container table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+}
+
+.table th, #table-container table th, .table td, #table-container table td {
+    padding: 9px;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+}
+
+.table thead th, #table-container table thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table-bordered, #table-container table {
+    border: 1px solid #dee2e6;
+}
+
+.table-bordered th, #table-container table th, .table-bordered td, #table-container table td {
+    border: 1px solid #dee2e6;
+}
+
+.table-bordered thead th, #table-container table thead th, .table-bordered thead td, #table-container table thead td {
+    border-bottom-width: 2px;
+}
+
+.table-striped tbody tr:nth-of-type(odd), #table-container table tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.table .thead-light th, #table-container table .thead-light th, #table-container table thead th, #table-container table tfoot th, #table-container table tfoot tr:nth-child(1) th {
+    color: #495057;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.form-control, #table-container table thead th.column-search input, #table-container table tfoot th.column-search input, #table-container table tfoot tr:nth-child(1) th input {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + 0.75rem + 2px);
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control::placeholder, #table-container table thead th.column-search input::placeholder, #table-container table tfoot th.column-search input::placeholder, #table-container table tfoot tr:nth-child(1) th input::placeholder {
+    color: #6c757d;
+    opacity: 1;
+}
+
+.btn, nav .navbar-toggler, .contextmenu button, form > [type="submit"], #table-container > div #table-cell-input-form #locate-cell, #table-container > div #table-cell-input-form #table-cell-input-save, #table-container table thead th .sort-btn, #table-container table tfoot th .sort-btn, #table-container table tfoot tr:nth-child(2) button#confirm-newrow, #table-container table tfoot tr:nth-child(2) button#discard-newrow, #table-container table tfoot tr:nth-child(2) button#close-newrow {
+    display: inline-block;
+    font-weight: 400;
+    color: #212529;
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn-sm, .btn-group-sm > .btn, nav .btn-group-sm > .navbar-toggler, .contextmenu .btn-group-sm > button, form.btn-group-sm > [type="submit"], #table-container table tfoot tr:nth-child(2) .btn-group-sm > button#confirm-newrow, #table-container table tfoot tr:nth-child(2) .btn-group-sm > button#discard-newrow, #table-container table tfoot tr:nth-child(2) .btn-group-sm > button#close-newrow, nav .navbar-nav-sm li #list-sheets-horizontal button, #table-container > div #table-cell-input-form #locate-cell, #table-container > div #table-cell-input-form #table-cell-input-save, #table-container table thead th .sort-btn, #table-container table tfoot th .sort-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
+.collapse:not(.show) {
+    display: none;
+}
+
+.dropup, .dropright, .dropdown, .dropleft {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 10rem;
+    padding: 0.5rem 0;
+    margin: 0.125rem 0 0;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.25rem;
+}
+
+.dropdown-menu-right {
+    right: 0;
+    left: auto;
+}
+
+.btn-group, nav .navbar-nav-sm li #list-sheets-horizontal, .btn-group-vertical, .contextmenu {
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.btn-group-vertical, .contextmenu {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.navbar, nav {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+}
+
+.navbar-brand {
+    display: inline-block;
+    padding-top: 0.3125rem;
+    padding-bottom: 0.3125rem;
+    margin-right: 1rem;
+    font-size: 1.25rem;
+    line-height: inherit;
+    white-space: nowrap;
+}
+
+.navbar-nav {
+    display: flex;
+    flex-direction: column;
+    padding-left: 0;
+    margin-bottom: 0;
+    list-style: none;
+}
+
+.navbar-nav .dropdown-menu {
+    position: static;
+    float: none;
+}
+
+.navbar-collapse {
+    flex-basis: 100%;
+    flex-grow: 1;
+    align-items: center;
+}
+
+.navbar-toggler {
+    padding: 0.25rem 0.75rem;
+    font-size: 1.25rem;
+    line-height: 1;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+}
+
+@media (min-width: 576px) {
+    .navbar-expand-sm, nav {
+        flex-flow: row nowrap;
+        justify-content: flex-start;
+    }
+
+    .navbar-expand-sm .navbar-nav, nav .navbar-nav {
+        flex-direction: row;
+    }
+
+    .navbar-expand-sm .navbar-nav .dropdown-menu, nav .navbar-nav .dropdown-menu {
+        position: absolute;
+    }
+
+    .navbar-expand-sm .navbar-nav .nav-link, nav .navbar-nav .nav-link {
+        padding-right: 0.5rem;
+        padding-left: 0.5rem;
+    }
+
+    .navbar-expand-sm > .container, nav > .container, .navbar-expand-sm > .container-fluid, nav > .container-fluid, .navbar-expand-sm > main, nav > main {
+        flex-wrap: nowrap;
+    }
+
+    .navbar-expand-sm .navbar-collapse, nav .navbar-collapse {
+        display: flex !important;
+        flex-basis: auto;
+    }
+
+    .navbar-expand-sm .navbar-toggler, nav .navbar-toggler {
+        display: none;
+    }
+}
+
+.navbar-light .navbar-brand, nav .navbar-brand {
+    color: rgba(0, 0, 0, 0.9);
+}
+
+.navbar-light .navbar-toggler, nav .navbar-toggler {
+    color: rgba(0, 0, 0, 0.5);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.modal, #welcome-screen, #noscript-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    display: none;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    outline: 0;
+}
+
+.bg-light, .float-window, #cell-editor-new-row, #column-suggestions, #table-container > div #table-cell-input-form, .contextmenu, #form-container, #table-container > div #table-column-sort-panel {
+    background-color: #f8f9fa !important;
+}
+
+.border, .float-window, #cell-editor-new-row, #column-suggestions, #table-container > div #table-cell-input-form, .contextmenu, #form-container #login-component #login-container, #form-container #login-component #signup-container, #form-container #signup-component #login-container, #form-container #signup-component #signup-container, #form-container #forget-component #login-container, #form-container #forget-component #signup-container, #table-container > div #table-column-sort-panel {
+    border: 1px solid #dee2e6 !important;
+}
+
+.border-0, nav .navbar-toggler, #table-container table thead th#resize-temporary-column, #table-container table tfoot th#resize-temporary-column {
+    border: 0 !important;
+}
+
+.border-bottom-0, #table-container table, #table-container table thead th.column-search, #table-container table tfoot th.column-search {
+    border-bottom: 0 !important;
+}
+
+.d-none, .hide-scrollbar::-webkit-scrollbar, .fuse-select-options::-webkit-scrollbar, .float-window, #cell-editor-new-row, #column-suggestions, #table-container > div #table-cell-input-form, nav .navbar-nav-sm, .contextmenu, #flash-messages #flash-errors [role="alert"] .flash-dismiss, #flash-messages #flash-infos [role="alert"] .flash-dismiss, #flash-messages #flash-successes [role="alert"] .flash-dismiss, .fuse-select-options, #homepage-container section#thumbnail-section, #table-container > div #resize-visual-cue, #table-container > div #table-column-sort-panel, #table-container > div #table-cell-input-form #locate-cell, #table-container > div #table-cell-input-form #locate-cell #locate-cell-explanation, #table-container > div #table-cell-input-form #locate-cell:hover #locate-cell-icon, #table-container > div #table-cell-input-form #locate-cell:hover #locate-cell-row-col, #table-container table thead th .sort-btn, #table-container table tfoot th .sort-btn, #table-container table tfoot tr:nth-child(1), #table-container table tfoot tr:nth-child(2).idle th {
+    display: none !important;
+}
+
+.d-inline {
+    display: inline !important;
+}
+
+.d-inline-block, .float-window.active, .active#cell-editor-new-row, .dropdown .dropdown-menu #cell-editor-new-row.dropdown-item:hover, .active#column-suggestions, .dropdown .dropdown-menu #column-suggestions.dropdown-item:hover, .dropdown .dropdown-menu .float-window.dropdown-item:hover, .dropdown .dropdown-menu #table-container > div .dropdown-item#table-cell-input-form:hover, #table-container > div .dropdown .dropdown-menu .dropdown-item#table-cell-input-form:hover, #table-container > div .active#table-cell-input-form, #flash-messages #flash-errors [role="alert"]:hover .flash-dismiss, #flash-messages #flash-infos [role="alert"]:hover .flash-dismiss, #flash-messages #flash-successes [role="alert"]:hover .flash-dismiss, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-sortby-text, #table-container > div #table-cell-input-form #locate-cell:hover #locate-cell-explanation, #table-container > div #table-cell-input-form #locate-cell.active, #table-container > div #table-cell-input-form .dropdown .dropdown-menu #locate-cell.dropdown-item:hover, .dropdown .dropdown-menu #table-container > div #table-cell-input-form #locate-cell.dropdown-item:hover, #table-container table thead th .sort-btn.clicked, #table-container table tfoot th .sort-btn.clicked, #table-container table thead th.hover .sort-btn, #table-container table tfoot th.hover .sort-btn, #table-container table thead th.active .sort-btn, #table-container table thead .dropdown .dropdown-menu th.dropdown-item:hover .sort-btn, .dropdown .dropdown-menu #table-container table thead th.dropdown-item:hover .sort-btn, #table-container table thead th.inputting .sort-btn, #table-container table tfoot th.active .sort-btn, #table-container table tfoot .dropdown .dropdown-menu th.dropdown-item:hover .sort-btn, .dropdown .dropdown-menu #table-container table tfoot th.dropdown-item:hover .sort-btn, #table-container table tfoot th.inputting .sort-btn {
+    display: inline-block !important;
+}
+
+.flex-column, nav .navbar-nav-sm, #homepage-container, #form-container, #table-container > div #table-column-sort-panel {
+    flex-direction: column !important;
+}
+
+.justify-content-end {
+    justify-content: flex-end !important;
+}
+
+.float-right, #form-container #login-component form label[for="password"] a, #form-container #signup-component form label[for="password"] a, #form-container #forget-component form label[for="password"] a, #table-container > div #table-cell-input-form #table-cell-input-save, #table-container table thead th .sort-btn, #table-container table tfoot th .sort-btn, #table-container table tbody td.user-edit::after, #table-container table tbody td.pasted::after, #table-container table tbody td.copied::after {
+    float: right !important;
+}
+
+.overflow-auto, .centered-section-layout, .fuse-select-options, #helppage-container, #form-container, #table-container > div {
+    overflow: auto !important;
+}
+
+.overflow-hidden, body, #text-width-measure, #table-container table th, #table-container table td {
+    overflow: hidden !important;
+}
+
+.position-static {
+    position: static !important;
+}
+
+.position-relative, form div, #table-container {
+    position: relative !important;
+}
+
+.position-absolute, .float-window, #cell-editor-new-row, #column-suggestions, #table-container > div #table-cell-input-form, nav, .contextmenu, #copy-buffer, .github-corner, #text-width-measure, #table-container > div #resize-visual-cue, #table-container > div #table-column-sort-panel, #table-container table tfoot tr:nth-child(2) button#confirm-newrow, #table-container table tfoot tr:nth-child(2) button#discard-newrow, #table-container table tfoot tr:nth-child(2) button#close-newrow {
+    position: absolute !important;
+}
+
+.position-sticky, #table-container table thead th.column-label, #table-container table tfoot th.column-label, #table-container table thead th.column-search, #table-container table tfoot th.column-search, #table-container table tfoot, #table-container table tfoot tr:nth-child(1) th, #table-container table tfoot tr:nth-child(2) th {
+    position: sticky !important;
+}
+
+.fixed-top, #flash-messages {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1030;
+}
+
+@supports (position: sticky) {
+    .sticky-top, #table-container table {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+    }
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.shadow, .float-window, #cell-editor-new-row, #column-suggestions, #table-container > div #table-cell-input-form, .contextmenu, #table-container > div #table-column-sort-panel {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.w-75, .centered-section-layout > *, #flash-messages, #homepage-container section#description-section #description-wrapper {
+    width: 75% !important;
+}
+
+.w-100, nav, #helppage-container > div form textarea, #table-container > div, #table-container > div #table-cell-input-form #locate-cell, #table-container table thead th.column-search input, #table-container table tfoot th.column-search input, #table-container table tfoot tr:nth-child(1) th input {
+    width: 100% !important;
+}
+
+.h-100, html, body, main, #homepage-container, #homepage-container > div.row, #table-container > div, #table-container > div #resize-visual-cue {
+    height: 100% !important;
+}
+
+.m-0, body, #text-width-measure, #homepage-container section {
+    margin: 0 !important;
+}
+
+.mt-0, .dropdown .dropdown-menu, .my-0, #form-container #login-component, #form-container #signup-component, #form-container #forget-component {
+    margin-top: 0 !important;
+}
+
+.mr-0, .mx-0 {
+    margin-right: 0 !important;
+}
+
+.mb-0, #welcome-screen .modal-dialog .modal-body #welcome-screen-research-group, #homepage-container section#description-section .footer, #table-container > div #table-cell-input-form > div, #table-container table, .my-0, #form-container #login-component, #form-container #signup-component, #form-container #forget-component {
+    margin-bottom: 0 !important;
+}
+
+.ml-2, .centered-section-layout > * #username, #flash-messages, #account-container #editor-identifier, .mx-2, nav .navbar-nav-sm li #list-sheets-horizontal {
+    margin-left: 0.5rem !important;
+}
+
+.mt-3, .my-3, nav .navbar-nav-sm {
+    margin-top: 1rem !important;
+}
+
+.mr-3, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-column-select, .mx-3 {
+    margin-right: 1rem !important;
+}
+
+.mb-3, .my-3, nav .navbar-nav-sm {
+    margin-bottom: 1rem !important;
+}
+
+.mr-4, .mx-4, nav .navbar-nav {
+    margin-right: 1.5rem !important;
+}
+
+.mb-4, .centered-section-layout > * section h2, #helppage-container > div form h2, .my-4, #form-container #login-component > *, #form-container #signup-component > *, #form-container #forget-component > * {
+    margin-bottom: 1.5rem !important;
+}
+
+.ml-4, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-delete, .mx-4, nav .navbar-nav {
+    margin-left: 1.5rem !important;
+}
+
+.mr-4, .mx-4, nav .navbar-nav {
+    margin-right: 1.5rem !important;
+}
+
+.mb-4, .centered-section-layout > * section h2, #helppage-container > div form h2, .my-4, #form-container #login-component > *, #form-container #signup-component > *, #form-container #forget-component > * {
+    margin-bottom: 1.5rem !important;
+}
+
+.ml-4, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-delete, .mx-4, nav .navbar-nav {
+    margin-left: 1.5rem !important;
+}
+
+.p-0, body, #text-width-measure, #homepage-container section {
+    padding: 0 !important;
+}
+
+.pt-0, .py-0 {
+    padding-top: 0 !important;
+}
+
+.pr-0, .px-0, #homepage-container, #table-container {
+    padding-right: 0 !important;
+}
+
+.pb-0, .py-0 {
+    padding-bottom: 0 !important;
+}
+
+.pl-0, .px-0, #homepage-container, #table-container {
+    padding-left: 0 !important;
+}
+
+.p-1 {
+    padding: 0.25rem !important;
+}
+
+.pt-1, #table-container > div #table-column-sort-panel, .py-1, .float-window, #cell-editor-new-row, #column-suggestions, #table-container > div #table-cell-input-form, #table-container > div #table-column-sort-panel .column-sorter {
+    padding-top: 0.25rem !important;
+}
+
+.pr-1, .px-1, #table-container > div #table-cell-input-form > div {
+    padding-right: 0.25rem !important;
+}
+
+.pb-1, .py-1, .float-window, #cell-editor-new-row, #column-suggestions, #table-container > div #table-cell-input-form, #table-container > div #table-column-sort-panel .column-sorter {
+    padding-bottom: 0.25rem !important;
+}
+
+.pl-1, .px-1, #table-container > div #table-cell-input-form > div {
+    padding-left: 0.25rem !important;
+}
+
+.p-2, form textarea {
+    padding: 0.5rem !important;
+}
+
+.pt-2, .py-2, nav .navbar-nav-sm li, #welcome-screen .modal-dialog .modal-body #welcome-screen-research-group, #table-container table tfoot tr:nth-child(2) #newrow-error {
+    padding-top: 0.5rem !important;
+}
+
+.pr-2, .px-2, #form-container, #table-container > div #table-column-sort-panel {
+    padding-right: 0.5rem !important;
+}
+
+.pb-2, #welcome-screen .modal-dialog .modal-body, #noscript-modal .modal-dialog .modal-body, .py-2, nav .navbar-nav-sm li, #welcome-screen .modal-dialog .modal-body #welcome-screen-research-group, #table-container table tfoot tr:nth-child(2) #newrow-error {
+    padding-bottom: 0.5rem !important;
+}
+
+.pl-2, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-reorder-grip, .px-2, #form-container, #table-container > div #table-column-sort-panel {
+    padding-left: 0.5rem !important;
+}
+
+.p-3 {
+    padding: 1rem !important;
+}
+
+.pt-3, .py-3, #form-container #login-component #login-container, #form-container #login-component #signup-container, #form-container #signup-component #login-container, #form-container #signup-component #signup-container, #form-container #forget-component #login-container, #form-container #forget-component #signup-container {
+    padding-top: 1rem !important;
+}
+
+.pr-3, .px-3, nav .navbar-nav-sm li {
+    padding-right: 1rem !important;
+}
+
+.pb-3, .py-3, #form-container #login-component #login-container, #form-container #login-component #signup-container, #form-container #signup-component #login-container, #form-container #signup-component #signup-container, #form-container #forget-component #login-container, #form-container #forget-component #signup-container {
+    padding-bottom: 1rem !important;
+}
+
+.pl-3, .px-3, nav .navbar-nav-sm li {
+    padding-left: 1rem !important;
+}
+
+.p-4 {
+    padding: 1.5rem !important;
+}
+
+.pt-4, #noscript-modal .modal-dialog .modal-body, .py-4 {
+    padding-top: 1.5rem !important;
+}
+
+.pr-4, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-reorder-grip, .px-4, nav .nav-item, #welcome-screen .modal-dialog .modal-body, #noscript-modal .modal-dialog .modal-body, #table-container table tfoot tr:nth-child(2) #newrow-error {
+    padding-right: 1.5rem !important;
+}
+
+.pb-4, .py-4 {
+    padding-bottom: 1.5rem !important;
+}
+
+.pl-4, .px-4, nav .nav-item, #welcome-screen .modal-dialog .modal-body, #noscript-modal .modal-dialog .modal-body, #table-container table tfoot tr:nth-child(2) #newrow-error {
+    padding-left: 1.5rem !important;
+}
+
+.p-5, #form-container #login-component form, #form-container #signup-component form, #form-container #forget-component form {
+    padding: 3rem !important;
+}
+
+.pt-5, #welcome-screen .modal-dialog .modal-body, .py-5, .centered-section-layout > * section {
+    padding-top: 3rem !important;
+}
+
+.pr-5, .px-5 {
+    padding-right: 3rem !important;
+}
+
+.pb-5, .py-5, .centered-section-layout > * section {
+    padding-bottom: 3rem !important;
+}
+
+.pl-5, .px-5 {
+    padding-left: 3rem !important;
+}
+
+.text-nowrap, #table-container table th, #table-container table td, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-sortby-text {
+    white-space: nowrap !important;
+}
+
+.text-center, #welcome-screen .modal-dialog .modal-body, #form-container #login-component h1, #form-container #login-component #login-container, #form-container #login-component #signup-container, #form-container #signup-component h1, #form-container #signup-component #login-container, #form-container #signup-component #signup-container, #form-container #forget-component h1, #form-container #forget-component #login-container, #form-container #forget-component #signup-container, #noscript-modal .modal-dialog .modal-body, #table-container table tfoot tr:nth-child(2) th {
+    text-align: center !important;
+}
+
+.text-capitalize, nav .nav-item {
+    text-transform: capitalize !important;
+}
+
+.font-weight-bold, h1, h2, h3, h4, h5, h6, nav .navbar-brand, #table-container > div #table-cell-input-form #locate-cell #locate-cell-row-col #locate-cell-associated-row, #table-container > div #table-cell-input-form #locate-cell #locate-cell-row-col #locate-cell-associated-col {
+    font-weight: 700 !important;
+}
+
+.text-white, nav .navbar-brand, nav .navbar-toggler, nav .navbar-nav-sm li, nav .nav-item:hover #navbar-sheet, nav .nav-item:hover #navbar-sheets, nav .nav-item:hover #navbar-credits, nav .nav-item:hover #navbar-addrow, nav .nav-item:hover #navbar-delrow, nav .nav-item:hover #navbar-user, #table-container table thead th.active, #table-container table thead .dropdown .dropdown-menu th.dropdown-item:hover, .dropdown .dropdown-menu #table-container table thead th.dropdown-item:hover, #table-container table thead th.inputting, #table-container table tfoot th.active, #table-container table tfoot .dropdown .dropdown-menu th.dropdown-item:hover, .dropdown .dropdown-menu #table-container table tfoot th.dropdown-item:hover, #table-container table tfoot th.inputting, #table-container table thead th.copied, #table-container table tfoot th.copied, #table-container table tfoot tr:nth-child(2).insertion-success th, #table-container table tfoot tr:nth-child(2).insertion-failure th, #table-container table tfoot tr:nth-child(2).delete-success th, #table-container table tfoot tr:nth-child(2).delete-failure th, #table-container table tfoot tr:nth-child(2) #newrow-error, #account-container #editor-identifier::selection {
+    color: #fff !important;
+}
+
+.text-decoration-none, nav .nav-item a, #form-container #login-component form label[for="password"] a, #form-container #signup-component form label[for="password"] a, #form-container #forget-component form label[for="password"] a {
+    text-decoration: none !important;
+}
+
+.text-break, #table-container table th, #table-container table td {
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+/*!
+ * Font Awesome Free 5.11.2 by @fontawesome - https://fontawesome.com
+ * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+ */
+ .fa, .fas, nav .navbar-toggler:before, nav .nav-item #navbar-sheet:before, nav .nav-item #navbar-sheets:before, nav .nav-item #navbar-sheets:after, nav .nav-item #navbar-credits:before, nav .nav-item #navbar-addrow:before, nav .nav-item #navbar-delrow:before, nav .nav-item #navbar-user:before, nav .nav-item #navbar-user:after, #flash-messages #flash-errors [role="alert"] .flash-dismiss, #flash-messages #flash-infos [role="alert"] .flash-dismiss, #flash-messages #flash-successes [role="alert"] .flash-dismiss, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-reorder-grip, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-order, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-delete, #table-container > div #table-cell-input-form #locate-cell #locate-cell-icon, #table-container table thead th .sort-btn, #table-container table tfoot th .sort-btn, .far, .fal, .fad, .fab {
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+nav .navbar-toggler:before, nav .nav-item #navbar-sheet:before, nav .nav-item #navbar-sheets:before, nav .nav-item #navbar-sheets:after, nav .nav-item #navbar-credits:before, nav .nav-item #navbar-addrow:before, nav .nav-item #navbar-delrow:before, nav .nav-item #navbar-user:before, nav .nav-item #navbar-user:after {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    line-height: 1;
+}
+
+.fa-lg, nav .nav-item #navbar-user::before, #flash-messages #flash-errors [role="alert"] .flash-dismiss, #flash-messages #flash-infos [role="alert"] .flash-dismiss, #flash-messages #flash-successes [role="alert"] .flash-dismiss {
+    font-size: 1.33333em;
+    line-height: 0.75em;
+    vertical-align: -.0667em;
+}
+
+.sr-only {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+.fa, .fas, nav .navbar-toggler:before, nav .nav-item #navbar-sheet:before, nav .nav-item #navbar-sheets:before, nav .nav-item #navbar-sheets:after, nav .nav-item #navbar-credits:before, nav .nav-item #navbar-addrow:before, nav .nav-item #navbar-delrow:before, nav .nav-item #navbar-user:before, nav .nav-item #navbar-user:after, #flash-messages #flash-errors [role="alert"] .flash-dismiss, #flash-messages #flash-infos [role="alert"] .flash-dismiss, #flash-messages #flash-successes [role="alert"] .flash-dismiss, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-reorder-grip, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-order, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-delete, #table-container > div #table-cell-input-form #locate-cell #locate-cell-icon, #table-container table thead th .sort-btn, #table-container table tfoot th .sort-btn {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+}
+
+.clickable, nav .navbar-nav-sm li, nav .nav-item, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-order, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-delete, #account-container #editor-identifier {
+    cursor: pointer;
+}
+
+.unselectable, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-sortby-text, #table-container > div #table-cell-input-form #input-form-legend, #table-container table th, #table-container table td {
+    -ms-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-user-select: none;
+    user-select: none;
+}
+
+.font-awesome, #table-container table thead th.column-search input:placeholder-shown, #table-container table tfoot th.column-search input:placeholder-shown, #table-container table tbody td.user-edit::after, #table-container table tbody td.pasted::after, #table-container table tbody td.copied::after, #table-container table tfoot tr:nth-child(2) button#confirm-newrow::before, #table-container table tfoot tr:nth-child(2) button#confirm-newrow::after, #table-container table tfoot tr:nth-child(2) button#discard-newrow::before, #table-container table tfoot tr:nth-child(2) button#discard-newrow::after, #table-container table tfoot tr:nth-child(2) button#close-newrow::before, #table-container table tfoot tr:nth-child(2) button#close-newrow::after {
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+}
+
+.float-window, #cell-editor-new-row, #column-suggestions, #table-container > div #table-cell-input-form {
+    top: 0;
+    left: 0;
+    z-index: 1060;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    padding-top: 80px;
+    margin-bottom: 75px;
+    height: 100%;
+}
+
+html, body, main {
+    font-size: 14px;
+}
+
+nav {
+    height: 60px;
+    z-index: 2000;
+}
+
+nav .navbar-nav-sm {
+    flex-basis: 100%;
+}
+
+nav .nav-item #navbar-sheet {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+nav .nav-item #navbar-sheet:before {
+    content: "\f0ce";
+}
+
+av .nav-item #navbar-credits {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+nav .nav-item #navbar-credits:before {
+    content: "\f1da";
+}
+
+nav .nav-item #navbar-addrow {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+nav .nav-item #navbar-addrow:before {
+    content: "\f0fe";
+}
+
+nav .nav-item #navbar-delrow {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+nav .nav-item #navbar-delrow:before {
+    content: "\f146";
+}
+
+nav .nav-item #navbar-user {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+nav .nav-item #navbar-user:before {
+    content: "\f2bd";
+}
+
+nav .nav-item #navbar-user:after {
+    content: "\f0d7";
+}
+
+nav .nav-item #navbar-sheet + .dropdown-menu {
+    z-index: 2001;
+}
+
+nav .nav-item #navbar-sheet + .dropdown-menu .dropdown-item {
+    z-index: 2001;
+}
+
+nav ~ main {
+    padding-top: 60px;
+}
+
+.contextmenu {
+    padding: 0.1rem;
+    z-index: 1060;
+}
+
+#flash-messages {
+    opacity: 0.95;
+}
+
+/* The Modal (background) */
+.modal, #welcome-screen, #noscript-modal {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    /* Stay in place */
+    z-index: 9001;
+    /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Full width */
+    height: 100%;
+    /* Full height */
+    background-color: black;
+    /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black w/ opacity */
+}
+
+#text-width-measure {
+    height: 0;
+    font: inherit;
+    white-space: pre;
+}
+
+#table-container table th, #table-container table td {
+    text-overflow: ellipsis;
+}
+
+#table-container > div #resize-visual-cue {
+    pointer-events: none;
+    background-color: rgba(176, 208, 211, 0.5);
+    width: 5px !important;
+    top: 0;
+    left: 0;
+}
+
+#table-container > div #table-column-sort-panel {
+    z-index: 2002;
+}
+
+#table-container > div #table-cell-input-form {
+    max-width: 90vw;
+    cursor: move;
+}
+
+#table-container table {
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+#table-container table col {
+    width: 10vw;
+}
+
+#table-container table thead th, #table-container table tfoot th {
+    border-bottom-width: 1px;
+}
+
+#table-container table thead th.column-label, #table-container table tfoot th.column-label {
+    top: 0;
+}
+
+#table-container table thead th#resize-temporary-column, #table-container table tfoot th#resize-temporary-column {
+    background-color: transparent !important;
+}
+
+#table-container table thead th.column-search, #table-container table tfoot th.column-search {
+    -webkit-box-shadow: inset 0px 1px 0px 0px #dee2e6, inset 0px -1px 0px 0px #dee2e6;
+    -ms-box-shadow: inset 0px 1px 0px 0px #dee2e6, inset 0px -1px 0px 0px #dee2e6;
+    box-shadow: inset 0px 1px 0px 0px #dee2e6, inset 0px -1px 0px 0px #dee2e6;
+    top: 39px;
+}
+
+#table-container table tbody {
+    line-height: 1.25em;
+}
+
+#table-container table tfoot {
+    bottom: 0;
+}
+
+#table-container table tfoot tr:nth-child(2) th {
+    -webkit-box-shadow: inset 0px 1px 0px 0px #dee2e6;
+    -ms-box-shadow: inset 0px 1px 0px 0px #dee2e6;
+    box-shadow: inset 0px 1px 0px 0px #dee2e6;
+    height: 50px;
+    bottom: 0;
+}
