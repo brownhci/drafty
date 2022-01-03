@@ -9,7 +9,6 @@ goaccess /var/log/caddy/access.log \
   --ignore-crawlers \
   --all-static-files \
   --log-format=CADDY \
-  --real-time-html \
   --sort-panel=VISITORS,BY_HITS,DESC \
   --sort-panel=REQUESTS,BY_VISITORS,DESC
   

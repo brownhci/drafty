@@ -18,4 +18,4 @@
 * * * * * root cd /vol/csopenrankings/backend/generators/ && python3 update_date.py
 
 ### run goaccess command in /vol/static
-*/15 * * * * root cd /vol/drafty_source/drafty/util/ && ./run_goaccess
+*/15 * * * * root cd /vol/drafty_source/drafty/util/server/ && ./run_goaccess
