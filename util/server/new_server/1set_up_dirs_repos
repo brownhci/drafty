@@ -3,6 +3,7 @@
 MAINDIR="vol"
 cd / && mkdir $MAINDIR && cd $MAINDIR
 
+mkdir /$MAINDIR/static/
 mkdir /$MAINDIR/docker/
 mkdir /$MAINDIR/docker/caddy
 mkdir /$MAINDIR/docker/mysql

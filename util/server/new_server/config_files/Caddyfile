@@ -1,16 +1,24 @@
 # proxy all requests
 drafty.cs.brown.edu
 
+route /static/* {
+    uri strip_prefix /static
+    file_server {
+        root /vol/static
+    }
+}
+
+
 reverse_proxy localhost:3000
 
 encode gzip
 
 log {
-	# debian tends to throw permission errors on /var/log/access.log
-	# can possibly try /var/log/caddy/access.log
-	output file /var/log/caddy/access.log {
-		roll_size 1gb
-		roll_keep 5
-		roll_keep_for 720h
-	}
+        # debian tends to throw permission errors on /var/log/access.log
+        # can possibly try /var/log/caddy/access.log
+        output file /var/log/caddy/access.log {
+                roll_size 1gb
+                roll_keep 5
+                roll_keep_for 720h
+        }
 }
