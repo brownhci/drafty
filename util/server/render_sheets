@@ -16,3 +16,6 @@
 #* * * * * root cd /vol/csopenrankings/backend/generators/ && python makeAllJson.py 
 * * * * * root cd /vol/csopenrankings/backend/generators/ && python3 prof_data_normalizer.py && python3 best_paper_normalizer.py && python3 csrankings_normalizer.py && python3 pageRank_normalizer.py && python3 us_news_rank_normalizer.py && python3 deptSize_normalizer.py
 * * * * * root cd /vol/csopenrankings/backend/generators/ && python3 update_date.py
+
+### run goaccess command in /vol/static
+*/15 * * * * root cd /vol/drafty_source/drafty/util/ && ./run_goaccess
