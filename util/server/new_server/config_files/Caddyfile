@@ -6,7 +6,9 @@ reverse_proxy localhost:3000
 encode gzip
 
 log {
-	output file /var/log/access.log {
+	# debian tends to throw permission errors on /var/log/access.log
+	# can possibly try /var/log/caddy/access.log
+	output file /var/log/caddy/access.log {
 		roll_size 1gb
 		roll_keep 5
 		roll_keep_for 720h

@@ -22,12 +22,14 @@ services:
         image: portainer/portainer
     caddy:
         container_name: caddy
+        command: cd /var/log | mkdir caddy | chown caddy caddy
         ports:
             - '80:80'
             - '443:443'
         environment:
             - ACME_AGREE=true
         volumes:
+            - '/vol/docker/caddy/log:/var/log'
             - '/vol/docker/caddy/Caddyfile:/etc/Caddyfile'
             - '/vol/docker/caddy/srv:/srv'
             - '/vol/docker/caddy/certs:/root/.caddy'
