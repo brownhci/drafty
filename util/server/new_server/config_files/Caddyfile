@@ -1,13 +1,12 @@
 # proxy all requests
 drafty.cs.brown.edu
 
-route /static/* {
+route /analytics.html {
     uri strip_prefix /static
     file_server {
         root /vol/static
     }
 }
-
 
 reverse_proxy localhost:3000
 
