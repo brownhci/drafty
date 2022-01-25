@@ -3,6 +3,7 @@ import { tableName, validFieldNamesForLookup, UserModel } from '../models/user';
 
 // SQL Statements
 const stmtSelUser: string    = 'SELECT * FROM ?? WHERE ?? = ?';
+const stmtInsertDeleteUserDataLog: string = 'INSERT INTO RemoveUserData SET id_profile = ?,id_session = ?;';
 const stmtInsertUser: string = 'INSERT INTO ?? SET ?';
 const stmtUpdateUser: string = 'UPDATE ?? SET ? WHERE ?';
 const stmtUpdateUserNewSignUp: string = 'UPDATE users.Profile SET username = ?, email = ?, password = ? WHERE idProfile = ?';
@@ -56,12 +57,11 @@ export async function findUserByField(fieldName: string, fieldValue: string ) {
     return [new Error(`Cannot look up a user using field - ${fieldName}`)];
   }
   try {
-    console.log(`${tableName} ${fieldName} ${fieldValue}`);
+    //console.log(`${tableName} ${fieldName} ${fieldValue}`);
     if(fieldValue.includes('@')) {
       fieldValue = fieldValue.split('@')[0];
     } 
     const [rows] = await db.query(stmtSelUser, [tableName, fieldName, fieldValue]);
-    console.log(rows);
     if (Array.isArray(rows) && rows.length > 0) {
       const userRow = rows[0] as UserModel;
       return [null, userRow];
@@ -69,7 +69,6 @@ export async function findUserByField(fieldName: string, fieldValue: string ) {
       return [new Error(`Cannot find a user whose ${fieldName} is ${fieldValue}`), null];
     }
   } catch (error) {
-    console.log(`6`);
     logDbErr(error, 'error during finding user', 'warn');
     return [error];
   }
@@ -89,13 +88,39 @@ export async function findUserByField(fieldName: string, fieldValue: string ) {
 export async function createUser(user: Partial<UserModel>) {
   try {
     const [results] = await db.query(stmtInsertUser, [tableName, user]);
-    console.log(results);
     return [null, results];
   } catch (error) {
     logDbErr(error, 'error during creating user', 'warn');
     return [error];
   }
 }
+
+
+/**
+ * Save a new user in database
+ *
+ * Args:
+ *    idProfile: a user's unique idProfile 
+ *    idSession: a user's unique idSession 
+ * Returns:
+ *    [error, results, fields]
+ *      - receive [error] if the insertion fails
+ *      - receive [null, results, fields] if the insertion succeeds
+ */
+ export async function removeUserData(idProfile: number, idSession: number) {
+  try {
+    const [results] = await db.query(stmtInsertDeleteUserDataLog, [idProfile, idSession]);
+    /* 
+    TODO
+    delete cookie in users database; and delete all interactions/edits
+    */
+    return [null, results];
+  } catch (error) {
+    logDbErr(error, 'error during creating removeUserData log data', 'warn');
+    return [error];
+  }
+}
+
 
 /**
  * Creates new experiment per session
