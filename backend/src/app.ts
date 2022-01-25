@@ -27,6 +27,7 @@ import * as userCtrl from './controllers/user';
 import * as interactionCtrl from './controllers/interaction';
 import * as suggestionCtrl from './controllers/suggestion';
 import * as dataSharingCtrl from './controllers/datasharing';
+import * as dataPrivacy from './controllers/dataprivacy';
 // import * as middlewareTests from "./util/middlewaretests";
 
 // API keys and Passport configuration
@@ -146,6 +147,9 @@ app.get('/help', helpCtrl.getHelp);
 // passport accounts
 app.get('/account', userCtrl.checkReturnPath, userCtrl.getAccount);
 app.post('/account/password', passportConfig.isAuthenticated, userCtrl.postUpdatePassword);
+
+// data privacy
+app.post('/account/delete', dataPrivacy.postRemoveData);
 
 // data sharing
 app.get('/data/edithistory', dataSharingCtrl.getEditHistory);
