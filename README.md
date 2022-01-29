@@ -22,10 +22,11 @@ For additional scripts, the server folder has numerous scripts to update and man
     docker-compose up -d
 
 
-### Install project dependencies (we use Node v16.3.0 and NVM to switch between versions of Node and NPM)
+### Install project dependencies and Run Locally (we use Node v16.3.0 and NVM to switch between versions of Node and NPM)
 
     cd backend
     npm install
+    npm run watch
     
 
 ### Update Drafty and Restart Drafty’s Web Server
@@ -38,13 +39,13 @@ For additional scripts, the server folder has numerous scripts to update and man
     npm run build
     pm2 reload all
 
-### Update CS Open Rankings
+### Update CS Open Rankings (Production Server Only)
 
     cd /vol/csopenrankings
     git pull
 NOTE: cs open rankings is served statically from drafty’s web server
 
 
-### Restart Drafty’s Web Server
+### Restart Drafty’s Web Server (Production Server Only)
 
     pm2 reload all
