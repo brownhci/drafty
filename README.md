@@ -22,6 +22,12 @@ For additional scripts, the server folder has numerous scripts to update and man
     docker-compose up -d
 
 
+### Install project dependencies (we use Node v16.3.0 and NVM to switch between versions of Node and NPM)
+
+    cd backend
+    npm install
+    
+
 ### Update Drafty and Restart Drafty’s Web Server
 
 
