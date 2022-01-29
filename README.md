@@ -14,6 +14,14 @@ Wallace S., Van Kleunen L., Aubin-Le Quere M., Peterkin A., Huang Y., Huang J.
 # Basic Systems and Server Operations
 For additional scripts, the server folder has numerous scripts to update and manage the live server.
 
+### Install MariaDB (MySQL) using Docker
+
+
+    cd docker/<local_dev or production>/
+    update the root password in the docker-compose.yml file: - MYSQL_ROOT_PASSWORD=<your_db_password>
+    docker-compose up -d
+
+
 ### Update Drafty and Restart Drafty’s Web Server
 
 
