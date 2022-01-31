@@ -14,6 +14,21 @@ Wallace S., Van Kleunen L., Aubin-Le Quere M., Peterkin A., Huang Y., Huang J.
 # Basic Systems and Server Operations
 For additional scripts, the server folder has numerous scripts to update and manage the live server.
 
+### Install MariaDB (MySQL) using Docker
+
+
+    cd docker/<local_dev or production>/
+    update the root password in the docker-compose.yml file: - MYSQL_ROOT_PASSWORD=<your_db_password>
+    docker-compose up -d
+
+
+### Install project dependencies and Run Locally (we use Node v16.3.0 and NVM to switch between versions of Node and NPM)
+
+    cd backend
+    npm install
+    npm run watch
+    
+
 ### Update Drafty and Restart Drafty’s Web Server
 
 
@@ -24,13 +39,13 @@ For additional scripts, the server folder has numerous scripts to update and man
     npm run build
     pm2 reload all
 
-### Update CS Open Rankings
+### Update CS Open Rankings (Production Server Only)
 
     cd /vol/csopenrankings
     git pull
 NOTE: cs open rankings is served statically from drafty’s web server
 
 
-### Restart Drafty’s Web Server
+### Restart Drafty’s Web Server (Production Server Only)
 
     pm2 reload all

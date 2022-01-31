@@ -3,7 +3,7 @@ services:
     mariadb:
         container_name: mariadb
         volumes:
-            - '/vol/docker/mysql/datadir:/var/lib/mysql'
+            - '<a_directory_on_your_local_computer>:/var/lib/mysql'
         ports:
             - '3306:3306'
         environment:
