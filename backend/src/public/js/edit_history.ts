@@ -35,11 +35,15 @@ function convertDateToLocalTimezone(date: string) {
         return dateLocalTimezone;
     } catch (error) {
         // firefox mobile has error on date/time conversion
+        console.log(error);
         return date;   
     }
 }
 
+
 for (let i = 1; i < editHistoryTable.rows.length; i++) {
     const row: HTMLTableRowElement = editHistoryTable.rows[i];
-    row.cells[0].innerHTML = convertDateToLocalTimezone(row.cells[0].innerHTML);
+    const newDate = convertDateToLocalTimezone(row.cells[0].innerHTML);
+    console.log(newDate);
+    row.cells[0].innerHTML = newDate;
 }
