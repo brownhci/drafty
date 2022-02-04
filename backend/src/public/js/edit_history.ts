@@ -14,6 +14,7 @@ function cleanDateNumber(val: number, month: boolean = false) {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function convertDay(val: number) {
     if (val >= 10) {
         return val;
@@ -33,7 +34,6 @@ function convertDateToLocalTimezone(date: string) {
     cleanDateNumber(convertedDate.getMinutes());
 }
 
-console.log(editHistoryTable.rows.length);
 for (let i = 1; i < editHistoryTable.rows.length; i++) {
     const row: HTMLTableRowElement = editHistoryTable.rows[i];
     row.cells[0].innerHTML = convertDateToLocalTimezone(row.cells[0].innerHTML);
