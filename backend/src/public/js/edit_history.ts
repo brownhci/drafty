@@ -24,14 +24,19 @@ function convertDay(val: number) {
 }
 
 function convertDateToLocalTimezone(date: string) {
-    const myDate = new Date(date);
-    const convertedDate = new Date(myDate.getTime() - offset * 60000);
-    
-    return convertedDate.getFullYear() + '-' + 
-    cleanDateNumber(convertedDate.getMonth(), true) + '-' + 
-    cleanDateNumber(convertedDate.getDate())  + ' ' + 
-    cleanDateNumber(convertedDate.getHours()) + ':' + 
-    cleanDateNumber(convertedDate.getMinutes());
+    try {
+        const myDate = new Date(date);
+        const convertedDate = new Date(myDate.getTime() - offset * 60000);
+        const dateLocalTimezone = convertedDate.getFullYear() + '-' + 
+                                cleanDateNumber(convertedDate.getMonth(), true) + '-' + 
+                                cleanDateNumber(convertedDate.getDate())  + ' ' + 
+                                cleanDateNumber(convertedDate.getHours()) + ':' + 
+                                cleanDateNumber(convertedDate.getMinutes());
+        return dateLocalTimezone;
+    } catch (error) {
+        // firefox mobile has error on date/time conversion
+        return date;   
+    }
 }
 
 for (let i = 1; i < editHistoryTable.rows.length; i++) {
