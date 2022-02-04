@@ -44,6 +44,7 @@ function convertDateToLocalTimezone(date: string) {
 for (let i = 1; i < editHistoryTable.rows.length; i++) {
     const row: HTMLTableRowElement = editHistoryTable.rows[i];
     const newDate = convertDateToLocalTimezone(row.cells[0].innerHTML);
+    console.log(row.cells[0].innerHTML);
     console.log(newDate);
     row.cells[0].innerHTML = newDate;
 }
