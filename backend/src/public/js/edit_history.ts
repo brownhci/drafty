@@ -35,7 +35,6 @@ function convertDateToLocalTimezone(date: string) {
         return dateLocalTimezone;
     } catch (error) {
         // firefox mobile has error on date/time conversion
-        console.log(error);
         return date;   
     }
 }
@@ -43,8 +42,7 @@ function convertDateToLocalTimezone(date: string) {
 
 for (let i = 1; i < editHistoryTable.rows.length; i++) {
     const row: HTMLTableRowElement = editHistoryTable.rows[i];
-    const newDate = convertDateToLocalTimezone(row.cells[0].innerHTML.trim());
-    console.log(row.cells[0].innerHTML.trim());
-    console.log(newDate);
+    const cellDate = row.cells[0].innerHTML.trim();
+    const newDate = convertDateToLocalTimezone(cellDate);
     row.cells[0].innerHTML = newDate;
 }
