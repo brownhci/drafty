@@ -1,5 +1,5 @@
 <!-- The Modal - OLD CODE -->
-<div id="welcome-screen" tabindex="-1" role="dialog" aira-hidden="true" data-backdrop="static" style="display:block">
+<div id="databait-screen" tabindex="-1" role="dialog" aira-hidden="true" data-backdrop="static" style="display:block">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -14,7 +14,9 @@
           Over the past 25 years the total number of <br>CS Professors who specialized in<br> <a href="#">Human-Computer Interaction</a> increased 10 times.
         </p>
 
-        <button type="button" class="btn btn btn-outline-primary btn-block" style="align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
+        <button type="button" id="btn-databait-tweet"
+        class="btn btn btn-outline-primary btn-block" 
+        style="align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
           TWEET this!
         </button>
 
@@ -23,10 +25,10 @@
         </p>
 
         <div style="display: flex;">
-          <button type="button" class="btn btn btn-outline-primary btn-block" style="align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
+          <button type="button" id="btn-databait-similar" class="btn btn btn-outline-primary btn-block" style="align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
             Similar
           </button>
-          <button type="button" class="btn btn btn-outline-primary btn-block" style="align-items: flex-start; margin: 0.5em 0em 0.5em 0.25em;">
+          <button type="button" id="btn-databait-random" class="btn btn btn-outline-primary btn-block" style="align-items: flex-start; margin: 0.5em 0em 0.5em 0.25em;">
             Random
           </button>
         </div>
@@ -34,7 +36,7 @@
 
       <div class="modal-body" style="padding-top: 0px !important;">
         <p style="border-bottom: 1px solid #dee2e6 !important;"></p>
-        <button type="button" class="btn btn btn-outline-secondary btn-block" data-dismiss="modal">
+        <button type="button" id="dataBaitModalClose" class="btn btn btn-outline-secondary btn-block" data-dismiss="modal">
             Close
         </button>
         <p style="text-align: center;color: gray;margin-top: 1em !important;margin-bottom: 0.5em !important;">
@@ -46,3 +48,4 @@
     </div>
   </div>
 </div>
+<script src="/js/bundles/databaits.js"></script>
