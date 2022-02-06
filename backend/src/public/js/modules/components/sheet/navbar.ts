@@ -47,14 +47,15 @@ navBarDidYouKnow.innerHTML = `
                         </li>`;
 
 navBar.appendChild(navBarEditHistory);
-
 navBar.appendChild(navBarNewRow);
+navBar.appendChild(navBarDelRow);
+navBar.appendChild(navBarDidYouKnow);
+
 navBarNewRow.addEventListener('click', function(event: MouseEvent) {
     tableFoot.toggle(StatusMode.Insertion);
     event.stopPropagation();
 }, true);
 
-navBar.appendChild(navBarDelRow);
 navBarDelRow.addEventListener('click', function(event: MouseEvent) {
     if(activeTableCellElement === null || activeTableCellElement === undefined) {
         deleteRowModalError.style.display = 'block';
@@ -64,7 +65,6 @@ navBarDelRow.addEventListener('click', function(event: MouseEvent) {
     event.stopPropagation();
 }, true);
 
-navBar.appendChild(navBarDidYouKnow);
 navBarDidYouKnow.addEventListener('click', function(event: MouseEvent) {
     // TODO create random did you know
     event.stopPropagation();
