@@ -202,6 +202,12 @@ export function recordDataBaitCreate(idSuggestion: string, idRow: string, tableR
   });
 }
 
+
+export function recordDataBaitTweet(idDataBait: string) {
+  recordInteraction(postDataBaitTweet(), {
+    idDataBait: idDataBait
+  });
+}
 export function recordSearchColVisit(idSuggestionType: string, value: string) {
   recordInteraction(postSearchColVisit(), {
     idSuggestionType: idSuggestionType,
