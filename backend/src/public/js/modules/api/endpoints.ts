@@ -75,6 +75,10 @@ export function postDataBaitVisit() {
   return 'databait-visit';
 }
 
+export function postDataBaitCreate() {
+  return 'databait-create';
+}
+
 export function postSearchColVisit() {
   return 'searchcol-visit';
 }
