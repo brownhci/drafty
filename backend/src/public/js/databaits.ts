@@ -10,9 +10,9 @@ const tweetBtn = <HTMLButtonElement>document.getElementById('btn-databait-tweet'
 const createSimilarBtn = <HTMLButtonElement>document.getElementById('btn-databait-similar');
 const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait-random');
 
-
 dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
     dataBaitModal.style.display = 'none';
+    // recordDataBaitTweet() // similar
     event.stopPropagation();
 }, true);
 
@@ -21,9 +21,11 @@ tweetBtn.addEventListener('click', function() {
 }, true);
 createSimilarBtn.addEventListener('click', function() {
     console.log('createSimilarBtn');
+    // recordDataBaitCreate() // similar
 }, true);
 createRandomBtn.addEventListener('click', function() {
     console.log('createRandomBtn');
+    // recordDataBaitCreate() // random
 }, true);
 
 export function dataBait(tableCellElement: HTMLTableCellElement) {
