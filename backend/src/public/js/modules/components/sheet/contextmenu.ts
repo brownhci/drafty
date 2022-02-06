@@ -170,6 +170,10 @@ tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
       menuItem.toggle();
       openGoogleSearch(activeTableCellElement);
       break;
+    case 'Did you know?':
+        menuItem.toggle();
+        //createDidYouKnow(activeTableCellElement);
+        break;
   }
   deactivateTableDataContextMenu();
   event.stopPropagation();
