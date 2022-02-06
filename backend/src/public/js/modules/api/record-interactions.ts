@@ -193,6 +193,15 @@ export function recordDataBaitVisit(idDataBait: string, source: string) {
   });
 }
 
+export function recordDataBaitCreate(idSuggestion: string, idRow: string, tableRow: HTMLTableRowElement) {
+  const rowValues = getTableRowCellValues(tableRow);
+  recordInteraction(postDataBaitVisit(), {
+    idSuggestion: idSuggestion,
+    idRow: idRow,
+    searchValues: rowValues
+  });
+}
+
 export function recordSearchColVisit(idSuggestionType: string, value: string) {
   recordInteraction(postSearchColVisit(), {
     idSuggestionType: idSuggestionType,
