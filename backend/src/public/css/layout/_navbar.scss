@@ -4,6 +4,7 @@ $nav-icons: (
   "credits": ("before": $fa-var-history), 
   "addrow": ("before": $fa-var-plus-square), 
   "delrow": ("before": $fa-var-minus-square),
+  "didyouknow": ("before": $fa-var-question-circle),
   "user": ("before": $fa-var-user-circle, "after": $fa-var-caret-down));
 $zindex-nav: 2000;
 $zindex-sheet-dropdown: $zindex-nav + 1;
