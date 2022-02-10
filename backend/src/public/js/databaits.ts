@@ -10,6 +10,18 @@ const tweetBtn = <HTMLButtonElement>document.getElementById('btn-databait-tweet'
 const createSimilarBtn = <HTMLButtonElement>document.getElementById('btn-databait-similar');
 const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait-random');
 
+const databaitLinks = document.getElementsByClassName('databait-url');
+
+function databaitLinksListener(event: Event) {
+    console.log(event);
+    console.log(event.target);
+    const element = event.target;
+}
+
+Array.from(databaitLinks).forEach(function(element) {
+    element.addEventListener('click', databaitLinksListener);
+});
+
 dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
     dataBaitModal.style.display = 'none';
     // recordDataBaitTweet() // similar
