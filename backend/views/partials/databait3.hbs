@@ -1,17 +1,14 @@
 <!-- The Modal - OLD CODE -->
-<div id="databait-screen" tabindex="-1" role="dialog" aira-hidden="true" data-backdrop="static" style="display:block">
+<div id="databait-screen" class="modal" tabindex="-1" role="dialog" aira-hidden="true" data-backdrop="static" style="display:block">
   <div class="modal-dialog" role="document">
-    <div class="modal-content">
+    <div class="modal-content" style="padding-top: 0.5em; padding-bottom: 0em;">
       <div class="modal-header">
         <h5 class="modal-title" style="/* font-size: 1.75em; */">Did you know?</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <i data-dismiss="modal" class="fas fa-times"></i>
-        </button>
       </div>
 
       <div class="modal-body" style="padding-top: 21px !important;">
-        <p style="font-size: 20px; margin: 0em; border-radius: 3.5px; padding: 1em; background-image: linear-gradient(to right, rgba(0,0,0,0.03), rgb(0,0,0,0.01), rgba(0,0,0,.03));">
-          Over the past 25 years the total number of <br>CS Professors who specialized in<br> <a class="databait-url" href="#">Human-Computer Interaction</a> increased 10 times.
+        <p id="databait" style="font-size: 20px; margin: 0em; border-radius: 3.5px; padding: 1em; background-image: linear-gradient(to right, rgba(0,0,0,0.03), rgb(0,0,0,0.01), rgba(0,0,0,.03));">
+          Over the past 25 years the total number of <br>CS Professors who specialized in<br> <a class="databait-url" href="#" data-col="0">Human-Computer Interaction</a> increased 10 times.
         </p>
 
         <button type="button" id="btn-databait-tweet"
