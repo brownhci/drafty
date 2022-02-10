@@ -47,7 +47,31 @@ function updateDataBaitHTML(databait: string) {
     dataBaitText.innerHTML = ``;
 }
 
+function escKeyListener(event: KeyboardEvent) {
+    if(event.key === 'Escape'){
+		closeModal();
+	}
+}
+
+function activateKeyListener() {
+    document.addEventListener('keydown', (event) => escKeyListener(event));
+}
+
+function deactivateKeyListener() {
+    document.removeEventListener('keydown', (event) => escKeyListener(event));
+}
+
+function openModal() {
+    activateKeyListener();
+    dataBaitModal.style.display = 'block';
+}
+
+function closeModal() {
+    deactivateKeyListener();
+    dataBaitModal.style.display = 'none';
+}
+
 export function activaterDataBait(tableCellElement: HTMLTableCellElement) {
    console.log(tableCellElement);
-   dataBaitModal.style.display = 'block';
+   openModal();
 }
