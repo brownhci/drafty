@@ -6,7 +6,7 @@ import { activeTableCellElement } from '../../../sheet';
 const navBar: HTMLElement = document.getElementById('navbar-nav');
 
 const deleteRowModalError: HTMLElement = document.getElementById('deleteRowModal_error');
-const btnCloseModalError: HTMLElement = document.getElementById('btn-modal-close');
+const btnCloseModalError: HTMLElement = document.getElementById('btn-delrow-modal-close');
 
 const navBarNewRow: HTMLElement = document.createElement('li');
 navBarNewRow.className = 'navbar-item';
