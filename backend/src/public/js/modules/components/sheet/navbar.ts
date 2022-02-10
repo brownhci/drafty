@@ -1,11 +1,12 @@
 import { StatusMode, tableFoot } from './table-foot';
 import { deleteRow } from './delete-row';
+import { activaterDataBait } from '../../../databaits';
 import { activeTableCellElement } from '../../../sheet';
 
 const navBar: HTMLElement = document.getElementById('navbar-nav');
 
 const deleteRowModalError: HTMLElement = document.getElementById('deleteRowModal_error');
-const btnCloseModaError: HTMLElement = document.getElementById('btn-modal-close');
+const btnCloseModalError: HTMLElement = document.getElementById('btn-modal-close');
 
 const navBarNewRow: HTMLElement = document.createElement('li');
 navBarNewRow.className = 'navbar-item';
@@ -66,11 +67,12 @@ navBarDelRow.addEventListener('click', function(event: MouseEvent) {
 }, true);
 
 navBarDidYouKnow.addEventListener('click', function(event: MouseEvent) {
-    // TODO create random did you know
+    console.log('hello');
+    activaterDataBait(activeTableCellElement);
     event.stopPropagation();
 }, true);
 
-btnCloseModaError.addEventListener('click', function(event: MouseEvent) {
+btnCloseModalError.addEventListener('click', function(event: MouseEvent) {
     deleteRowModalError.style.display = 'none';
     event.stopPropagation();
 }, true);
