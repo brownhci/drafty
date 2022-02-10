@@ -4,32 +4,30 @@ import { recordDataBaitCreate } from './modules/api/record-interactions';
 let idRow: string = undefined;
 
 const dataBaitModal: HTMLElement = document.getElementById('databait-screen');
-const dataBaitLabel: HTMLElement = document.getElementById('row-label');
+const dataBaitText: HTMLElement = document.getElementById('databait');
 const dataBaitModalClose: HTMLElement = document.getElementById('dataBaitModalClose');
 const tweetBtn = <HTMLButtonElement>document.getElementById('btn-databait-tweet');
 const createSimilarBtn = <HTMLButtonElement>document.getElementById('btn-databait-similar');
 const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait-random');
 
-const databaitLinks = document.getElementsByClassName('databait-url');
-
-function databaitLinksListener(event: Event) {
-    console.log(event);
-    console.log(event.target);
-    const element = event.target;
-}
-
-Array.from(databaitLinks).forEach(function(element) {
-    element.addEventListener('click', databaitLinksListener);
+const databaitLinks = document.querySelectorAll('a.databait-url');
+databaitLinks.forEach( (element,i) => {
+    element.addEventListener('click', (e) => {
+        console.log(e);
+        console.log(i);
+        console.log(element.getAttribute('data-col'));
+        console.log('done');
+    });
 });
 
 dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
     dataBaitModal.style.display = 'none';
-    // recordDataBaitTweet() // similar
     event.stopPropagation();
 }, true);
 
 tweetBtn.addEventListener('click', function() {
     console.log('tweetBtn');
+    // recordDataBaitTweet() // similar
 }, true);
 createSimilarBtn.addEventListener('click', function() {
     console.log('createSimilarBtn');
@@ -40,7 +38,16 @@ createRandomBtn.addEventListener('click', function() {
     // recordDataBaitCreate() // random
 }, true);
 
-export function dataBait(tableCellElement: HTMLTableCellElement) {
+function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
     const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
     idRow = tableRow.getAttribute('data-id');
+}
+
+function updateDataBaitHTML(databait: string) {
+    dataBaitText.innerHTML = ``;
+}
+
+export function activaterDataBait(tableCellElement: HTMLTableCellElement) {
+   console.log(tableCellElement);
+   dataBaitModal.style.display = 'block';
 }
