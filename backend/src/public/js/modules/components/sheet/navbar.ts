@@ -41,7 +41,7 @@ const navBarDidYouKnow: HTMLElement = document.createElement('li');
 navBarDidYouKnow.className = 'navbar-item';
 navBarDidYouKnow.innerHTML = `
                         <li class="nav-item">
-                            <span id="navbar-did-you-know">
+                            <span id="navbar-didyouknow">
                                 Did you know
                             </span>
                         </li>`;
