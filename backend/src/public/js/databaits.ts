@@ -38,9 +38,30 @@ createRandomBtn.addEventListener('click', function() {
     // recordDataBaitCreate() // random
 }, true);
 
-function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
+async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
     const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
     idRow = tableRow.getAttribute('data-id');
+    console.log(idRow);
+
+    const options = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    };
+    const response = await fetch('http://localhost:5000/api/v1/databait/all');
+    console.log(response);
+
+    fetch('http://localhost:5000/api/v1/databait/all', options)
+      .then(async response => {
+          const isJson = response.headers.get('content-type')?.includes('application/json');
+          const data = isJson && await response.json();
+          if (!response.ok) {
+              const error = (data && data.message) || response.status;
+              return Promise.reject(error);
+          }
+          console.log(data);
+      }).catch(error => {
+          console.error('There was an error!', error);
+      });
 }
 
 function updateDataBaitHTML(databait: string) {
@@ -73,5 +94,6 @@ function closeModal() {
 
 export function activaterDataBait(tableCellElement: HTMLTableCellElement) {
    console.log(tableCellElement);
+   getDataBaitValues(tableCellElement);
    openModal();
 }
