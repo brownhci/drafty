@@ -70,6 +70,7 @@
         "node-sass": "^6.0.1",
         "passport": "^0.4.1",
         "passport-local": "^1.0.0",
+        "pm2": "^5.1.2",
         "request": "^2.88.2",
         "request-promise": "^4.2.5",
         "session-file-store": "^1.4.0",

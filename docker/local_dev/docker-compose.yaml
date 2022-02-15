@@ -3,12 +3,12 @@ services:
     mariadb:
         container_name: mariadb
         volumes:
-            - '<a_directory_on_your_local_computer>:/var/lib/mysql'
+            - '/Users/kakisu/Desktop/drafty-db:/var/lib/mysql'
         ports:
             - '3306:3306'
         environment:
-            - MYSQL_ROOT_PASSWORD=<your_db_password>
-            - MYSQL_DATABASE=test
+            - MYSQL_ROOT_PASSWORD=testpassword
+            - MYSQL_DATABASE=csprofessors
         image: mariadb
     phpmyadmin:
         container_name: myadmin
@@ -17,12 +17,12 @@ services:
         ports:
             - '8888:80'
         image: phpmyadmin/phpmyadmin
-    portainer:
-        container_name: portainer
-        ports:
-            - '9000:9000'
-        restart: always
-        volumes:
-            - '/var/run/docker.sock:/var/run/docker.sock'
-            - '/opt/portainer:/data'
-        image: portainer/portainer
+    # portainer:
+    #     container_name: portainer
+    #     ports:
+    #         - '9000:9000'
+    #     restart: always
+    #     volumes:
+    #         - '/var/run/docker.sock:/var/run/docker.sock'
+    #         - '/opt/portainer:/data'
+    #     image: portainer/portainer
