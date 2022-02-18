@@ -1,5 +1,7 @@
+import { tableDataManager } from './sheet';
 import { getEnclosingTableRow } from './modules/dom/navigate';
 import { recordDataBaitCreate } from './modules/api/record-interactions';
+import { PassThrough } from 'stream';
 
 let idRow: string = undefined;
 
@@ -39,10 +41,18 @@ createRandomBtn.addEventListener('click', function() {
 }, true);
 
 async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
-    const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
-    idRow = tableRow.getAttribute('data-id');
-    console.log(idRow);
-
+    console.log(tableCellElement);
+    if (tableCellElement !== null && tableCellElement !== undefined) {
+        const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
+        idRow = tableRow.getAttribute('data-id');
+        console.log(idRow);
+    } else {
+        console.log('get random row/s');
+        const n: number = tableDataManager.source.length;
+        console.log(n);
+        console.log(Math.floor(Math.random() * n));
+    }
+    
     const options = {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
