@@ -12,9 +12,6 @@ import cookieParser from 'cookie-parser';
 import { DB_HOST, DB_USER, DB_PASSWORD, SESSION_SECRET } from './util/secrets';
 import * as trafficLogger from './controllers/traffic';
 
-// Create session file store
-// import sessionFileStore from "session-file-store";
-// const sessionStore = sessionFileStore(session); // FileStore
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const MySQLStore = require('express-mysql-session')(session); // MySQLStore
 console.log(MySQLStore);
@@ -56,15 +53,21 @@ app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }))
 import helpers from './config/handlebars-helpers';
 // handlebars express config
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const hbs = require('express-handlebars');
-app.engine('hbs', hbs({
-  extname: 'hbs',
-  defaultView: 'index',
+
+//const hbs = require('express-handlebars');
+import { engine } from 'express-handlebars';
+app.engine('handlebars', engine({
+  extname: '.hbs',
   helpers: helpers,
   layoutsDir: path.join(__dirname, '../views/layouts/'),
   partialsDir: path.join(__dirname, '../views/partials/')
 }));
-app.set('view engine', 'hbs');
+app.set('view engine', 'handlebars');
+
+//import { engine } from 'express-handlebars';
+//app.engine('handlebars', engine());
+//app.set('view engine', 'handlebars');
+//app.set('views', './views');
 
 // Express configuration
 app.set('port', process.env.PORT || 3000);
