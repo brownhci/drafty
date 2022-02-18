@@ -57,10 +57,12 @@ async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
     };
-    const response = await fetch('http://localhost:5000/api/v1/databait/all');
+    const dball = 'http://localhost:5000/api/v1/databait/all';
+    const dball2 = 'http://localhost:3000/api-dyk/v1/databait/all';
+    const response = await fetch(dball2);
     console.log(response);
 
-    fetch('http://localhost:5000/api/v1/databait/all', options)
+    fetch(dball2, options)
       .then(async response => {
           const isJson = response.headers.get('content-type')?.includes('application/json');
           const data = isJson && await response.json();
