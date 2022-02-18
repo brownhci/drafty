@@ -3,7 +3,7 @@ const yaml = require('js-yaml');
 
 const yaml_path = '../../backend/sheets.yaml';
 const dir = '../../backend/views/partials/sheets/';
-const file_ext = '.hbs';
+const file_ext = '.handlebars';
 
 try {
     let urlName = 'csprofessors';

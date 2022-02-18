@@ -416,7 +416,7 @@ def get_db_creds():
 
 
 if __name__ == '__main__':
-    # python3 build_edit_history.py --host=localhost --database=csprofessors csprofessors.hbs
+    # python3 build_edit_history.py --host=localhost --database=csprofessors csprofessors.handlebars
     parser = argparse.ArgumentParser(description='Write database data to table HTML file.')
     parser.add_argument('--host', default='localhost',
                         help='The host of the MySQL database')

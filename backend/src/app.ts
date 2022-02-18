@@ -57,7 +57,6 @@ import helpers from './config/handlebars-helpers';
 //const hbs = require('express-handlebars');
 import { engine } from 'express-handlebars';
 app.engine('handlebars', engine({
-  extname: '.hbs',
   helpers: helpers,
   layoutsDir: path.join(__dirname, '../views/layouts/'),
   partialsDir: path.join(__dirname, '../views/partials/')
