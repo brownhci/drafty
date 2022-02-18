@@ -67,7 +67,6 @@ navBarDelRow.addEventListener('click', function(event: MouseEvent) {
 }, true);
 
 navBarDidYouKnow.addEventListener('click', function(event: MouseEvent) {
-    console.log('hello');
     activaterDataBait(activeTableCellElement);
     event.stopPropagation();
 }, true);
