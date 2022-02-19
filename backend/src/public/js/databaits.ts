@@ -4,7 +4,7 @@ import { getEnclosingTableRow } from './modules/dom/navigate';
 import { recordDataBaitCreate } from './modules/api/record-interactions';
 import { PassThrough } from 'stream';
 
-let idRow: string = undefined;
+//let idRow: string = undefined;
 
 const dataBaitModal: HTMLElement = document.getElementById('databait-screen');
 const dataBaitText: HTMLElement = document.getElementById('databait');
@@ -58,7 +58,7 @@ function randomRowPosition(n: number) {
         'Doctorate': ['Harvard University','Brown University', 'Northeastern University']
     }s
 */
-const candidateFields = {};
+let candidateFields = {};
 
 async function updateCandidateFields(tableRowChildren: HTMLCollection) {
     for (let i = 0; i < tableRowChildren.length; i++) {
@@ -76,7 +76,6 @@ async function updateCandidateFields(tableRowChildren: HTMLCollection) {
     return candidateFields;
 }
 
-
 async function getRandomData() {
     const n: number = tableDataManager.source.length;
     const tableRowChildren = tableDataManager.source[randomRowPosition(n)].element_.children;
@@ -84,19 +83,21 @@ async function getRandomData() {
 }
 
 async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
-    let candidateFields: any;
+    candidateFields = {};
     if (tableCellElement !== null && tableCellElement !== undefined) {
         const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
-        idRow = tableRow.getAttribute('data-id');
-        candidateFields = await updateCandidateFields(tableRow.children);
+        //idRow = tableRow.getAttribute('data-id');
+        await updateCandidateFields(tableRow.children);
     } else {
         console.log('get random row/s');
-        candidateFields = await getRandomData();
+        await getRandomData();
     }
-
+    const bodyData = JSON.stringify({'fields':candidateFields});
+    console.log(bodyData);
     const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: bodyData
     };
     fetch(apiUrl, options)
       .then(async response => {
