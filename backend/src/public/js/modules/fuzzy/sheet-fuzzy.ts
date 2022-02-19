@@ -164,7 +164,7 @@ export class FuzzySelect {
         const arr: Array<string> = [];
         for (let row = 0; row < n; ++row) {
             const rowEle = tableDataManager.source[row].element_ as HTMLTableRowElement;
-            const cellValue = getCellInTableRow(rowEle, col).innerHTML;
+            const cellValue = getCellInTableRow(rowEle, col).textContent.trim();
             if (!arr.includes(cellValue)) {
                 arr.push(cellValue);
             }
