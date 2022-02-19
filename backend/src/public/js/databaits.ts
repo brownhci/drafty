@@ -1,4 +1,5 @@
 import { tableDataManager } from './sheet';
+import { getColumnLabel, getColumnLabelText } from './modules/dom/sheet';
 import { getEnclosingTableRow } from './modules/dom/navigate';
 import { recordDataBaitCreate } from './modules/api/record-interactions';
 import { PassThrough } from 'stream';
@@ -11,6 +12,9 @@ const dataBaitModalClose: HTMLElement = document.getElementById('dataBaitModalCl
 const tweetBtn = <HTMLButtonElement>document.getElementById('btn-databait-tweet');
 const createSimilarBtn = <HTMLButtonElement>document.getElementById('btn-databait-similar');
 const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait-random');
+
+const apiUrl: string = 'http://localhost:3000/api-dyk/v1/databait/all';
+const apiUrlType = (type: string): string => { return `http://localhost:3000/api-dyk/v1/databait/${type}`; };
 
 const databaitLinks = document.querySelectorAll('a.databait-url');
 databaitLinks.forEach( (element,i) => {
@@ -40,29 +44,61 @@ createRandomBtn.addEventListener('click', function() {
     // recordDataBaitCreate() // random
 }, true);
 
+function randomRowPosition(n: number) {
+    return Math.floor(Math.random() * n);
+}
+
+/*
+* 
+* columnName: [cellValues...]
+* 
+'fields': {
+        'University': ['Carnegie Mellon University', 'Brown University', 'Harvard University'],
+        'SubField': ['Artificial Intelligence', 'Software Engineering', 'Databases'],
+        'Doctorate': ['Harvard University','Brown University', 'Northeastern University']
+    }s
+*/
+const candidateFields = {};
+
+async function updateCandidateFields(tableRowChildren: HTMLCollection) {
+    for (let i = 0; i < tableRowChildren.length; i++) {
+        const columnLabelText: string = getColumnLabelText(getColumnLabel(i));
+        const cellValue = tableRowChildren[i].textContent.trim();
+        if (cellValue !== '') {
+            if(columnLabelText in candidateFields) {
+                candidateFields[columnLabelText].push(cellValue);
+            } else {
+                candidateFields[columnLabelText] = [cellValue];
+            }
+        }
+    }
+    console.log(candidateFields);
+    return candidateFields;
+}
+
+
+async function getRandomData() {
+    const n: number = tableDataManager.source.length;
+    const tableRowChildren = tableDataManager.source[randomRowPosition(n)].element_.children;
+    return updateCandidateFields(tableRowChildren);
+}
+
 async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
-    console.log(tableCellElement);
+    let candidateFields: any;
     if (tableCellElement !== null && tableCellElement !== undefined) {
         const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
         idRow = tableRow.getAttribute('data-id');
-        console.log(idRow);
+        candidateFields = await updateCandidateFields(tableRow.children);
     } else {
         console.log('get random row/s');
-        const n: number = tableDataManager.source.length;
-        console.log(n);
-        console.log(Math.floor(Math.random() * n));
+        candidateFields = await getRandomData();
     }
-    
-    const options = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-    };
-    const dball = 'http://localhost:5000/api/v1/databait/all';
-    const dball2 = 'http://localhost:3000/api-dyk/v1/databait/all';
-    const response = await fetch(dball2);
-    console.log(response);
 
-    fetch(dball2, options)
+    const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+    };
+    fetch(apiUrl, options)
       .then(async response => {
           const isJson = response.headers.get('content-type')?.includes('application/json');
           const data = isJson && await response.json();
@@ -105,7 +141,6 @@ function closeModal() {
 }
 
 export function activaterDataBait(tableCellElement: HTMLTableCellElement) {
-   console.log(tableCellElement);
    getDataBaitValues(tableCellElement);
    openModal();
 }
