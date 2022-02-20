@@ -80,7 +80,7 @@ async function getDatabait() {
         'Doctorate': ['Harvard University','Brown University', 'Northeastern University']
     }s
 */
-let candidateFields = {};
+let candidateFields: {[index: string]:any} = {};
 
 async function updateCandidateFields(tableRowChildren: HTMLCollection) {
     for (let i = 0; i < tableRowChildren.length; i++) {
