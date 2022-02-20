@@ -7,11 +7,13 @@ import { PassThrough } from 'stream';
 //let idRow: string = undefined;
 
 const dataBaitModal: HTMLElement = document.getElementById('databait-screen');
-const dataBaitText: HTMLElement = document.getElementById('databait');
+const dataBaitText: HTMLElement = document.getElementById('databait-text');
 const dataBaitModalClose: HTMLElement = document.getElementById('dataBaitModalClose');
 const tweetBtn = <HTMLButtonElement>document.getElementById('btn-databait-tweet');
 const createSimilarBtn = <HTMLButtonElement>document.getElementById('btn-databait-similar');
 const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait-random');
+
+const databaitLoadingMsg: string = `Creating something awesome...`;
 
 const apiUrl: string = 'http://localhost:3000/api-dyk/v1/databait/all';
 const apiUrlType = (type: string): string => { return `http://localhost:3000/api-dyk/v1/databait/${type}`; };
@@ -19,8 +21,7 @@ const apiUrlType = (type: string): string => { return `http://localhost:3000/api
 const databaitLinks = document.querySelectorAll('a.databait-url');
 databaitLinks.forEach( (element,i) => {
     element.addEventListener('click', (e) => {
-        console.log(e);
-        console.log(i);
+        console.log(element.textContent);
         console.log(element.getAttribute('data-col'));
         console.log('done');
     });
@@ -48,6 +49,27 @@ function randomRowPosition(n: number) {
     return Math.floor(Math.random() * n);
 }
 
+async function getDatabait() {
+    const bodyData = JSON.stringify({'fields':candidateFields});
+    const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: bodyData
+    };
+    fetch(apiUrl, options)
+        .then(async response => {
+            const isJson = response.headers.get('content-type')?.includes('application/json');
+            const data = isJson && await response.json();
+            if (!response.ok) {
+                const error = (data && data.message) || response.status;
+                return Promise.reject(error);
+            }
+            return data;
+        }).catch(error => {
+            console.error('There was an error!', error);
+        });
+}
+
 /*
 * 
 * columnName: [cellValues...]
@@ -64,9 +86,11 @@ async function updateCandidateFields(tableRowChildren: HTMLCollection) {
     for (let i = 0; i < tableRowChildren.length; i++) {
         const columnLabelText: string = getColumnLabelText(getColumnLabel(i));
         const cellValue = tableRowChildren[i].textContent.trim();
-        if (cellValue !== '') {
+        if (cellValue !== '' && columnLabelText !== 'FullName') {
             if(columnLabelText in candidateFields) {
-                candidateFields[columnLabelText].push(cellValue);
+                if(!candidateFields[columnLabelText].includes(cellValue)) {
+                    candidateFields[columnLabelText].push(cellValue);
+                }
             } else {
                 candidateFields[columnLabelText] = [cellValue];
             }
@@ -92,29 +116,21 @@ async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
         console.log('get random row/s');
         await getRandomData();
     }
-    const bodyData = JSON.stringify({'fields':candidateFields});
-    console.log(bodyData);
-    const options = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: bodyData
-    };
-    fetch(apiUrl, options)
-      .then(async response => {
-          const isJson = response.headers.get('content-type')?.includes('application/json');
-          const data = isJson && await response.json();
-          if (!response.ok) {
-              const error = (data && data.message) || response.status;
-              return Promise.reject(error);
-          }
-          console.log(data);
-      }).catch(error => {
-          console.error('There was an error!', error);
-      });
+    await getDatabait();
 }
 
 function updateDataBaitHTML(databait: string) {
     dataBaitText.innerHTML = ``;
+}
+
+function openModal() {
+    activateKeyListener();
+    dataBaitModal.style.display = 'block';
+}
+
+function closeModal() {
+    deactivateKeyListener();
+    dataBaitModal.style.display = 'none';
 }
 
 function escKeyListener(event: KeyboardEvent) {
@@ -129,16 +145,6 @@ function activateKeyListener() {
 
 function deactivateKeyListener() {
     document.removeEventListener('keydown', (event) => escKeyListener(event));
-}
-
-function openModal() {
-    activateKeyListener();
-    dataBaitModal.style.display = 'block';
-}
-
-function closeModal() {
-    deactivateKeyListener();
-    dataBaitModal.style.display = 'none';
 }
 
 export function activaterDataBait(tableCellElement: HTMLTableCellElement) {
