@@ -4,6 +4,7 @@ module.exports = {
   context: path.resolve(__dirname),
   entry: {
     form: "./form.ts",
+    comments: "./comments.ts",
     databaits: "./databaits.ts",
     deleteuserdata: './deleteuserdata.ts',
     main: "./main.ts",
