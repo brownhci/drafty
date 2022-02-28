@@ -3,11 +3,17 @@ services:
     mariadb:
         container_name: mariadb
         volumes:
-            - '<your_data_directory>:/var/lib/mysql'
-            - './mysql/config/my.cnf:/etc/mysql/my.cnf'
+            - '/Users/kakisu/Desktop/drafty-db:/var/lib/mysql'
         ports:
             - '3306:3306'
         environment:
             - MYSQL_ROOT_PASSWORD=testpassword
             - MYSQL_DATABASE=csprofessors
         image: mariadb
+    phpmyadmin:
+        container_name: myadmin
+        links:
+            - 'mariadb:db'
+        ports:
+            - '8888:80'
+        image: phpmyadmin/phpmyadmin
