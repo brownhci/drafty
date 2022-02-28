@@ -8,6 +8,6 @@ services:
         ports:
             - '3306:3306'
         environment:
-            - MYSQL_ROOT_PASSWORD=<your_db_password>
-            - MYSQL_DATABASE=test
+            - MYSQL_ROOT_PASSWORD=testpassword
+            - MYSQL_DATABASE=csprofessors
         image: mariadb

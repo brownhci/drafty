@@ -44,6 +44,14 @@ const editCaret: string = `
       <i class="fas fa-caret-square-down"></i>
     </span>
 `;
+
+const commentCaretId: string = 'comment-caret';
+const commentCaret: string = `
+    <span id="${commentCaretId}">
+      <i class="fas fa-caret-square-down"></i>
+    </span>
+`;
+
 function activateEditCaret() {
   activeTableCellElement.innerHTML += editCaret;
   const editCaretElement = document.getElementById(editCaretId);
@@ -55,6 +63,20 @@ function deactivateEditCaret() {
   const editCaretElement = document.getElementById(editCaretId);
   if(editCaretElement) {
     editCaretElement.remove();
+  }
+}
+
+function activateCommentCaret() {
+  activeTableCellElement.innerHTML += commentCaret;
+  const commentCaretElement = document.getElementById(commentCaretId);
+  commentCaretElement.addEventListener('click', (event: MouseEvent) => {
+    // activateCellEditor();
+  });
+}
+function deactivateCommentCaret() {
+  const commentCaretElement = document.getElementById(commentCaretId);
+  if(commentCaretElement) {
+    commentCaretElement.remove();
   }
 }
 /**
@@ -71,6 +93,7 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
   if (shouldGetFocus) {
     activeTableCellElement.focus();
     activateEditCaret();
+    activateCommentCaret();
   }
 }
 function activateTableHead(shouldGetFocus = true) {
@@ -125,6 +148,7 @@ function activateTableCellElement(tableCellElement: HTMLTableCellElement, should
 /* deactivate */
 function deactivateTableData() {
   deactivateEditCaret();
+  deactivateCommentCaret();
   activeTableCellElement.classList.remove(activeClass);
   activeTableCellElement.lastActiveTimestamp = null;
 }
