@@ -1,11 +1,12 @@
 import { StatusMode, tableFoot } from './table-foot';
 import { deleteRow } from './delete-row';
+import { activaterDataBait } from '../../../databaits';
 import { activeTableCellElement } from '../../../sheet';
 
 const navBar: HTMLElement = document.getElementById('navbar-nav');
 
 const deleteRowModalError: HTMLElement = document.getElementById('deleteRowModal_error');
-const btnCloseModaError: HTMLElement = document.getElementById('btn-modal-close');
+const btnCloseModalError: HTMLElement = document.getElementById('btn-delrow-modal-close');
 
 const navBarNewRow: HTMLElement = document.createElement('li');
 navBarNewRow.className = 'navbar-item';
@@ -37,15 +38,25 @@ navBarEditHistory.innerHTML = `
                             </a>
                         </li>`;
 
-navBar.appendChild(navBarEditHistory);
+const navBarDidYouKnow: HTMLElement = document.createElement('li');
+navBarDidYouKnow.className = 'navbar-item';
+navBarDidYouKnow.innerHTML = `
+                        <li class="nav-item">
+                            <span id="navbar-didyouknow">
+                                Did you know
+                            </span>
+                        </li>`;
 
+navBar.appendChild(navBarEditHistory);
 navBar.appendChild(navBarNewRow);
+navBar.appendChild(navBarDelRow);
+navBar.appendChild(navBarDidYouKnow);
+
 navBarNewRow.addEventListener('click', function(event: MouseEvent) {
     tableFoot.toggle(StatusMode.Insertion);
     event.stopPropagation();
 }, true);
 
-navBar.appendChild(navBarDelRow);
 navBarDelRow.addEventListener('click', function(event: MouseEvent) {
     if(activeTableCellElement === null || activeTableCellElement === undefined) {
         deleteRowModalError.style.display = 'block';
@@ -55,8 +66,12 @@ navBarDelRow.addEventListener('click', function(event: MouseEvent) {
     event.stopPropagation();
 }, true);
 
+navBarDidYouKnow.addEventListener('click', function(event: MouseEvent) {
+    activaterDataBait(activeTableCellElement);
+    event.stopPropagation();
+}, true);
 
-btnCloseModaError.addEventListener('click', function(event: MouseEvent) {
+btnCloseModalError.addEventListener('click', function(event: MouseEvent) {
     deleteRowModalError.style.display = 'none';
     event.stopPropagation();
 }, true);

@@ -657,7 +657,7 @@ template {
     font-weight: 700 !important;
 }
 
-.text-white, nav .navbar-brand, nav .navbar-toggler, nav .navbar-nav-sm li, nav .nav-item:hover #navbar-sheet, nav .nav-item:hover #navbar-sheets, nav .nav-item:hover #navbar-credits, nav .nav-item:hover #navbar-addrow, nav .nav-item:hover #navbar-delrow, nav .nav-item:hover #navbar-user, #table-container table thead th.active, #table-container table thead .dropdown .dropdown-menu th.dropdown-item:hover, .dropdown .dropdown-menu #table-container table thead th.dropdown-item:hover, #table-container table thead th.inputting, #table-container table tfoot th.active, #table-container table tfoot .dropdown .dropdown-menu th.dropdown-item:hover, .dropdown .dropdown-menu #table-container table tfoot th.dropdown-item:hover, #table-container table tfoot th.inputting, #table-container table thead th.copied, #table-container table tfoot th.copied, #table-container table tfoot tr:nth-child(2).insertion-success th, #table-container table tfoot tr:nth-child(2).insertion-failure th, #table-container table tfoot tr:nth-child(2).delete-success th, #table-container table tfoot tr:nth-child(2).delete-failure th, #table-container table tfoot tr:nth-child(2) #newrow-error, #account-container #editor-identifier::selection {
+.text-white, nav .navbar-brand, nav .navbar-toggler, nav .navbar-nav-sm li, nav .nav-item:hover #navbar-sheet, nav .nav-item:hover #navbar-sheets, nav .nav-item:hover #navbar-credits, nav .nav-item:hover #navbar-addrow, nav .nav-item:hover #navbar-delrow, #navbar-didyouknow, nav .nav-item:hover #navbar-user, #table-container table thead th.active, #table-container table thead .dropdown .dropdown-menu th.dropdown-item:hover, .dropdown .dropdown-menu #table-container table thead th.dropdown-item:hover, #table-container table thead th.inputting, #table-container table tfoot th.active, #table-container table tfoot .dropdown .dropdown-menu th.dropdown-item:hover, .dropdown .dropdown-menu #table-container table tfoot th.dropdown-item:hover, #table-container table tfoot th.inputting, #table-container table thead th.copied, #table-container table tfoot th.copied, #table-container table tfoot tr:nth-child(2).insertion-success th, #table-container table tfoot tr:nth-child(2).insertion-failure th, #table-container table tfoot tr:nth-child(2).delete-success th, #table-container table tfoot tr:nth-child(2).delete-failure th, #table-container table tfoot tr:nth-child(2) #newrow-error, #account-container #editor-identifier::selection {
     color: #fff !important;
 }
 
@@ -674,7 +674,7 @@ template {
  * Font Awesome Free 5.11.2 by @fontawesome - https://fontawesome.com
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
  */
- .fa, .fas, nav .navbar-toggler:before, nav .nav-item #navbar-sheet:before, nav .nav-item #navbar-sheets:before, nav .nav-item #navbar-sheets:after, nav .nav-item #navbar-credits:before, nav .nav-item #navbar-addrow:before, nav .nav-item #navbar-delrow:before, nav .nav-item #navbar-user:before, nav .nav-item #navbar-user:after, #flash-messages #flash-errors [role="alert"] .flash-dismiss, #flash-messages #flash-infos [role="alert"] .flash-dismiss, #flash-messages #flash-successes [role="alert"] .flash-dismiss, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-reorder-grip, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-order, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-delete, #table-container > div #table-cell-input-form #locate-cell #locate-cell-icon, #table-container table thead th .sort-btn, #table-container table tfoot th .sort-btn, .far, .fal, .fad, .fab {
+ .fa, .fas, nav .navbar-toggler:before, nav .nav-item #navbar-sheet:before, nav .nav-item #navbar-sheets:before, nav .nav-item #navbar-sheets:after, nav .nav-item #navbar-credits:before, nav .nav-item #navbar-addrow:before, nav .nav-item #navbar-delrow:before, #navbar-didyouknow:before, nav .nav-item #navbar-user:before, nav .nav-item #navbar-user:after, #flash-messages #flash-errors [role="alert"] .flash-dismiss, #flash-messages #flash-infos [role="alert"] .flash-dismiss, #flash-messages #flash-successes [role="alert"] .flash-dismiss, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-reorder-grip, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-order, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-delete, #table-container > div #table-cell-input-form #locate-cell #locate-cell-icon, #table-container table thead th .sort-btn, #table-container table tfoot th .sort-btn, .far, .fal, .fad, .fab {
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
     display: inline-block;
@@ -684,7 +684,7 @@ template {
     line-height: 1;
 }
 
-nav .navbar-toggler:before, nav .nav-item #navbar-sheet:before, nav .nav-item #navbar-sheets:before, nav .nav-item #navbar-sheets:after, nav .nav-item #navbar-credits:before, nav .nav-item #navbar-addrow:before, nav .nav-item #navbar-delrow:before, nav .nav-item #navbar-user:before, nav .nav-item #navbar-user:after {
+nav .navbar-toggler:before, nav .nav-item #navbar-sheet:before, nav .nav-item #navbar-sheets:before, nav .nav-item #navbar-sheets:after, nav .nav-item #navbar-credits:before, nav .nav-item #navbar-addrow:before, nav .nav-item #navbar-delrow:before, #navbar-didyouknow:before, nav .nav-item #navbar-user:before, nav .nav-item #navbar-user:after {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     display: inline-block;
@@ -711,7 +711,7 @@ nav .navbar-toggler:before, nav .nav-item #navbar-sheet:before, nav .nav-item #n
     width: 1px;
 }
 
-.fa, .fas, nav .navbar-toggler:before, nav .nav-item #navbar-sheet:before, nav .nav-item #navbar-sheets:before, nav .nav-item #navbar-sheets:after, nav .nav-item #navbar-credits:before, nav .nav-item #navbar-addrow:before, nav .nav-item #navbar-delrow:before, nav .nav-item #navbar-user:before, nav .nav-item #navbar-user:after, #flash-messages #flash-errors [role="alert"] .flash-dismiss, #flash-messages #flash-infos [role="alert"] .flash-dismiss, #flash-messages #flash-successes [role="alert"] .flash-dismiss, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-reorder-grip, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-order, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-delete, #table-container > div #table-cell-input-form #locate-cell #locate-cell-icon, #table-container table thead th .sort-btn, #table-container table tfoot th .sort-btn {
+.fa, .fas, nav .navbar-toggler:before, nav .nav-item #navbar-sheet:before, nav .nav-item #navbar-sheets:before, nav .nav-item #navbar-sheets:after, nav .nav-item #navbar-credits:before, nav .nav-item #navbar-addrow:before, nav .nav-item #navbar-delrow:before, #navbar-didyouknow:before, nav .nav-item #navbar-user:before, nav .nav-item #navbar-user:after, #flash-messages #flash-errors [role="alert"] .flash-dismiss, #flash-messages #flash-infos [role="alert"] .flash-dismiss, #flash-messages #flash-successes [role="alert"] .flash-dismiss, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-reorder-grip, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-order, #table-container > div #table-column-sort-panel .column-sorter .column-sorter-delete, #table-container > div #table-cell-input-form #locate-cell #locate-cell-icon, #table-container table thead th .sort-btn, #table-container table tfoot th .sort-btn {
     font-family: 'Font Awesome 5 Free';
     font-weight: 900;
 }
@@ -797,6 +797,14 @@ nav .nav-item #navbar-delrow {
 }
 
 nav .nav-item #navbar-delrow:before {
+    content: "\f146";
+}
+
+nav .nav-item #navbar-didyouknow {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+nav .nav-item #navbar-didyouknow:before {
     content: "\f146";
 }
 

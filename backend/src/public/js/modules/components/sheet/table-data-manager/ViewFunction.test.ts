@@ -177,20 +177,4 @@ describe('ViewFunctionChain', () => {
     expect(vc.view([1])).toEqual([1]);
     expect(vc.view([2])).toEqual([2]);
   });
-
-  test('chain', () => {
-    const sv = new SortedView<number>();
-    sv.addSortingFunction('desc', (n1, n2) => n2 - n1, 1);
-    const fv = new FilteredView<number>();
-    fv.addFilterFunction('no 1', (n) => n != 1);
-    fv.addFilterFunction('<= 3', (n: number) => n <= 3);
-
-    const vc = new ViewFunctionChain<number>([sv, fv]);
-    expect(vc.view([1, 2, 3, 4, 5])).toEqual([3, 2]);
-    expect((vc.modifyViewFunction(1) as FilteredView<number>).deleteFilterFunction('no 1')).toBe(true);
-    expect(vc.view([1, 2, 3, 4, 5])).toEqual([3, 2, 1]);
-
-    vc.modifyViewFunctions().length = 0;
-    expect(vc.view([1])).toEqual([1]);
-  });
 });

@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from '../dom/navigate';
 import { isTableData } from '../dom/types';
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDataBaitVisit, postSearchColVisit } from './endpoints';
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDataBaitTweet, postDataBaitVisit, postSearchColVisit } from './endpoints';
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
 
@@ -193,6 +193,21 @@ export function recordDataBaitVisit(idDataBait: string, source: string) {
   });
 }
 
+export function recordDataBaitCreate(idSuggestion: string, idRow: string, tableRow: HTMLTableRowElement) {
+  const rowValues = getTableRowCellValues(tableRow);
+  recordInteraction(postDataBaitVisit(), {
+    idSuggestion: idSuggestion,
+    idRow: idRow,
+    searchValues: rowValues
+  });
+}
+
+
+export function recordDataBaitTweet(idDataBait: string) {
+  recordInteraction(postDataBaitTweet(), {
+    idDataBait: idDataBait
+  });
+}
 export function recordSearchColVisit(idSuggestionType: string, value: string) {
   recordInteraction(postSearchColVisit(), {
     idSuggestionType: idSuggestionType,

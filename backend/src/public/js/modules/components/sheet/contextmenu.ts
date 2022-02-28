@@ -148,9 +148,6 @@ export function isContextMenuButton(element: HTMLElement) {
 // event handler
 tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
   const menuItem = MenuItem.find(event.target as HTMLElement);
-  console.log(event);
-  console.log(event.target);
-  console.log(menuItem);
   switch (menuItem.action) {
     case 'Edit':
       cellEditor.activateForm(activeTableCellElement,''); // initialSearchValue
@@ -173,6 +170,10 @@ tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
       menuItem.toggle();
       openGoogleSearch(activeTableCellElement);
       break;
+    case 'Did you know?':
+        menuItem.toggle();
+        //createDidYouKnow(activeTableCellElement);
+        break;
   }
   deactivateTableDataContextMenu();
   event.stopPropagation();

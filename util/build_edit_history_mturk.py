@@ -85,7 +85,7 @@ def get_db_creds():
 
 
 if __name__ == '__main__':
-    # python3 build_edit_history.py --host localhost --database 2300profs 2300profs.hbs
+    # python3 build_edit_history.py --host localhost --database 2300profs 2300profs.handlebars
     parser = argparse.ArgumentParser(description='Write edit history to csv file.')
     parser.add_argument('--database', default='2300profs',
                         help='The database to be outputtted')
