@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: column;
   height: 40vh;
-  width: 40vw;
+  width: 50vw;
   padding: 10px;
   margin: 10px;
   outline: 2px solid grey;
@@ -29,15 +29,16 @@
 }
 
 #newCommentTextbox {
-  height: 48px;
+  height: 36px;
   width: 100%;
   line-height: 32px;
   padding: 4px;
   font-size: 24px;
-}
+} 
 
 #comment-button {
-  height: 48px;
+  display: flex;
+  height: 36px;
   background-color: #1089ff;
   border: none;
   color: white;
@@ -46,19 +47,18 @@
   justify-content: center;
   align-content: center;
   text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
+  font-size: 12px;
   margin: 0px 4px;
-  cursor: pointer;
   padding: 12px;
   border-radius: 4px;
+  cursor: pointer;
 }
 
 #commentsContainer {
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-  padding-right: 20px;
+  padding: 16px;
 }
 
 #commentContainer {
@@ -71,6 +71,7 @@
 
 #info {
   /* height: 100%; */
+  // padding: 4px;
   width: 20%;
   display: flex;
   flex-direction: column;
@@ -81,37 +82,41 @@
 
 #author {
   font-weight: bold;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 #content {
   font-size: 16px;
-  width: 55%;
+  width: 60%;
   align-content: center;
   justify-content: left;
+  padding: 4px;
 }
 
 #rating {
-  width: 10%;
+  min-width: 84px;
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   align-content: center;
   font-size: 15px;
+  padding: 4px;
 }
 
 #wrapper {
   display: flex;
   flex-direction: row;
   align-content: center;
+  align-items: center;
   justify-content: center;
-  margin: 8px;
+  padding: 2px;
 }
+
 .numvote {
   align-content: center;
   justify-content: center;
-  margin: 2px;
   font-size: 12px;
+  padding-bottom: 2px;
 }
 
 #comments-hr {
