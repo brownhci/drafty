@@ -1,10 +1,5 @@
 const commentsDiv = document.getElementById('comments');
 
-const worldExample: string = 'world';
-commentsDiv.innerHTML = `<p>hello ${worldExample}</p>`;
-
-// import './styles.css';
-
 interface ProfComment {
   id: number;
   author: string;
@@ -50,7 +45,7 @@ const comment4: ProfComment = {
 const commentData: ProfComment[] = [comment4, comment3, comment2, comment1];
 
 //logic to add new comment post - hard code
-document.getElementById('submit').onclick = function () {
+document.getElementById('comment-button').onclick = function () {
   const content: string = (<HTMLInputElement>(
     document.getElementById('newCommentTextbox')
   )).value;
@@ -76,7 +71,7 @@ document.getElementById('submit').onclick = function () {
       </div>
     </div>
   </div>
-  <hr>` + commentsContainer.innerHTML;
+  <hr id="comments-hr">` + commentsContainer.innerHTML;
   (<HTMLInputElement>document.getElementById('newCommentTextbox')).value = '';
 };
 
@@ -110,7 +105,7 @@ commentData.forEach((comment, key) => {
     </div>
   </div>`;
   if (key !== commentData.length - 1) {
-    document.getElementById('commentsContainer').innerHTML += `<hr>`;
+    document.getElementById('commentsContainer').innerHTML += `<hr id="comments-hr">`;
   }
 
   //THIS DOES NOT WORK PROBABLY BECAUSE OF STATE

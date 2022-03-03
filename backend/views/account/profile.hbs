@@ -1,0 +1,68 @@
+<main id="account-container" class="centered-section-layout">
+    <div>
+        <h1>Hi, <span id="username">{{username}}0{{idProfile}}1</span></h1>
+        <!--
+        <p>
+            To receive credit at <i>Amazon Mechanical Turk</i>, please use this <b>animal code</b>:
+            <br><b>rabbit_{{idProfile}}_{{idSession}}_{{idExpress}}</b>
+        </p>
+        -->
+        <section>
+            <h2>Data Privacy</h2>
+            <p>
+                Drafty records all interactions anonymously by using cookies that store an anonymous id. It does not track IP addresses or any personally identifiable information. 
+            </p>
+            <p>
+                If you would like to have your account, previous interaction data, and edits removed from Drafty please select the button below. We will log this request and remove all previous interactions as soon as we can. Thank you.
+            </p>
+            <form method="post" id="delete-data-form">
+                {{> csrf }}
+                <button type="submit">Submit Delete My Data Request</button>
+            </form>
+            <p id="delete-data-thankyou" class="form-text pt-2" style="display: none;"><!-- set in JS --></p>
+        </section>
+        <section>
+            {{#if signedIn}}
+            <h2>Reset your password</h2>
+            <form method="post" action="/account/password" id="password-reset-form" class="custom-validation"
+                autocomplete novalidate>
+                {{> csrf }}
+                {{> account/password-input-component showPasswordUsageExplanation=true }}
+                {{> account/confirm-input-component }}
+                <button type="submit">Update password</button>
+            </form>
+            {{else}}
+            <h2>Sign in</h2>
+            {{> account/signin-modal }}
+            <h2>Create your account</h2>
+            {{> account/signup-modal showEmailUsageExplanation=true }}
+            {{/if}}
+        </section>
+        <section>
+            <h2>New to Drafty?</h2>
+            <div>
+                <p>To <b>edit data <i class="far fa-edit"></i></b>, double-click a cell.</p>
+                <p>
+                    To <b>add a new row <i class="far fa-edit"></i></b> click the top menu item or right-click on a cell
+                    and select <b>Add Row.</b>
+                </p>
+                <p>
+                    To <b>delete a new row <i class="far fa-edit"></i></b> first select a cell and then click the top menu item or right-click on a cell
+                    and select <b>Delete Row.</b>
+                </p>
+                <p>To search google right-click on a cell and select <b>Search Google.</b></p>
+                Need additional <a href="/help">help</a>?
+            </div>
+        </section>
+        <section>
+            <h2>Thank you!</h2>
+            <div>
+                <p>
+                    You are a valuable contributor to Drafty! Thank you for helping to keep the data up-to-date.
+                </p>
+            </div>
+        </section>
+    </div>
+</main>
+<script src="/js/bundles/form.js"></script>
+<script src="/js/bundles/deleteuserdata.js"></script>
