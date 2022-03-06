@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import compression from 'compression'; // compresses requests
 import session from 'express-session';
 import bodyParser from 'body-parser';
@@ -52,7 +52,6 @@ app.all('/api-dyk/*', function(req: IncomingMessage, res: ServerResponse) {
   proxy.web(req, res, {target: 'http://localhost:5000'});
 });
 
-
 // static files
 app.use('/csopenrankings', express.static('/vol/csopenrankings'));
 app.use('/csopenrankingslocal', express.static(path.join(__dirname, '../../../../CSRankings'), { maxAge: 30000 }));
@@ -66,6 +65,7 @@ import helpers from './config/handlebars-helpers';
 //const hbs = require('express-handlebars');
 import { engine } from 'express-handlebars';
 import { IncomingMessage, ServerResponse } from 'http';
+import { Middleware } from 'express-validator/src/base';
 app.engine('handlebars', engine({
   helpers: helpers,
   layoutsDir: path.join(__dirname, '../views/layouts/'),
@@ -82,8 +82,18 @@ app.set('view engine', 'handlebars');
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, '../views'));
 app.use(compression());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// avoid proxy error on POST requests bc of bodyParser
+const unless = function(path: string, middleware: Middleware) {
+  return function(req: Request, res: Response, next: NextFunction) {  
+    if (path === req.path) {
+      return next();
+    } else {
+      return middleware(req, res, next);
+    }
+  };
+};
+app.use(unless('/api-dyk/*', bodyParser.json()));
+//app.use(bodyParser.urlencoded({ extended: true }));
 
 
 // home site rendering
