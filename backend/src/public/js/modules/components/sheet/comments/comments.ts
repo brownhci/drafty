@@ -1,5 +1,3 @@
-const commentsDiv = document.getElementById('comments');
-
 interface ProfComment {
   id: number;
   author: string;
@@ -43,6 +41,25 @@ const comment4: ProfComment = {
   timestamp: 'February 2, 2022'
 };
 const commentData: ProfComment[] = [comment4, comment3, comment2, comment1];
+
+
+const commentsDiv = document.getElementById('comments');
+const commentIcon = document.getElementById('commentIcon');
+const closeIcon = document.getElementById('comment-close');
+
+
+commentsDiv.style.display = 'none';
+// commentIcon.style.display = 'none';
+
+commentIcon.onclick = function () {
+  commentIcon.style.display = 'none';
+  commentsDiv.style.display = 'flex';
+};
+
+closeIcon.onclick = function () {
+  commentIcon.style.display = 'flex';
+  commentsDiv.style.display = 'none';
+};
 
 //logic to add new comment post - hard code
 document.getElementById('comment-button').onclick = function () {

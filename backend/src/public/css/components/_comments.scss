@@ -1,7 +1,15 @@
-#comments {
+#comments-root {
   position: fixed;
   bottom: 0;
   right: 0;
+  z-index: $zindex-popover;
+}
+
+#commentIcon {
+  margin: 16px;
+}
+
+#comments {
   display: flex;
   flex-direction: column;
   height: 40vh;
@@ -17,7 +25,24 @@
   -webkit-font-smoothing: antialiased;
   font-family: sans-serif;
   background-color: white;
-  z-index: $zindex-popover;
+}
+
+#comment-label {
+  display: flex;
+  flex-direction: row;
+  padding: 4px;
+  height: 32px;
+  font-size: 16px;
+  font-weight: bold;
+  justify-content: space-between;
+}
+
+#comment-close {
+  height: 32px; 
+  color:#1089ff;
+  // position: relative;
+  // top: 0;
+  // right: 0;
 }
 
 #newComment {
@@ -70,8 +95,6 @@
 }
 
 #info {
-  /* height: 100%; */
-  // padding: 4px;
   width: 20%;
   display: flex;
   flex-direction: column;
@@ -82,11 +105,10 @@
 
 #author {
   font-weight: bold;
-  font-size: 14px;
 }
 
 #content {
-  font-size: 16px;
+  font-size: 14px;
   width: 60%;
   align-content: center;
   justify-content: left;
