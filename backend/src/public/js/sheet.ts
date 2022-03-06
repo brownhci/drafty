@@ -45,13 +45,6 @@ const editCaret: string = `
     </span>
 `;
 
-const commentCaretId: string = 'comment-caret';
-const commentCaret: string = `
-    <span id="${commentCaretId}">
-      <i class="fas fa-caret-square-down"></i>
-    </span>
-`;
-
 function activateEditCaret() {
   activeTableCellElement.innerHTML += editCaret;
   const editCaretElement = document.getElementById(editCaretId);
@@ -66,19 +59,6 @@ function deactivateEditCaret() {
   }
 }
 
-function activateCommentCaret() {
-  activeTableCellElement.innerHTML += commentCaret;
-  const commentCaretElement = document.getElementById(commentCaretId);
-  commentCaretElement.addEventListener('click', (event: MouseEvent) => {
-    // activateCellEditor();
-  });
-}
-function deactivateCommentCaret() {
-  const commentCaretElement = document.getElementById(commentCaretId);
-  if(commentCaretElement) {
-    commentCaretElement.remove();
-  }
-}
 /**
  * renew the timestamp on the active table cell element.
  */
@@ -93,7 +73,6 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
   if (shouldGetFocus) {
     activeTableCellElement.focus();
     activateEditCaret();
-    activateCommentCaret();
   }
 }
 function activateTableHead(shouldGetFocus = true) {
@@ -148,7 +127,6 @@ function activateTableCellElement(tableCellElement: HTMLTableCellElement, should
 /* deactivate */
 function deactivateTableData() {
   deactivateEditCaret();
-  deactivateCommentCaret();
   activeTableCellElement.classList.remove(activeClass);
   activeTableCellElement.lastActiveTimestamp = null;
 }

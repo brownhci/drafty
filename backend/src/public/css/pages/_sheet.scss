@@ -16,15 +16,6 @@ inset 0px -1px 0px 0px $table-border-color;
   color: darkgrey;
 }
 
-#comment-caret {
-  cursor: pointer;
-  float: right;
-  color: red;
-}
-#comment-caret:hover {
-  color: darkgrey;
-}
-
 %cell-overflow {
   @extend .overflow-hidden;
   @extend .text-nowrap;
