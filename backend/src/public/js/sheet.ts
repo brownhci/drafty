@@ -44,6 +44,7 @@ const editCaret: string = `
       <i class="fas fa-caret-square-down"></i>
     </span>
 `;
+
 function activateEditCaret() {
   activeTableCellElement.innerHTML += editCaret;
   const editCaretElement = document.getElementById(editCaretId);
@@ -57,6 +58,7 @@ function deactivateEditCaret() {
     editCaretElement.remove();
   }
 }
+
 /**
  * renew the timestamp on the active table cell element.
  */

@@ -36,7 +36,7 @@ def build_column_width(row, column_index, column_widths):
         if idSuggestionType in [2,3,5] and width <= 300:
             width = 300
         elif idSuggestionType in [7]:
-            width = 195
+            width = 130
     return f'<col id="col{column_index}" data-width="{width}">\n'
 
 

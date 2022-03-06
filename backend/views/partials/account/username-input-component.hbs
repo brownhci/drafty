@@ -1,0 +1,23 @@
+<div>
+    <label for="username">Username</label>
+    <input id="username" type="text" name="username"
+        class="form-control{{getValidationClass messages.usernameValidationFailure}}"
+        aria-describedby="username-usage-explanation" placeholder="Enter username" required>
+    {{#if messages.usernameValidationFailure}}
+    {{#with messages.usernameValidationFailure as |failure|}}
+    {{#each failure}}
+    <div class="invalid-tooltip">
+        {{msg}}
+    </div>
+    {{/each}}
+    {{/with}}
+    {{/if}}
+    <div class="invalid-feedback">
+        Please provide a valid username
+    </div>
+    {{#if showEmailUsageExplanation}}
+    <small id="email-usage-explanation" class="form-text">
+        Drafty does not use email addresses as usernames. Pick something fun! :)
+    </small>
+    {{/if}}
+</div>
