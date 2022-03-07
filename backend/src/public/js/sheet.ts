@@ -61,6 +61,7 @@ function deactivateEditCaret() {
 
 const commentIcon = document.getElementById('commentIcon');
 const commentDiv = document.getElementById('comments');
+const commentLabel = document.getElementById('comment-label');
 
 function activateCommentIcon() {
   commentIcon.style.display = 'flex';
@@ -71,6 +72,13 @@ function activateCommentSection() {
   commentIcon.style.display = 'none';
   commentDiv.style.display = 'flex';
 }
+
+function changeCommentLabel() {
+  const html: string = activeTableCellElement.innerHTML;
+  const profName: string = html.slice(0, html.indexOf('<') - 1);
+  commentLabel.innerHTML = 'Comments for ' + profName;
+}
+
 
 /**
  * renew the timestamp on the active table cell element.
@@ -87,6 +95,7 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
     activeTableCellElement.focus();
     activateEditCaret();
     commentDiv.style.display === 'none' ? activateCommentIcon(): activateCommentSection();
+    changeCommentLabel();
   }
 }
 function activateTableHead(shouldGetFocus = true) {

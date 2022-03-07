@@ -27,7 +27,7 @@
   background-color: white;
 }
 
-#comment-label {
+#comment-header {
   display: flex;
   flex-direction: row;
   padding: 4px;
@@ -37,12 +37,21 @@
   justify-content: space-between;
 }
 
+#comment-icon-background {
+  color:#1089ff;
+}
+
+#commentIcon:hover {
+  cursor: pointer;
+}
+
 #comment-close {
   height: 32px; 
-  color:#1089ff;
-  // position: relative;
-  // top: 0;
-  // right: 0;
+  color:darkgrey;
+}
+
+#comment-close:hover {
+  color: grey;
 }
 
 #newComment {

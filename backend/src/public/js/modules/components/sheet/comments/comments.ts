@@ -89,7 +89,7 @@ const commentHTML = function (id: number, date: string, author: string, content:
   `;
 };
 
-//logic to add new comment post - hard code
+//logic to add new comment post
 document.getElementById('comment-button').onclick = function () {
   const content: string = (<HTMLInputElement>(
     document.getElementById('newCommentTextbox')
