@@ -67,3 +67,9 @@ export const DB_HOST = resolveEnvironmentVariable('DB_HOST');
 export const DB_USER = resolveEnvironmentVariable('DB_USER');
 export const DB_PASSWORD = resolveEnvironmentVariable('DB_PASSWORD');
 export const DB_DATABASE = resolveEnvironmentVariable('DB_DATABASE');
+// Twitter API
+export const TWITTER_API_KEY = process.env['API_KEY'];
+export const TWITTER_API_SECRET_KEY = process.env['API_SECRET_KEY'];
+export const TWITTER_ACCESS_TOKEN = process.env['ACCESS_TOKEN'];
+export const TWITTER_ACCESS_TOKEN_SECRET = process.env['ACCESS_TOKEN_SECRET'];
+export const TWITTER_BEARER_TOKEN = process.env['BEARER_TOKEN'];
