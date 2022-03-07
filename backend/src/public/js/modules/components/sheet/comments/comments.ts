@@ -1,3 +1,4 @@
+
 interface ProfComment {
   id: number;
   author: string;
@@ -61,6 +62,7 @@ closeIcon.onclick = function () {
   commentsDiv.style.display = 'none';
 };
 
+//html element for each comment
 const commentHTML = function (id: number, date: string, author: string, content: string, numUpvote: number, numDownvote: number)  {
   const thumbsUpId = 'thumbs-up-' + id.toString();
   const thumbsDownId = 'thumbs-down-' + id.toString();
