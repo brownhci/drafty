@@ -59,6 +59,19 @@ function deactivateEditCaret() {
   }
 }
 
+const commentIcon = document.getElementById('commentIcon');
+const commentDiv = document.getElementById('comments');
+
+function activateCommentIcon() {
+  commentIcon.style.display = 'flex';
+  commentDiv.style.display = 'none';
+}
+
+function activateCommentSection() {
+  commentIcon.style.display = 'none';
+  commentDiv.style.display = 'flex';
+}
+
 /**
  * renew the timestamp on the active table cell element.
  */
@@ -73,6 +86,7 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
   if (shouldGetFocus) {
     activeTableCellElement.focus();
     activateEditCaret();
+    commentDiv.style.display === 'none' ? activateCommentIcon(): activateCommentSection();
   }
 }
 function activateTableHead(shouldGetFocus = true) {

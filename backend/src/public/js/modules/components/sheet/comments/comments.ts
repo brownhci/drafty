@@ -49,7 +49,7 @@ const closeIcon = document.getElementById('comment-close');
 
 
 commentsDiv.style.display = 'none';
-// commentIcon.style.display = 'none';
+commentIcon.style.display = 'none';
 
 commentIcon.onclick = function () {
   commentIcon.style.display = 'none';
@@ -61,54 +61,19 @@ closeIcon.onclick = function () {
   commentsDiv.style.display = 'none';
 };
 
-//logic to add new comment post - hard code
-document.getElementById('comment-button').onclick = function () {
-  const content: string = (<HTMLInputElement>(
-    document.getElementById('newCommentTextbox')
-  )).value;
-  const commentsContainer = document.getElementById('commentsContainer');
-  commentsContainer.innerHTML =
-    `
+const commentHTML = function (id: number, date: string, author: string, content: string, numUpvote: number, numDownvote: number)  {
+  const thumbsUpId = 'thumbs-up-' + id.toString();
+  const thumbsDownId = 'thumbs-down-' + id.toString();
+  const upvoteId = 'upvote-' + id.toString();
+  const downvoteId = 'downvote-' + id.toString();
+  return `
   <div id="commentContainer"}>
     <div id="info">
-      <div>${new Date().toISOString().slice(0, 10).toString()}</div>
-      <div id="author">kaki</div>
+      <div>${date}</div>
+      <div id="author">${author}</div>
     </div>
     <div id="content">
       <p>${content}</p>
-    </div>
-    <div id="rating">
-      <div id="wrapper">
-        <i onclick="void" class="fa fa-thumbs-up"></i>
-        <div class="numVote">0</div>
-      </div>
-      <div id="wrapper">
-        <i onclick="void" class="fa fa-thumbs-down"></i>
-        <div class="numVote">0</div>
-      </div>
-    </div>
-  </div>
-  <hr id="comments-hr">` + commentsContainer.innerHTML;
-  (<HTMLInputElement>document.getElementById('newCommentTextbox')).value = '';
-};
-
-//Displaying each comment
-commentData.forEach((comment, key) => {
-  const numUpvote = comment.upvote;
-  const numDownvote = comment.downvote;
-  const thumbsUpId = 'thumbs-up-' + key.toString();
-  const thumbsDownId = 'thumbs-down-' + key.toString();
-  const upvoteId = 'upvote-' + key.toString();
-  const downvoteId = 'downvote-' + key.toString();
-
-  document.getElementById('commentsContainer').innerHTML += `
-  <div id="commentContainer" key=${key}>
-    <div id="info">
-      <div>${comment.timestamp}</div>
-      <div id="author">${comment.author}</div>
-    </div>
-    <div id="content">
-      <p>${comment.content}</p>
     </div>
     <div id="rating">
       <div id="wrapper">
@@ -120,15 +85,30 @@ commentData.forEach((comment, key) => {
         <div class="numVote" id=${downvoteId}>${numDownvote}</div>
       </div>
     </div>
-  </div>`;
+  </div>
+  `;
+};
+
+//logic to add new comment post - hard code
+document.getElementById('comment-button').onclick = function () {
+  const content: string = (<HTMLInputElement>(
+    document.getElementById('newCommentTextbox')
+  )).value;
+  const commentsContainer = document.getElementById('commentsContainer');
+  commentsContainer.innerHTML = commentHTML(10, 'today', 'kaki', content, 0, 0) + 
+  `<hr id="comments-hr">` + commentsContainer.innerHTML;
+  (<HTMLInputElement>document.getElementById('newCommentTextbox')).value = '';
+};
+
+//Displaying each comment
+commentData.forEach((comment, key) => {
+  const numUpvote = comment.upvote;
+  const numDownvote = comment.downvote;
+
+  document.getElementById('commentsContainer').innerHTML += commentHTML(key, comment.timestamp, comment.author, comment.content, numUpvote, numDownvote);
   if (key !== commentData.length - 1) {
     document.getElementById('commentsContainer').innerHTML += `<hr id="comments-hr">`;
   }
-
-  //THIS DOES NOT WORK PROBABLY BECAUSE OF STATE
-  // document.getElementById(thumbsUpId)!.onclick = function () {
-  //   console.log(thumbsUpId)
-  // };
 });
 
 //function to increment the upvote/downvote HTML
