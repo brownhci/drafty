@@ -15,8 +15,8 @@ const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait
 
 const databaitLoadingMsg: string = `Creating something awesome...`;
 
-const apiUrl: string = 'http://localhost:3000/api-dyk/v1/databait/all';
-const apiUrlType = (type: string): string => { return `http://localhost:3000/api-dyk/v1/databait/${type}`; };
+const apiUrl: string = '/api-dyk/v1/databait/all';
+const apiUrlType = (type: string): string => { return `/api-dyk/v1/databait/${type}`; };
 
 const databaitLinks = document.querySelectorAll('a.databait-url');
 databaitLinks.forEach( (element,i) => {
@@ -58,12 +58,16 @@ async function getDatabait() {
     };
     fetch(apiUrl, options)
         .then(async response => {
+            console.log('response...');
             const isJson = response.headers.get('content-type')?.includes('application/json');
             const data = isJson && await response.json();
+            console.log('DATA', data);
             if (!response.ok) {
                 const error = (data && data.message) || response.status;
+                console.error('There was an error with the resp!', error);
                 return Promise.reject(error);
             }
+            console.log('returning DATA...');
             return data;
         }).catch(error => {
             console.error('There was an error!', error);
@@ -116,7 +120,8 @@ async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
         console.log('get random row/s');
         await getRandomData();
     }
-    await getDatabait();
+    const databaits = await getDatabait();
+    console.log(databaits);
 }
 
 function updateDataBaitHTML(databait: string) {
