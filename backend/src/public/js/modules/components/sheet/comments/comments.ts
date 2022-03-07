@@ -68,12 +68,15 @@ const commentHTML = function (id: number, date: string, author: string, content:
   const downvoteId = 'downvote-' + id.toString();
   return `
   <div id="commentContainer"}>
-    <div id="info">
-      <div>${date}</div>
-      <div id="author">${author}</div>
-    </div>
-    <div id="content">
-      <p>${content}</p>
+    <div id="contentContainer">
+      <div id="info">
+        <div>${date}</div>
+        ・
+        <div id="author">${author}</div>
+      </div>
+      <div id="content">
+        <p>${content}</p>
+      </div>
     </div>
     <div id="rating">
       <div id="wrapper">

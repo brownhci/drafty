@@ -25,6 +25,8 @@
   -webkit-font-smoothing: antialiased;
   font-family: sans-serif;
   background-color: white;
+  min-width: 350px;
+  max-width: 600px;
 }
 
 #comment-header {
@@ -103,13 +105,21 @@
   justify-content: space-between;
 }
 
-#info {
-  width: 20%;
+
+#contentContainer {
   display: flex;
   flex-direction: column;
+  padding: 4px;
+}
+
+#info {
+  // width: 20%;
+  display: flex;
+  flex-direction: row;
   color: grey;
-  justify-content: center;
+  justify-content: left;
   font-size: 12px;
+  padding-bottom: 4px;
 }
 
 #author {
@@ -118,10 +128,10 @@
 
 #content {
   font-size: 14px;
-  width: 60%;
   align-content: center;
   justify-content: left;
-  padding: 4px;
+  color: black;
+  // padding: 4px;
 }
 
 #rating {
