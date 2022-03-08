@@ -68,7 +68,7 @@
 #newCommentTextbox {
   height: 36px;
   width: 100%;
-  line-height: 32px;
+  line-height: 24px;
   padding: 4px;
   font-size: 24px;
 } 
@@ -173,4 +173,12 @@
 .fa-thumbs-up:hover,
 .fa-thumbs-down:hover {
   color: grey;
+}
+
+.vote-selected {
+  color: #1089ff;
+}
+
+.vote {
+  color: black;
 }

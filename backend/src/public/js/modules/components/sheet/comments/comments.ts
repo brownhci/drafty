@@ -41,12 +41,16 @@ const comment4: ProfComment = {
   downvote: 0,
   timestamp: 'February 2, 2022'
 };
+
 const commentData: ProfComment[] = [comment4, comment3, comment2, comment1];
 
 
 const commentsDiv = document.getElementById('comments');
 const commentIcon = document.getElementById('commentIcon');
 const closeIcon = document.getElementById('comment-close');
+
+const commentSelected: string = 'vote-selected';
+const commentUnselected: string = 'vote';
 
 
 commentsDiv.style.display = 'none';
@@ -129,6 +133,27 @@ function decrement(elementid: string) {
   document.getElementById(elementid).innerHTML = curNum.toString();
 }
 
+function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, id2: string){
+  if (button1.classList.contains(commentUnselected)) {
+    button1.classList.remove(commentUnselected);
+    button1.classList.add(commentSelected);
+    increment(id1);
+    if (button2.classList.contains(commentSelected)){
+      button2.classList.remove(commentSelected);
+      button2.classList.add(commentUnselected);
+      decrement(id2);
+    }
+    return;
+  }
+
+  if (button1.classList.contains(commentSelected)) {
+    button1.classList.remove(commentSelected);
+    button1.classList.add(commentUnselected);
+    decrement(id1);
+    return;
+  }
+}
+
 //Looping through to add "onclick" on each thumbs up/down to increment
 for (let i = 0; i < commentData.length; i++) {
   const thumbsUpId = 'thumbs-up-' + i.toString();
@@ -138,43 +163,15 @@ for (let i = 0; i < commentData.length; i++) {
   const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
   const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
 
-  thumbsUpButton.onclick = function () {
-    if (
-      thumbsUpButton.style.color === 'black' &&
-      thumbsDownButton.style.color === 'blue'
-    ) {
-      thumbsDownButton.style.color = 'black';
-      decrement(downvoteId);
-      thumbsUpButton.style.color = 'blue';
-      increment(upvoteId);
-      return;
-    }
-    if (thumbsUpButton.style.color === 'blue') {
-      thumbsUpButton.style.color = 'black';
-      decrement(upvoteId);
-      return;
-    } else {
-      thumbsUpButton.style.color = 'blue';
-      increment(upvoteId);
-    }
+  thumbsUpButton.classList.add(commentUnselected);
+  thumbsDownButton.classList.add(commentUnselected);
+
+  //make this into separate function and just use for downvote also
+  thumbsUpButton.onclick = function() {
+    voteOnclick (thumbsUpButton, thumbsDownButton, upvoteId, downvoteId);
   };
-  thumbsDownButton.onclick = function () {
-    if (
-      thumbsDownButton.style.color === 'black' &&
-      thumbsUpButton.style.color === 'blue'
-    ) {
-      thumbsUpButton.style.color = 'black';
-      decrement(upvoteId);
-      thumbsDownButton.style.color = 'blue';
-      increment(downvoteId);
-      return;
-    }
-    if (thumbsDownButton.style.color === 'blue') {
-      thumbsDownButton.style.color = 'black';
-      decrement(downvoteId);
-    } else {
-      thumbsDownButton.style.color = 'blue';
-      increment(downvoteId);
-    }
+
+  thumbsDownButton.onclick = function() {
+    voteOnclick (thumbsDownButton, thumbsUpButton, downvoteId, upvoteId);
   };
 }
