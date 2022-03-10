@@ -23,6 +23,11 @@ const stmtInsertSearchGoogle: string = 'INSERT INTO SearchGoogle (idInteraction,
 
 const stmtInsertDataBaitVisit: string = 'INSERT INTO DataBaitVisit (idInteraction, idDataBait, source) VALUES (insert_interaction(?,?), ?, source);';
 
+const stmtInsertNewComment: string = 'INSERT INTO Comments (idInteraction, idUniqueID, comment, voteUp, voteDown) VALUES (insert_interaction(?,?), ?, ?, DEFAULT, DEFAULT);';
+const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote) VALUES (insert_interaction(?,?), ?, ?)';
+// TODO: update Comment Vote
+
+
 /**
  * save new click
  */
@@ -188,16 +193,42 @@ export async function insertSearchGoogle(idSession: string, idRow: number | stri
     }
 }
 
-
 /**
- * insert that someone came to draft from seeing a databait
+ * insert that someone came to drafty from seeing a databait
  */
 //DB Code
 export async function insertDataBaitVisit(idSession: string, idDataBait: string, source: string) {
     try {
-        const idInteractionType: number = 19;
+        const idInteractionType: number = 24;
         await db.query(stmtInsertDataBaitVisit, [idSession, idInteractionType, idDataBait, source]);
     } catch (error) {
-        logDbErr(error, 'error during insert click', 'warn');
+        logDbErr(error, 'error during insert databait visit', 'warn');
+    }
+}
+
+/**
+ * insert new comment
+ */
+//DB Code
+export async function insertNewComment(idSession: string, idUniqueID: string | number, comment: string ) {
+    try {
+        const idInteractionType: number = 19;
+        await db.query(stmtInsertNewComment, [idSession, idInteractionType, idUniqueID, comment]);
+    } catch (error) {
+        logDbErr(error, 'error during insert insertNewComment', 'warn');
+    }
+}
+
+/**
+ * insert new comment vote
+ */
+//DB Code
+export async function insertNewCommentVote(idSession: string, idComment: string | number, vote: string, idInteractionType: string | number) {
+    try {
+        // idInteractionType 20,21,22,23 based on vote
+        // vote 'voteUp','voteUp-deselect','voteDown','voteDown-select'
+        await db.query(stmtInsertNewCommentVote, [idSession, idInteractionType, idComment, vote]);
+    } catch (error) {
+        logDbErr(error, 'error during insert insertNewCommentVote', 'warn');
     }
 }
