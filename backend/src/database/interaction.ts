@@ -25,7 +25,7 @@ const stmtInsertDataBaitVisit: string = 'INSERT INTO DataBaitVisit (idInteractio
 
 const stmtInsertNewComment: string = 'INSERT INTO Comments (idInteraction, idUniqueID, comment, voteUp, voteDown) VALUES (insert_interaction(?,?), ?, ?, DEFAULT, DEFAULT);';
 const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote) VALUES (insert_interaction(?,?), ?, ?)';
-// TODO: update Comment Vote
+// TODO: update Comments voteUp, voteDown
 
 
 /**

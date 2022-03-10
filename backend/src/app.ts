@@ -179,6 +179,10 @@ app.post('/searchcol-visit', interactionCtrl.postSearchColVisit);
 app.post('/paste-cell', interactionCtrl.postPasteCell);
 app.post('/copy-cell', interactionCtrl.postCopyCell);
 app.post('/copy-column', interactionCtrl.postCopyColumn);
+//app.get('/comments/:idrow', commentsCtrl.getComments);
+//app.post('/comments/new', commentsCtrl.postNewComment);
+//app.post('/comments/vote/new', commentsCtrl.postNewCommentVote);
+//app.post('/comments/vote/update', commentsCtrl.postUpdateCommentVote);
 
 // suggestions
 app.post('/newrow', suggestionCtrl.postNewRow);
