@@ -100,6 +100,7 @@ const commentHTML = function (id: number, date: string, author: string, content:
 
 //logic to add new comment post
 document.getElementById('comment-button').onclick = function () {
+  // insertNewComment()
   const content: string = (<HTMLInputElement>(
     document.getElementById('newCommentTextbox')
   )).value;

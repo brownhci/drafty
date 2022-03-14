@@ -28,7 +28,7 @@ const stmtInsertCommentView: string = ' INSERT INTO CommentsView (idInteraction,
 const stmtInsertNewComment: string = 'INSERT INTO Comments (idInteraction, idUniqueID, comment, voteUp, voteDown) VALUES (insert_interaction(?,?), ?, ?, DEFAULT, DEFAULT);';
 const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote) VALUES (insert_interaction(?,?), ?, ?);';
 const stmtUpdateCommentVoteUpCount: string = 'UPDATE Comments t SET t.voteUp = (t.voteUp ? 1) WHERE t.idComment = ?;';
-const stmtUpdateCommentVoteDownCount: string = 'UPDATE Comments t SET t.voteUp = (t.voteDown ? 1) WHERE t.idComment = ?;';
+const stmtUpdateCommentVoteDownCount: string = 'UPDATE Comments t SET t.voteDown = (t.voteDown ? 1) WHERE t.idComment = ?;';
 
 /**
  * save new click
@@ -251,7 +251,7 @@ const voteIdInteractionType: Record<Vote, number> = {
     'voteDown-deselect': 23
 };
 
-function getVoteMath(vote: Vote) {
+function getVoteMath(vote: Vote): string {
     if(vote.includes(deselect)) {
         return '-';
     } else {
@@ -265,7 +265,7 @@ function getVoteMath(vote: Vote) {
 //DB Code
 export async function updateNewCommentVoteUp(idSession: string, idComment: string | number, vote: Vote) {
     try {
-        db.query(stmtUpdateCommentVoteUpCount, [idComment, getVoteMath(vote), idComment]);
+        db.query(stmtUpdateCommentVoteUpCount, [getVoteMath(vote), idComment]);
         db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote]);
     } catch (error) {
         logDbErr(error, 'error during insert updateNewCommentVoteUp', 'warn');
@@ -278,7 +278,7 @@ export async function updateNewCommentVoteUp(idSession: string, idComment: strin
 //DB Code
 export async function updateNewCommentVoteDown(idSession: string, idComment: string | number, vote: Vote) {
     try {
-        db.query(stmtUpdateCommentVoteDownCount, [idComment, getVoteMath(vote), idComment]);
+        db.query(stmtUpdateCommentVoteDownCount, [getVoteMath(vote), idComment]);
         db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote]);
     } catch (error) {
         logDbErr(error, 'error during insert updateNewCommentVoteDown', 'warn');

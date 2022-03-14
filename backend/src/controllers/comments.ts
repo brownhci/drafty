@@ -1,6 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import { selectComments, insertNewComment, updateNewCommentVoteUp, updateNewCommentVoteDown } from '../database/interaction';
 
+/**
+ * POST /comments/:idrow
+ * 
+ * @param {string} req.query.idrow
+ *
+ */
 export const getComments = async (req: Request, res: Response, next: NextFunction) => {
   const idSession = req.session.user.idSession;
   const idRow = req.query.idrow.toString();
@@ -11,6 +17,13 @@ export const getComments = async (req: Request, res: Response, next: NextFunctio
   return res.status(200).json(results);
 };
 
+/**
+ * POST /comments/new
+ * 
+ * @param {string} req.body.idrow
+ * @param {string} req.body.comment
+ *
+ */
 export const postNewComment = async (req: Request, res: Response, next: NextFunction) => {
   const idSession = req.session.user.idSession;
   const idRow = req.body.idrow;
@@ -22,6 +35,13 @@ export const postNewComment = async (req: Request, res: Response, next: NextFunc
   return res.status(200).json(results.insertId);
 };
 
+/**
+ * POST /comments/vote/update/up
+ * 
+ * @param {number} req.body.idComment
+ * @param {string} req.body.vote
+ *
+ */
 export const postCommentVoteUp = (req: Request, res: Response) => {
   try {
     const idSession = req.session.user.idSession;
@@ -34,6 +54,13 @@ export const postCommentVoteUp = (req: Request, res: Response) => {
   }
 };
 
+/**
+ * POST /comments/vote/update/down
+ * 
+ * @param {number} req.body.idComment
+ * @param {string} req.body.vote
+ *
+ */
 export const postCommentVoteDown = (req: Request, res: Response) => {
   try {
     const idSession = req.session.user.idSession;
