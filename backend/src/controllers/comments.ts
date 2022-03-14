@@ -47,7 +47,8 @@ export const postCommentVoteUp = (req: Request, res: Response) => {
     const idSession = req.session.user.idSession;
     const idComment = req.body.idComment;
     const vote = req.body.vote;
-    updateNewCommentVoteUp(idSession, idComment, vote);
+    const selected = req.body.selected;
+    updateNewCommentVoteUp(idSession, idComment, vote, selected);
     return res.sendStatus(200);
   } catch (error) {
     return res.sendStatus(500);
@@ -66,7 +67,8 @@ export const postCommentVoteDown = (req: Request, res: Response) => {
     const idSession = req.session.user.idSession;
     const idComment = req.body.idComment;
     const vote = req.body.vote;
-    updateNewCommentVoteDown(idSession, idComment, vote);
+    const selected = req.body.selected;
+    updateNewCommentVoteDown(idSession, idComment, vote, selected);
     return res.sendStatus(200);
   } catch (error) {
     return res.sendStatus(500);
