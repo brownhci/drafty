@@ -245,3 +245,29 @@ function getVoteMath(vote: Vote) {
         return '+';
     }
 }
+
+/**
+ * update comment vote up
+ */
+//DB Code
+export async function updateNewCommentVoteUp(idSession: string, idComment: string | number, vote: Vote, idInteractionType: string | number) {
+    try {
+        db.query(stmtUpdateCommentVoteUpCount, [idComment, getVoteMath(vote), idComment]);
+        db.query(stmtInsertNewCommentVote, [idSession, idInteractionType, idComment, vote]);
+    } catch (error) {
+        logDbErr(error, 'error during insert updateNewCommentVoteUp', 'warn');
+    }
+}
+
+/**
+ * update comment vote down
+ */
+//DB Code
+export async function updateNewCommentVoteDown(idSession: string, idComment: string | number, vote: Vote, idInteractionType: string | number) {
+    try {
+        db.query(stmtUpdateCommentVoteDownCount, [idComment, getVoteMath(vote), idComment]);
+        db.query(stmtInsertNewCommentVote, [idSession, idInteractionType, idComment, vote]);
+    } catch (error) {
+        logDbErr(error, 'error during insert updateNewCommentVoteDown', 'warn');
+    }
+}
