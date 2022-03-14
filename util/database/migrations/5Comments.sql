@@ -49,3 +49,5 @@ create table CommentVote
     constraint voteType
         check (`vote` in ('voteUp', 'voteUp-deselect', 'voteDown', 'voteDown-deselect'))
 );
+
+ALTER TABLE CommentVote ADD COLUMN selected tinyint AFTER vote;
