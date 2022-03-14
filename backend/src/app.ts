@@ -25,6 +25,7 @@ import * as interactionCtrl from './controllers/interaction';
 import * as suggestionCtrl from './controllers/suggestion';
 import * as dataSharingCtrl from './controllers/datasharing';
 import * as dataPrivacy from './controllers/dataprivacy';
+import * as commentsCtrl from './controllers/comments';
 // import * as middlewareTests from "./util/middlewaretests";
 
 // API keys and Passport configuration
@@ -179,10 +180,10 @@ app.post('/searchcol-visit', interactionCtrl.postSearchColVisit);
 app.post('/paste-cell', interactionCtrl.postPasteCell);
 app.post('/copy-cell', interactionCtrl.postCopyCell);
 app.post('/copy-column', interactionCtrl.postCopyColumn);
-//app.get('/comments/:idrow', commentsCtrl.getComments);
-//app.post('/comments/new', commentsCtrl.postNewComment);
-//app.post('/comments/vote/new', commentsCtrl.postNewCommentVote);
-//app.post('/comments/vote/update', commentsCtrl.postUpdateCommentVote);
+app.get('/comments/row/:idrow', commentsCtrl.getComments);
+app.post('/comments/new', commentsCtrl.postNewComment);
+app.post('/comments/vote/update/up', commentsCtrl.postCommentVoteUp);
+app.post('/comments/vote/update/down', commentsCtrl.postCommentVoteDown);
 
 // suggestions
 app.post('/newrow', suggestionCtrl.postNewRow);
