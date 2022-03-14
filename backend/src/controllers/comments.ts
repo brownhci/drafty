@@ -1,23 +1,53 @@
-import { Request, Response } from 'express';
-import { insertNewComment, insertNewCommentVote } from '../database/interaction';
+import { NextFunction, Request, Response } from 'express';
+import { selectComments, insertNewComment, updateNewCommentVoteUp, updateNewCommentVoteDown } from '../database/interaction';
 
+/**
+ * POST /comments/:idrow
+ * 
+ * @param {string} req.query.idrow
+ *
+ */
+export const getComments = async (req: Request, res: Response, next: NextFunction) => {
+  const idSession = req.session.user.idSession;
+  const idRow = req.query.idrow.toString();
+  const [error, results] = await selectComments(idSession, idRow);
+  if (error) {
+    return next(error);
+  }
+  return res.status(200).json(results);
+};
 
 /**
  * POST /comments/new
  * 
- * @param {number} req.body.idUniqueID
+ * @param {string} req.body.idrow
  * @param {string} req.body.comment
  *
- * (pipe delimited)-> idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
- * @param {Array<string>} req.body.searchValues
  */
- export const postNewComment = (req: Request, res: Response) => {
+export const postNewComment = async (req: Request, res: Response, next: NextFunction) => {
   const idSession = req.session.user.idSession;
-  const idUniqueID: number = req.body.idUniqueID;
-  const comment: string = req.body.comment;
+  const idRow = req.body.idrow;
+  const comment = req.body.comment;
+  const [error, results] = await insertNewComment(idSession, idRow, comment);
+  if (error) {
+    return next(error);
+  }
+  return res.status(200).json(results.insertId);
+};
 
+/**
+ * POST /comments/vote/update/up
+ * 
+ * @param {number} req.body.idComment
+ * @param {string} req.body.vote
+ *
+ */
+export const postCommentVoteUp = (req: Request, res: Response) => {
   try {
-    insertNewComment(idSession, idUniqueID, comment);
+    const idSession = req.session.user.idSession;
+    const idComment = req.body.idComment;
+    const vote = req.body.vote;
+    updateNewCommentVoteUp(idSession, idComment, vote);
     return res.sendStatus(200);
   } catch (error) {
     return res.sendStatus(500);
@@ -25,24 +55,20 @@ import { insertNewComment, insertNewCommentVote } from '../database/interaction'
 };
 
 /**
- * POST /comments/vote/new
+ * POST /comments/vote/update/down
  * 
  * @param {number} req.body.idComment
  * @param {string} req.body.vote
- * @param {string} req.body.idInteractionType
  *
- * (pipe delimited)-> idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
  */
- export const postNewCommentVote = (req: Request, res: Response) => {
+export const postCommentVoteDown = (req: Request, res: Response) => {
+  try {
     const idSession = req.session.user.idSession;
-    const idComment: number = req.body.idComment;
-    const vote: string = req.body.vote;
-    const idInteractionType: string | number = req.body.idInteractionType;
-  
-    try {
-      insertNewCommentVote(idSession, idComment, vote, idInteractionType);
-      return res.sendStatus(200);
-    } catch (error) {
-      return res.sendStatus(500);
-    }
-  };
+    const idComment = req.body.idComment;
+    const vote = req.body.vote;
+    updateNewCommentVoteDown(idSession, idComment, vote);
+    return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+};
