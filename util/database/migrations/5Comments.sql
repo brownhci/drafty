@@ -19,6 +19,20 @@ INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES
 INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES (21,'commentVoteDown');
 INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES (22,'commentVoteUp-deselect');
 INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES (23,'commentVoteDown-deselect');
+INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES (24,'commentView');
+
+create table CommentsView
+(
+    idCommentsView int auto_increment,
+    idComment      int null,
+    idInteraction  int null,
+    constraint CommentsView_pk
+        primary key (idCommentsView),
+    constraint CommentsView___fk_comments_alksdhfga1231
+        foreign key (idComment) references Comments (idComment),
+    constraint CommentsView___fk_interaction_aljhsdfg5123
+        foreign key (idInteraction) references Interaction (idInteraction)
+);
 
 drop table CommentVote;
 create table CommentVote
