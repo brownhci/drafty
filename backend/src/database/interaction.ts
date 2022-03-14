@@ -24,9 +24,10 @@ const stmtInsertSearchGoogle: string = 'INSERT INTO SearchGoogle (idInteraction,
 const stmtInsertDataBaitVisit: string = 'INSERT INTO DataBaitVisit (idInteraction, idDataBait, source) VALUES (insert_interaction(?,?), ?, source);';
 
 const stmtInsertNewComment: string = 'INSERT INTO Comments (idInteraction, idUniqueID, comment, voteUp, voteDown) VALUES (insert_interaction(?,?), ?, ?, DEFAULT, DEFAULT);';
-const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote) VALUES (insert_interaction(?,?), ?, ?)';
+const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote) VALUES (insert_interaction(?,?), ?, ?);';
 // TODO: update Comments voteUp, voteDown
-
+const stmtUpdateCommentVoteUpCount: string = 'UPDATE Comments t SET t.voteUp = (t.voteUp ? 1) WHERE t.idComment = ?;';
+const stmtUpdateCommentVoteDownCount: string = 'UPDATE Comments t SET t.voteUp = (t.voteDown ? 1) WHERE t.idComment = ?;';
 
 /**
  * save new click
@@ -230,5 +231,17 @@ export async function insertNewCommentVote(idSession: string, idComment: string 
         await db.query(stmtInsertNewCommentVote, [idSession, idInteractionType, idComment, vote]);
     } catch (error) {
         logDbErr(error, 'error during insert insertNewCommentVote', 'warn');
+    }
+}
+
+// to match check in database
+const deselect: string = 'deselect';
+type Vote = 'voteUp' | 'voteUp-deselect' | 'voteDown' | 'voteDown-deselect';
+
+function getVoteMath(vote: Vote) {
+    if(vote.includes(deselect)) {
+        return '-';
+    } else {
+        return '+';
     }
 }
