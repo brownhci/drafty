@@ -26,7 +26,7 @@ const stmtInsertDataBaitVisit: string = 'INSERT INTO DataBaitVisit (idInteractio
 const stmtSelectComments: string = 'SELECT c.*, i.timestamp, p.username FROM Comments c INNER JOIN Interaction i on c.idInteraction = i.idInteraction INNER JOIN users.Session s on s.idSession = i.idSession INNER JOIN users.Profile p on p.idProfile = s.idProfile WHERE c.idUniqueID = ? ORDER BY i.timestamp DESC;';
 const stmtInsertCommentView: string = ' INSERT INTO CommentsView (idInteraction, idComment) VALUES (?, insert_interaction(?,?))';
 const stmtInsertNewComment: string = 'INSERT INTO Comments (idInteraction, idUniqueID, comment, voteUp, voteDown) VALUES (insert_interaction(?,?), ?, ?, DEFAULT, DEFAULT);';
-const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote) VALUES (insert_interaction(?,?), ?, ?);';
+const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote, selected) VALUES (insert_interaction(?,?), ?, ?, ?);';
 const stmtUpdateCommentVoteUpCount: string = 'UPDATE Comments t SET t.voteUp = (t.voteUp ? 1) WHERE t.idComment = ?;';
 const stmtUpdateCommentVoteDownCount: string = 'UPDATE Comments t SET t.voteDown = (t.voteDown ? 1) WHERE t.idComment = ?;';
 
@@ -263,10 +263,10 @@ function getVoteMath(vote: Vote): string {
  * update comment vote up
  */
 //DB Code
-export async function updateNewCommentVoteUp(idSession: string, idComment: string | number, vote: Vote) {
+export async function updateNewCommentVoteUp(idSession: string, idComment: string | number, vote: Vote, selected: number) {
     try {
         db.query(stmtUpdateCommentVoteUpCount, [getVoteMath(vote), idComment]);
-        db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote]);
+        db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote, selected]);
     } catch (error) {
         logDbErr(error, 'error during insert updateNewCommentVoteUp', 'warn');
     }
@@ -276,10 +276,10 @@ export async function updateNewCommentVoteUp(idSession: string, idComment: strin
  * update comment vote down
  */
 //DB Code
-export async function updateNewCommentVoteDown(idSession: string, idComment: string | number, vote: Vote) {
+export async function updateNewCommentVoteDown(idSession: string, idComment: string | number, vote: Vote, selected: number) {
     try {
         db.query(stmtUpdateCommentVoteDownCount, [getVoteMath(vote), idComment]);
-        db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote]);
+        db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote, selected]);
     } catch (error) {
         logDbErr(error, 'error during insert updateNewCommentVoteDown', 'warn');
     }
