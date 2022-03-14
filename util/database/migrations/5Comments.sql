@@ -20,17 +20,18 @@ INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES
 INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES (22,'commentVoteUp-deselect');
 INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES (23,'commentVoteDown-deselect');
 
+drop table CommentVote;
 create table CommentVote
 (
-    idCommentVote int auto_increment,
-    idInteraction int     not null,
-    idComment     int     not null,
+    idCommentVote int auto_increment
+        primary key,
+    idInteraction int         not null,
+    idComment     int         not null,
     vote          varchar(20) not null,
-    constraint CommentVote_pk
-        primary key (idCommentVote),
     constraint table_name___fk_comments_akhsdfashjld
         foreign key (idComment) references Comments (idComment),
     constraint table_name___fk_interaction_akdhfa
         foreign key (idInteraction) references Interaction (idInteraction),
-    constraint voteType check (vote in ('voteUp','voteUp-deselect','voteDown','voteDown-select'))
+    constraint voteType
+        check (`vote` in ('voteUp', 'voteUp-deselect', 'voteDown', 'voteDown-deselect'))
 );
