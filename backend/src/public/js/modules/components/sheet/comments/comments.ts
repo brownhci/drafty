@@ -1,3 +1,4 @@
+// import { postNewComment } from '../../../../../../controllers/comments';
 
 interface ProfComment {
   id: number;
@@ -100,10 +101,10 @@ const commentHTML = function (id: number, date: string, author: string, content:
 
 //logic to add new comment post
 document.getElementById('comment-button').onclick = function () {
-  // insertNewComment()
   const content: string = (<HTMLInputElement>(
     document.getElementById('newCommentTextbox')
   )).value;
+  // postNewComment(content);
   const commentsContainer = document.getElementById('commentsContainer');
   commentsContainer.innerHTML = commentHTML(10, 'today', 'kaki', content, 0, 0) + 
   `<hr id="comments-hr">` + commentsContainer.innerHTML;

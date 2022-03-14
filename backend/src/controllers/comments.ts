@@ -3,7 +3,7 @@ import { insertNewComment, insertNewCommentVote } from '../database/interaction'
 
 
 /**
- * POST /comment
+ * POST /comments/new
  * 
  * @param {number} req.body.idUniqueID
  * @param {string} req.body.comment
@@ -25,14 +25,13 @@ import { insertNewComment, insertNewCommentVote } from '../database/interaction'
 };
 
 /**
- * POST /comment
+ * POST /comments/vote/new
  * 
  * @param {number} req.body.idComment
  * @param {string} req.body.vote
  * @param {string} req.body.idInteractionType
  *
  * (pipe delimited)-> idSuggestionType|idSearchType|value||idSuggestionType|idSearchType|value
- * @param {Array<string>} req.body.searchValues
  */
  export const postNewCommentVote = (req: Request, res: Response) => {
     const idSession = req.session.user.idSession;
