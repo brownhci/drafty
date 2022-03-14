@@ -24,6 +24,7 @@ const stmtInsertSearchGoogle: string = 'INSERT INTO SearchGoogle (idInteraction,
 const stmtInsertDataBaitVisit: string = 'INSERT INTO DataBaitVisit (idInteraction, idDataBait, source) VALUES (insert_interaction(?,?), ?, source);';
 
 const stmtSelectComments: string = 'SELECT c.*, i.timestamp, p.username FROM Comments c INNER JOIN Interaction i on c.idInteraction = i.idInteraction INNER JOIN users.Session s on s.idSession = i.idSession INNER JOIN users.Profile p on p.idProfile = s.idProfile WHERE c.idUniqueID = ? ORDER BY i.timestamp DESC;';
+const stmtInsertCommentView: string = ' INSERT INTO CommentsView (idInteraction, idComment) VALUES (?, insert_interaction(?,?))';
 const stmtInsertNewComment: string = 'INSERT INTO Comments (idInteraction, idUniqueID, comment, voteUp, voteDown) VALUES (insert_interaction(?,?), ?, ?, DEFAULT, DEFAULT);';
 const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote) VALUES (insert_interaction(?,?), ?, ?);';
 const stmtUpdateCommentVoteUpCount: string = 'UPDATE Comments t SET t.voteUp = (t.voteUp ? 1) WHERE t.idComment = ?;';
@@ -207,6 +208,24 @@ export async function insertDataBaitVisit(idSession: string, idDataBait: string,
     }
 }
 
+
+/**
+ * get all comments for a row
+ */
+//DB Code
+export async function selectComments(idSession: string, idUniqueID: string | number) {
+    try {
+        const idInteractionType: number = 24; // comments view
+        db.query(stmtInsertCommentView, [idSession, idInteractionType, idUniqueID]);
+        const [ results ] = await db.query(stmtSelectComments, [idUniqueID]);
+        return [null, results];
+    } catch (error) {
+        logDbErr(error, 'error during insert insertNewComment', 'warn');
+        return [error];
+    }
+}
+
+
 /**
  * insert new comment
  */
@@ -214,29 +233,23 @@ export async function insertDataBaitVisit(idSession: string, idDataBait: string,
 export async function insertNewComment(idSession: string, idUniqueID: string | number, comment: string ) {
     try {
         const idInteractionType: number = 19;
-        await db.query(stmtInsertNewComment, [idSession, idInteractionType, idUniqueID, comment]);
+        const [ results ] = await db.query(stmtInsertNewComment, [idSession, idInteractionType, idUniqueID, comment]);
+        return [null, results];
     } catch (error) {
         logDbErr(error, 'error during insert insertNewComment', 'warn');
-    }
-}
-
-/**
- * insert new comment vote
- */
-//DB Code
-export async function insertNewCommentVote(idSession: string, idComment: string | number, vote: string, idInteractionType: string | number) {
-    try {
-        // idInteractionType 20,21,22,23 based on vote
-        // vote 'voteUp','voteUp-deselect','voteDown','voteDown-select'
-        await db.query(stmtInsertNewCommentVote, [idSession, idInteractionType, idComment, vote]);
-    } catch (error) {
-        logDbErr(error, 'error during insert insertNewCommentVote', 'warn');
+        return [error];
     }
 }
 
 // to match check in database
 const deselect: string = 'deselect';
 export type Vote = 'voteUp' | 'voteUp-deselect' | 'voteDown' | 'voteDown-deselect';
+const voteIdInteractionType: Record<Vote, number> = {
+    'voteUp': 20,
+    'voteUp-deselect': 21,
+    'voteDown': 22,
+    'voteDown-deselect': 23
+};
 
 function getVoteMath(vote: Vote) {
     if(vote.includes(deselect)) {
@@ -250,10 +263,10 @@ function getVoteMath(vote: Vote) {
  * update comment vote up
  */
 //DB Code
-export async function updateNewCommentVoteUp(idSession: string, idComment: string | number, vote: Vote, idInteractionType: string | number) {
+export async function updateNewCommentVoteUp(idSession: string, idComment: string | number, vote: Vote) {
     try {
         db.query(stmtUpdateCommentVoteUpCount, [idComment, getVoteMath(vote), idComment]);
-        db.query(stmtInsertNewCommentVote, [idSession, idInteractionType, idComment, vote]);
+        db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote]);
     } catch (error) {
         logDbErr(error, 'error during insert updateNewCommentVoteUp', 'warn');
     }
@@ -263,10 +276,10 @@ export async function updateNewCommentVoteUp(idSession: string, idComment: strin
  * update comment vote down
  */
 //DB Code
-export async function updateNewCommentVoteDown(idSession: string, idComment: string | number, vote: Vote, idInteractionType: string | number) {
+export async function updateNewCommentVoteDown(idSession: string, idComment: string | number, vote: Vote) {
     try {
         db.query(stmtUpdateCommentVoteDownCount, [idComment, getVoteMath(vote), idComment]);
-        db.query(stmtInsertNewCommentVote, [idSession, idInteractionType, idComment, vote]);
+        db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote]);
     } catch (error) {
         logDbErr(error, 'error during insert updateNewCommentVoteDown', 'warn');
     }
