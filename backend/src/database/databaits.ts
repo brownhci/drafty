@@ -1,12 +1,12 @@
 import { db, logDbErr } from './mysql';
 
 const stmtInsertDatabait: string = `INSERT INTO Databaits (idInteraction, idUniqueID, idDatabaitTemplateType, idDatabaitCreateType, databait, columns, vals, notes, nextAction) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?, ?, '', null);`;
-// stmtUpdateDatabaitClosed
-// stmtUpdateDatabaitNextAction
+const stmtUpdateDatabaitClosed: string = 'UPDATE Databaits SET closed = CURRENT_TIMESTAMP WHERE idDatabait = ?;';
+const stmtUpdateDatabaitNextAction: string = 'UPDATE Databaits SET nextAction = ? WHERE idDatabait = ?';
 const stmtInsertDatabaitTweet: string = 'INSERT INTO (idInteraction, idDatabait, url, likes, retweets, nextAction) VALUES (insert_interaction(?,?), ?, ?, null, null, null);';
-// stmtUpdateDatabaitTweetNextAction
-// stmtUpdateDatabaitTweetLikes
-// stmtUpdateDatabaitTweetRetweets
+const stmtUpdateDatabaitTweetNextAction: string = 'UPDATE DatabaitTweet SET nextAction = ? WHERE idDatabaitTweet = ?';
+const stmtUpdateDatabaitTweetLikes: string = 'UPDATE DatabaitTweet SET likes = ? WHERE idDatabaitTweet = ?';
+const stmtUpdateDatabaitTweetRetweets: string = 'UPDATE DatabaitTweet SET retweets = ? WHERE idDatabaitTweet = ?';
 const stmtInsertDatabaitVisit: string = 'INSERT INTO DatabaitVisit (idinteraction, idDatabait) VALUES(insert_interaction(?,?), ?);';
 
 // used for how databaits were created
