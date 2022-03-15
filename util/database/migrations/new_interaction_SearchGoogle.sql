@@ -5,7 +5,7 @@
 --
 
 CREATE TABLE SearchGoogle (
-  IdInteraction int(11) NOT NULL,
+  idInteraction int(11) NOT NULL,
   idUniqueID int(11) NOT NULL,
   idSuggestion int(11) NOT NULL,
   searchValues varchar(3000) NOT NULL
@@ -31,7 +31,7 @@ ALTER TABLE SearchGoogle
 -- Constraints for table SearchGoogle
 --
 ALTER TABLE SearchGoogle
-  ADD CONSTRAINT _fk_idInteraction_SearchGoogle_a645das FOREIGN KEY (IdInteraction) REFERENCES Interaction (idInteraction),
+  ADD CONSTRAINT _fk_idInteraction_SearchGoogle_a645das FOREIGN KEY (idInteraction) REFERENCES Interaction (idInteraction),
   ADD CONSTRAINT _fk_idSuggestion_SearchGoogle_a645das FOREIGN KEY (idSuggestion) REFERENCES Suggestions (idSuggestion),
   ADD CONSTRAINT _fk_idUniqueID_SearchGoogle_a645das FOREIGN KEY (idUniqueID) REFERENCES UniqueId (idUniqueID);
 
