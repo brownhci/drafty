@@ -45,8 +45,8 @@ CREATE TABLE `DatabaitTweet`
     `idInteraction`          int(11)       NOT NULL,
     `idDatabait`             int(11)       NOT NULL,
     `url`                    varchar(2500) NOT NULL,
-    `likes`                  int(11)       NOT NULL,
-    `retweets`               int(11)       NOT NULL,
+    `likes`                  int(11),
+    `retweets`               int(11),
     `created`                timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `nextAction`             int(11)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
