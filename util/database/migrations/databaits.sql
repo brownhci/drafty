@@ -39,14 +39,10 @@ CREATE TABLE `Databaits`
     `nextAction`             int(11)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
-ALTER TABLE `Databaits`
-    ADD PRIMARY KEY (`idDatabait`),
-    MODIFY `idDatabait` int(11) NOT NULL AUTO_INCREMENT;
-
 CREATE TABLE `DatabaitTweet`
 (
     `idDatabaitTweet`        int(11)       NOT NULL,
-    `idInteraction`          int(11) NOT NULL,
+    `idInteraction`          int(11)       NOT NULL,
     `idDatabait`             int(11)       NOT NULL,
     `url`                    varchar(2500) NOT NULL,
     `likes`                  int(11)       NOT NULL,
@@ -55,24 +51,12 @@ CREATE TABLE `DatabaitTweet`
     `nextAction`             int(11)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
-ALTER TABLE `DatabaitTweet`
-    ADD PRIMARY KEY (`idDatabaitTweet`),
-    MODIFY `idDatabaitTweet` int(11) NOT NULL AUTO_INCREMENT,
-    ADD CONSTRAINT _fk_idInteraction_DatabaitTweet_t615das FOREIGN KEY (idInteraction) REFERENCES Interaction (idInteraction),
-    ADD CONSTRAINT _fk_nextAction_DatabaitTweet_t615das FOREIGN KEY (nextAction) REFERENCES DatabaitCreateType (idDatabaitCreateType);
-
 CREATE TABLE `DatabaitVisit`
 (
     `idInteraction` int(11) NOT NULL,
     `idDatabait`    int(11) NOT NULL
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
-
-ALTER TABLE `DatabaitVisit`
-    ADD UNIQUE KEY `_unique_id_interaction_databaitvisit` (`idInteraction`),
-    ADD KEY `_fk_idDatabait_DatabaitVisit_b123gda` (`idDatabait`),
-    ADD CONSTRAINT `_fk_idDatabait_DatabaitVisit_b123gda` FOREIGN KEY (`idDatabait`) REFERENCES `Databaits` (`idDatabait`),
-    ADD CONSTRAINT `_fk_idInteraction_DatabaitVisit_asdhjk16341` FOREIGN KEY (`idInteraction`) REFERENCES `Interaction` (`idInteraction`);
 
 CREATE TABLE `DatabaitTemplateType`
 (
@@ -106,21 +90,52 @@ CREATE TABLE `DatabaitCreateType`
 (
     idDatabaitCreateType int auto_increment primary key,
     type                 varchar(50) null
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+CREATE TABLE `DatabaitNextAction`
+(
+    idDatabaitNextAction int auto_increment primary key,
+    action                 varchar(50) null
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
 ALTER TABLE `Databaits`
     ADD CONSTRAINT _fk_idDatabaitTemplateType_b6345das FOREIGN KEY (idDatabaitTemplateType) REFERENCES DatabaitTemplateType (idDatabaitTemplateType),
     ADD CONSTRAINT _fk_idDatabaitCreateType_b6345das FOREIGN KEY (idDatabaitCreateType) REFERENCES DatabaitCreateType (idDatabaitCreateType),
-    ADD CONSTRAINT _fk_databaits_nextAction_b6345das FOREIGN KEY (nextAction) REFERENCES DatabaitCreateType (idDatabaitCreateType),
+    ADD CONSTRAINT _fk_databaits_nextAction_b6345das FOREIGN KEY (nextAction) REFERENCES DatabaitNextAction (idDatabaitNextAction),
     ADD CONSTRAINT _fk_idInteraction_Databaits_a6a3344 FOREIGN KEY (idInteraction) REFERENCES Interaction (idInteraction),
     ADD CONSTRAINT _fk_idUniqueID_Databaits_b111edss FOREIGN KEY (idUniqueID) REFERENCES UniqueId (idUniqueID);
 
-INSERT INTO `DatabaitCreateType` (`type`) VALUES ('window-closed');
+ALTER TABLE `Databaits`
+    ADD PRIMARY KEY (`idDatabait`),
+    MODIFY `idDatabait` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `DatabaitTweet`
+    ADD PRIMARY KEY (`idDatabaitTweet`),
+    MODIFY `idDatabaitTweet` int(11) NOT NULL AUTO_INCREMENT,
+    ADD CONSTRAINT _fk_idInteraction_DatabaitTweet_t615das FOREIGN KEY (idInteraction) REFERENCES Interaction (idInteraction),
+    ADD CONSTRAINT _fk_nextAction_DatabaitTweet_t615das FOREIGN KEY (nextAction) REFERENCES DatabaitNextAction (idDatabaitNextAction);
+
+ALTER TABLE `DatabaitVisit`
+    ADD UNIQUE KEY `_unique_id_interaction_databaitvisit` (`idInteraction`),
+    ADD KEY `_fk_idDatabait_DatabaitVisit_b123gda` (`idDatabait`),
+    ADD CONSTRAINT `_fk_idDatabait_DatabaitVisit_b123gda` FOREIGN KEY (`idDatabait`) REFERENCES `Databaits` (`idDatabait`),
+    ADD CONSTRAINT `_fk_idInteraction_DatabaitVisit_asdhjk16341` FOREIGN KEY (`idInteraction`) REFERENCES `Interaction` (`idInteraction`);
+
+INSERT INTO `DatabaitCreateType` (`type`) VALUES ('modal-like');
+INSERT INTO `DatabaitCreateType` (`type`) VALUES ('modal-random');
 INSERT INTO `DatabaitCreateType` (`type`) VALUES ('right-click');
 INSERT INTO `DatabaitCreateType` (`type`) VALUES ('edit');
 INSERT INTO `DatabaitCreateType` (`type`) VALUES ('new-row');
 INSERT INTO `DatabaitCreateType` (`type`) VALUES ('delete-row');
 INSERT INTO `DatabaitCreateType` (`type`) VALUES ('navbar-menu');
-INSERT INTO `DatabaitCreateType` (`type`) VALUES ('modal-like');
-INSERT INTO `DatabaitCreateType` (`type`) VALUES ('modal-random');
+INSERT INTO `DatabaitCreateType` (`type`) VALUES ('welcome-modal');
+
+INSERT INTO `DatabaitNextAction` (`action`) VALUES ('modal-like');
+INSERT INTO `DatabaitNextAction` (`action`) VALUES ('modal-random');
+INSERT INTO `DatabaitNextAction` (`action`) VALUES ('right-click');
+INSERT INTO `DatabaitNextAction` (`action`) VALUES ('edit');
+INSERT INTO `DatabaitNextAction` (`action`) VALUES ('new-row');
+INSERT INTO `DatabaitNextAction` (`action`) VALUES ('delete-row');
+INSERT INTO `DatabaitNextAction` (`action`) VALUES ('navbar-menu');
+INSERT INTO `DatabaitNextAction` (`action`) VALUES ('window-closed');
