@@ -180,6 +180,8 @@ app.get('/data/csv/:name/:token', dataSharingCtrl.getCSV);
 
 // databaits twitter
 app.post('/databaits/tweet', databaitsCtrl.postTweet);
+app.post('/databaits/create', databaitsCtrl.postDataBaitCreated);
+app.post('/databaits/close', databaitsCtrl.postDataBaitWindowClosed);
 
 // interactions
 app.post('/click', interactionCtrl.postClick);
