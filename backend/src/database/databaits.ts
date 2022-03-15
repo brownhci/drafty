@@ -38,3 +38,17 @@ export const databaitAction = {
 
 /* TS magic to allow flexible lookup */
 export type databaitAction  =  typeof databaitAction [ keyof typeof databaitAction ]
+
+
+/**
+ * insert that someone came to drafyt from clicking on a databait link
+ */
+//DB Code
+export async function insertDataBaitVisit(idSession: string, idDataBait: string | number) {
+    try {
+        const idInteractionType: number = 25;
+        await db.query(stmtInsertDatabaitVisit, [idSession, idInteractionType, idDataBait]);
+    } catch (error) {
+        logDbErr(error, 'error during insert databait visit', 'warn');
+    }
+}
