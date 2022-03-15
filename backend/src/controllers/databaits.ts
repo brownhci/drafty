@@ -14,8 +14,15 @@ function getTweetURL(tweet: Twitter.ResponseData): string {
     return `https://twitter.com/did_you_know_cs/status/${tweet.id_str}`;
 }
 
+/**
+ * POST /databait/tweet
+ *
+ * @param {string} req.body.dataBait
+ * @param {string} req.body.dataBaitType
+ * @param {Array<string>} req.body.labels
+ * 
+ */
 export const postTweet = (req: Request, res: Response) => {
-    console.log('postTweet');
     client.post('statuses/update', {status: 'testing...'})
         .then(function (tweet) {
             console.log(tweet);
@@ -27,4 +34,37 @@ export const postTweet = (req: Request, res: Response) => {
             console.log(error);
             return res.sendStatus(500);
         });
+};
+
+/**
+ * POST /databait/create
+ *
+ * @param {string} req.body.dataBait
+ * @param {string} req.body.dataBaitType
+ * @param {Array<string>} req.body.labels
+ * @param {string} req.body.createdType
+ * 
+ */
+export const postDataBaitCreated = (req: Request, res: Response) => {
+    // right-click, edit, new-row, delete-row, navbar-menu, modal-like, modal-random
+    const dataBait = req.body.dataBait;
+    const dataBaitType = req.body.dataBaitType;
+    const labels = req.body.labels;
+    const createdType = req.body.createdType;
+    return res.sendStatus(200);
+};
+
+/**
+ * POST /databait/close
+ *
+ * record time when user closes window, or generate another databait
+ * 
+ * @param {string} req.body.idDataBait
+ * @param {number} req.body.windowClose
+ * 
+ */
+ export const postDataBaitWindowClosed = (req: Request, res: Response) => {
+    // right-click, edit, new-row, delete-row, navbar-menu, modal-like, modal-random
+    const idDataBait = req.body.idDataBait;
+    return res.sendStatus(200);
 };
