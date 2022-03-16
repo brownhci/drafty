@@ -62,9 +62,11 @@ export async function insertDatabait(idSession: string, databaitCreateType: data
     try {
         const idInteractionType: number = 0; // create from databaitCreateType
         // `INSERT INTO Databaits (idInteraction, idUniqueID, idDatabaitTemplateType, idDatabaitCreateType, databait, columns, vals, notes, nextAction) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?, ?, '', null);`
-        await db.query(stmtInsertDatabait, [idSession, idInteractionType]);
+        const [results] = await db.query(stmtInsertDatabait, [idSession, idInteractionType]);
+        return [null, results];
     } catch (error) {
         logDbErr(error, 'error during insert Databait', 'warn');
+        return [error];
     }
 }
 
