@@ -71,10 +71,6 @@ export function postGoogleSearchURL() {
   return 'search-google';
 }
 
-export function postDataBaitVisit() {
-  return 'databait-visit';
-}
-
 export function postDataBaitCreate() {
   return 'databait-create';
 }
@@ -85,4 +81,28 @@ export function postDataBaitTweet() {
 
 export function postSearchColVisit() {
   return 'searchcol-visit';
+}
+
+export function postTweet() {
+  return 'databaits/tweet';
+}
+
+export function postTweetNextAction() {
+  return 'databaits/tweet/next';
+}
+
+export function postDataBaitCreated() {
+  return 'databaits/create';
+}
+
+export function postDataBaitWindowClosed() {
+  return 'databaits/close';
+}
+
+export function postDataBaitNextAction() {
+  return 'databaits/next';
+}
+
+export function postDataBaitVisit() {
+  return 'databaits/visit';
 }
