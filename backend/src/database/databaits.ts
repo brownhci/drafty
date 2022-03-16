@@ -34,7 +34,7 @@ export const databaitCreateInteractionType = {
     delete_row: 29,
     navbar_menu: 30,
     welcome_modal: 33,
-    select_value_search: 34
+    select_databait_value_search: 35
 } as const;
 
 /* TS magic to allow flexible lookup */

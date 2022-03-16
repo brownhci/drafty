@@ -16,6 +16,8 @@ INSERT INTO `InteractionType` (`idInteractionType`, `interaction`)
 VALUES (NULL, 'databait-create-modal-random');
 INSERT INTO `InteractionType` (`idInteractionType`, `interaction`)
 VALUES (NULL, 'databait-tweet');
+INSERT INTO `InteractionType` (`idInteractionType`, `interaction`)
+VALUES (NULL, 'select-databait-value-search');
 
 DROP TABLE IF EXISTS `Databaits`;
 DROP TABLE IF EXISTS `DatabaitTweet`;
@@ -139,4 +141,4 @@ INSERT INTO `DatabaitNextAction` (`action`) VALUES ('new-row');
 INSERT INTO `DatabaitNextAction` (`action`) VALUES ('delete-row');
 INSERT INTO `DatabaitNextAction` (`action`) VALUES ('navbar-menu');
 INSERT INTO `DatabaitNextAction` (`action`) VALUES ('window-closed');
-INSERT INTO `DatabaitNextAction` (`action`) VALUES ('select-value-search');
+INSERT INTO `DatabaitNextAction` (`action`) VALUES ('select-databait-value-search');
