@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { TWITTER_API_KEY, TWITTER_API_SECRET_KEY, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET } from '../util/secrets';
 import Twitter from 'twitter'; 
-import { Url } from 'url';
+import { insertDataBaitVisit }  from '../database/databaits';
 
 const client = new Twitter({
     consumer_key: TWITTER_API_KEY,
@@ -37,6 +37,16 @@ export const postTweet = (req: Request, res: Response) => {
 };
 
 /**
+ * POST /databait/tweet/next
+ *
+ * @param {string} req.body.idDataBait
+ * 
+ */
+ export const postTweetNextAction = (req: Request, res: Response) => {
+    res.status(200);
+};
+
+/**
  * POST /databait/create
  *
  * @param {string} req.body.dataBait
@@ -55,6 +65,17 @@ export const postDataBaitCreated = (req: Request, res: Response) => {
 };
 
 /**
+ * POST /databait/next
+ *
+ * @param {string} req.body.idDataBait
+ * 
+ */
+ export const postDataBaitNextAction = (req: Request, res: Response) => {
+    res.status(200);
+};
+
+
+/**
  * POST /databait/close
  *
  * record time when user closes window, or generate another databait
@@ -68,3 +89,25 @@ export const postDataBaitCreated = (req: Request, res: Response) => {
     const idDataBait = req.body.idDataBait;
     return res.sendStatus(200);
 };
+
+
+/**
+ * POST /databait/visit
+ * 
+ * @param {number} req.body.idDataBait
+ *
+ * @param {string} req.body.source
+ */
+ export const postDataBaitVisit = (req: Request, res: Response) => {
+    const idSession = req.session.user.idSession;
+    const idDataBait: string = req.body.idDataBait;
+    const source: string = req.body.source; // is this reliable?
+  
+    try {
+      //console.log('postDataBaitVisit:', idDataBait, source);
+      insertDataBaitVisit(idSession, idDataBait);
+      return res.sendStatus(200);
+    } catch (error) {
+      return res.sendStatus(500);
+    }
+  };
