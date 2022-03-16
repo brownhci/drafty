@@ -7,7 +7,7 @@ const stmtInsertDatabaitTweet: string = 'INSERT INTO (idInteraction, idDatabait,
 const stmtUpdateDatabaitTweetNextAction: string = 'UPDATE DatabaitTweet SET nextAction = ? WHERE idDatabaitTweet = ?';
 const stmtUpdateDatabaitTweetLikes: string = 'UPDATE DatabaitTweet SET likes = ? WHERE idDatabaitTweet = ?';
 const stmtUpdateDatabaitTweetRetweets: string = 'UPDATE DatabaitTweet SET retweets = ? WHERE idDatabaitTweet = ?';
-const stmtInsertDatabaitVisit: string = 'INSERT INTO DatabaitVisit (idinteraction, idDatabait) VALUES(insert_interaction(?,?), ?);';
+const stmtInsertDatabaitVisit: string = 'INSERT INTO DatabaitVisit (idinteraction, idDatabait, source) VALUES(insert_interaction(?,?), ?, ?);';
 
 // used for how databaits were created
 export const databaitCreateType = {
@@ -131,10 +131,10 @@ export async function updateDatabaitTweetRetweets(retweets: string | number, idD
  * insert that someone came to drafty from clicking on a databait link
  */
 //DB Code
-export async function insertDataBaitVisit(idSession: string, idDataBait: string | number) {
+export function insertDataBaitVisit(idSession: string, idDataBait: string , source: string | number) {
     try {
         const idInteractionType: number = 25;
-        await db.query(stmtInsertDatabaitVisit, [idSession, idInteractionType, idDataBait]);
+        db.query(stmtInsertDatabaitVisit, [idSession, idInteractionType, idDataBait, source]);
     } catch (error) {
         logDbErr(error, 'error during insert databait visit', 'warn');
     }

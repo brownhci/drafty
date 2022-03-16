@@ -207,7 +207,7 @@ app.get('/suggestions/foredit', suggestionCtrl.getSuggestionsForEdit);
 app.post('/suggestions/new', suggestionCtrl.postNewSuggestion);
 
 // sheets
-app.get('/:sheet', userCtrl.checkReturnPath, sheetCtrl.getSheet);
+app.get('/:sheet', databaitsCtrl.checkDataBaitsVisit, userCtrl.checkReturnPath, sheetCtrl.getSheet);
 app.get('/:sheet/edit_history', userCtrl.checkReturnPath, sheetCtrl.getSheetEditHistory);
 
 // handle missing pages

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { TWITTER_API_KEY, TWITTER_API_SECRET_KEY, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET } from '../util/secrets';
 import Twitter from 'twitter'; 
 import { insertDataBaitVisit }  from '../database/databaits';
@@ -90,6 +90,19 @@ export const postDataBaitCreated = (req: Request, res: Response) => {
     return res.sendStatus(200);
 };
 
+//middleware
+export function checkDataBaitsVisit(req: Request, res: Response, next: NextFunction) {
+    if(req.query.d) {
+        const idSession = req.session.user.idSession;
+        const idDataBait = req.query.d as string;
+        let source: string = '';
+        if(req.query.src) {
+            source = req.query.src  as string;
+        }
+        insertDataBaitVisit(idSession, idDataBait, source);
+    }
+    next();
+  }
 
 /**
  * POST /databait/visit
@@ -105,7 +118,7 @@ export const postDataBaitCreated = (req: Request, res: Response) => {
   
     try {
       //console.log('postDataBaitVisit:', idDataBait, source);
-      insertDataBaitVisit(idSession, idDataBait);
+      insertDataBaitVisit(idSession, idDataBait, source);
       return res.sendStatus(200);
     } catch (error) {
       return res.sendStatus(500);
