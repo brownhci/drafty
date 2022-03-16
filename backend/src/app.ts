@@ -28,6 +28,7 @@ import * as interactionCtrl from './controllers/interaction';
 import * as suggestionCtrl from './controllers/suggestion';
 import * as dataSharingCtrl from './controllers/datasharing';
 import * as dataPrivacy from './controllers/dataprivacy';
+import * as databaitsCtrl from './controllers/databaits';
 // import * as middlewareTests from "./util/middlewaretests";
 
 // API keys and Passport configuration
@@ -155,6 +156,9 @@ app.post('/account/delete', dataPrivacy.postRemoveData);
 app.get('/data/edithistory', dataSharingCtrl.getEditHistory);
 app.get('/data/csv/:name/:token', dataSharingCtrl.getCSV);
 
+// databaits + twitter
+app.post('/databaits/visit', databaitsCtrl.postDataBaitVisit);
+
 // interactions
 app.post('/click', interactionCtrl.postClick);
 app.post('/click-double', interactionCtrl.postClickDouble);
@@ -177,7 +181,7 @@ app.get('/suggestions/foredit', suggestionCtrl.getSuggestionsForEdit);
 app.post('/suggestions/new', suggestionCtrl.postNewSuggestion);
 
 // sheets
-app.get('/:sheet', userCtrl.checkReturnPath, sheetCtrl.getSheet);
+app.get('/:sheet', databaitsCtrl.checkDataBaitsVisit, userCtrl.checkReturnPath, sheetCtrl.getSheet);
 app.get('/:sheet/edit_history', userCtrl.checkReturnPath, sheetCtrl.getSheetEditHistory);
 
 // handle missing pages
