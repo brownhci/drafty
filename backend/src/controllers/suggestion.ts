@@ -18,7 +18,6 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
   if (error) {
     return next(error);
   }
-
   return res.status(200).json(results);
 };
 

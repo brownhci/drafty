@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertCopyColumn, insertSearch, insertSort, insertSearchGoogle, insertDataBaitVisit } from '../database/interaction';
+import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertCopyColumn, insertSearch, insertSort, insertSearchGoogle } from '../database/interaction';
 
 /**
  * POST /click
@@ -142,27 +142,6 @@ export const postSearchGoogle = (req: Request, res: Response) => {
   try {
     //console.log('postSearchGoogle:',idSession, idRow, idSuggestion, searchValues);
     insertSearchGoogle(idSession, idRow, idSuggestion, searchValues);
-    return res.sendStatus(200);
-  } catch (error) {
-    return res.sendStatus(500);
-  }
-};
-
-/**
- * POST /databait-visit
- * 
- * @param {number} req.body.idDataBait
- *
- * @param {string} req.body.source
- */
-export const postDataBaitVisit = (req: Request, res: Response) => {
-  const idSession = req.session.user.idSession;
-  const idDataBait: string = req.body.idDataBait;
-  const source: string = req.body.source;
-
-  try {
-    //console.log('postDataBaitVisit:', idDataBait, source);
-    insertDataBaitVisit(idSession, idDataBait, source);
     return res.sendStatus(200);
   } catch (error) {
     return res.sendStatus(500);
