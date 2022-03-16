@@ -180,8 +180,11 @@ app.get('/data/csv/:name/:token', dataSharingCtrl.getCSV);
 
 // databaits twitter
 app.post('/databaits/tweet', databaitsCtrl.postTweet);
+app.post('/databaits/tweet/next', databaitsCtrl.postTweetNextAction);
 app.post('/databaits/create', databaitsCtrl.postDataBaitCreated);
 app.post('/databaits/close', databaitsCtrl.postDataBaitWindowClosed);
+app.post('/databaits/next', databaitsCtrl.postDataBaitNextAction);
+app.post('/databaits/visit', databaitsCtrl.postDataBaitVisit);
 
 // interactions
 app.post('/click', interactionCtrl.postClick);
@@ -190,7 +193,6 @@ app.post('/sort', interactionCtrl.postSort);
 app.post('/search-partial', interactionCtrl.postSearchPartial);
 app.post('/search-full', interactionCtrl.postSearchFull);
 app.post('/search-google', interactionCtrl.postSearchGoogle);
-app.post('/databait-visit', interactionCtrl.postDataBaitVisit);
 app.post('/searchcol-visit', interactionCtrl.postSearchColVisit);
 app.post('/paste-cell', interactionCtrl.postPasteCell);
 app.post('/copy-cell', interactionCtrl.postCopyCell);
