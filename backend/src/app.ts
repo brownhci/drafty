@@ -178,7 +178,7 @@ app.post('/account/delete', dataPrivacyCtrl.postRemoveData);
 app.get('/data/edithistory', dataSharingCtrl.getEditHistory);
 app.get('/data/csv/:name/:token', dataSharingCtrl.getCSV);
 
-// databaits twitter
+// databaits + twitter
 app.post('/databaits/tweet', databaitsCtrl.postTweet);
 app.post('/databaits/tweet/next', databaitsCtrl.postTweetNextAction);
 app.post('/databaits/create', databaitsCtrl.postDataBaitCreated);
