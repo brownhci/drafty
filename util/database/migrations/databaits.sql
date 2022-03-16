@@ -54,9 +54,9 @@ CREATE TABLE `DatabaitTweet`
 CREATE TABLE `DatabaitVisit`
 (
     `idInteraction` int(11) NOT NULL,
-    `idDatabait`    int(11) NOT NULL
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8;
+    `idDatabait`    int(11) NOT NULL,
+    `source`        varchar(200),
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 CREATE TABLE `DatabaitTemplateType`
 (
@@ -139,3 +139,4 @@ INSERT INTO `DatabaitNextAction` (`action`) VALUES ('new-row');
 INSERT INTO `DatabaitNextAction` (`action`) VALUES ('delete-row');
 INSERT INTO `DatabaitNextAction` (`action`) VALUES ('navbar-menu');
 INSERT INTO `DatabaitNextAction` (`action`) VALUES ('window-closed');
+INSERT INTO `DatabaitNextAction` (`action`) VALUES ('select-value-search');
