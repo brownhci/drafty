@@ -86,3 +86,20 @@ export function postDataBaitTweet() {
 export function postSearchColVisit() {
   return 'searchcol-visit';
 }
+
+// comments
+export function getCommentsURL(idRow: string | number) {
+  return `/comments/row/${idRow}`;
+}
+
+export function postNewCommentURL() {
+  return '/comments/new';
+}
+
+export function postCommentVoteUpURL() {
+  return '/comments/vote/update/up';
+}
+
+export function postCommentVoteDownURL() {
+  return '/comments/vote/update/down';
+}

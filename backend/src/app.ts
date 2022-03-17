@@ -180,6 +180,8 @@ app.post('/searchcol-visit', interactionCtrl.postSearchColVisit);
 app.post('/paste-cell', interactionCtrl.postPasteCell);
 app.post('/copy-cell', interactionCtrl.postCopyCell);
 app.post('/copy-column', interactionCtrl.postCopyColumn);
+
+// comments
 app.get('/comments/row/:idrow', commentsCtrl.getComments);
 app.post('/comments/new', commentsCtrl.postNewComment);
 app.post('/comments/vote/update/up', commentsCtrl.postCommentVoteUp);
