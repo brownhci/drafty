@@ -18,6 +18,10 @@ INSERT INTO `InteractionType` (`idInteractionType`, `interaction`)
 VALUES (NULL, 'databait-tweet');
 INSERT INTO `InteractionType` (`idInteractionType`, `interaction`)
 VALUES (NULL, 'select-databait-value-search');
+INSERT INTO `InteractionType` (`idInteractionType`, `interaction`)
+VALUES (NULL, 'databait-create-system-random');
+INSERT INTO `InteractionType` (`idInteractionType`, `interaction`)
+VALUES (NULL, 'databait-create-system-recent-edit');
 
 DROP TABLE IF EXISTS `Databaits`;
 DROP TABLE IF EXISTS `DatabaitTweet`;
@@ -144,3 +148,6 @@ INSERT INTO `DatabaitNextAction` (`action`) VALUES ('delete-row');
 INSERT INTO `DatabaitNextAction` (`action`) VALUES ('navbar-menu');
 INSERT INTO `DatabaitNextAction` (`action`) VALUES ('window-closed');
 INSERT INTO `DatabaitNextAction` (`action`) VALUES ('select-databait-value-search');
+
+-- for when the system creates a databait (i.e., a cron job)
+INSERT INTO users.Session (idSession, idProfile, idExpressSession, start, end) VALUES (2, 2, null, '2022-03-17 10:58:14', null)
