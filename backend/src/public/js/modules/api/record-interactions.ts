@@ -250,15 +250,16 @@ export function postNewComment(idrow: string | number, comment: string) {
   });
 }
 
-// TODO: kaki
-export function postCommentVoteUp() {
+export function postCommentVoteUp(idComment: number, vote: string) {
   recordInteraction(postCommentVoteUpURL(), {
-
+    idiComment: idComment,
+    vote: vote
   });
 }
 
-export function postCommentVoteDown() {
+export function postCommentVoteDown(idComment: number, vote: string) {
   recordInteraction(postCommentVoteDownURL(), {
-
+    idiComment: idComment,
+    vote: vote
   });
 }
