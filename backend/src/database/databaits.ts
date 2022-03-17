@@ -19,6 +19,9 @@ export const databaitCreateType = {
     delete_row: 6,
     navbar_menu: 7,
     welcome_modal: 8,
+    system_random: 9,
+    system_recent_edit: 10
+
 } as const;
 
 /* TS magic to allow flexible lookup */

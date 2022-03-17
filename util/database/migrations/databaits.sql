@@ -132,6 +132,8 @@ INSERT INTO `DatabaitCreateType` (`type`) VALUES ('new-row');
 INSERT INTO `DatabaitCreateType` (`type`) VALUES ('delete-row');
 INSERT INTO `DatabaitCreateType` (`type`) VALUES ('navbar-menu');
 INSERT INTO `DatabaitCreateType` (`type`) VALUES ('welcome-modal');
+INSERT INTO `DatabaitCreateType` (`type`) VALUES ('system-random');
+INSERT INTO `DatabaitCreateType` (`type`) VALUES ('system-recent-edit');
 
 INSERT INTO `DatabaitNextAction` (`action`) VALUES ('modal-like');
 INSERT INTO `DatabaitNextAction` (`action`) VALUES ('modal-random');
