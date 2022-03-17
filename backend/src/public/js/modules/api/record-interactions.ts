@@ -79,8 +79,32 @@ function recordInteraction(
     } else {
       failureHandler(response);
     }
-  })
-    .catch(error => console.error('Network error when posting interaction: ', error));
+  }).catch(error => console.error('Network error when posting interaction: ', error));
+}
+
+// Get Data from Backend
+/**
+ * @param {string} url - The server endpoint at which the interaction will be recorded.
+ * @param {Record<any, any>} data - The data object sent in the post request.
+ * @param {ResponseHandler} [successHandler = () => undefined] - The handler when response reports success.
+ * @param {ResponseHandler} [failureHandler = console.error(`${response.status}: ${response.statusText}`)] - The handler when response reports failure. Defaults to log the error.
+ */
+function getData(
+  url: string,
+  successHandler: ResponseHandler = () => undefined,
+  failureHandler: ResponseHandler = response => console.error(`${response.status}: ${response.statusText}`)) {
+  fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }).then(response => {
+    if (response.ok) {
+      successHandler(response);
+    } else {
+      failureHandler(response);
+    }
+  }).catch(error => console.error('Network error when posting interaction: ', error));
 }
 
 export function recordCellEdit(tableCellElement: HTMLTableCellElement, textContent: string) {
@@ -215,9 +239,8 @@ export function recordSearchColVisit(idSuggestionType: string, value: string) {
 }
 
 export function getComments(idrow: string | number) {
-  recordInteraction(getCommentsURL(idrow), {
-
-  });
+  const response = getData(getCommentsURL(idrow));
+  console.log(response);
 }
 
 export function postNewComment(idrow: string | number, comment: string) {
