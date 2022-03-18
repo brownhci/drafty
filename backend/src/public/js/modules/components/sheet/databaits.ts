@@ -1,8 +1,7 @@
-import { tableDataManager } from './sheet';
-import { getColumnLabel, getColumnLabelText } from './modules/dom/sheet';
-import { getEnclosingTableRow } from './modules/dom/navigate';
-import { recordDataBaitCreate } from './modules/api/record-interactions';
-import { PassThrough } from 'stream';
+import { tableDataManager } from '../../../sheet';
+import { getColumnLabel, getColumnLabelText } from '../../dom/sheet';
+import { getEnclosingTableRow } from '../../dom/navigate';
+import { recordDataBaitCreate } from '../../api/record-interactions';
 
 //let idRow: string = undefined;
 
