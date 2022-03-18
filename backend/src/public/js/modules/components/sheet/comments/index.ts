@@ -1,7 +1,17 @@
 // import { postNewComment } from '../../../../../../controllers/comments';
 
 import { activeTableCellElement } from '../../../../sheet';
-import { getRowIndex } from '../../../dom/sheet';
+import { getEnclosingTableRow } from '../../../dom/navigate';
+
+function tableEleActive() {
+  if(activeTableCellElement === null || activeTableCellElement === undefined) {
+      console.log('no active table element');
+  } else {
+    const tableRow: HTMLTableRowElement = getEnclosingTableRow(activeTableCellElement);
+    const idRow = tableRow.getAttribute('data-id');
+    console.log(idRow);
+  }
+}
 
 interface ProfComment {
   id: number;
@@ -68,9 +78,6 @@ closeIcon.onclick = function () {
   commentIcon.style.display = 'flex';
   commentsDiv.style.display = 'none';
 };
-
-const curRow: number = activeTableCellElement ? 0 : getRowIndex(activeTableCellElement);
-console.log(curRow);
 
 //html element for each comment
 const commentHTML = function (id: number, date: string, author: string, content: string, numUpvote: number, numDownvote: number)  {
