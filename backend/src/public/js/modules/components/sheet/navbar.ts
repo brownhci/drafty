@@ -1,6 +1,6 @@
 import { StatusMode, tableFoot } from './table-foot';
 import { deleteRow } from './delete-row';
-import { activaterDataBait } from '../../../databaits';
+import { activaterDataBait } from './databaits';
 import { activeTableCellElement } from '../../../sheet';
 
 const navBar: HTMLElement = document.getElementById('navbar-nav');
