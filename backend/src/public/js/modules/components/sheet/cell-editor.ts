@@ -186,9 +186,10 @@ class CellEditor {
       }
     }, { capture: true });
 
-    tableScrollContainer.addEventListener('mousemove', debounce((event: MouseEvent) => {
+    tableScrollContainer.addEventListener('mousemove', (event: MouseEvent) => {
       this.onMouseMove(event);
-    }), { passive: true, capture: true });
+      event.stopPropagation();
+    }, { passive: true, capture: true });
 
     this.formElement.addEventListener('mouseup', (event: MouseEvent) => {
       this.onMouseUp(event);

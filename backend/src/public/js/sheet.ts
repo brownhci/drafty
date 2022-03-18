@@ -2,6 +2,9 @@ import { recordCellClick, recordCellDoubleClick } from './modules/api/record-int
 import { activeClass, activeAccompanyClass } from './modules/constants/css-classes';
 import './modules/components/welcome-screen';
 import './modules/components/sheet/navbar';
+import './modules/components/sheet/comments/';
+import './modules/components/sheet/databaits';
+import './modules/components/sheet/delete-row';
 import { tableHeadOnMouseDown, tableHeadOnMouseMove } from './modules/components/sheet/resize-column';
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from './modules/components/sheet/column-sort-panel';
 import { cellEditor } from './modules/components/sheet/cell-editor';
@@ -59,6 +62,27 @@ function deactivateEditCaret() {
   }
 }
 
+const commentIcon = document.getElementById('commentIcon');
+const commentDiv = document.getElementById('comments');
+const commentLabel = document.getElementById('comment-label');
+
+function activateCommentIcon() {
+  commentIcon.style.display = 'flex';
+  commentDiv.style.display = 'none';
+}
+
+function activateCommentSection() {
+  commentIcon.style.display = 'none';
+  commentDiv.style.display = 'flex';
+}
+
+function changeCommentLabel() {
+  const html: string = activeTableCellElement.innerHTML;
+  const profName: string = html.slice(0, html.indexOf('<') - 1);
+  commentLabel.innerHTML = 'Comments for ' + profName;
+}
+
+
 /**
  * renew the timestamp on the active table cell element.
  */
@@ -73,6 +97,8 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
   if (shouldGetFocus) {
     activeTableCellElement.focus();
     activateEditCaret();
+    commentDiv.style.display === 'none' ? activateCommentIcon(): activateCommentSection();
+    changeCommentLabel();
   }
 }
 function activateTableHead(shouldGetFocus = true) {

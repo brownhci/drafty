@@ -1,8 +1,6 @@
-import { tableDataManager } from './sheet';
-import { getColumnLabel, getColumnLabelText } from './modules/dom/sheet';
-import { getEnclosingTableRow } from './modules/dom/navigate';
-import { recordDataBaitCreate } from './modules/api/record-interactions';
-import { PassThrough } from 'stream';
+import { getColumnLabel, getColumnLabelText } from '../../dom/sheet';
+import { getEnclosingTableRow } from '../../dom/navigate';
+import { recordDataBaitCreate } from '../../api/record-interactions';
 
 //let idRow: string = undefined;
 
@@ -105,9 +103,9 @@ async function updateCandidateFields(tableRowChildren: HTMLCollection) {
 }
 
 async function getRandomData() {
-    const n: number = tableDataManager.source.length;
-    const tableRowChildren = tableDataManager.source[randomRowPosition(n)].element_.children;
-    return updateCandidateFields(tableRowChildren);
+    //const n: number = tableDataManager.source.length;
+    //const tableRowChildren = tableDataManager.source[randomRowPosition(n)].element_.children;
+    //return updateCandidateFields(tableRowChildren);
 }
 
 async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
@@ -118,7 +116,7 @@ async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
         await updateCandidateFields(tableRow.children);
     } else {
         console.log('get random row/s');
-        await getRandomData();
+        //await getRandomData();
     }
     const databaits = await getDatabait();
     console.log(databaits);
