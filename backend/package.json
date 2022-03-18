@@ -118,7 +118,7 @@
         "nodemon": "^2.0.4",
         "shelljs": "^0.8.5",
         "ts-jest": "^25.5.1",
-        "ts-loader": "^7.0.5",
+        "ts-loader": "^9.2.8",
         "ts-node": "^10.2.1",
         "typescript": "^3.9.3",
         "webpack": "^5.52.0",
