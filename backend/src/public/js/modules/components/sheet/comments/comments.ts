@@ -1,5 +1,8 @@
 // import { postNewComment } from '../../../../../../controllers/comments';
 
+import { activeTableCellElement } from '../../../../sheet';
+import { getRowIndex } from '../../../dom/sheet';
+
 interface ProfComment {
   id: number;
   author: string;
@@ -45,7 +48,6 @@ const comment4: ProfComment = {
 
 const commentData: ProfComment[] = [comment4, comment3, comment2, comment1];
 
-
 const commentsDiv = document.getElementById('comments');
 const commentIcon = document.getElementById('commentIcon');
 const closeIcon = document.getElementById('comment-close');
@@ -66,6 +68,9 @@ closeIcon.onclick = function () {
   commentIcon.style.display = 'flex';
   commentsDiv.style.display = 'none';
 };
+
+const curRow: number = activeTableCellElement ? 0 : getRowIndex(activeTableCellElement);
+console.log(curRow);
 
 //html element for each comment
 const commentHTML = function (id: number, date: string, author: string, content: string, numUpvote: number, numDownvote: number)  {
@@ -104,7 +109,6 @@ document.getElementById('comment-button').onclick = function () {
   const content: string = (<HTMLInputElement>(
     document.getElementById('newCommentTextbox')
   )).value;
-  // postNewComment(content);
   const commentsContainer = document.getElementById('commentsContainer');
   commentsContainer.innerHTML = commentHTML(10, 'today', 'kaki', content, 0, 0) + 
   `<hr id="comments-hr">` + commentsContainer.innerHTML;
@@ -115,6 +119,8 @@ document.getElementById('comment-button').onclick = function () {
 commentData.forEach((comment, key) => {
   const numUpvote = comment.upvote;
   const numDownvote = comment.downvote;
+  // console.log(curRow);
+  // console.log(getRowIndex(activeTableCellElement));
 
   document.getElementById('commentsContainer').innerHTML += commentHTML(key, comment.timestamp, comment.author, comment.content, numUpvote, numDownvote);
   if (key !== commentData.length - 1) {

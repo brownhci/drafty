@@ -12,7 +12,7 @@ import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } f
 import { tableFoot } from './modules/components/sheet/table-foot';
 import { TabularView } from './modules/components/sheet/tabular-view';
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from './modules/dom/navigate';
-import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams } from './modules/dom/sheet';
+import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams, getRowIndex } from './modules/dom/sheet';
 import { isInput, isTableData, isTableHead, isTableCell, isColumnSearchInput } from './modules/dom/types';
 import { cellEditNewRow } from './modules/components/sheet/cell-editor-new-row';
 
@@ -75,6 +75,8 @@ function activateCommentSection() {
 
 function changeCommentLabel() {
   const html: string = activeTableCellElement.innerHTML;
+  const row: number = getRowIndex(activeTableCellElement);
+  console.log(row);
   const profName: string = html.slice(0, html.indexOf('<') - 1);
   commentLabel.innerHTML = 'Comments for ' + profName;
 }
