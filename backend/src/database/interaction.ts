@@ -24,7 +24,7 @@ const stmtInsertSearchGoogle: string = 'INSERT INTO SearchGoogle (idInteraction,
 const stmtInsertDataBaitVisit: string = 'INSERT INTO DataBaitVisit (idInteraction, idDataBait, source) VALUES (insert_interaction(?,?), ?, source);';
 
 const stmtSelectComments: string = 'SELECT c.*, i.timestamp, p.username FROM Comments c INNER JOIN Interaction i on c.idInteraction = i.idInteraction INNER JOIN users.Session s on s.idSession = i.idSession INNER JOIN users.Profile p on p.idProfile = s.idProfile WHERE c.idUniqueID = ? ORDER BY i.timestamp DESC;';
-const stmtInsertCommentView: string = ' INSERT INTO CommentsView (idInteraction, idComment) VALUES (?, insert_interaction(?,?))';
+const stmtInsertCommentView: string = ' INSERT INTO CommentsView (idInteraction, idUniqueID) VALUES (insert_interaction(?,?),?)';
 const stmtInsertNewComment: string = 'INSERT INTO Comments (idInteraction, idUniqueID, comment, voteUp, voteDown) VALUES (insert_interaction(?,?), ?, ?, DEFAULT, DEFAULT);';
 const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote, selected) VALUES (insert_interaction(?,?), ?, ?, ?);';
 const stmtUpdateCommentVoteUpCount: string = 'UPDATE Comments t SET t.voteUp = (t.voteUp ? 1) WHERE t.idComment = ?;';
