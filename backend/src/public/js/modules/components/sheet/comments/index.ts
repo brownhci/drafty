@@ -62,10 +62,12 @@ export function activateCommentIcon() {
   commentsDiv.style.display = 'none';
 }
 
-export function activateCommentSection() {
+export async function activateCommentSection() {
   const idUniqueId = getUniqueId();
   console.log(idUniqueId);
-  getComments(idUniqueId);
+  const comments = await getComments(idUniqueId);
+  console.log('comments');
+  console.log(comments);
   commentIcon.style.display = 'none';
   commentsDiv.style.display = 'flex';
 }

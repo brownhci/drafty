@@ -238,9 +238,17 @@ export function recordSearchColVisit(idSuggestionType: string, value: string) {
   });
 }
 
-export function getComments(idrow: string | number) {
-  const response = getData(getCommentsURL(idrow));
-  console.log(response);
+export async function getComments(idrow: string | number) {
+  //getData(getCommentsURL(idrow), (response) => response.json().then(data => console.log(data)));
+  //getData(getCommentsURL(idrow), (response) => response.json().then(data => {
+    //console.log(data);
+    //return data;
+  //}));
+
+  const response = await fetch(getCommentsURL(idrow));
+  const data = await response.json();
+  console.log(data);
+  return data;
 }
 
 export function postNewComment(idrow: string | number, comment: string) {
