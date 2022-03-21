@@ -1,63 +1,121 @@
--- phpMyAdmin SQL Dump
--- version 4.8.3
--- https://www.phpmyadmin.net/
---
--- Host: localhost:3306
--- Generation Time: Mar 30, 2020 at 01:08 AM
--- Server version: 5.7.23
--- PHP Version: 7.2.10
+create or replace table Experiment
+(
+    idExperiment int auto_increment
+        primary key,
+    experiment   varchar(45)          null,
+    active       tinyint(1) default 0 not null,
+    dataset      varchar(25)          null
+)
+    charset = utf8;
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
-START TRANSACTION;
-SET time_zone = "+00:00";
+create or replace table ExperimentRole
+(
+    idExperimentRole int auto_increment
+        primary key,
+    idExperiment     int                                     not null,
+    role             varchar(25)                             not null,
+    active           smallint(1) default 0                   not null,
+    created          datetime    default current_timestamp() not null,
+    constraint _fk_experimentrole__experiment_ahsdgf163
+        foreign key (idExperiment) references Experiment (idExperiment)
+)
+    charset = utf8;
 
---
--- Database: users
---
-CREATE DATABASE IF NOT EXISTS users DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE users;
+create or replace table Experiment_Role_Session
+(
+    idSession        int                                  not null,
+    idExperiment     int                                  not null,
+    idExperimentRole int                                  not null,
+    created          datetime default current_timestamp() null,
+    constraint unique_index
+        unique (idSession, idExperimentRole, idExperiment),
+    constraint _fk_experiment
+        foreign key (idExperiment) references Experiment (idExperiment),
+    constraint _fk_experimentrole
+        foreign key (idExperimentRole) references ExperimentRole (idExperimentRole)
+)
+    charset = utf8;
 
--- --------------------------------------------------------
+create or replace index _index_idExperiment_81o2ygradfv
+    on Experiment_Role_Session (idExperiment);
 
---
--- Table structure for table Experiment
---
+create or replace table Profile
+(
+    idProfile    int auto_increment
+        primary key,
+    idRole       int      default 2                   not null,
+    username     varchar(45)                          null,
+    email        varchar(45)                          null,
+    password     varchar(500)                         null,
+    passwordRaw  varchar(100)                         null,
+    date_created datetime default current_timestamp() null,
+    date_updated datetime default current_timestamp() null,
+    constraint unique_email_profile
+        unique (email),
+    constraint unique_username_profile
+        unique (username)
+)
+    charset = utf8;
 
-CREATE TABLE Experiment (
-  idExperiment int(11) NOT NULL,
-  experiment varchar(45) DEFAULT NULL,
-  dataset varchar(25) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+create or replace index index_idRole_profileTable
+    on Profile (idRole);
 
--- --------------------------------------------------------
+create or replace table Role
+(
+    idRole int auto_increment
+        primary key,
+    role   varchar(20) not null
+)
+    charset = utf8;
 
---
--- Table structure for table Experiment_Session
---
+create or replace table Session
+(
+    idSession        int auto_increment
+        primary key,
+    idProfile        int                                  null,
+    idExpressSession varchar(255)                         null,
+    start            datetime default current_timestamp() null,
+    end              datetime                             null
+)
+    charset = utf8;
 
-CREATE TABLE Experiment_Session (
-  idSession int(11) NOT NULL,
-  idExperiment int(11) NOT NULL,
-  date_created datetime DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+create or replace index fk_Session_Profile1_idx
+    on Session (idProfile);
 
--- --------------------------------------------------------
+create or replace table Traffic
+(
+    idTraffic int auto_increment
+        primary key,
+    url       varchar(250)                         not null,
+    fullUrl   varchar(1500)                        null,
+    host      varchar(250)                         null,
+    origin    varchar(250)                         null,
+    sid       varchar(1500)                        null,
+    timestamp datetime default current_timestamp() not null
+)
+    charset = utf8;
 
---
--- Table structure for table Profile
---
+create or replace table ViewChange
+(
+    idViewChange int auto_increment
+        primary key,
+    idSession    int                                  not null,
+    origin       varchar(255)                         null,
+    view         varchar(255)                         null,
+    time         datetime default current_timestamp() not null
+)
+    charset = utf8;
 
-CREATE TABLE Profile (
-  idProfile int(11) NOT NULL,
-  idRole int(11) NOT NULL DEFAULT '2',
-  username varchar(45) DEFAULT NULL,
-  email varchar(45) DEFAULT NULL,
-  password varchar(500) DEFAULT NULL,
-  passwordRaw varchar(100) DEFAULT NULL,
-  date_created datetime DEFAULT CURRENT_TIMESTAMP,
-  date_updated datetime DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+create or replace table sessions
+(
+    session_id varchar(128) collate utf8mb4_bin not null
+        primary key,
+    expires    int(11) unsigned                 not null,
+    data       mediumtext collate utf8mb4_bin   null
+)
+    charset = utf8;
+
+
 
 --
 -- Dumping data for table Profile
@@ -71,122 +129,3 @@ INSERT INTO Profile (idProfile, idRole, username, email, password, passwordRaw, 
 (5, 2, 'mrhotsauce0', 'mrhotsauce', '$2b$10$HukofNVxyEgfRTIJEYxKnOEN0J03pKl7jE0aF4/GleLWAdCspqDoa', NULL, '2020-03-28 21:03:27', '2020-03-28 21:03:27');
 
 -- --------------------------------------------------------
-
---
--- Table structure for table Role
---
-
-CREATE TABLE Role (
-  idRole int(11) NOT NULL,
-  role varchar(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table Role
---
-
-INSERT INTO Role (idRole, role) VALUES
-(1, 'admin'),
-(2, 'normal'),
-(3, 'creator');
-
--- --------------------------------------------------------
-
---
--- Table structure for table Session
---
-
-CREATE TABLE Session (
-  idSession int(11) NOT NULL,
-  idProfile int(11) DEFAULT NULL,
-  idExpressSession varchar(255) DEFAULT NULL,
-  start datetime DEFAULT CURRENT_TIMESTAMP,
-  end datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table ViewChange
---
-
-CREATE TABLE ViewChange (
-  idViewChange int(11) NOT NULL,
-  idSession int(11) NOT NULL,
-  origin varchar(255) DEFAULT NULL,
-  view varchar(255) DEFAULT NULL,
-  time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table Experiment
---
-ALTER TABLE Experiment
-  ADD PRIMARY KEY (idExperiment);
-
---
--- Indexes for table Profile
---
-ALTER TABLE Profile
-  ADD PRIMARY KEY (idProfile),
-  ADD UNIQUE KEY unique_email_profile (email),
-  ADD UNIQUE KEY unique_username_profile (username),
-  ADD KEY index_idRole_profileTable (idRole) USING BTREE;
-
---
--- Indexes for table Role
---
-ALTER TABLE Role
-  ADD PRIMARY KEY (idRole);
-
---
--- Indexes for table Session
---
-ALTER TABLE Session
-  ADD PRIMARY KEY (idSession),
-  ADD KEY fk_Session_Profile1_idx (idProfile);
-
---
--- Indexes for table ViewChange
---
-ALTER TABLE ViewChange
-  ADD PRIMARY KEY (idViewChange);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table Experiment
---
-ALTER TABLE Experiment
-  MODIFY idExperiment int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table Profile
---
-ALTER TABLE Profile
-  MODIFY idProfile int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table Role
---
-ALTER TABLE Role
-  MODIFY idRole int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table Session
---
-ALTER TABLE Session
-  MODIFY idSession int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table ViewChange
---
-ALTER TABLE ViewChange
-  MODIFY idViewChange int(11) NOT NULL AUTO_INCREMENT;
-COMMIT;
