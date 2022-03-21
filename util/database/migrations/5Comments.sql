@@ -24,12 +24,12 @@ INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES
 create table CommentsView
 (
     idCommentsView int auto_increment,
-    idComment      int null,
+    idUniqueID     int null,
     idInteraction  int null,
     constraint CommentsView_pk
         primary key (idCommentsView),
     constraint CommentsView___fk_comments_alksdhfga1231
-        foreign key (idComment) references Comments (idComment),
+        foreign key (idUniqueID) references UniqueId (idUniqueID),
     constraint CommentsView___fk_interaction_aljhsdfg5123
         foreign key (idInteraction) references Interaction (idInteraction)
 );
