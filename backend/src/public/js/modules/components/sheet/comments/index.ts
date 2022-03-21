@@ -1,17 +1,10 @@
-// import { postNewComment } from '../../../../../../controllers/comments';
-
 import { activeTableCellElement } from '../../../../sheet';
-import { getEnclosingTableRow } from '../../../dom/navigate';
+import { getComments, getIdUniqueID, postCommentVoteDown, postCommentVoteUp, postNewComment } from '../../../api/record-interactions';
 
-function tableEleActive() {
-  if(activeTableCellElement === null || activeTableCellElement === undefined) {
-      console.log('no active table element');
-  } else {
-    const tableRow: HTMLTableRowElement = getEnclosingTableRow(activeTableCellElement);
-    const idRow = tableRow.getAttribute('data-id');
-    console.log(idRow);
-  }
-}
+
+const getUniqueId = () => {
+  return activeTableCellElement === null || activeTableCellElement === undefined ? -1 : getIdUniqueID(activeTableCellElement);
+};
 
 interface ProfComment {
   id: number;
@@ -61,22 +54,37 @@ const commentData: ProfComment[] = [comment4, comment3, comment2, comment1];
 const commentsDiv = document.getElementById('comments');
 const commentIcon = document.getElementById('commentIcon');
 const closeIcon = document.getElementById('comment-close');
+const commentLabel = document.getElementById('comment-label');
 
-const commentSelected: string = 'vote-selected';
-const commentUnselected: string = 'vote';
+export function activateCommentIcon() {
+  commentIcon.style.display = 'flex';
+  commentsDiv.style.display = 'none';
+}
 
+export function activateCommentSection() {
+  // tableEleActive();
+  const idUniqueId = getUniqueId();
+  console.log(idUniqueId);
+  getComments(idUniqueId);
+  commentIcon.style.display = 'none';
+  commentsDiv.style.display = 'flex';
+}
+
+export function changeCommentLabel() {
+  const html: string = activeTableCellElement.innerHTML;
+  const profName: string = html.slice(0, html.indexOf('<') - 1);
+  commentLabel.innerHTML = 'Comments for ' + profName;
+}
 
 commentsDiv.style.display = 'none';
 commentIcon.style.display = 'none';
 
 commentIcon.onclick = function () {
-  commentIcon.style.display = 'none';
-  commentsDiv.style.display = 'flex';
+  activateCommentSection();
 };
 
 closeIcon.onclick = function () {
-  commentIcon.style.display = 'flex';
-  commentsDiv.style.display = 'none';
+  activateCommentIcon();
 };
 
 //html element for each comment
@@ -116,6 +124,7 @@ document.getElementById('comment-button').onclick = function () {
   const content: string = (<HTMLInputElement>(
     document.getElementById('newCommentTextbox')
   )).value;
+  postNewComment(getUniqueId(), content);
   const commentsContainer = document.getElementById('commentsContainer');
   commentsContainer.innerHTML = commentHTML(10, 'today', 'kaki', content, 0, 0) + 
   `<hr id="comments-hr">` + commentsContainer.innerHTML;
@@ -126,8 +135,6 @@ document.getElementById('comment-button').onclick = function () {
 commentData.forEach((comment, key) => {
   const numUpvote = comment.upvote;
   const numDownvote = comment.downvote;
-  // console.log(curRow);
-  // console.log(getRowIndex(activeTableCellElement));
 
   document.getElementById('commentsContainer').innerHTML += commentHTML(key, comment.timestamp, comment.author, comment.content, numUpvote, numDownvote);
   if (key !== commentData.length - 1) {
@@ -136,27 +143,33 @@ commentData.forEach((comment, key) => {
 });
 
 //function to increment the upvote/downvote HTML
-function increment(elementid: string) {
+function increment(elementid: string, commentId: number) {
   let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
   curNum++;
   document.getElementById(elementid).innerHTML = curNum.toString();
+  elementid.includes('upvote') ? postCommentVoteUp(commentId, '1') : postCommentVoteDown(commentId, '1');
 }
 
-function decrement(elementid: string) {
+function decrement(elementid: string, commentId: number) {
   let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
   curNum--;
   document.getElementById(elementid).innerHTML = curNum.toString();
+  elementid.includes('upvote') ? postCommentVoteUp(commentId, '-1') : postCommentVoteDown(commentId, '-1');
 }
 
-function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, id2: string){
+const commentSelected: string = 'vote-selected';
+const commentUnselected: string = 'vote';
+
+function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, id2: string, commentId: number){
   if (button1.classList.contains(commentUnselected)) {
     button1.classList.remove(commentUnselected);
     button1.classList.add(commentSelected);
-    increment(id1);
+    increment(id1, commentId);
+    id1.includes('upvote') ? postCommentVoteUp(commentId, '1') : postCommentVoteDown(commentId, '1');
     if (button2.classList.contains(commentSelected)){
       button2.classList.remove(commentSelected);
       button2.classList.add(commentUnselected);
-      decrement(id2);
+      decrement(id2, commentId);
     }
     return;
   }
@@ -164,7 +177,7 @@ function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, i
   if (button1.classList.contains(commentSelected)) {
     button1.classList.remove(commentSelected);
     button1.classList.add(commentUnselected);
-    decrement(id1);
+    decrement(id1, commentId);
     return;
   }
 }
@@ -183,10 +196,10 @@ for (let i = 0; i < commentData.length; i++) {
 
   //make this into separate function and just use for downvote also
   thumbsUpButton.onclick = function() {
-    voteOnclick (thumbsUpButton, thumbsDownButton, upvoteId, downvoteId);
+    voteOnclick (thumbsUpButton, thumbsDownButton, upvoteId, downvoteId, commentData[i].id);
   };
 
   thumbsDownButton.onclick = function() {
-    voteOnclick (thumbsDownButton, thumbsUpButton, downvoteId, upvoteId);
+    voteOnclick (thumbsDownButton, thumbsUpButton, downvoteId, upvoteId, commentData[i].id);
   };
 }

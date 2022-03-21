@@ -252,14 +252,14 @@ export function postNewComment(idrow: string | number, comment: string) {
 
 export function postCommentVoteUp(idComment: number, vote: string) {
   recordInteraction(postCommentVoteUpURL(), {
-    idiComment: idComment,
+    idComment: idComment,
     vote: vote
   });
 }
 
 export function postCommentVoteDown(idComment: number, vote: string) {
   recordInteraction(postCommentVoteDownURL(), {
-    idiComment: idComment,
+    idComment: idComment,
     vote: vote
   });
 }

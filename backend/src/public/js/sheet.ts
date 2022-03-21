@@ -18,6 +18,7 @@ import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElemen
 import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams, getRowIndex } from './modules/dom/sheet';
 import { isInput, isTableData, isTableHead, isTableCell, isColumnSearchInput } from './modules/dom/types';
 import { cellEditNewRow } from './modules/components/sheet/cell-editor-new-row';
+import { activateCommentIcon, activateCommentSection, changeCommentLabel } from './modules/components/sheet/comments/';
 
 /* // testing function logic
 const startTime = performance.now();
@@ -62,27 +63,7 @@ function deactivateEditCaret() {
   }
 }
 
-const commentIcon = document.getElementById('commentIcon');
-const commentDiv = document.getElementById('comments');
-const commentLabel = document.getElementById('comment-label');
 
-function activateCommentIcon() {
-  commentIcon.style.display = 'flex';
-  commentDiv.style.display = 'none';
-}
-
-function activateCommentSection() {
-  commentIcon.style.display = 'none';
-  commentDiv.style.display = 'flex';
-}
-
-function changeCommentLabel() {
-  const html: string = activeTableCellElement.innerHTML;
-  const row: number = getRowIndex(activeTableCellElement);
-  console.log(row);
-  const profName: string = html.slice(0, html.indexOf('<') - 1);
-  commentLabel.innerHTML = 'Comments for ' + profName;
-}
 
 
 /**
@@ -99,7 +80,7 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
   if (shouldGetFocus) {
     activeTableCellElement.focus();
     activateEditCaret();
-    commentDiv.style.display === 'none' ? activateCommentIcon(): activateCommentSection();
+    document.getElementById('comments').style.display === 'none' ? activateCommentIcon(): activateCommentSection();
     changeCommentLabel();
   }
 }
