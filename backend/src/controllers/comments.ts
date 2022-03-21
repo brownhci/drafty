@@ -9,7 +9,7 @@ import { selectComments, insertNewComment, updateNewCommentVoteUp, updateNewComm
  */
 export const getComments = async (req: Request, res: Response, next: NextFunction) => {
   const idSession = req.session.user.idSession;
-  const idRow = req.query.idrow.toString();
+  const idRow = req.params.idrow.toString();
   const [error, results] = await selectComments(idSession, idRow);
   if (error) {
     return next(error);
