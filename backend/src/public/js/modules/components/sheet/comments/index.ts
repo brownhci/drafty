@@ -1,5 +1,6 @@
 import { activeTableCellElement } from '../../../../sheet';
 import { getComments, getIdUniqueID, postCommentVoteDown, postCommentVoteUp, postNewComment } from '../../../api/record-interactions';
+import { getTableRow } from '../../../dom/sheet';
 
 
 const getUniqueId = () => {
@@ -62,7 +63,6 @@ export function activateCommentIcon() {
 }
 
 export function activateCommentSection() {
-  // tableEleActive();
   const idUniqueId = getUniqueId();
   console.log(idUniqueId);
   getComments(idUniqueId);
@@ -71,8 +71,8 @@ export function activateCommentSection() {
 }
 
 export function changeCommentLabel() {
-  const html: string = activeTableCellElement.innerHTML;
-  const profName: string = html.slice(0, html.indexOf('<') - 1);
+  const fullNameCell: string = getTableRow(activeTableCellElement).getElementsByTagName('*')[0].innerHTML;
+  const profName: string = fullNameCell.includes('<') ? fullNameCell.slice(0, fullNameCell.indexOf('<') - 1) : fullNameCell;
   commentLabel.innerHTML = 'Comments for ' + profName;
 }
 
