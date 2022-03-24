@@ -99,7 +99,9 @@ function getData(
       'Content-Type': 'application/json',
     },
   }).then(response => {
+    // console.log(response.json());
     if (response.ok) {
+      console.log(response.json());
       successHandler(response);
     } else {
       failureHandler(response);
@@ -241,6 +243,7 @@ export function recordSearchColVisit(idSuggestionType: string, value: string) {
 export function getComments(idrow: string | number) {
   const response = getData(getCommentsURL(idrow));
   console.log(response);
+  return response;
 }
 
 export function postNewComment(idrow: string | number, comment: string) {

@@ -63,9 +63,6 @@ function deactivateEditCaret() {
   }
 }
 
-
-
-
 /**
  * renew the timestamp on the active table cell element.
  */

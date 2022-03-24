@@ -65,7 +65,8 @@ export function activateCommentIcon() {
 export function activateCommentSection() {
   const idUniqueId = getUniqueId();
   console.log(idUniqueId);
-  getComments(idUniqueId);
+  const res = getComments(idUniqueId);
+  console.log(res);
   commentIcon.style.display = 'none';
   commentsDiv.style.display = 'flex';
 }

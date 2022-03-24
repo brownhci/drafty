@@ -220,7 +220,7 @@ export async function selectComments(idSession: string, idUniqueID: string | num
         const [ results ] = await db.query(stmtSelectComments, [idUniqueID]);
         return [null, results];
     } catch (error) {
-        logDbErr(error, 'error during insert insertNewComment', 'warn');
+        logDbErr(error, 'error during insert selectComments', 'warn');
         return [error];
     }
 }
