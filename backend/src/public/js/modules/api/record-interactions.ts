@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from '../dom/navigate';
 import { isTableData } from '../dom/types';
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDataBaitTweet, postDataBaitVisit, postSearchColVisit, getCommentsURL, postNewCommentURL, postCommentVoteDownURL, postCommentVoteUpURL } from './endpoints';
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDataBaitTweet, postDataBaitVisit, postSearchColVisit, postNewCommentURL, postCommentVoteDownURL, postCommentVoteUpURL } from './endpoints';
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
 
@@ -238,12 +238,6 @@ export function recordSearchColVisit(idSuggestionType: string, value: string) {
     idSuggestionType: idSuggestionType,
     value: value
   });
-}
-
-export function getComments(idrow: string | number) {
-  const response = getData(getCommentsURL(idrow));
-  console.log(response);
-  return response;
 }
 
 export function postNewComment(idrow: string | number, comment: string) {

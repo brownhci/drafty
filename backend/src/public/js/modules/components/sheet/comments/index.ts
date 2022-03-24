@@ -1,5 +1,6 @@
 import { activeTableCellElement } from '../../../../sheet';
-import { getComments, getIdUniqueID, postCommentVoteDown, postCommentVoteUp, postNewComment } from '../../../api/record-interactions';
+import { getCommentsURL } from '../../../api/endpoints';
+import { getIdUniqueID, postCommentVoteDown, postCommentVoteUp, postNewComment } from '../../../api/record-interactions';
 import { getTableRow } from '../../../dom/sheet';
 
 
@@ -62,11 +63,23 @@ export function activateCommentIcon() {
   commentsDiv.style.display = 'none';
 }
 
-export function activateCommentSection() {
+function popupulateComments() {
   const idUniqueId = getUniqueId();
-  console.log(idUniqueId);
-  const res = getComments(idUniqueId);
-  console.log(res);
+  fetch(getCommentsURL(idUniqueId))
+  .then(response => {
+     const contentType = response.headers.get('content-type');
+     if (!contentType || !contentType.includes('application/json')) {
+       throw new TypeError(`Oops, we did not get JSON!`);
+     }
+     return response.json();
+  }).then(data => {
+    /* DO SOMETHING HERE :) */
+    console.log(data);
+  }).catch(error => console.error(error));
+}
+
+export function activateCommentSection() {
+  popupulateComments();
   commentIcon.style.display = 'none';
   commentsDiv.style.display = 'flex';
 }
