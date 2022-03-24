@@ -14,7 +14,6 @@ export const getComments = async (req: Request, res: Response, next: NextFunctio
   if (error) {
     return next(error);
   }
-  console.log(results);
   return res.status(200).json(results);
 };
 
