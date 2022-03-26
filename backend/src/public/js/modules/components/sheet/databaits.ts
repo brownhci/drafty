@@ -126,11 +126,13 @@ function updateDataBaitHTML(databait: string) {
 }
 
 function openModal() {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     activateKeyListener();
     dataBaitModal.style.display = 'block';
 }
 
 function closeModal() {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     deactivateKeyListener();
     dataBaitModal.style.display = 'none';
 }
