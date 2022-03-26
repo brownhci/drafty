@@ -102,6 +102,8 @@ async function updateCandidateFields(tableRowChildren: HTMLCollection) {
     return candidateFields;
 }
 
+// server side endpoint does this
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function getRandomData() {
     //const n: number = tableDataManager.source.length;
     //const tableRowChildren = tableDataManager.source[randomRowPosition(n)].element_.children;
