@@ -45,14 +45,6 @@ app.set('trust proxy', true); // sw: for production reverse proxy
 app.use(cookieParser());
 app.use(trafficLogger.trafficLogger);
 
-// did you know api -  reverse proxy
-const proxy = httpProxy.createProxyServer();
-
-app.all('/api-dyk/*', function(req: IncomingMessage, res: ServerResponse) {
-  console.log('redirecting to Server1');
-  proxy.web(req, res, {target: 'http://localhost:5000'});
-});
-
 // static files
 app.use('/csopenrankings', express.static('/vol/csopenrankings'));
 app.use('/csopenrankingslocal', express.static(path.join(__dirname, '../../../../CSRankings'), { maxAge: 30000 }));
@@ -125,6 +117,20 @@ app.use(session({
 // passport.session has to be used after express.session in order to work properly
 app.use(passport.initialize());
 app.use(passport.session());
+
+// did you know api -  reverse proxy
+const proxy = httpProxy.createProxyServer();
+
+app.all('/api-dyk/*', function(req: Request, res: ServerResponse) {
+  console.log('redirecting to Server1');
+  //req.body.idSession = req.session.user.idSession;
+
+  //console.log(req.session.user);
+  //console.log(req.query);
+  //console.log(req.body);
+  proxy.web(req, res, {target: 'http://localhost:5000'});
+});
+
 app.use(flash());
 app.use(lusca.csrf());
 app.use(lusca.csp({
@@ -146,6 +152,7 @@ app.use(helmet());
 //GLOBAL MIDDLEWARE
 app.use(userCtrl.checkSessionUser);
 app.use(userCtrl.checkSessionId);
+
 
 /**
  * Primary app routes.
