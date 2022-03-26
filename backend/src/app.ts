@@ -85,9 +85,6 @@ const unless = function(path: string, middleware: Middleware) {
     }
   };
 };
-app.use(unless('/api-dyk/*', bodyParser.json()));
-//app.use(bodyParser.urlencoded({ extended: true }));
-
 
 // home site rendering
 app.get('/', homeCtrl.index);
@@ -122,14 +119,14 @@ app.use(passport.session());
 const proxy = httpProxy.createProxyServer();
 
 app.all('/api-dyk/*', function(req: Request, res: ServerResponse) {
-  console.log('redirecting to Server1');
-  //req.body.idSession = req.session.user.idSession;
-
-  //console.log(req.session.user);
-  //console.log(req.query);
-  //console.log(req.body);
+  //console.log('redirecting to Server1');
+  // add idSession from serve-side cookie
+  req.url += `&idSession2=${req.session.user.idSession}`; 
   proxy.web(req, res, {target: 'http://localhost:5000'});
 });
+
+app.use(unless('/api-dyk/*', bodyParser.json())); // must be after dyk proxy
+//app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(flash());
 app.use(lusca.csrf());
