@@ -45,33 +45,33 @@ createRandomBtn.addEventListener('click', function() {
     // recordDataBaitCreate() // random
 }, true);
 
-function randomRowPosition(n: number) {
-    return Math.floor(Math.random() * n);
-}
-
-async function getDatabait(apiUrl: string, bodyData: any) {
+async function postDatabait(apiUrl: string, bodyData: any) {
+    console.log(`apiUrl = ${apiUrl}`);
     const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: bodyData
     };
-    fetch(apiUrl, options)
-        .then(async response => {
-            console.log('response...');
-            const isJson = response.headers.get('content-type')?.includes('application/json');
-            const data = isJson && await response.json();
-            console.log('DATA', data);
-            if (!response.ok) {
-                const error = (data && data.message) || response.status;
-                console.error(`There was an error with the resp at URL: ${apiUrl}. ERROR: ${error}`);
-                return Promise.reject(error);
-            }
-            console.log('returning DATA...');
-            console.log(`databaits = `);
-            console.log(data);
-        }).catch(error => {
-            console.error('There was an error!', error);
-        });
+    fetch(`apiUrl`, options)
+    .then(response => { return response.json(); })
+    .then(data => {
+       /* DO SOMETHING HERE :) */
+       console.log(data[0]);
+     }).catch(error => console.error(error));
+}
+
+async function getDatabait(apiUrl: string, bodyData: any) {
+    console.log(`apiUrl = ${apiUrl}`);
+    const options = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    };
+    fetch(`/api-dyk/v1/databait/random?idSession=2&idInteractionType=36&idDatabaitCreateType=9`, options)
+    .then(response => { return response.json(); })
+    .then(data => {
+       /* DO SOMETHING HERE :) */
+       console.log(data[0]);
+     }).catch(error => console.error(error));
 }
 
 /*
@@ -116,6 +116,7 @@ async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
         bodyData = JSON.stringify({'fields':candidateFields});
     } else {
         console.log('get random row/s');
+        bodyData = JSON.stringify({'idInteractionType':'36', 'idDatabaitCreateType':'9'});
     }
 
     getDatabait(apiUrlRandom,bodyData);
