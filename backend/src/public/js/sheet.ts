@@ -2,7 +2,7 @@ import { recordCellClick, recordCellDoubleClick } from './modules/api/record-int
 import { activeClass, activeAccompanyClass } from './modules/constants/css-classes';
 import './modules/components/welcome-screen';
 import './modules/components/sheet/navbar';
-import './modules/components/sheet/comments/';
+// import './modules/components/sheet/comments/'; // removing until feature is done
 import './modules/components/sheet/databaits';
 import './modules/components/sheet/delete-row';
 import { tableHeadOnMouseDown, tableHeadOnMouseMove } from './modules/components/sheet/resize-column';
