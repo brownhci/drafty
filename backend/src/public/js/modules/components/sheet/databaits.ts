@@ -52,11 +52,13 @@ async function postDatabait(apiUrl: string, bodyData: any) {
         headers: { 'Content-Type': 'application/json' },
         body: bodyData
     };
-    fetch(`apiUrl`, options)
+    fetch(apiUrl, options)
     .then(response => { return response.json(); })
     .then(data => {
        /* DO SOMETHING HERE :) */
        console.log(data[0]);
+       const databait = data[0];
+       updateDataBaitHTML(databait.sentence);
      }).catch(error => console.error(error));
 }
 
@@ -66,11 +68,13 @@ async function getDatabait(apiUrl: string, bodyData: any) {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
     };
-    fetch(`/api-dyk/v1/databait/random?idSession=2&idInteractionType=36&idDatabaitCreateType=9`, options)
+    fetch(`/api-dyk/v1/databait/random?idInteractionType=36&idDatabaitCreateType=9`, options)
     .then(response => { return response.json(); })
     .then(data => {
        /* DO SOMETHING HERE :) */
        console.log(data[0]);
+       const databait = data[0];
+       updateDataBaitHTML(databait.sentence);
      }).catch(error => console.error(error));
 }
 
@@ -123,7 +127,7 @@ async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
 }
 
 function updateDataBaitHTML(databait: string) {
-    dataBaitText.innerHTML = ``;
+    dataBaitText.innerHTML = databait;
 }
 
 function openModal() {
