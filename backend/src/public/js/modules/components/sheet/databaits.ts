@@ -13,8 +13,10 @@ const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait
 
 const databaitLoadingMsg: string = `Creating something awesome...`;
 
-const apiUrl: string = '/api-dyk/v1/databait/all';
+const apiUrlAll: string = '/api-dyk/v1/databait/all';
 const apiUrlType = (type: string): string => { return `/api-dyk/v1/databait/${type}`; };
+const apiUrlRandom: string = '/api-dyk/v1/databait/random';
+const apiUrlSimilar: string = '/api-dyk/v1/databait/similar';
 
 const databaitLinks = document.querySelectorAll('a.databait-url');
 databaitLinks.forEach( (element,i) => {
@@ -47,8 +49,7 @@ function randomRowPosition(n: number) {
     return Math.floor(Math.random() * n);
 }
 
-async function getDatabait() {
-    const bodyData = JSON.stringify({'fields':candidateFields});
+async function getDatabait(apiUrl: string, bodyData: any) {
     const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -62,11 +63,12 @@ async function getDatabait() {
             console.log('DATA', data);
             if (!response.ok) {
                 const error = (data && data.message) || response.status;
-                console.error('There was an error with the resp!', error);
+                console.error(`There was an error with the resp at URL: ${apiUrl}. ERROR: ${error}`);
                 return Promise.reject(error);
             }
             console.log('returning DATA...');
-            return data;
+            console.log(`databaits = `);
+            console.log(data);
         }).catch(error => {
             console.error('There was an error!', error);
         });
@@ -98,30 +100,25 @@ async function updateCandidateFields(tableRowChildren: HTMLCollection) {
             }
         }
     }
-    console.log(candidateFields);
+    //console.log('candidateFields:');
+    //console.log(candidateFields);
     return candidateFields;
 }
-
-// server side endpoint does this
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function getRandomData() {
-    //const n: number = tableDataManager.source.length;
-    //const tableRowChildren = tableDataManager.source[randomRowPosition(n)].element_.children;
-    //return updateCandidateFields(tableRowChildren);
-}
-
 async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
     candidateFields = {};
+    let bodyData: string = '';
+    // sw: need to 
+
     if (tableCellElement !== null && tableCellElement !== undefined) {
         const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
         //idRow = tableRow.getAttribute('data-id');
-        await updateCandidateFields(tableRow.children);
+        candidateFields = await updateCandidateFields(tableRow.children);
+        bodyData = JSON.stringify({'fields':candidateFields});
     } else {
         console.log('get random row/s');
-        //await getRandomData();
     }
-    const databaits = await getDatabait();
-    console.log(databaits);
+
+    getDatabait(apiUrlRandom,bodyData);
 }
 
 function updateDataBaitHTML(databait: string) {
