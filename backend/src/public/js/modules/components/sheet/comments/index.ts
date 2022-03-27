@@ -37,18 +37,16 @@ export function activateCommentIcon() {
 }
 
 //function to increment the upvote/downvote HTML
-function increment(elementid: string, commentId: number) {
+function increment(elementid: string) {
   let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
   curNum++;
   document.getElementById(elementid).innerHTML = curNum.toString();
-  // elementid.includes('upvote') ? postCommentVoteUp(commentId, '1') : postCommentVoteDown(commentId, '1');
 }
 
-function decrement(elementid: string, commentId: number) {
+function decrement(elementid: string) {
   let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
   curNum--;
   document.getElementById(elementid).innerHTML = curNum.toString();
-  // elementid.includes('upvote') ? postCommentVoteUp(commentId, '-1') : postCommentVoteDown(commentId, '-1');
 }
 
 const commentSelected: string = 'vote-selected';
@@ -58,12 +56,13 @@ function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, i
   if (button1.classList.contains(commentUnselected)) {
     button1.classList.remove(commentUnselected);
     button1.classList.add(commentSelected);
-    increment(id1, commentId);
-    // id1.includes('upvote') ? postCommentVoteUp(commentId, '1') : postCommentVoteDown(commentId, '1');
+    id1.includes('upvote') ? postCommentVoteUp(commentId, 'voteUp') : postCommentVoteDown(commentId, 'voteDown');
+    increment(id1);
     if (button2.classList.contains(commentSelected)){
       button2.classList.remove(commentSelected);
       button2.classList.add(commentUnselected);
-      decrement(id2, commentId);
+      decrement(id2);
+      id1.includes('upvote') ? postCommentVoteUp(commentId, 'voteDown-deselect') : postCommentVoteDown(commentId, 'voteUp-deselct');
     }
     return;
   }
@@ -71,7 +70,8 @@ function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, i
   if (button1.classList.contains(commentSelected)) {
     button1.classList.remove(commentSelected);
     button1.classList.add(commentUnselected);
-    decrement(id1, commentId);
+    id1.includes('upvote') ? postCommentVoteUp(commentId, 'voteUp-deselect') : postCommentVoteDown(commentId, 'voteDown-deselct');
+    decrement(id1);
     return;
   }
 }
