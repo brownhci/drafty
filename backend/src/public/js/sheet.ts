@@ -79,7 +79,6 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
     activateEditCaret();
     document.getElementById('comments').style.display === 'none' ? activateCommentIcon(): activateCommentSection();
     changeCommentLabel();
-    // activateCommentSection();
   }
 }
 function activateTableHead(shouldGetFocus = true) {

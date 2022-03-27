@@ -19,57 +19,12 @@ interface CommentDataType {
   username: string;
 }
 
-interface ProfComment {
-  id: number;
-  author: string;
-  content: string;
-  upvote: number;
-  downvote: number;
-  timestamp: string;
-}
-
-const comment1: ProfComment = {
-  id: 1,
-  author: 'kaki',
-  content: 'first comment - is he coming to Brown!?',
-  upvote: 2,
-  downvote: 1,
-  timestamp: 'January 28, 2021'
-};
-const comment2: ProfComment = {
-  id: 2,
-  author: 'shaun',
-  content: 'good prof!',
-  upvote: 3,
-  downvote: 0,
-  timestamp: 'January 1, 2022'
-};
-const comment3: ProfComment = {
-  id: 3,
-  author: 'shaun',
-  content:
-    'this is some really long comment where I test whether this can handle long comments',
-  upvote: 3,
-  downvote: 0,
-  timestamp: 'February 1, 2022'
-};
-const comment4: ProfComment = {
-  id: 4,
-  author: 'jeff',
-  content: 'he might retire soon.',
-  upvote: 5,
-  downvote: 0,
-  timestamp: 'February 2, 2022'
-};
-
 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
 
 const timestampToDate = (timestamp: string) => {
   return monthNames[parseInt(timestamp.substring(6,7))] + ' ' + parseInt(timestamp.substring(8,10)).toString() + ', ' + timestamp.substring(0,4);
 };
-
-const commentData: ProfComment[] = [comment4, comment3, comment2, comment1];
 
 const commentsDiv = document.getElementById('comments');
 const commentIcon = document.getElementById('commentIcon');
@@ -81,7 +36,73 @@ export function activateCommentIcon() {
   commentsDiv.style.display = 'none';
 }
 
+//function to increment the upvote/downvote HTML
+function increment(elementid: string, commentId: number) {
+  let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
+  curNum++;
+  document.getElementById(elementid).innerHTML = curNum.toString();
+  // elementid.includes('upvote') ? postCommentVoteUp(commentId, '1') : postCommentVoteDown(commentId, '1');
+}
+
+function decrement(elementid: string, commentId: number) {
+  let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
+  curNum--;
+  document.getElementById(elementid).innerHTML = curNum.toString();
+  // elementid.includes('upvote') ? postCommentVoteUp(commentId, '-1') : postCommentVoteDown(commentId, '-1');
+}
+
+const commentSelected: string = 'vote-selected';
+const commentUnselected: string = 'vote';
+
+function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, id2: string, commentId: number){
+  if (button1.classList.contains(commentUnselected)) {
+    button1.classList.remove(commentUnselected);
+    button1.classList.add(commentSelected);
+    increment(id1, commentId);
+    // id1.includes('upvote') ? postCommentVoteUp(commentId, '1') : postCommentVoteDown(commentId, '1');
+    if (button2.classList.contains(commentSelected)){
+      button2.classList.remove(commentSelected);
+      button2.classList.add(commentUnselected);
+      decrement(id2, commentId);
+    }
+    return;
+  }
+
+  if (button1.classList.contains(commentSelected)) {
+    button1.classList.remove(commentSelected);
+    button1.classList.add(commentUnselected);
+    decrement(id1, commentId);
+    return;
+  }
+}
+
+
+//Looping through to add "onclick" on each thumbs up/down to increment
+function handleVoteIds(ids: number[]) {
+  ids.forEach((i: number) => {
+    const thumbsUpId = 'thumbs-up-' + i.toString();
+    const thumbsDownId = 'thumbs-down-' + i.toString();
+    const upvoteId = 'upvote-' + i.toString();
+    const downvoteId = 'downvote-' + i.toString();
+    const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
+    const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
+  
+    thumbsUpButton.classList.add(commentUnselected);
+    thumbsDownButton.classList.add(commentUnselected);
+  
+    //make this into separate function and just use for downvote also
+    thumbsUpButton.onclick = function() {
+      voteOnclick (thumbsUpButton, thumbsDownButton, upvoteId, downvoteId, i);
+    };
+  
+    thumbsDownButton.onclick = function() {
+      voteOnclick (thumbsDownButton, thumbsUpButton, downvoteId, upvoteId, i);
+    };
+  });
+}
+
 function popupulateComments() {
+  const ids: number[] = [];
   const idUniqueId = getUniqueId();
   fetch(getCommentsURL(idUniqueId))
   .then(response => {
@@ -92,35 +113,15 @@ function popupulateComments() {
      return response.json();
   }).then(data => {
     data.forEach((comment: CommentDataType, key: number) => {
-      // const numUpvote = comment.upvote;
-      // const numDownvote = comment.downvote;
+      const id: number = comment.idComment;
+      ids.push(id);
       if (key === 0) {document.getElementById('commentsContainer').innerHTML = null;}
-    
-      document.getElementById('commentsContainer').innerHTML += commentHTML(key, timestampToDate(comment.timestamp), comment.username, comment.comment, comment.voteUp, comment.voteDown);
-      if (key !== commentData.length - 1) {
+      document.getElementById('commentsContainer').innerHTML += commentHTML(id, timestampToDate(comment.timestamp), comment.username, comment.comment, comment.voteUp, comment.voteDown);
+      if (key !== data.length - 1) {
         document.getElementById('commentsContainer').innerHTML += `<hr id="comments-hr">`;
       }
-      const thumbsUpId = 'thumbs-up-' + key.toString();
-      const thumbsDownId = 'thumbs-down-' + key.toString();
-      const upvoteId = 'upvote-' + key.toString();
-      const downvoteId = 'downvote-' + key.toString();
-      const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
-      const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
-    
-      thumbsUpButton.classList.add(commentUnselected);
-      thumbsDownButton.classList.add(commentUnselected);
-    
-      //make this into separate function and just use for downvote also
-      thumbsUpButton.onclick = function() {
-        voteOnclick (thumbsUpButton, thumbsDownButton, upvoteId, downvoteId, commentData[key].id);
-      };
-    
-      thumbsDownButton.onclick = function() {
-        voteOnclick (thumbsDownButton, thumbsUpButton, downvoteId, upvoteId, commentData[key].id);
-      };
     });
-    
-    /* DO SOMETHING HERE :) */
+    handleVoteIds(ids);
     console.log(data);
   }).catch(error => console.error(error));
 }
@@ -155,7 +156,7 @@ const commentHTML = function (id: number, date: string, author: string, content:
   const upvoteId = 'upvote-' + id.toString();
   const downvoteId = 'downvote-' + id.toString();
   return `
-  <div id="commentContainer"}>
+  <div id="commentContainer">
     <div id="contentContainer">
       <div id="info">
         <div>${date}</div>
@@ -191,115 +192,3 @@ document.getElementById('comment-button').onclick = function () {
   `<hr id="comments-hr">` + commentsContainer.innerHTML;
   (<HTMLInputElement>document.getElementById('newCommentTextbox')).value = '';
 };
-
-//Displaying each comment
-// commentData.forEach((comment, key) => {
-//   const numUpvote = comment.upvote;
-//   const numDownvote = comment.downvote;
-
-//   document.getElementById('commentsContainer').innerHTML += commentHTML(key, comment.timestamp, comment.author, comment.content, numUpvote, numDownvote);
-//   if (key !== commentData.length - 1) {
-//     document.getElementById('commentsContainer').innerHTML += `<hr id="comments-hr">`;
-//   }
-//   const thumbsUpId = 'thumbs-up-' + key.toString();
-//   const thumbsDownId = 'thumbs-down-' + key.toString();
-//   const upvoteId = 'upvote-' + key.toString();
-//   const downvoteId = 'downvote-' + key.toString();
-//   const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
-//   const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
-
-//   thumbsUpButton.classList.add(commentUnselected);
-//   thumbsDownButton.classList.add(commentUnselected);
-
-//   //make this into separate function and just use for downvote also
-//   thumbsUpButton.onclick = function() {
-//     voteOnclick (thumbsUpButton, thumbsDownButton, upvoteId, downvoteId, commentData[key].id);
-//   };
-
-//   thumbsDownButton.onclick = function() {
-//     voteOnclick (thumbsDownButton, thumbsUpButton, downvoteId, upvoteId, commentData[key].id);
-//   };
-// });
-
-//function to increment the upvote/downvote HTML
-function increment(elementid: string, commentId: number) {
-  let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
-  curNum++;
-  document.getElementById(elementid).innerHTML = curNum.toString();
-  elementid.includes('upvote') ? postCommentVoteUp(commentId, '1') : postCommentVoteDown(commentId, '1');
-}
-
-function decrement(elementid: string, commentId: number) {
-  let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
-  curNum--;
-  document.getElementById(elementid).innerHTML = curNum.toString();
-  elementid.includes('upvote') ? postCommentVoteUp(commentId, '-1') : postCommentVoteDown(commentId, '-1');
-}
-
-const commentSelected: string = 'vote-selected';
-const commentUnselected: string = 'vote';
-
-function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, id2: string, commentId: number){
-  if (button1.classList.contains(commentUnselected)) {
-    button1.classList.remove(commentUnselected);
-    button1.classList.add(commentSelected);
-    increment(id1, commentId);
-    id1.includes('upvote') ? postCommentVoteUp(commentId, '1') : postCommentVoteDown(commentId, '1');
-    if (button2.classList.contains(commentSelected)){
-      button2.classList.remove(commentSelected);
-      button2.classList.add(commentUnselected);
-      decrement(id2, commentId);
-    }
-    return;
-  }
-
-  if (button1.classList.contains(commentSelected)) {
-    button1.classList.remove(commentSelected);
-    button1.classList.add(commentUnselected);
-    decrement(id1, commentId);
-    return;
-  }
-}
-
-//Looping through to add "onclick" on each thumbs up/down to increment
-// for (let i = 0; i < commentData.length; i++) {
-//   const thumbsUpId = 'thumbs-up-' + i.toString();
-//   const thumbsDownId = 'thumbs-down-' + i.toString();
-//   const upvoteId = 'upvote-' + i.toString();
-//   const downvoteId = 'downvote-' + i.toString();
-//   const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
-//   const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
-
-//   thumbsUpButton.classList.add(commentUnselected);
-//   thumbsDownButton.classList.add(commentUnselected);
-
-//   //make this into separate function and just use for downvote also
-//   thumbsUpButton.onclick = function() {
-//     voteOnclick (thumbsUpButton, thumbsDownButton, upvoteId, downvoteId, commentData[i].id);
-//   };
-
-//   thumbsDownButton.onclick = function() {
-//     voteOnclick (thumbsDownButton, thumbsUpButton, downvoteId, upvoteId, commentData[i].id);
-//   };
-// }
-
-// for (let i = 0; i < commentData.length; i++) {
-//   const thumbsUpId = 'thumbs-up-' + i.toString();
-//   const thumbsDownId = 'thumbs-down-' + i.toString();
-//   const upvoteId = 'upvote-' + i.toString();
-//   const downvoteId = 'downvote-' + i.toString();
-//   const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
-//   const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
-
-//   thumbsUpButton.classList.add(commentUnselected);
-//   thumbsDownButton.classList.add(commentUnselected);
-
-//   //make this into separate function and just use for downvote also
-//   thumbsUpButton.onclick = function() {
-//     voteOnclick (thumbsUpButton, thumbsDownButton, upvoteId, downvoteId, commentData[i].id);
-//   };
-
-//   thumbsDownButton.onclick = function() {
-//     voteOnclick (thumbsDownButton, thumbsUpButton, downvoteId, upvoteId, commentData[i].id);
-//   };
-// }
