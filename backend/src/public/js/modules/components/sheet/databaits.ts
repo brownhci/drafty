@@ -135,30 +135,43 @@ function openModal() {
     dataBaitModal.style.display = 'block';
 }
 
+function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl: urlBase): urlSimilar {
+    candidateFields = {};
+    const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
+    const idRow = tableRow.getAttribute('data-id');
+    candidateFields = await updateRowValues(tableRow.children); // 
+    const urlSimilar: urlSimilar = {
+        idInteractionType: baseUrl.idInteractionType,
+        idDatabaitCreateType: baseUrl.idDatabaitCreateType,
+        idUniqueId: idRow,
+        value: tableCellElement.innerText,
+        rowValues: candidateFields
+    };
+    return urlSimilar;
+}
+
 export async function activateDataBait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
     const baseUrl: urlBase = { idInteractionType: idInteractionType, idDatabaitCreateType: idDatabaitCreateType };
     if (idDatabaitCreateType === DatabaitCreateType.navbar_menu) {
         // user has a cell selected
         if (tableCellElement !== null && tableCellElement !== undefined) {
-            candidateFields = {};
-            const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
-            const idRow = tableRow.getAttribute('data-id');
-            candidateFields = await updateRowValues(tableRow.children); // 
-            const urlSimilar: urlSimilar = {
-                idInteractionType: baseUrl.idInteractionType,
-                idDatabaitCreateType: baseUrl.idDatabaitCreateType,
-                idUniqueId: idRow,
-                value: tableCellElement.innerText,
-                rowValues: candidateFields
-            };
-            getDatabait(apiUrlSimilar, urlSimilar);
+            getDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
         } else {
             getDatabait(apiUrlRandom, baseUrl);
         }
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_random) {
         getDatabait(apiUrlRandom, baseUrl);
+    } else if (idDatabaitCreateType === DatabaitCreateType.modal_like) {
+        // need a row of data from the previous databait, or just push in the same values
+        // and generate a random one
+        //getDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
     } else if (idDatabaitCreateType === DatabaitCreateType.right_click) {
         getDatabait(apiUrlRandom, baseUrl);
+    } else if (idDatabaitCreateType === DatabaitCreateType.edit) {
+        getDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+    } else if (idDatabaitCreateType === DatabaitCreateType.new_row) {
+        // tableCellElement needs to be a cell in the new row created
+        //getDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
     }
     openModal();
 }
