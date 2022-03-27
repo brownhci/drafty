@@ -1,5 +1,5 @@
 // used for how databaits were created
-export const databaitCreateType = {
+export const DatabaitCreateType = {
     modal_like: 1,
     modal_random: 2,
     right_click: 3,
@@ -14,10 +14,10 @@ export const databaitCreateType = {
 } as const;
 
 /* TS magic to allow flexible lookup */
-export type databaitCreateType  =  typeof databaitCreateType [ keyof typeof databaitCreateType ]
+export type DatabaitCreateType  =  typeof DatabaitCreateType [ keyof typeof DatabaitCreateType ]
 
 // used for how databaits were created
-export const databaitCreateInteractionType = {
+export const InteractionTypeDatabaitCreate = {
     modal_like: 31,
     modal_random: 32,
     right_click: 26,
@@ -30,10 +30,10 @@ export const databaitCreateInteractionType = {
 } as const;
 
 /* TS magic to allow flexible lookup */
-export type databaitCreateInteractionType  =  typeof databaitCreateInteractionType [ keyof typeof databaitCreateInteractionType ]
+export type InteractionTypeDatabaitCreate  =  typeof InteractionTypeDatabaitCreate [ keyof typeof InteractionTypeDatabaitCreate ]
 
 //next action after seeing a databait // tweets are implied
-export const databaitAction = {
+export const DatabaitAction = {
     modal_like: 1,
     modal_random: 2,
     right_click: 3,
@@ -46,4 +46,4 @@ export const databaitAction = {
 } as const;
 
 /* TS magic to allow flexible lookup */
-export type databaitAction  =  typeof databaitAction [ keyof typeof databaitAction ]
+export type DatabaitAction  =  typeof DatabaitAction [ keyof typeof DatabaitAction ]
