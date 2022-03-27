@@ -9,7 +9,7 @@ interface urlBase { // used for random
 }
 
 interface urlSimilar extends urlBase {
-    idUniqueId: number,
+    idUniqueId: string | number,
     value: string | number,
     rowValues: Record<string, string | number> 
 }
@@ -68,9 +68,14 @@ function createUrlDataJSON(urlData: urlBase | urlSimilar): string {
     let url: string = '';
     let i = 0;
     for (const [k, v] of Object.entries(urlData)) {
+        let urlValue = v;
         let urlParam = '&';
         if(i === 0) { urlParam = '?'; }
-        url += `${urlParam}${k}=${v}`;
+        // SW: TODOY
+        if(k === 'rowValues') {
+            urlValue = JSON.stringify({'rowValues':urlValue});
+        } 
+        url += `${urlParam}${k}=${urlValue}`;
         // if k is rowValues we'll need to make something more complicated
 
         i++;
@@ -107,7 +112,6 @@ async function getDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
     }s
 */
 let candidateFields: {[index: string]:any} = {};
-
 async function updateRowValues(tableRowChildren: HTMLCollection) {
     for (let i = 0; i < tableRowChildren.length; i++) {
         const columnLabelText: string = getColumnLabelText(getColumnLabel(i));
@@ -125,39 +129,35 @@ async function updateRowValues(tableRowChildren: HTMLCollection) {
     return candidateFields;
 }
 
-async function getDataBaitValuesFromRow(tableCellElement: HTMLTableCellElement, url: string, urlData: urlBase | urlSimilar) {
-    candidateFields = {};
-    let bodyData: string = '';
-
-    // user does not have a cell clicked
-    if (tableCellElement !== null && tableCellElement !== undefined) {
-        const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
-        //idRow = tableRow.getAttribute('data-id');
-        candidateFields = await updateRowValues(tableRow.children);
-        bodyData = JSON.stringify({'fields':candidateFields});
-    } else {
-        console.log('get random row/s');
-        //bodyData = JSON.stringify({'idInteractionType':'36', 'idDatabaitCreateType':'9'});
-    }
-
-    getDatabait(url, urlData);
-}
-
 function openModal() {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     activateKeyListener();
     dataBaitModal.style.display = 'block';
 }
 
-export function activateDataBait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
+export async function activateDataBait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
     const baseUrl: urlBase = { idInteractionType: idInteractionType, idDatabaitCreateType: idDatabaitCreateType };
     if (idDatabaitCreateType === DatabaitCreateType.navbar_menu) {
-        // apiUrlRandom, idInteractionType, idDatabaitCreateType
-        getDataBaitValuesFromRow(tableCellElement, apiUrlRandom, baseUrl);
+        // user has a cell selected
+        if (tableCellElement !== null && tableCellElement !== undefined) {
+            candidateFields = {};
+            const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
+            const idRow = tableRow.getAttribute('data-id');
+            candidateFields = await updateRowValues(tableRow.children); // 
+            const urlSimilar: urlSimilar = {
+                idInteractionType: baseUrl.idInteractionType,
+                idDatabaitCreateType: baseUrl.idDatabaitCreateType,
+                idUniqueId: idRow,
+                value: tableCellElement.innerText,
+                rowValues: candidateFields
+            };
+            getDatabait(apiUrlSimilar, urlSimilar);
+        } else {
+            getDatabait(apiUrlRandom, baseUrl);
+        }
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_random) {
         getDatabait(apiUrlRandom, baseUrl);
     }
-   
     openModal();
 }
 
