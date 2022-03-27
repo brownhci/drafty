@@ -46,12 +46,13 @@ function updateDataBaitHTML(databait: string) {
 
 dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
     dataBaitModal.style.display = 'none';
+    // recordDataBaitModalClose() 
     event.stopPropagation();
 }, true);
 
 tweetBtn.addEventListener('click', function() {
     console.log('tweetBtn');
-    // recordDataBaitTweet() // similar
+    // recordDataBaitTweet()
 }, true);
 createSimilarBtn.addEventListener('click', function() {
     console.log('createSimilarBtn');
@@ -59,7 +60,8 @@ createSimilarBtn.addEventListener('click', function() {
 }, true);
 createRandomBtn.addEventListener('click', function() {
     console.log('createRandomBtn');
-    // recordDataBaitCreate() // random
+    const baseUrl: urlBase = { idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random };
+    getDatabait(apiUrlRandom, baseUrl);
 }, true);
 
 function createUrlDataJSON(urlData: urlBase | urlSimilar): string {
@@ -69,7 +71,8 @@ function createUrlDataJSON(urlData: urlBase | urlSimilar): string {
         let urlParam = '&';
         if(i === 0) { urlParam = '?'; }
         url += `${urlParam}${k}=${v}`;
-        // if k is rowValyes we'll need to make something more complicated
+        // if k is rowValues we'll need to make something more complicated
+
         i++;
     }
     return url;
@@ -119,8 +122,6 @@ async function updateRowValues(tableRowChildren: HTMLCollection) {
             }
         }
     }
-    //console.log('candidateFields:');
-    //console.log(candidateFields);
     return candidateFields;
 }
 
