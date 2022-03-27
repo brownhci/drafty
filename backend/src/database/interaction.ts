@@ -27,8 +27,10 @@ const stmtSelectComments: string = 'SELECT c.*, i.timestamp, p.username FROM Com
 const stmtInsertCommentView: string = ' INSERT INTO CommentsView (idInteraction, idUniqueID) VALUES (insert_interaction(?,?),?)';
 const stmtInsertNewComment: string = 'INSERT INTO Comments (idInteraction, idUniqueID, comment, voteUp, voteDown) VALUES (insert_interaction(?,?), ?, ?, DEFAULT, DEFAULT);';
 const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote, selected) VALUES (insert_interaction(?,?), ?, ?, ?);';
-const stmtUpdateCommentVoteUpCount: string = 'UPDATE Comments t SET t.voteUp = (t.voteUp ? 1) WHERE t.idComment = ?;';
-const stmtUpdateCommentVoteDownCount: string = 'UPDATE Comments t SET t.voteDown = (t.voteDown ? 1) WHERE t.idComment = ?;';
+const stmtUpdateCommentVoteUpCountADD: string = 'UPDATE Comments t SET t.voteUp = (t.voteUp + 1) WHERE t.idComment = ?;';
+const stmtUpdateCommentVoteUpCountSUB: string = 'UPDATE Comments t SET t.voteUp = (t.voteUp - 1) WHERE t.idComment = ?;';
+const stmtUpdateCommentVoteDownCountADD: string = 'UPDATE Comments t SET t.voteDown = (t.voteDown + 1) WHERE t.idComment = ?;';
+const stmtUpdateCommentVoteDownCountSUB: string = 'UPDATE Comments t SET t.voteDown = (t.voteDown - 1) WHERE t.idComment = ?;';
 
 /**
  * save new click
@@ -251,21 +253,17 @@ const voteIdInteractionType: Record<Vote, number> = {
     'voteDown-deselect': 23
 };
 
-function getVoteMath(vote: Vote): string {
-    if(vote.includes(deselect)) {
-        return '-';
-    } else {
-        return '+';
-    }
-}
-
 /**
  * update comment vote up
  */
 //DB Code
 export async function updateNewCommentVoteUp(idSession: string, idComment: string | number, vote: Vote, selected: number) {
     try {
-        db.query(stmtUpdateCommentVoteUpCount, [getVoteMath(vote), idComment]);
+        let stmtUpdateCommentVoteUpCount: string = stmtUpdateCommentVoteUpCountADD;
+        if(vote.includes(deselect)) {
+            stmtUpdateCommentVoteUpCount = stmtUpdateCommentVoteUpCountSUB;
+        }
+        db.query(stmtUpdateCommentVoteUpCount, [idComment]);
         db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote, selected]);
     } catch (error) {
         logDbErr(error, 'error during insert updateNewCommentVoteUp', 'warn');
@@ -278,7 +276,11 @@ export async function updateNewCommentVoteUp(idSession: string, idComment: strin
 //DB Code
 export async function updateNewCommentVoteDown(idSession: string, idComment: string | number, vote: Vote, selected: number) {
     try {
-        db.query(stmtUpdateCommentVoteDownCount, [getVoteMath(vote), idComment]);
+        let stmtUpdateCommentVoteUpCount: string = stmtUpdateCommentVoteDownCountADD;
+        if(vote.includes(deselect)) {
+            stmtUpdateCommentVoteUpCount = stmtUpdateCommentVoteDownCountSUB;
+        }
+        db.query(stmtUpdateCommentVoteUpCount, [idComment]);
         db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote, selected]);
     } catch (error) {
         logDbErr(error, 'error during insert updateNewCommentVoteDown', 'warn');
