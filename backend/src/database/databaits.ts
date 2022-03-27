@@ -1,5 +1,5 @@
 import { db, logDbErr } from './mysql';
-import { databaitCreateType, databaitCreateInteractionType, databaitAction }  from '../types/databaits';
+import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  from '../types/databaits';
 
 const stmtInsertDatabait: string = `INSERT INTO Databaits (idInteraction, idUniqueID, idDatabaitTemplateType, idDatabaitCreateType, databait, columns, vals, notes, nextAction) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?, ?, '', null);`;
 const stmtUpdateDatabaitClosed: string = 'UPDATE Databaits SET closed = CURRENT_TIMESTAMP WHERE idDatabait = ?;';
@@ -15,9 +15,9 @@ const stmtInsertDatabaitVisit: string = 'INSERT INTO DatabaitVisit (idinteractio
 * function to update database
  */
 
-export async function insertDatabait(idSession: string, databaitCreateType: databaitCreateType) {
+export async function insertDatabait(idSession: string, DatabaitCreateType: DatabaitCreateType) {
     try {
-        const idInteractionType: number = 0; // create from databaitCreateType
+        const idInteractionType: number = 0; // create from DatabaitCreateType
         // `INSERT INTO Databaits (idInteraction, idUniqueID, idDatabaitTemplateType, idDatabaitCreateType, databait, columns, vals, notes, nextAction) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?, ?, '', null);`
         const [results] = await db.query(stmtInsertDatabait, [idSession, idInteractionType]);
         return [null, results];
@@ -35,7 +35,7 @@ export async function updateDatabaitClosed(idDataBait: string | number) {
     }
 }
 
-export async function updateDatabaitNextAction(idDataBait: string | number, nextAction: databaitAction) {
+export async function updateDatabaitNextAction(idDataBait: string | number, nextAction: DatabaitAction) {
     try {
         await db.query(stmtUpdateDatabaitNextAction, [idDataBait, nextAction]);
     } catch (error) {
@@ -53,7 +53,7 @@ export async function insertDatabaitTweet(idSession: string) {
     }
 }
 
-export async function updateDatabaitTweetNextAction(nextAction: databaitAction, idDatabaitTweet: string | number) {
+export async function updateDatabaitTweetNextAction(nextAction: DatabaitAction, idDatabaitTweet: string | number) {
     try {
         // 'UPDATE DatabaitTweet SET nextAction = ? WHERE idDatabaitTweet = ?'
         await db.query(stmtUpdateDatabaitTweetNextAction, [nextAction, idDatabaitTweet]);

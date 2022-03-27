@@ -1,6 +1,18 @@
 import { getColumnLabel, getColumnLabelText } from '../../dom/sheet';
 import { getEnclosingTableRow } from '../../dom/navigate';
 import { recordDataBaitCreate } from '../../api/record-interactions';
+import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  from '../../../../../types/databaits';
+
+interface urlBase { // used for random
+    idInteractionType: InteractionTypeDatabaitCreate,
+    idDatabaitCreateType: DatabaitCreateType
+}
+
+interface urlSimilar extends urlBase {
+    idUniqueId: number,
+    value: string | number,
+    rowValues: Record<string, string | number> 
+}
 
 //let idRow: string = undefined;
 
@@ -13,19 +25,24 @@ const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait
 
 const databaitLoadingMsg: string = `Creating something awesome...`;
 
-const apiUrlAll: string = '/api-dyk/v1/databait/all';
-const apiUrlType = (type: string): string => { return `/api-dyk/v1/databait/${type}`; };
+//const apiUrlAll: string = '/api-dyk/v1/databait/all';
+//const apiUrlType = (type: string): string => { return `/api-dyk/v1/databait/${type}`; };
 const apiUrlRandom: string = '/api-dyk/v1/databait/random';
 const apiUrlSimilar: string = '/api-dyk/v1/databait/similar';
 
 const databaitLinks = document.querySelectorAll('a.databait-url');
 databaitLinks.forEach( (element,i) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     element.addEventListener('click', (e) => {
         console.log(element.textContent);
         console.log(element.getAttribute('data-col'));
         console.log('done');
     });
 });
+
+function updateDataBaitHTML(databait: string) {
+    dataBaitText.innerHTML = databait;
+}
 
 dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
     dataBaitModal.style.display = 'none';
@@ -45,34 +62,32 @@ createRandomBtn.addEventListener('click', function() {
     // recordDataBaitCreate() // random
 }, true);
 
-async function postDatabait(apiUrl: string, bodyData: any) {
-    console.log(`apiUrl = ${apiUrl}`);
-    const options = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: bodyData
-    };
-    fetch(apiUrl, options)
-    .then(response => { return response.json(); })
-    .then(data => {
-       /* DO SOMETHING HERE :) */
-       console.log(data[0]);
-       const databait = data[0];
-       updateDataBaitHTML(databait.sentence);
-     }).catch(error => console.error(error));
+function createUrlDataJSON(urlData: urlBase | urlSimilar): string {
+    let url: string = '';
+    let i = 0;
+    for (const [k, v] of Object.entries(urlData)) {
+        let urlParam = '&';
+        if(i === 0) { urlParam = '?'; }
+        url += `${urlParam}${k}=${v}`;
+        // if k is rowValyes we'll need to make something more complicated
+        i++;
+    }
+    return url;
 }
 
-async function getDatabait(apiUrl: string, bodyData: any) {
+async function getDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
     console.log(`apiUrl = ${apiUrl}`);
+    // `/api-dyk/v1/databait/random?idInteractionType=36&idDatabaitCreateType=9`
+    const url: string = `${apiUrl}${createUrlDataJSON(urlData)}`;
     const options = {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
     };
-    fetch(`/api-dyk/v1/databait/random?idInteractionType=36&idDatabaitCreateType=9`, options)
+    fetch(url, options)
     .then(response => { return response.json(); })
     .then(data => {
        /* DO SOMETHING HERE :) */
-       console.log(data[0]);
+       //console.log(data[0]);
        const databait = data[0];
        updateDataBaitHTML(databait.sentence);
      }).catch(error => console.error(error));
@@ -90,7 +105,7 @@ async function getDatabait(apiUrl: string, bodyData: any) {
 */
 let candidateFields: {[index: string]:any} = {};
 
-async function updateCandidateFields(tableRowChildren: HTMLCollection) {
+async function updateRowValues(tableRowChildren: HTMLCollection) {
     for (let i = 0; i < tableRowChildren.length; i++) {
         const columnLabelText: string = getColumnLabelText(getColumnLabel(i));
         const cellValue = tableRowChildren[i].textContent.trim();
@@ -108,32 +123,41 @@ async function updateCandidateFields(tableRowChildren: HTMLCollection) {
     //console.log(candidateFields);
     return candidateFields;
 }
-async function getDataBaitValues(tableCellElement: HTMLTableCellElement) {
+
+async function getDataBaitValuesFromRow(tableCellElement: HTMLTableCellElement, url: string, urlData: urlBase | urlSimilar) {
     candidateFields = {};
     let bodyData: string = '';
-    // sw: need to 
 
+    // user does not have a cell clicked
     if (tableCellElement !== null && tableCellElement !== undefined) {
         const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
         //idRow = tableRow.getAttribute('data-id');
-        candidateFields = await updateCandidateFields(tableRow.children);
+        candidateFields = await updateRowValues(tableRow.children);
         bodyData = JSON.stringify({'fields':candidateFields});
     } else {
         console.log('get random row/s');
-        bodyData = JSON.stringify({'idInteractionType':'36', 'idDatabaitCreateType':'9'});
+        //bodyData = JSON.stringify({'idInteractionType':'36', 'idDatabaitCreateType':'9'});
     }
 
-    getDatabait(apiUrlRandom,bodyData);
-}
-
-function updateDataBaitHTML(databait: string) {
-    dataBaitText.innerHTML = databait;
+    getDatabait(url, urlData);
 }
 
 function openModal() {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     activateKeyListener();
     dataBaitModal.style.display = 'block';
+}
+
+export function activateDataBait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
+    const baseUrl: urlBase = { idInteractionType: idInteractionType, idDatabaitCreateType: idDatabaitCreateType };
+    if (idDatabaitCreateType === DatabaitCreateType.navbar_menu) {
+        // apiUrlRandom, idInteractionType, idDatabaitCreateType
+        getDataBaitValuesFromRow(tableCellElement, apiUrlRandom, baseUrl);
+    } else if (idDatabaitCreateType === DatabaitCreateType.modal_random) {
+        getDatabait(apiUrlRandom, baseUrl);
+    }
+   
+    openModal();
 }
 
 function closeModal() {
@@ -154,9 +178,4 @@ function activateKeyListener() {
 
 function deactivateKeyListener() {
     document.removeEventListener('keydown', (event) => escKeyListener(event));
-}
-
-export function activaterDataBait(tableCellElement: HTMLTableCellElement) {
-   getDataBaitValues(tableCellElement);
-   openModal();
 }
