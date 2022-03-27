@@ -157,6 +157,8 @@ export async function activateDataBait(tableCellElement: HTMLTableCellElement, i
         }
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_random) {
         getDatabait(apiUrlRandom, baseUrl);
+    } else if (idDatabaitCreateType === DatabaitCreateType.right_click) {
+        getDatabait(apiUrlRandom, baseUrl);
     }
     openModal();
 }
