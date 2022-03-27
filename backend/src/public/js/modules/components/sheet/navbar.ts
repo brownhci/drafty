@@ -1,6 +1,6 @@
 import { StatusMode, tableFoot } from './table-foot';
 import { deleteRow } from './delete-row';
-import { activaterDataBait } from './databaits';
+import { activateDataBait } from './databaits';
 import { activeTableCellElement } from '../../../sheet';
 
 const navBar: HTMLElement = document.getElementById('navbar-nav');
@@ -67,7 +67,7 @@ navBarDelRow.addEventListener('click', function(event: MouseEvent) {
 }, true);
 
 navBarDidYouKnow.addEventListener('click', function(event: MouseEvent) {
-    activaterDataBait(activeTableCellElement);
+    activateDataBait(activeTableCellElement);
     event.stopPropagation();
 }, true);
 
