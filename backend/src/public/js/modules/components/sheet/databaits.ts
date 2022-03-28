@@ -135,11 +135,11 @@ function openModal() {
     dataBaitModal.style.display = 'block';
 }
 
-function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl: urlBase): urlSimilar {
+function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl: urlBase) {
     candidateFields = {};
     const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
     const idRow = tableRow.getAttribute('data-id');
-    candidateFields = await updateRowValues(tableRow.children); // 
+    candidateFields = updateRowValues(tableRow.children); // 
     const urlSimilar: urlSimilar = {
         idInteractionType: baseUrl.idInteractionType,
         idDatabaitCreateType: baseUrl.idDatabaitCreateType,
