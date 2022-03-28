@@ -72,11 +72,11 @@ export function postGoogleSearchURL() {
 }
 
 export function postDataBaitCreate() {
-  return 'databait-create';
+  return '/databait-create';
 }
 
 export function postDataBaitTweet() {
-  return 'databait-tweet';
+  return '/databait-tweet';
 }
 
 export function postSearchColVisit() {
@@ -84,25 +84,25 @@ export function postSearchColVisit() {
 }
 
 export function postTweet() {
-  return 'databaits/tweet';
+  return '/databaits/tweet';
 }
 
 export function postTweetNextAction() {
-  return 'databaits/tweet/next';
+  return '/databaits/tweet/next';
 }
 
 export function postDataBaitCreated() {
-  return 'databaits/create';
+  return '/databaits/create';
 }
 
 export function postDataBaitWindowClosed() {
-  return 'databaits/close';
+  return '/databaits/close';
 }
 
 export function postDataBaitNextAction() {
-  return 'databaits/next';
+  return '/databaits/next';
 }
 
 export function postDataBaitVisit() {
-  return 'databaits/visit';
+  return '/databaits/visit';
 }
