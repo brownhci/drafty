@@ -121,7 +121,7 @@ const proxy = httpProxy.createProxyServer();
 app.all('/api-dyk/*', function(req: Request, res: ServerResponse) {
   //console.log('redirecting to Server1');
   // add idSession from serve-side cookie
-  req.url += `&idSession2=${req.session.user.idSession}`; 
+  req.url += `&idSession=${req.session.user.idSession}`; 
   proxy.web(req, res, {target: 'http://localhost:5000'});
 });
 
