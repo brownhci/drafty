@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { TWITTER_API_KEY, TWITTER_API_SECRET_KEY, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET } from '../util/secrets';
 import Twitter from 'twitter'; 
-import { insertDataBaitVisit }  from '../database/databaits';
+import { insertDataBaitVisit, updateDatabaitClosed }  from '../database/databaits';
 
 const client = new Twitter({
     consumer_key: TWITTER_API_KEY,
@@ -87,6 +87,7 @@ export const postDataBaitCreated = (req: Request, res: Response) => {
  export const postDataBaitWindowClosed = (req: Request, res: Response) => {
     // right-click, edit, new-row, delete-row, navbar-menu, modal-like, modal-random
     const idDataBait = req.body.idDataBait;
+    updateDatabaitClosed(idDataBait);
     return res.sendStatus(200);
 };
 
