@@ -13,10 +13,12 @@ navbarTogglerElement.addEventListener('click', function() {
   if (navbarTogglerElement.classList.contains(activeClass)) {
     // hide menu
     navbarTogglerElement.classList.remove(activeClass);
+    navElement.style.height = '60px';
     setMainPaddingTop();
   } else {
     // show menu
     navbarTogglerElement.classList.add(activeClass);
+    navElement.style.height = 'auto';
     setMainPaddingTop();
   }
 });

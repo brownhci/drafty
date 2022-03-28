@@ -1,6 +1,7 @@
 <nav>
-    <a class="navbar-brand" href="/">Drafty</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" aria-label="Toggle navigation"></button>
+
+        <a class="navbar-brand" href="/">Drafty</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" aria-label="Toggle navigation"></button>
 
     <ul class="navbar-nav-sm">
         <li id="list-sheets">
@@ -13,9 +14,7 @@
                 {{/eachInMap}}
             </div>
         </li>
-        {{#if editHistoryPath}}
-            <li class="navbar-brand" href="#"><i class="fas fa-history"></i> Edit History nav1</li>
-        {{/if}}
+        <li class="nav-item text-white font-weight-bold" href="#"><i class="fas fa-history"></i> Edit History</li>
         <li data-href="/account">Your Profile</li>
         <!-- not available yet <li data-href="/account/edits">Your edits</li> -->
         <li data-href="/help">Help</li>
