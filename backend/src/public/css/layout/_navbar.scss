@@ -85,7 +85,7 @@ nav {
   }
   .nav-item {
     @extend .clickable;
-    @extend .px-4;
+    
     @extend .text-capitalize;
     a {
       @extend .text-decoration-none;
@@ -145,4 +145,13 @@ nav {
        display: flex !important;
     }
   }
+}
+
+
+li.nav-item .nav-label {
+  
+}
+
+.nav-label {
+  padding: 1.5em;
 }
