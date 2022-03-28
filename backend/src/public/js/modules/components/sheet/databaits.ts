@@ -1,7 +1,22 @@
 import { getColumnLabel, getColumnLabelText } from '../../dom/sheet';
 import { getEnclosingTableRow } from '../../dom/navigate';
-import { recordDataBaitCreate } from '../../api/record-interactions';
+import { recordDataBaitCreate, recordDataBaitWindowClosed } from '../../api/record-interactions';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  from '../../../../../types/databaits';
+
+interface Databait {
+    idDatabait: string | number,
+    sentence: string,
+    labels: Array<string>,
+    columns: Array<string>
+}
+
+// eslint-disable-next-line prefer-const
+let databaitCurrent: Databait = {
+    idDatabait: '',
+    sentence: '',
+    labels: [],
+    columns: []
+};
 
 interface urlBase { // used for random
     idInteractionType: InteractionTypeDatabaitCreate,
@@ -23,7 +38,7 @@ const tweetBtn = <HTMLButtonElement>document.getElementById('btn-databait-tweet'
 const createSimilarBtn = <HTMLButtonElement>document.getElementById('btn-databait-similar');
 const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait-random');
 
-const databaitLoadingMsg: string = `Creating something awesome...`;
+//const databaitLoadingMsg: string = `Creating something awesome...`;
 
 //const apiUrlAll: string = '/api-dyk/v1/databait/all';
 //const apiUrlType = (type: string): string => { return `/api-dyk/v1/databait/${type}`; };
@@ -46,7 +61,7 @@ function updateDataBaitHTML(databait: string) {
 
 dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
     dataBaitModal.style.display = 'none';
-    // recordDataBaitModalClose() 
+    recordDataBaitWindowClosed(databaitCurrent.idDatabait);
     event.stopPropagation();
 }, true);
 
@@ -97,6 +112,10 @@ async function getDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
        /* DO SOMETHING HERE :) */
        //console.log(data[0]);
        const databait = data[0];
+       databaitCurrent.idDatabait = databait.idDatabait;
+       databaitCurrent.sentence = databait.sentence;
+       databaitCurrent.labels = databait.labels;
+       databaitCurrent.columns = databait.columns;
        updateDataBaitHTML(databait.sentence);
      }).catch(error => console.error(error));
 }
@@ -179,6 +198,8 @@ export async function activateDataBait(tableCellElement: HTMLTableCellElement, i
 function closeModal() {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     deactivateKeyListener();
+    // record databait modal exit
+    //recordDataBaitWindowClosed(idDatabait);
     dataBaitModal.style.display = 'none';
 }
 
