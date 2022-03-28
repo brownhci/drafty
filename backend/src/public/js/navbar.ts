@@ -1,11 +1,4 @@
 const navElement = document.querySelector('nav');
-function setMainPaddingTop() {
-  const paddingTop = navElement.offsetHeight;
-  const mainElement = document.querySelector('main');
-  if (mainElement) {
-    mainElement.style.paddingTop = `${paddingTop}px`;
-  }
-}
 
 const navbarTogglerElement = navElement.querySelector('button.navbar-toggler');
 navbarTogglerElement.addEventListener('click', function() {
@@ -13,13 +6,9 @@ navbarTogglerElement.addEventListener('click', function() {
   if (navbarTogglerElement.classList.contains(activeClass)) {
     // hide menu
     navbarTogglerElement.classList.remove(activeClass);
-    navElement.style.height = '60px';
-    setMainPaddingTop();
   } else {
     // show menu
     navbarTogglerElement.classList.add(activeClass);
-    navElement.style.height = 'auto';
-    setMainPaddingTop();
   }
 });
 const NavbarNavSmallElement = navElement.querySelector('.navbar-nav-sm');

@@ -11,7 +11,7 @@ $zindex-sheet-dropdown: $zindex-nav + 1;
 $navbar-height: 60px;
 
 nav {
-  @extend .position-absolute;
+  @extend .position-static;
   @extend .w-100;
   @extend .navbar;
   @extend .navbar-light;
@@ -131,10 +131,6 @@ nav {
         @extend .disabled;
       }
     }
-  }
-
-  & ~ main {
-    padding-top: $navbar-height;
   }
 }
 

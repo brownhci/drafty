@@ -1,5 +1,6 @@
 .dropdown {
   .dropdown-menu {
+    z-index: 2100; // scss error: $zindex-na 
     // @extend .bg-secondary;
     @extend .mt-0;
     .dropdown-item:hover {
