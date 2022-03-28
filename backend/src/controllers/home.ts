@@ -19,10 +19,6 @@ function getSheets() {
 }
 */
 
-export const flaskTest = (req: Request, res: Response) => {
-  res.redirect('http://localhost:5000');
-};
-
 /**
  * GET /
  * Home page.

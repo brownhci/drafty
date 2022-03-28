@@ -5,6 +5,7 @@ import path from 'path';
  * GET /data/edithistory
  * Help page.
  */
+/* unused
 export const getEditHistory = (req: Request, res: Response) => {
   if(req.session.user.isAuth && req.originalUrl === '/data/edithistory') {
     const file = path.join(__dirname, '../../data_sharing/2300profs_edits.csv');
@@ -13,6 +14,7 @@ export const getEditHistory = (req: Request, res: Response) => {
     return res.sendStatus(500);
   }
 };
+*/
 
 /**
  * GET /data/csv

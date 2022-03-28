@@ -17,6 +17,7 @@ navBarNewRow.addEventListener('click', function(event: MouseEvent) {
 }, true);
 
 navBarDelRow.addEventListener('click', function(event: MouseEvent) {
+    event.preventDefault();
     if(activeTableCellElement === null || activeTableCellElement === undefined) {
         deleteRowModalError.style.display = 'block';
     } else {
@@ -26,11 +27,13 @@ navBarDelRow.addEventListener('click', function(event: MouseEvent) {
 }, true);
 
 navBarDidYouKnow.addEventListener('click', function(event: MouseEvent) {
+    event.preventDefault();
     activateDataBait(activeTableCellElement,InteractionTypeDatabaitCreate.navbar_menu,DatabaitCreateType.navbar_menu);
     event.stopPropagation();
 }, true);
 
 btnCloseModalError.addEventListener('click', function(event: MouseEvent) {
+    event.preventDefault();
     deleteRowModalError.style.display = 'none';
     event.stopPropagation();
 }, true);

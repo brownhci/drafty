@@ -179,7 +179,7 @@ app.post('/account/password', passportConfig.isAuthenticated, userCtrl.postUpdat
 app.post('/account/delete', dataPrivacyCtrl.postRemoveData);
 
 // data sharing
-app.get('/data/edithistory', dataSharingCtrl.getEditHistory);
+//app.get('/data/edithistory', dataSharingCtrl.getEditHistory); // unused
 app.get('/data/csv/:name/:token', dataSharingCtrl.getCSV);
 
 // databaits + twitter
