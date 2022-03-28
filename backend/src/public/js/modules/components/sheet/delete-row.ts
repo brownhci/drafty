@@ -4,6 +4,9 @@ import { StatusMode, tableFoot } from './table-foot';
 
 let idRow: string = undefined;
 
+const deleteRowModalError: HTMLElement = document.getElementById('deleteRowModal_error');
+const errModalCloseBtn = <HTMLButtonElement>document.getElementById('btn-delrow-error-modal-close');
+
 const deleteRowModal: HTMLElement = document.getElementById('deleteRowModal');
 const deleteRowLabel: HTMLElement = document.getElementById('row-label');
 const deleteModalClose: HTMLElement = document.getElementById('deleteModalClose');
@@ -12,6 +15,28 @@ const submitBtn = <HTMLButtonElement>document.getElementById('btn-delrow-modal-c
 
 const submitDelRow: string = `<i class="fas fa-times"></i> Submit to Remove Row`;
 const needReasonDelRow: string = `Please enter a reason first`;
+
+
+function escKeyListener(event: KeyboardEvent) {
+    if(event.key === 'Escape'){
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        modalsClose();
+	}
+}
+
+function activateKeyListener() {
+    document.addEventListener('keydown', (event) => escKeyListener(event));
+}
+
+function deactivateKeyListener() {
+    document.removeEventListener('keydown', (event) => escKeyListener(event));
+}
+
+function modalsClose() {
+    deactivateKeyListener();
+    deleteRowModal.style.display = 'none';
+	deleteRowModalError.style.display = 'none';
+}
 
 deleteModalClose.addEventListener('click', function(event: MouseEvent) {
     deleteRowModal.style.display = 'none';
@@ -46,5 +71,15 @@ export function deleteRow(tableCellElement: HTMLTableCellElement) {
         const profToDelete: string = getCSProfessorNameUniv(tableRow);
         deleteRowLabel.innerText = profToDelete;
         deleteRowModal.style.display = 'block';
+        activateKeyListener();
     }
 }
+
+export function deleteRowModalErrorActivate() {
+    deleteRowModalError.style.display = 'block';
+    activateKeyListener();
+}
+
+errModalCloseBtn.addEventListener('click', function() {
+    modalsClose();
+}, true);

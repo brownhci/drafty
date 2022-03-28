@@ -1,39 +1,53 @@
 import { StatusMode, tableFoot } from './table-foot';
-import { deleteRow } from './delete-row';
+import { deleteRow, deleteRowModalErrorActivate } from './delete-row';
 import { activateDataBait } from './databaits';
 import { activeTableCellElement } from '../../../sheet';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate } from '../../../../../types/databaits';
 
-const deleteRowModalError: HTMLElement = document.getElementById('deleteRowModal_error');
-const btnCloseModalError: HTMLElement = document.getElementById('btn-delrow-modal-close');
-
 const navBarNewRow: HTMLElement = document.getElementById('navbar-addrow-select');
 const navBarDelRow: HTMLElement = document.getElementById('navbar-delrow-select');
 const navBarDidYouKnow: HTMLElement = document.getElementById('navbar-didyouknow-select');
+const navBarNewRowMobile: HTMLElement = document.getElementById('navbar-addrow-select-mobile');
+const navBarDelRowMobile: HTMLElement = document.getElementById('navbar-delrow-select-mobile');
+const navBarDidYouKnowMobile: HTMLElement = document.getElementById('navbar-didyouknow-select-mobile');
 
-navBarNewRow.addEventListener('click', function(event: MouseEvent) {
+function newRowSelected(event: MouseEvent) {
+    event.preventDefault();
     tableFoot.toggle(StatusMode.Insertion);
     event.stopPropagation();
+}
+navBarNewRow.addEventListener('click', function(event: MouseEvent) {
+    newRowSelected(event);
+}, true);
+navBarNewRowMobile.addEventListener('click', function(event: MouseEvent) {
+    newRowSelected(event);
 }, true);
 
-navBarDelRow.addEventListener('click', function(event: MouseEvent) {
+function deleteRowSelected(event: MouseEvent) {
     event.preventDefault();
     if(activeTableCellElement === null || activeTableCellElement === undefined) {
-        deleteRowModalError.style.display = 'block';
+        deleteRowModalErrorActivate();
     } else {
         deleteRow(activeTableCellElement);
     }
     event.stopPropagation();
+}
+navBarDelRow.addEventListener('click', function(event: MouseEvent) {
+    deleteRowSelected(event);
+}, true);
+navBarDelRowMobile.addEventListener('click', function(event: MouseEvent) {
+    deleteRowSelected(event);
 }, true);
 
-navBarDidYouKnow.addEventListener('click', function(event: MouseEvent) {
+
+function didYouKnowSelect(event: MouseEvent) {
     event.preventDefault();
     activateDataBait(activeTableCellElement,InteractionTypeDatabaitCreate.navbar_menu,DatabaitCreateType.navbar_menu);
     event.stopPropagation();
+}
+navBarDidYouKnow.addEventListener('click', function(event: MouseEvent) {
+    didYouKnowSelect(event);
 }, true);
-
-btnCloseModalError.addEventListener('click', function(event: MouseEvent) {
-    event.preventDefault();
-    deleteRowModalError.style.display = 'none';
-    event.stopPropagation();
+navBarDidYouKnowMobile.addEventListener('click', function(event: MouseEvent) {
+    didYouKnowSelect(event);
 }, true);
