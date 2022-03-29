@@ -103,7 +103,7 @@ class ColumnSuggestions {
     this.containerWidth = columnSuggestions.inputElement.offsetWidth + 80;
     const targetDimensions = this.inputElement.getBoundingClientRect();
     alignElementHorizontally(this.container, targetDimensions);
-    placeElementAdjacently(this.container, targetDimensions);
+    placeElementAdjacently(this.container, targetDimensions, true);
   }
 }
 

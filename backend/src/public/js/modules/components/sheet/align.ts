@@ -1,6 +1,5 @@
-import { tableElement, tableScrollContainer } from '../../dom/sheet';
+import { tableElement, tableFootElement, tableScrollContainer } from '../../dom/sheet';
 import { getViewportWidth, getViewportHeight } from '../../utils/length';
-//import { tableDataManager } from "../../../sheet"; // sw: not used
 
 
 export function placeElementInViewport(element: HTMLElement, x: number, y: number) {
@@ -166,34 +165,34 @@ export function alignElementHorizontally(element: HTMLElement, targetDimensions:
  * @param {HTMLElement} element - The element to be aligned.
  * @param {DOMRect} targetDimensions - The result of running getBoundingClientRect() on the element to align against.
  */
-export function placeElementAdjacently(element: HTMLElement, targetDimensions: DOMRect) {
-  // sw: with recent CSS changes 
+export function placeElementAdjacently(element: HTMLElement, targetDimensions: DOMRect, isSearchColumn: boolean = false) {
+  if(isSearchColumn) {
+    // sw: with recent CSS changes 
   // the height of the navbar and table header are fixed
-  element.style.top = `90px`;
-  
-  /*
-  const topLimit = 0;
-  const horizontalScrollBarHeight = tableScrollContainer.offsetHeight - tableScrollContainer.clientHeight;
-  const bottomLimit: number = getViewportHeight() - horizontalScrollBarHeight;
-  const { top: targetTop, bottom: targetBottom } = targetDimensions;
-
-  const elementHeight = element.getBoundingClientRect().height;
-  */
-  /**
-   * Set vertical placement
-   * two choices for vertical placement
-   *    1. top border of element stick to the bottom border of target cell
-   *    2. bottom border of element stick to the top border of target cell
-   */
-  /*
-  let elementTop: number;
-  if (targetBottom + elementHeight <= bottomLimit) {
-    // option 1
-    elementTop = targetBottom;
-  } else if (targetTop - elementHeight >= topLimit) {
-    // option 2
-    elementTop = targetTop - elementHeight;
+    element.style.top = `90px`;
+  } else {
+    const topLimit = 0;
+    const horizontalScrollBarHeight = tableScrollContainer.offsetHeight - tableScrollContainer.clientHeight;
+    const bottomLimit: number = getViewportHeight() - horizontalScrollBarHeight;
+    const { top: targetTop, bottom: targetBottom } = targetDimensions;
+    const elementHeight = element.getBoundingClientRect().height;
+    /**
+     * Set vertical placement
+     * two choices for vertical placement
+     *    1. top border of element stick to the bottom border of target cell
+     *    2. bottom border of element stick to the top border of target cell
+     */
+    let elementTop: number;
+    if (targetBottom + elementHeight <= bottomLimit) {
+      // option 1
+      console.log('elementTop = targetBottom');
+      elementTop = targetBottom;
+    } else if (targetTop - elementHeight >= topLimit) {
+      // option 2
+      const autoCompleteHeight = element.getBoundingClientRect().height;
+      const footerHeight = tableFootElement.getBoundingClientRect().height;
+      elementTop = targetBottom - footerHeight - autoCompleteHeight;
+    }
+    element.style.top = `${elementTop}px`;
   }
-  element.style.top = `${elementTop}px`;
-  */ 
 }

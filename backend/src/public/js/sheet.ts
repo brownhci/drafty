@@ -97,8 +97,9 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
   if (shouldGetFocus) {
     activeTableCellElement.focus();
     activateEditCaret();
-    commentDiv.style.display === 'none' ? activateCommentIcon(): activateCommentSection();
-    changeCommentLabel();
+    // sw: bring back in when we merge the  branches
+    //commentDiv.style.display === 'none' ? activateCommentIcon(): activateCommentSection();
+    //changeCommentLabel();
   }
 }
 function activateTableHead(shouldGetFocus = true) {
@@ -409,6 +410,7 @@ tableElement.addEventListener('keydown', function (event: KeyboardEvent) {
   } else if (isInput(target)) {
     // if footer is open 
     if (tableFoot.statusMode === 'insertion' && !cellEditNewRow.isActive) {
+      console.log('activate cellEditNewRow');
       // activate new row cell editor when new character is typed
       cellEditNewRow.activate(target.parentElement as HTMLTableCellElement);
     }

@@ -263,6 +263,13 @@ class TableFoot {
         this.insertionErrorMessage.remove();
       }
     }, true);
+
+    /*
+    tableElement.addEventListener('keydown', (event: Event) => {
+      const target = event.target as HTMLElement;
+      cellEditNewRow.activate(target);
+    }, true);
+    */
   }
 
   private updateRowCount() {
@@ -302,7 +309,6 @@ class TableFoot {
     const inputValue = inputElement.value;
     const columnLabel = getColumnLabel(columnIndex);
     const isInputRequired = this.isRequiredInput(inputElement);
-    console.log(columnIndex);
 
     if (isInputRequired && inputValue === '') {
       this.reportInvalidInput(inputElement, 'This field is required', addRowOpen);

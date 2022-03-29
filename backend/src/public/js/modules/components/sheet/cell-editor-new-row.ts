@@ -98,7 +98,8 @@ class CellEditNewRow {
     activate(target: HTMLTableCellElement) {
         this.target = target;
         this.inputElement = target.querySelector('input');
-
+        // sw: TODO keep testing
+        this.container.classList.add(activeClass);
         this.updateFuseSelect().then(() => {
             this.fuseSelect.query(this.inputElement.value);
         });
@@ -157,7 +158,7 @@ class CellEditNewRow {
 
         const targetDimensions = this.inputElement.getBoundingClientRect();
         alignElementHorizontally(this.container, targetDimensions);
-        placeElementAdjacently(this.container, targetDimensions);
+        placeElementAdjacently(this.container, targetDimensions, false);
     }
 
     /**
