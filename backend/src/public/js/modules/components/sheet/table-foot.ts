@@ -197,7 +197,7 @@ class TableFoot {
     this.insertionDiscardButton.type = 'button';
     this.insertionDiscardButton.id = 'discard-newrow';
     const insertionDiscardScreenReaderText = document.createElement('span');
-    insertionDiscardScreenReaderText.textContent = 'Reset';
+    insertionDiscardScreenReaderText.textContent = 'Clear';
     insertionDiscardScreenReaderText.classList.add('sr-only', 'sr-only-focusable');
     this.insertionDiscardButton.appendChild(insertionDiscardScreenReaderText);
     this.insertionDiscardButton.textContent = ' Reset';
