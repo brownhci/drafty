@@ -113,8 +113,7 @@ class TableFoot {
           this.statusTableCell.appendChild(this.insertionCloseButton);
           this.statusTableCell.appendChild(this.insertionDiscardButton);
           this.statusTableCell.appendChild(this.insertionConfirmButton);
-          this.insertionInputs[0].focus();
-          // sw: this is causing the red outlines
+          this.insertionInputs[0].focus(); // focus first input
           this.insertionInputs.forEach((inputElement, columnIndex) => this.verifyInputValue(inputElement, columnIndex, true));
           break;
         case StatusMode.RowCount:
@@ -254,6 +253,7 @@ class TableFoot {
       }
     }, true);
 
+    // sw: this is causing fields to appear with errors on load up
     tableElement.addEventListener('focus', (event: Event) => {
       const target = event.target as HTMLElement;
       if (this.isNewRowInsertionInput(target) && target.classList.contains(invalidClass)) {
@@ -288,10 +288,11 @@ class TableFoot {
     return inputElement.required;
   }
 
-  private reportInvalidInput(inputElement: HTMLInputElement, reason: string) {
-    // sw: causing bugs on add row input 
+  private reportInvalidInput(inputElement: HTMLInputElement, reason: string, addRowOpen: boolean = false) {
     inputElement.placeholder = 'required...';
-    inputElement.classList.add(invalidClass);
+    if(!addRowOpen) {
+      inputElement.classList.add(invalidClass);
+    }
     inputElement.dataset.errorMessage = reason;
     this.insertionConfirmButton.classList.add(disabledClass);
   }
@@ -303,18 +304,15 @@ class TableFoot {
     const isInputRequired = this.isRequiredInput(inputElement);
     console.log(columnIndex);
 
-    if (isInputRequired && inputValue === '') { // && !addRowOpen) {
-      console.log('1');
-      // not running this causes errors
-      this.reportInvalidInput(inputElement, 'This field is required');
+    if (isInputRequired && inputValue === '') {
+      this.reportInvalidInput(inputElement, 'This field is required', addRowOpen);
       return false;
     }
 
     const idSuggestionType = getIdSuggestionType(columnLabel);
     if (!verifyEdit(inputValue, idSuggestionType)) {
       // this input does not pass defined validation rule
-      console.log('2');
-      this.reportInvalidInput(inputElement, 'Value does not pass validation');
+      this.reportInvalidInput(inputElement, 'Value does not pass validation', addRowOpen);
       return false;
     }
 
@@ -323,7 +321,7 @@ class TableFoot {
         // empty input is accepted no non-required autocomplete-only input
       } else if (!await cellEditNewRow.hasSuggestion(inputValue, columnIndex, inputElement)) {
         // this input's value should come from suggestion
-        this.reportInvalidInput(inputElement, 'Value must come from suggestions');
+        this.reportInvalidInput(inputElement, 'Value must come from suggestions', addRowOpen);
         return false;
       }
     }
