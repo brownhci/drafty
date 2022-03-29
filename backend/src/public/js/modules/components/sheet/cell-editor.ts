@@ -290,10 +290,6 @@ class CellEditor {
    * @param {boolean} saveEdit - Whether `this.formInput` will be saved and recorded.
    */
   closeForm(saveEdit: boolean) {
-    /*
-    console.log(this.cellElement);
-    console.log(this.formInput);
-    */
     // sw --- is this if stmt necessary?
     if (this.cellElement.innerText === this.formInput) {
       saveEdit = false;
@@ -400,6 +396,8 @@ class CellEditor {
      *   1. top border (offset by buttonHeight) of form stick to the top border of the target cell
      *   2. bottom border of form stick to the bottom border of the target cell
      */
+    
+    // sw: button height is not being read
     const buttonHeight = this.buttonHeight;
 
     const cellTopFromPageTop = targetCellElement.offsetTop;
@@ -418,7 +416,9 @@ class CellEditor {
         cellTop -= downShiftAmount;
         tableScrollContainer.scrollTop += downShiftAmount;
       }
-      formTop = cellTop - buttonHeight;
+      // sw: needs to be: cellTop - cellHeight (36.5px) + fontSize (14px)
+      const fontSize: number = parseInt(window.getComputedStyle(this.cellElement).fontSize.replace('px',''));
+      formTop = cellTop - this.cellElement.offsetHeight + fontSize;
     } else if (cellBottomFromPageTop - formHeight + buttonHeight >= topFromPageTopLimit) {
       // option 2
       if (cellBottom > viewportHeight) {
@@ -432,9 +432,11 @@ class CellEditor {
         cellBottom += upShiftAmount;
         tableScrollContainer.scrollTop -= upShiftAmount;
       }
+      console.log(`${cellBottom} - ${formHeight} + ${buttonHeight}`);
       formTop = cellBottom - formHeight + buttonHeight;
     }
     this.formElement.style.top = `${formTop}px`;
+    //console.log(`formTop: ${formTop}px`);
   }
 
 
