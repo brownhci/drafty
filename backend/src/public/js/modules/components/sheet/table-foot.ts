@@ -113,7 +113,9 @@ class TableFoot {
           this.statusTableCell.appendChild(this.insertionCloseButton);
           this.statusTableCell.appendChild(this.insertionDiscardButton);
           this.statusTableCell.appendChild(this.insertionConfirmButton);
-          this.insertionInputs.forEach((inputElement, columnIndex) => this.verifyInputValue(columnIndex));
+          this.insertionInputs[0].focus();
+          // sw: this is causing the red outlines
+          this.insertionInputs.forEach((inputElement, columnIndex) => this.verifyInputValue(inputElement, columnIndex, true));
           break;
         case StatusMode.RowCount:
           this.updateRowCount();
@@ -200,7 +202,7 @@ class TableFoot {
     insertionDiscardScreenReaderText.textContent = 'Clear';
     insertionDiscardScreenReaderText.classList.add('sr-only', 'sr-only-focusable');
     this.insertionDiscardButton.appendChild(insertionDiscardScreenReaderText);
-    this.insertionDiscardButton.textContent = ' Reset';
+    this.insertionDiscardButton.textContent = ' Clear';
 
     this.insertionCloseButton.type = 'button';
     this.insertionCloseButton.id = 'close-newrow';
@@ -242,12 +244,12 @@ class TableFoot {
       }
     }, true);
 
-    tableElement.addEventListener('input', (event: Event) => {
-      const target = event.target as HTMLElement;
+    tableElement.addEventListener('blur', (event: Event) => {
+      const target = event.target as HTMLInputElement;
       if (this.isNewRowInsertionInput(target)) {
         const columnIndex = this.insertionInputs.indexOf(target as HTMLInputElement);
         if (columnIndex >= 0) {
-          this.verifyInputValue(columnIndex);
+          this.verifyInputValue(target, columnIndex);
         }
       }
     }, true);
@@ -274,7 +276,7 @@ class TableFoot {
   private discardInputValues() {
     for (let columnIndex = 0; columnIndex < this.insertionInputs.length; columnIndex++) {
       this.insertionInputs[columnIndex].value = '';
-      this.verifyInputValue(columnIndex);
+      this.verifyInputValue(this.insertionInputs[columnIndex], columnIndex);
     }
   }
 
@@ -287,19 +289,23 @@ class TableFoot {
   }
 
   private reportInvalidInput(inputElement: HTMLInputElement, reason: string) {
+    // sw: causing bugs on add row input 
     inputElement.placeholder = 'required...';
     inputElement.classList.add(invalidClass);
     inputElement.dataset.errorMessage = reason;
     this.insertionConfirmButton.classList.add(disabledClass);
   }
 
-  private async verifyInputValue(columnIndex: number): Promise<boolean> {
-    const inputElement = this.insertionInputs[columnIndex];
+  private async verifyInputValue(inputElement: HTMLInputElement, columnIndex: number, addRowOpen: boolean = false): Promise<boolean> {
+    //const inputElement = this.insertionInputs[columnIndex];
     const inputValue = inputElement.value;
     const columnLabel = getColumnLabel(columnIndex);
     const isInputRequired = this.isRequiredInput(inputElement);
-    if (isInputRequired && inputValue === '') {
-      // this input must be filled, but it is left unfilled
+    console.log(columnIndex);
+
+    if (isInputRequired && inputValue === '') { // && !addRowOpen) {
+      console.log('1');
+      // not running this causes errors
       this.reportInvalidInput(inputElement, 'This field is required');
       return false;
     }
@@ -307,6 +313,7 @@ class TableFoot {
     const idSuggestionType = getIdSuggestionType(columnLabel);
     if (!verifyEdit(inputValue, idSuggestionType)) {
       // this input does not pass defined validation rule
+      console.log('2');
       this.reportInvalidInput(inputElement, 'Value does not pass validation');
       return false;
     }
