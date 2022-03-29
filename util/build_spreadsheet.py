@@ -99,7 +99,7 @@ required_column_indices = {0, 1}
 
 def build_table_foot_cell(column_index):
     required_str = " required" if column_index in required_column_indices else ""
-    return f'<th scope="col" tabindex="-1"><input id="add-new-row-input{column_index}" type="text" {required_str} autocomplete="off"></th>'
+    return f'<th id="foot-cell-{column_index}" scope="col" tabindex="-1"><input id="add-new-row-input{column_index}" type="text" {required_str} autocomplete="off"></th>'
 
 
 def build_table_foot():
