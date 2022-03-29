@@ -253,8 +253,23 @@ class TableFoot {
       }
     }, true);
 
+    tableElement.addEventListener('keydown', (event: Event) => {
+      const target = event.target as HTMLInputElement;
+      if (this.isNewRowInsertionInput(target)) {
+        const columnIndex = this.insertionInputs.indexOf(target as HTMLInputElement);
+        if (columnIndex >= 0) {
+          console.log('keydown on add new row');
+          cellEditNewRow.activate(target.parentElement as HTMLTableCellElement);
+        }
+      }
+    }, true);
+
     // sw: this is causing fields to appear with errors on load up
     tableElement.addEventListener('focus', (event: Event) => {
+
+      // need to deactivate auto complete
+      cellEditNewRow.deactivate();
+
       const target = event.target as HTMLElement;
       if (this.isNewRowInsertionInput(target) && target.classList.contains(invalidClass)) {
         this.insertionErrorMessage.textContent = target.dataset.errorMessage;
