@@ -167,19 +167,25 @@ export function alignElementHorizontally(element: HTMLElement, targetDimensions:
  * @param {DOMRect} targetDimensions - The result of running getBoundingClientRect() on the element to align against.
  */
 export function placeElementAdjacently(element: HTMLElement, targetDimensions: DOMRect) {
+  // sw: with recent CSS changes 
+  // the height of the navbar and table header are fixed
+  element.style.top = `90px`;
+  
+  /*
   const topLimit = 0;
   const horizontalScrollBarHeight = tableScrollContainer.offsetHeight - tableScrollContainer.clientHeight;
   const bottomLimit: number = getViewportHeight() - horizontalScrollBarHeight;
   const { top: targetTop, bottom: targetBottom } = targetDimensions;
 
   const elementHeight = element.getBoundingClientRect().height;
-
+  */
   /**
    * Set vertical placement
    * two choices for vertical placement
    *    1. top border of element stick to the bottom border of target cell
    *    2. bottom border of element stick to the top border of target cell
    */
+  /*
   let elementTop: number;
   if (targetBottom + elementHeight <= bottomLimit) {
     // option 1
@@ -189,4 +195,5 @@ export function placeElementAdjacently(element: HTMLElement, targetDimensions: D
     elementTop = targetTop - elementHeight;
   }
   element.style.top = `${elementTop}px`;
+  */ 
 }
