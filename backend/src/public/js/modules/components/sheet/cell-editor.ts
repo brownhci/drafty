@@ -404,24 +404,22 @@ class CellEditor {
     const cellBottomFromPageTop = cellTopFromPageTop + cellHeight;
     let formTop: number;
     if (cellTopFromPageTop + formHeight - buttonHeight < bottomFromPageTopLimit) {
+      let upShiftAmountBuffer: number = 0;
       // option 1
       if (cellTop < viewportTopPadding) {
         // top border of form is to the top of the viewport
         const upShiftAmount: number = viewportTopPadding - cellTop;
         cellTop += upShiftAmount;
         tableScrollContainer.scrollTop -= upShiftAmount;
-        //console.log(`scrollTop upShiftAmount ${upShiftAmount}`);
+        upShiftAmountBuffer = 30;
       } else if (cellTop + formHeight - buttonHeight > viewportHeight) {
         // bottom border of form is to the bottom of the viewport
         const downShiftAmount: number = cellTop + formHeight - buttonHeight - viewportHeight;
         cellTop -= downShiftAmount;
-        //tableScrollContainer.scrollTop += downShiftAmount + 37 - 14;
         tableScrollContainer.scrollTop += downShiftAmount + this.cellElement.offsetHeight - fontSize + 6;
-        //console.log(`scrollTop downShiftAmount ${downShiftAmount}`);
       }
       // sw: needs to be: cellTop - cellHeight (36.5px) + fontSize (14px)
-      formTop = cellTop - this.cellElement.offsetHeight + fontSize;
-      //console.log(`1 - formTop = ${formTop} :: cellTop = ${cellTop}`);
+      formTop = cellTop - this.cellElement.offsetHeight + fontSize + upShiftAmountBuffer;
     } else if (cellBottomFromPageTop - formHeight + buttonHeight >= topFromPageTopLimit) {
       // option 2
       if (cellBottom > viewportHeight) {
@@ -429,19 +427,15 @@ class CellEditor {
         const downShiftAmount: number = cellBottom - viewportHeight;
         cellBottom -= downShiftAmount;
         tableScrollContainer.scrollTop += downShiftAmount;
-        console.log(`shift scroll downShiftAmount -> ${downShiftAmount} new ${tableScrollContainer.scrollTop}`);
       } else if (cellBottom - formHeight + buttonHeight < viewportTopPadding) {
         // top border of form is to the top of the viewport
         const upShiftAmount: number = viewportTopPadding - (cellBottom - formHeight + buttonHeight);
         cellBottom += upShiftAmount;
         tableScrollContainer.scrollTop -= upShiftAmount;
-        console.log(`shift scroll upShiftAmount -> ${upShiftAmount} new ${tableScrollContainer.scrollTop}`);
       }
-      console.log(`${cellBottom} - ${formHeight} + ${buttonHeight}`);
       formTop = cellBottom - formHeight + buttonHeight;
     }
     this.formElement.style.top = `${formTop}px`;
-    console.log(`formTop: ${formTop}px`);
   }
 
 
