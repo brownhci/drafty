@@ -43,34 +43,19 @@ class ColumnSuggestions {
         this.inputElement.value = text;
         this.inputElement.dispatchEvent(new Event('input'));
 
-        console.log(`deactivate --- fuzzy handle click option`);
+        //console.log(`deactivate --- fuzzy handle click option`);
         this.deactivate();
       }
     });
 
     this.fuzzySelect.mount(element => this.container.appendChild(element));
-
-    //tableHeadSearchElement.addEventListener("click", debounce(this.clickHandler)), true;
-    //tableHeadSearchElement.addEventListener("focusin", debounce(this.focusinHandler)), false;
     tableHeadSearchElement.addEventListener('input', debounce(this.inputHandler)), true;
   }
-
-  // sw testing
-  /*
-  async clickHandler(event: Event) {
-    console.log("clickHandler()");
-    const eventTarget = event.target as HTMLElement;
-    const target = eventTarget.parentElement as HTMLTableCellElement;
-    await columnSuggestions.fuzzySelect.prePopulateColValues(target.cellIndex);
-    columnSuggestions.activate(target);
-  }
-  */
 
   inputHandler(event: Event) {
     const target = event.target as HTMLElement;
     if (columnSuggestions.isActive && target === columnSuggestions.inputElement) {
       // the input for searching, filter the suggestions
-      // FUZZY new
       columnSuggestions.fuzzySelect.query(columnSuggestions.inputElement.value, columnSuggestions.target.cellIndex);
       columnSuggestions.align();
     }

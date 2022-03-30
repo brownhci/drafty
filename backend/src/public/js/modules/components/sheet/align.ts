@@ -185,7 +185,7 @@ export function placeElementAdjacently(element: HTMLElement, targetDimensions: D
     let elementTop: number;
     if (targetBottom + elementHeight <= bottomLimit) {
       // option 1
-      console.log('elementTop = targetBottom');
+      // sw: cell-editor-new is calling this
       elementTop = targetBottom;
     } else if (targetTop - elementHeight >= topLimit) {
       // option 2

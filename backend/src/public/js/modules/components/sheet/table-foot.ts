@@ -244,22 +244,18 @@ class TableFoot {
     }, true);
 
     tableElement.addEventListener('blur', (event: Event) => {
-      const target = event.target as HTMLInputElement;
-      if (this.isNewRowInsertionInput(target)) {
-        const columnIndex = this.insertionInputs.indexOf(target as HTMLInputElement);
-        if (columnIndex >= 0) {
-          this.verifyInputValue(target, columnIndex);
-        }
-      }
+      console.log(`blur ${event.target}}`);
+      //cellEditNewRow.deactivate();
     }, true);
 
-    tableElement.addEventListener('keydown', (event: Event) => {
+    tableElement.addEventListener('input', (event: Event) => {
       const target = event.target as HTMLInputElement;
       if (this.isNewRowInsertionInput(target)) {
         const columnIndex = this.insertionInputs.indexOf(target as HTMLInputElement);
         if (columnIndex >= 0) {
-          console.log('keydown on add new row');
-          cellEditNewRow.activate(target.parentElement as HTMLTableCellElement);
+          //console.log('input on add new row form2');
+          //cellEditNewRow.activate(target.parentElement as HTMLTableCellElement); // new
+          this.verifyInputValue(target, columnIndex); //
         }
       }
     }, true);
@@ -278,13 +274,6 @@ class TableFoot {
         this.insertionErrorMessage.remove();
       }
     }, true);
-
-    /*
-    tableElement.addEventListener('keydown', (event: Event) => {
-      const target = event.target as HTMLElement;
-      cellEditNewRow.activate(target);
-    }, true);
-    */
   }
 
   private updateRowCount() {
@@ -340,7 +329,7 @@ class TableFoot {
     if (isColumnAutocompleteOnly(columnLabel)) {
       if (!isInputRequired && inputValue === '') {
         // empty input is accepted no non-required autocomplete-only input
-      } else if (!await cellEditNewRow.hasSuggestion(inputValue, columnIndex, inputElement)) {
+      } else if (!await cellEditNewRow.hasSuggestion(inputValue)) {
         // this input's value should come from suggestion
         this.reportInvalidInput(inputElement, 'Value must come from suggestions', addRowOpen);
         return false;

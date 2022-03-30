@@ -4,15 +4,16 @@
  */
 import { alignElementHorizontally, placeElementAdjacently } from './align';
 import { editSuggestionManager } from './suggestions';
-import { getEditSuggestionURL } from '../../api/endpoints';
-import { getIdSuggestion } from '../../api/record-interactions';
+import { getEditSuggestionURL, getNewRowValuesURL } from '../../api/endpoints';
+import { getIdSuggestion, getIdSuggestionType } from '../../api/record-interactions';
 import { activeClass } from '../../constants/css-classes';
 import { getCellInTableRow, getEnclosingTableCell } from '../../dom/navigate';
-import { tableFootElement } from '../../dom/sheet';
+import { getColumnLabel, tableFootElement } from '../../dom/sheet';
 import { isInput } from '../../dom/types';
 import { FuseSelect } from '../../fuse/sheet-fuse';
 import { debounce } from '../../utils/debounce';
 import { tableDataManager, updateActiveTableCellElement } from '../../../sheet';
+import { getJSON } from '../../api/requests';
 
 interface Option {
     suggestion: string;
@@ -39,6 +40,12 @@ class CellEditNewRow {
     private get suggestionFetchURL() {
         const identifier = this.suggestionIdentifier;
         return getEditSuggestionURL(identifier);
+    }
+
+    private get newRowValueFetchURL() {
+        const columnIndex = this.target.cellIndex;
+        const idSuggestionType = getIdSuggestionType(getColumnLabel(columnIndex));
+        return getNewRowValuesURL(idSuggestionType);
     }
 
     private get containerWidth(): number {
@@ -96,13 +103,13 @@ class CellEditNewRow {
     }
 
     activate(target: HTMLTableCellElement) {
+        console.log(`activate autocomplete`);
         this.target = target;
         this.inputElement = target.querySelector('input');
-        // sw: TODO keep testing
-        this.container.classList.add(activeClass);
-        this.updateFuseSelect().then(() => {
-            this.fuseSelect.query(this.inputElement.value);
-        });
+        
+        this.fetchNewRowValues(this.newRowValueFetchURL);
+        this.fuseSelect.query(this.inputElement.value);
+
         document.body.addEventListener('click', this.handleBodyClick, true);
     }
 
@@ -118,37 +125,22 @@ class CellEditNewRow {
         }
     }
 
-    private async getSuggestions(
-        handlerForCachedSuggestions?: (options: Array<Option>) => void,
-        handlerForPulledSuggestions?: (options: Array<Option>) => void
-    ) {
-        return await editSuggestionManager.get(this.suggestionFetchURL, this.suggestionIdentifier.toString(), handlerForCachedSuggestions, (options) => {
-            options = options.filter(option => option.suggestion !== '');
-            handlerForPulledSuggestions(options);
-        });
-    }
+    private async fetchNewRowValues(url: string): Promise<Array<Option>> {
+        const suggestions = await getJSON(url);
+        if (!suggestions) {
+            return null;
+        }
+        
+        const arraySuggestionValues = Object.keys(suggestions)
+            .map(function(key) {
+                return suggestions[key];
+            });
 
-    private async updateFuseSelect() {
-        return await this.getSuggestions(
-            // handles initial keystroke
-            options => {
-                this.fuseSelect.options = options ? options : [];
-                this.fuseSelect.sync();
-                this.align();
-            },
-            // handles other inputs
-            options => {
-                if (options === null || options.length === 0) {
-                    // no autocomplete options to show
-                    this.deactivate();
-                } else {
-                    this.fuseSelect.options = options;
-                    this.fuseSelect.sync();
-                    this.container.classList.add(activeClass);
-                    this.align();
-                }
-            }
-        );
+        const options: Array<Option> = arraySuggestionValues;
+        this.fuseSelect.options = options;
+        this.fuseSelect.sync();
+        this.container.classList.add(activeClass);
+        this.align();
     }
 
     private align() {
@@ -163,22 +155,9 @@ class CellEditNewRow {
 
     /**
      * Checks whether a provided suggestion is one of the column suggestions for the specified column.
-     *
-     * @param {string} suggestion - The suggestion to test.
-     * @param {number} columnIndex - The index of the column whose suggestions are tested.
-     * @param {HTMLInputElement} [inputElement] - If the provided suggestion comes from a <input> element, provides the input so that if the current column suggestions window is attached to the specified input, the test can be shortened to simply searching the suggestion in `this.fuseSelect`.
      */
-    async hasSuggestion(suggestion: string, columnIndex: number, inputElement?: HTMLInputElement): Promise<boolean> {
-        if (inputElement && this.inputElement === inputElement) {
-            return this.fuseSelect.hasSuggestion(suggestion);
-        }
-
-        return new Promise(resolve => {
-            this.getSuggestions(
-                options => resolve(options.some(option => option.suggestion === suggestion)),
-                options => resolve(options.some(option => option.suggestion === suggestion))
-            );
-        });
+    async hasSuggestion(suggestion: string): Promise<boolean> {
+        return this.fuseSelect.hasSuggestion(suggestion);
     }
 }
 
