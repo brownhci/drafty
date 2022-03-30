@@ -172,6 +172,8 @@ class TableFoot {
 
   private timeout: number;
 
+  private reasonRequired: string = 'This field is required';
+
   /** show in the status table row, used for confirming inserting the new row */
   private insertionConfirmButton: HTMLButtonElement = document.createElement('button');
   /** show in the status table row, used for show the error associated with the active input */
@@ -244,7 +246,6 @@ class TableFoot {
           }
         } else if (target === this.insertionCloseButton) {
           // deactivate contextmenu insert row menu item since insertion has finished
-          console.log('close button clicked');
           this.resetInputs();
           columnLabelInsertRowMenuItem.deactivate();
           this.statusMode = StatusMode.Idle;
@@ -307,7 +308,10 @@ class TableFoot {
   }
 
   private reportInvalidInput(inputElement: HTMLInputElement, reason: string, addRowOpen: boolean = false) {
-    inputElement.placeholder = 'required...';
+    // getting triggered on reset, close for non required fields
+    if(reason === this.reasonRequired) {
+      inputElement.placeholder = 'required...';
+    }
     if(!addRowOpen) {
       inputElement.classList.add(invalidClass);
     }
@@ -328,7 +332,7 @@ class TableFoot {
     const isInputRequired = this.isRequiredInput(inputElement);
 
     if (isInputRequired && inputValue === '') {
-      this.reportInvalidInput(inputElement, 'This field is required', addRowOpen);
+      this.reportInvalidInput(inputElement, this.reasonRequired, addRowOpen);
       return false;
     }
 
@@ -350,19 +354,12 @@ class TableFoot {
     }
 
     inputElement.classList.remove(invalidClass);
-    console.log('VERIFY IS TRUE');
     return true;
   }
 
   private checkAllInputsAreValid(addRowOpen: boolean) {
     let inputsAreValid: boolean = true;
-    let i: number = 0;
-
-    console.log(this.insertionInputs);
-
     this.insertionInputs.every((inputElement) => {
-      console.log(`${i} ${this.isValidInsertion(inputElement)}`);
-
       if (!this.isValidInsertion(inputElement) || (inputElement.required && inputElement.value === '')) {
         inputsAreValid = false;
         this.disableConfirmBtn();
@@ -370,11 +367,8 @@ class TableFoot {
           this.insertionErrorMessage.textContent = inputElement.dataset.errorMessage;
           this.insertionErrorMessage.style.display = 'inline';
         }
-        console.log(`${i} inputElement.value = ${inputElement.value}`);
-        console.log('RETURNING FALSE');
         return false;
       }
-      i++;
       return true;
     });
 
