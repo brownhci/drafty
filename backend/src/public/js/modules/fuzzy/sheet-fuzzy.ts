@@ -189,4 +189,16 @@ export class FuzzySelect {
             this.createDefaultResultsContainer(colValues);
         }
     }
+
+    /*
+    async queryNewRow(searchVal: string, columnIndex: number) {
+        // sw: get data from api
+        const results: Fuzzysort.Results = fuzzysort.go(searchVal, colValues, fuzzySortOptions);
+        if (results.total > 0) {
+            this.createNewResultsContainer(results);
+        } else {
+            this.createDefaultResultsContainer(colValues);
+        }
+    }
+    */
 }
