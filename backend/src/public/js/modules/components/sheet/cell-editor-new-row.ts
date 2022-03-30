@@ -36,11 +36,6 @@ class CellEditNewRow {
         return getIdSuggestion(getCellInTableRow(firstRow, columnIndex) as HTMLTableCellElement);
     }
 
-    private get suggestionFetchURL() {
-        const identifier = this.suggestionIdentifier;
-        return getEditSuggestionURL(identifier);
-    }
-
     private get newRowValueFetchURL() {
         const columnIndex = this.target.cellIndex;
         const idSuggestionType = getIdSuggestionType(getColumnLabel(columnIndex));

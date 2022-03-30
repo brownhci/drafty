@@ -89,7 +89,7 @@ class TableFoot {
         case StatusMode.Insertion:
           this.insertionTableRow.classList.remove(activeClass);
           this.insertionConfirmButton.remove();
-          this.insertionDiscardButton.remove();
+          this.clearFormButton.remove();
           this.insertionCloseButton.remove();
           this.statusTableCell.textContent = '';
           break;
@@ -111,7 +111,7 @@ class TableFoot {
         case StatusMode.Insertion:
           this.insertionTableRow.classList.add(activeClass);
           this.statusTableCell.appendChild(this.insertionCloseButton);
-          this.statusTableCell.appendChild(this.insertionDiscardButton);
+          this.statusTableCell.appendChild(this.clearFormButton);
           this.statusTableCell.appendChild(this.insertionConfirmButton);
           this.insertionInputs[0].focus(); // focus first input
           this.insertionInputs.forEach((inputElement, columnIndex) => this.verifyInputValue(inputElement, columnIndex, true));
@@ -170,7 +170,7 @@ class TableFoot {
   /** show in the status table row, used for show the error associated with the active input */
   private insertionErrorMessage: HTMLElement = document.createElement('span');
   /** show in the status table row, used for discarding the data inputted for the new row */
-  private insertionDiscardButton: HTMLButtonElement = document.createElement('button');
+  private clearFormButton: HTMLButtonElement = document.createElement('button');
   /** show in the status table row, used for closing the table footer */
   private insertionCloseButton: HTMLButtonElement = document.createElement('button');
   /** the HTML template for new row */
@@ -195,13 +195,13 @@ class TableFoot {
     this.insertionConfirmButton.id = 'confirm-newrow';
     this.insertionConfirmButton.textContent = 'Save Row';
 
-    this.insertionDiscardButton.type = 'button';
-    this.insertionDiscardButton.id = 'discard-newrow';
+    this.clearFormButton.type = 'button';
+    this.clearFormButton.id = 'discard-newrow';
     const insertionDiscardScreenReaderText = document.createElement('span');
     insertionDiscardScreenReaderText.textContent = 'Clear';
     insertionDiscardScreenReaderText.classList.add('sr-only', 'sr-only-focusable');
-    this.insertionDiscardButton.appendChild(insertionDiscardScreenReaderText);
-    this.insertionDiscardButton.textContent = ' Clear';
+    this.clearFormButton.appendChild(insertionDiscardScreenReaderText);
+    this.clearFormButton.textContent = ' Clear';
 
     this.insertionCloseButton.type = 'button';
     this.insertionCloseButton.id = 'close-newrow';
@@ -217,7 +217,7 @@ class TableFoot {
     tableElement.addEventListener('click', (event: MouseEvent) => {
       const target: HTMLElement = event.target as HTMLElement;
       if (this.isInserting) {
-        if (target === this.insertionDiscardButton) {
+        if (target === this.clearFormButton) {
           this.discardInputValues();
         } else if (target === this.insertionConfirmButton) {
           if (this.isValidInsertion) {
@@ -237,6 +237,8 @@ class TableFoot {
           }
         } else if (target === this.insertionCloseButton) {
           // deactivate contextmenu insert row menu item since insertion has finished
+          console.log('close button clicked');
+          this.discardInputValues();
           columnLabelInsertRowMenuItem.deactivate();
           this.statusMode = StatusMode.Idle;
         }
@@ -245,7 +247,7 @@ class TableFoot {
 
     tableElement.addEventListener('blur', (event: Event) => {
       console.log(`blur ${event.target}}`);
-      //cellEditNewRow.deactivate();
+      cellEditNewRow.deactivate();
     }, true);
 
     tableElement.addEventListener('input', (event: Event) => {
@@ -285,9 +287,12 @@ class TableFoot {
   }
 
   private discardInputValues() {
+    // reset everything
     for (let columnIndex = 0; columnIndex < this.insertionInputs.length; columnIndex++) {
-      this.insertionInputs[columnIndex].value = '';
-      this.verifyInputValue(this.insertionInputs[columnIndex], columnIndex);
+      const inputElement = this.insertionInputs[columnIndex];
+      inputElement.value = '';
+      inputElement.classList.remove(invalidClass);
+      this.insertionConfirmButton.classList.add(disabledClass);
     }
   }
 
@@ -398,6 +403,7 @@ class TableFoot {
    * @param {StatusMode} mode - A usage mode to be toggled.
    */
   toggle(mode: StatusMode) {
+    // if the modes match it is being closed
     if (this.statusMode === mode) {
       this.statusMode = StatusMode.Idle;
     } else {
