@@ -451,7 +451,8 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
   }
   req.session.user.lastInteraction = interactionTime;
   req.session.user.views++;
-  req.session.user.activeExperiments = getActiveExperiments(newSession, req.session.user.idSession);
+  // sw: turning the A/B testing off
+  //req.session.user.activeExperiments = getActiveExperiments(newSession, req.session.user.idSession);
   next();
 }
 
