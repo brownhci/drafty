@@ -3,7 +3,6 @@
  * This handles the individual inputs for add new row.
  */
 import { alignElementHorizontally, placeElementAdjacently } from './align';
-import { editSuggestionManager } from './suggestions';
 import { getEditSuggestionURL, getNewRowValuesURL } from '../../api/endpoints';
 import { getIdSuggestion, getIdSuggestionType } from '../../api/record-interactions';
 import { activeClass } from '../../constants/css-classes';
