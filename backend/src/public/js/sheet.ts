@@ -12,7 +12,7 @@ import './modules/components/sheet/column-search';
 import { columnSuggestions } from './modules/components/sheet/column-suggestions';
 import { activateColumnLabelContextMenu, activateTableDataContextMenu, deactivateColumnLabelContextMenu, deactivateTableDataContextMenu } from './modules/components/sheet/contextmenu';
 import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } from './modules/components/sheet/copy-paste';
-import { tableFoot } from './modules/components/sheet/table-foot';
+import { StatusMode, tableFoot } from './modules/components/sheet/table-foot';
 import { TabularView } from './modules/components/sheet/tabular-view';
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from './modules/dom/navigate';
 import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams } from './modules/dom/sheet';
@@ -410,9 +410,9 @@ tableElement.addEventListener('keydown', function (event: KeyboardEvent) {
   } else if (isInput(target)) {
     // if footer is open 
     if (tableFoot.statusMode === 'insertion' && !cellEditNewRow.isActive) {
-      if(event.key !== 'Tab') {
-        console.log('activate cellEditNewRow');
-        console.log(target);
+      if(event.key === 'Escape') {
+        tableFoot.toggle(StatusMode.Insertion);
+      } else if(event.key !== 'Tab') {
         // activate new row cell editor when new character is typed
         cellEditNewRow.activate(target.parentElement as HTMLTableCellElement, event.key);
       } else {
