@@ -57,7 +57,7 @@ import helpers from './config/handlebars-helpers';
 
 //const hbs = require('express-handlebars');
 import { engine } from 'express-handlebars';
-import { ServerResponse } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import { Middleware } from 'express-validator/src/base';
 app.engine('handlebars', engine({
   helpers: helpers,
@@ -112,17 +112,10 @@ app.use(passport.session());
 
 // did you know api -  reverse proxy
 const proxy = httpProxy.createProxyServer();
-
-app.all('/api-dyk/*', function(req: Request, res: ServerResponse) {
-  //console.log('redirecting to Server1');
-  // add idSession from serve-side cookie
-  req.url += `&idSession=${req.session.user.idSession}`; 
+app.all('/api-dyk/*', function(req: IncomingMessage, res: ServerResponse) {
   proxy.web(req, res, {target: 'http://localhost:5000'});
 });
-
 app.use(unless('/api-dyk/*', bodyParser.json())); // must be after dyk proxy
-//app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(flash());
 app.use(lusca.csrf());
 app.use(lusca.csp({
@@ -145,7 +138,6 @@ app.use(helmet());
 app.use(userCtrl.checkSessionUser);
 app.use(userCtrl.checkSessionId);
 
-
 /**
  * Primary app routes.
  */
@@ -162,6 +154,7 @@ app.get('/signup', userCtrl.getSignup);
 app.post('/signup', userCtrl.postSignup);
 app.get('/seenwelcome', userCtrl.getSeenWelcome);
 app.get('/updatewelcome', userCtrl.postSeenWelcome);
+app.get('/usrsession', userCtrl.getSession);
 
 // getting help
 app.get('/help', helpCtrl.getHelp);
