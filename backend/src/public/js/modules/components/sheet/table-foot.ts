@@ -115,6 +115,7 @@ class TableFoot {
           this.statusTableCell.appendChild(this.insertionConfirmButton);
           this.insertionInputs[0].focus(); // focus first input
           this.insertionInputs.forEach((inputElement, columnIndex) => this.verifyInputValue(inputElement, columnIndex, true));
+          this.disableConfirmBtn();
           break;
         case StatusMode.RowCount:
           this.updateRowCount();
@@ -245,10 +246,24 @@ class TableFoot {
       }
     }, true);
 
-    tableElement.addEventListener('blur', (event: Event) => {
-      console.log(`blur ${event.target}}`);
-      cellEditNewRow.deactivate();
-    }, true);
+    /*
+    this.insertionInputs.forEach((inputElement) => {
+      console.log(inputElement);
+      inputElement.addEventListener('blur', (event: Event) => {
+        console.log(`blur`);
+        console.log(event.target);
+        // if it is autocomplete then do nothing
+  
+        const target: HTMLElement = event.target as HTMLElement;
+        cellEditNewRow.deactivate();
+        if (isInput(target)) {
+          const columnIndex = this.insertionInputs.indexOf(target as HTMLInputElement);
+          this.verifyInputValue(target as HTMLInputElement, columnIndex);
+        }
+  
+      }, true);
+    });
+    */
 
     tableElement.addEventListener('input', (event: Event) => {
       const target = event.target as HTMLInputElement;
@@ -292,8 +307,18 @@ class TableFoot {
       const inputElement = this.insertionInputs[columnIndex];
       inputElement.value = '';
       inputElement.classList.remove(invalidClass);
-      this.insertionConfirmButton.classList.add(disabledClass);
     }
+    this.disableConfirmBtn();
+  }
+
+  private enableConfirmBtn() {
+    this.insertionConfirmButton.classList.remove(disabledClass);
+    this.insertionConfirmButton.disabled = false;
+  }
+
+  private disableConfirmBtn() {
+    this.insertionConfirmButton.classList.add(disabledClass);
+    this.insertionConfirmButton.disabled = true;
   }
 
   isNewRowInsertionInput(inputElement: HTMLElement): boolean {
@@ -310,10 +335,10 @@ class TableFoot {
       inputElement.classList.add(invalidClass);
     }
     inputElement.dataset.errorMessage = reason;
-    this.insertionConfirmButton.classList.add(disabledClass);
+    this.disableConfirmBtn();
   }
 
-  private async verifyInputValue(inputElement: HTMLInputElement, columnIndex: number, addRowOpen: boolean = false): Promise<boolean> {
+  private async verifyInputValue(inputElement: HTMLInputElement, columnIndex: number, addRowOpen: boolean = false) {
     //const inputElement = this.insertionInputs[columnIndex];
     const inputValue = inputElement.value;
     const columnLabel = getColumnLabel(columnIndex);
@@ -321,14 +346,14 @@ class TableFoot {
 
     if (isInputRequired && inputValue === '') {
       this.reportInvalidInput(inputElement, 'This field is required', addRowOpen);
-      return false;
+      return;
     }
 
     const idSuggestionType = getIdSuggestionType(columnLabel);
     if (!verifyEdit(inputValue, idSuggestionType)) {
       // this input does not pass defined validation rule
       this.reportInvalidInput(inputElement, 'Value does not pass validation', addRowOpen);
-      return false;
+      return;
     }
 
     if (isColumnAutocompleteOnly(columnLabel)) {
@@ -337,17 +362,27 @@ class TableFoot {
       } else if (!await cellEditNewRow.hasSuggestion(inputValue)) {
         // this input's value should come from suggestion
         this.reportInvalidInput(inputElement, 'Value must come from suggestions', addRowOpen);
-        return false;
+        return;
       }
     }
 
     inputElement.classList.remove(invalidClass);
     delete inputElement.dataset.errorMessage;
-    if (this.isValidInsertion) {
+    this.checkAllInputsAreValid();
+    return;
+  }
+
+  private checkAllInputsAreValid() {
+    let inputsAreValid: boolean = true;
+    this.insertionInputs.forEach((inputElement) => {
+      if (!this.isValidInsertion || (inputElement.required && inputElement.value === '')) {
+        inputsAreValid = false;
+      }
+    });
+    if(inputsAreValid) {
       // every input has passed verification
-      this.insertionConfirmButton.classList.remove(disabledClass);
+      this.enableConfirmBtn();
     }
-    return true;
   }
 
   /**

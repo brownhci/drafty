@@ -410,9 +410,14 @@ tableElement.addEventListener('keydown', function (event: KeyboardEvent) {
   } else if (isInput(target)) {
     // if footer is open 
     if (tableFoot.statusMode === 'insertion' && !cellEditNewRow.isActive) {
-      console.log('activate cellEditNewRow');
-      // activate new row cell editor when new character is typed
-      cellEditNewRow.activate(target.parentElement as HTMLTableCellElement);
+      if(event.key !== 'Tab') {
+        console.log('activate cellEditNewRow');
+        console.log(target);
+        // activate new row cell editor when new character is typed
+        cellEditNewRow.activate(target.parentElement as HTMLTableCellElement, event.key);
+      } else {
+        cellEditNewRow.deactivate();
+      }
     }
 
     if (isColumnSearchInput(target)) {

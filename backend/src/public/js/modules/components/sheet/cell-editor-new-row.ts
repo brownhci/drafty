@@ -96,8 +96,8 @@ class CellEditNewRow {
         }
     }
 
-    activate(target: HTMLTableCellElement) {
-        console.log(`activate autocomplete`);
+    activate(target: HTMLTableCellElement, msg: string) {
+        console.log(`activate autocomplete ${msg}`);
         this.target = target;
         this.inputElement = target.querySelector('input');
         
@@ -140,10 +140,7 @@ class CellEditNewRow {
     }
 
     private align() {
-        //const longestText = this.fuseSelect.longestText;
-        //this.containerWidth = measureTextWidth(longestText) + 88; // sw: kills performance
         this.containerWidth = cellEditNewRow.inputElement.offsetWidth + 80;
-
         const targetDimensions = this.inputElement.getBoundingClientRect();
         alignElementHorizontally(this.container, targetDimensions);
         placeElementAdjacently(this.container, targetDimensions, false);
