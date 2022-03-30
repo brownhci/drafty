@@ -132,7 +132,7 @@ class TableFoot {
           // deactivate contextmenu insert row menu item since insertion has finished
           columnLabelInsertRowMenuItem.deactivate();
           // previously inputted cell values has been saved
-          this.discardInputValues();
+          this.resetInputs();
           this.statusTableCell.textContent = 'A new row has been inserted';
           break;
         case StatusMode.InsertionVerification:
@@ -218,7 +218,7 @@ class TableFoot {
       const target: HTMLElement = event.target as HTMLElement;
       if (this.isInserting) {
         if (target === this.clearFormButton) {
-          this.discardInputValues();
+          this.resetInputs();
         } else if (target === this.insertionConfirmButton) {
           if (this.isValidInsertion) {
             this.statusMode = StatusMode.InsertionVerification;
@@ -238,7 +238,7 @@ class TableFoot {
         } else if (target === this.insertionCloseButton) {
           // deactivate contextmenu insert row menu item since insertion has finished
           console.log('close button clicked');
-          this.discardInputValues();
+          this.resetInputs();
           columnLabelInsertRowMenuItem.deactivate();
           this.statusMode = StatusMode.Idle;
         }
@@ -286,7 +286,7 @@ class TableFoot {
     return this.insertionInputs.map(inputElement => inputElement.value);
   }
 
-  private discardInputValues() {
+  private resetInputs() {
     // reset everything
     for (let columnIndex = 0; columnIndex < this.insertionInputs.length; columnIndex++) {
       const inputElement = this.insertionInputs[columnIndex];
@@ -406,6 +406,7 @@ class TableFoot {
     // if the modes match it is being closed
     if (this.statusMode === mode) {
       this.statusMode = StatusMode.Idle;
+      this.resetInputs();
     } else {
       this.statusMode = mode;
     }
