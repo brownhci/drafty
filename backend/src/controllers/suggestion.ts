@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getSuggestionsWithSuggestionType, getValidationRule as _getValidationRule, newSuggestion, selectSuggestionsForEdit, insertNewRowId, insertInteractionAndEdit, insertNewRowSuggestion, insertNewRowSuggestionUserCredit, deactivateRow } from '../database/suggestion';
+import { getSuggestionsWithSuggestionType, getValidationRule as _getValidationRule, newSuggestion, selectSuggestionsForNewRow, selectSuggestionsForEdit, insertNewRowId, insertInteractionAndEdit, insertNewRowSuggestion, insertNewRowSuggestionUserCredit, deactivateRow } from '../database/suggestion';
 import { isValidIdSuggestionType } from '../validation/validators';
 
 /**
@@ -21,6 +21,22 @@ export const getSuggestions = async (req: Request, res: Response, next: NextFunc
   return res.status(200).json(results);
 };
 
+
+/**
+ * GET /suggestions/fornewrow?idSuggestion=...
+ * get suggestions
+ */
+ export const getSuggestionsForNewRow = async (req: Request, res: Response, next: NextFunction) => {
+  const idSuggestion: number = Number.parseInt(req.query.idSuggestion as string);
+
+  // valid suggestion type, get suggestions from database
+  const [error, results] = await selectSuggestionsForNewRow(idSuggestion);
+  if (error) {
+    return next(error);
+  }
+
+  return res.status(200).json(results);
+};
 
 /**
  * GET /suggestions/foredit?idSuggestion=...

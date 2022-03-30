@@ -26,6 +26,7 @@ const stmtInsertDelRow: string = 'INSERT INTO Edit_DelRow (idEdit, idUniqueID, c
 const stmtDeactivateRow: string = 'UPDATE UniqueId SET active = 0, notes = ? WHERE idUniqueID = ?;';
 
 const stmtSelectSuggestionsWithSuggestionType: string = 'SELECT suggestion FROM Suggestions WHERE idSuggestionType = ? AND active = 1 GROUP BY suggestion ORDER BY suggestion asc';
+const stmtSelectSuggestionsForNewRow: string = 'SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ? and active = 0';
 const stmtSelectSuggestionsForEdit: string = 'SELECT suggestion, 1 as prevSugg FROM Suggestions  WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = ?) '
   + ' UNION '
   + ' SELECT stv.value as suggestion, 0 as prevSugg  FROM (SELECT * FROM SuggestionTypeValues WHERE active = 1) stv WHERE stv.idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) '
@@ -137,6 +138,20 @@ export async function deactivateRow(idEdit: number, idUniqueID: string, comment:
   } catch (error) {
     console.log(error);
     logDbErr(error, 'error during deactivateRow', 'warn');
+  }
+}
+
+/**
+ * get values suggestion type values for add new row
+ * @returns results will contain one field: suggestion.
+ */
+ export async function selectSuggestionsForNewRow(idSuggestion: number) {
+  try {
+    const [results] = await db.query(stmtSelectSuggestionsForNewRow, [idSuggestion]);
+    return [null, results];
+  } catch (error) {
+    logDbErr(error, 'error during selectSuggestionsForNewRow', 'warn');
+    return [error];
   }
 }
 

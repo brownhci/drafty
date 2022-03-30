@@ -57,7 +57,7 @@ import helpers from './config/handlebars-helpers';
 
 //const hbs = require('express-handlebars');
 import { engine } from 'express-handlebars';
-import { IncomingMessage, ServerResponse } from 'http';
+import { ServerResponse } from 'http';
 import { Middleware } from 'express-validator/src/base';
 app.engine('handlebars', engine({
   helpers: helpers,
@@ -65,11 +65,6 @@ app.engine('handlebars', engine({
   partialsDir: path.join(__dirname, '../views/partials/')
 }));
 app.set('view engine', 'handlebars');
-
-//import { engine } from 'express-handlebars';
-//app.engine('handlebars', engine());
-//app.set('view engine', 'handlebars');
-//app.set('views', './views');
 
 // Express configuration
 app.set('port', process.env.PORT || 3000);
@@ -207,6 +202,7 @@ app.post('/newrow', suggestionCtrl.postNewRow);
 app.post('/delrow', suggestionCtrl.postDelRow);
 app.get('/suggestions', suggestionCtrl.getSuggestions);
 app.get('/suggestions/validation-rule', suggestionCtrl.getValidationRule);
+app.get('/suggestions/fornewrow', suggestionCtrl.getSuggestionsForNewRow);
 app.get('/suggestions/foredit', suggestionCtrl.getSuggestionsForEdit);
 app.post('/suggestions/new', suggestionCtrl.postNewSuggestion);
 
