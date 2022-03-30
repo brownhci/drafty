@@ -142,7 +142,6 @@ export async function deactivateRow(idEdit: number, idUniqueID: string, comment:
  */
  export async function selectSuggestionsForNewRow(idSuggestionType: number) {
   try {
-    console.log(idSuggestionType);
     const [results] = await db.query(stmtSelectSuggestionsForNewRow, [idSuggestionType]);
     return [null, results];
   } catch (error) {
