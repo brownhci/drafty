@@ -139,8 +139,10 @@ class CellEditNewRow {
         const options: Array<Option> = arraySuggestionValues;
         this.fuseSelect.options = options;
         this.fuseSelect.sync();
-        this.container.classList.add(activeClass);
-        this.align();
+        if(arraySuggestionValues.length > 0) {
+            this.container.classList.add(activeClass);
+            this.align();
+        }
     }
 
     private align() {
