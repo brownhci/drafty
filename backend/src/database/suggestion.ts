@@ -26,7 +26,7 @@ const stmtInsertDelRow: string = 'INSERT INTO Edit_DelRow (idEdit, idUniqueID, c
 const stmtDeactivateRow: string = 'UPDATE UniqueId SET active = 0, notes = ? WHERE idUniqueID = ?;';
 
 const stmtSelectSuggestionsWithSuggestionType: string = 'SELECT suggestion FROM Suggestions WHERE idSuggestionType = ? AND active = 1 GROUP BY suggestion ORDER BY suggestion asc';
-const stmtSelectSuggestionsForNewRow: string = 'SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ? and active = 0';
+const stmtSelectSuggestionsForNewRow: string = 'SELECT value as suggestion, 0 as prevSugg FROM SuggestionTypeValues WHERE idSuggestionType = ? and active = 1 ORDER BY value ASC';
 const stmtSelectSuggestionsForEdit: string = 'SELECT suggestion, 1 as prevSugg FROM Suggestions  WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = ?) '
   + ' UNION '
   + ' SELECT stv.value as suggestion, 0 as prevSugg  FROM (SELECT * FROM SuggestionTypeValues WHERE active = 1) stv WHERE stv.idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) '
@@ -81,7 +81,6 @@ export async function insertInteractionAndEdit(idSession: number, idInteractionT
     const [results] = await db.query(stmtInsertInteractionAndEdit, [idSession, idInteractionType, idEntryType, mode]);
     return [null, results];
   } catch (error) {
-    console.log(error);
     logDbErr(error, 'error during insertInteractionAndEdit', 'warn');
     return error;
   }
@@ -98,7 +97,6 @@ export async function insertNewRowSuggestion(suggestion: string, idEdit: number,
     //console.log("stmtInsertNewRowSuggestion: ", "suggestion", suggestion, "idEdit", idEdit, "idProfile", idProfile, "idSuggestionType", idSuggestionType, "idUniqueId", idUniqueId)
 
     const [results] = await db.query(stmtInsertNewRowSuggestion, [suggestion, idEdit, idProfile, idSuggestionType, idUniqueId]);
-    console.log(results);
 
     const pos = Object.keys(results).pop(); // get last
     const idSuggestionNew = (results as any)[pos][0]['idSuggestion_new']; // sw: this is bc of how procedures return data
@@ -106,7 +104,6 @@ export async function insertNewRowSuggestion(suggestion: string, idEdit: number,
 
     return idSuggestionNew;
   } catch (error) {
-    console.log(error);
     logDbErr(error, 'error during insertNewRowSuggestion', 'warn');
   }
 }
@@ -121,7 +118,6 @@ export async function insertNewRowSuggestionUserCredit(idProfile: number, idUniq
     //console.log("stmtInsertNewRowSuggestionUserCredit: ", idProfile, idUniqueId);
     db.query(stmtInsertNewRowSuggestionUserCredit, [idProfile, idUniqueId]);
   } catch (error) {
-    console.log(error);
     logDbErr(error, 'error during insertNewRowSuggestionUserCredit', 'warn');
   }
 }
@@ -136,7 +132,6 @@ export async function deactivateRow(idEdit: number, idUniqueID: string, comment:
     db.query(stmtInsertDelRow, [idEdit, idUniqueID, comment]);
     db.query(stmtDeactivateRow, [comment, idUniqueID]);
   } catch (error) {
-    console.log(error);
     logDbErr(error, 'error during deactivateRow', 'warn');
   }
 }
@@ -145,9 +140,10 @@ export async function deactivateRow(idEdit: number, idUniqueID: string, comment:
  * get values suggestion type values for add new row
  * @returns results will contain one field: suggestion.
  */
- export async function selectSuggestionsForNewRow(idSuggestion: number) {
+ export async function selectSuggestionsForNewRow(idSuggestionType: number) {
   try {
-    const [results] = await db.query(stmtSelectSuggestionsForNewRow, [idSuggestion]);
+    console.log(idSuggestionType);
+    const [results] = await db.query(stmtSelectSuggestionsForNewRow, [idSuggestionType]);
     return [null, results];
   } catch (error) {
     logDbErr(error, 'error during selectSuggestionsForNewRow', 'warn');
