@@ -85,19 +85,16 @@ export class FuseSelect {
   }
 
   handleClickOnOption(callback: (text: string) => void) {
-    console.log(`fuse select click`);
     // sw: setting to optionContainer only handles first click - 
     this.rootContainer.addEventListener('click', function (event: MouseEvent) {
       let optionTextElement = (event.target as HTMLElement);
 
       if (optionTextElement.nodeName === 'B') {
-        console.log(`fuse select BOLD click`);
         // sw: this handles when someone clicks on a bold letter
         // when clicking on bold letter it return <b>some text</b> instead of the 
         // div required element containing the 'fuse-select-option' css class
         optionTextElement = optionTextElement.parentElement.parentElement.querySelector(`.${optionTextClass}`);
       } else if (!optionTextElement.classList.contains(optionTextClass)) {
-        console.log(`fuse select NOT BOLD click`);
         optionTextElement = optionTextElement.querySelector(`.${optionTextClass}`);
       }
 

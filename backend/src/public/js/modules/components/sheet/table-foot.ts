@@ -43,8 +43,12 @@ class TableFoot {
 
   private insertionInputs: Array<HTMLInputElement> = Array.from(this.insertionTableRow.getElementsByTagName('input'));
 
-  private get isValidInsertion(): boolean {
+  private get isValidInsertionForRow(): boolean {
     return !this.insertionTableRow.querySelector(`.${invalidClass}`);
+  }
+
+  private isValidInsertion(element: HTMLInputElement): boolean {
+    return !element.classList.contains(`${invalidClass}`);
   }
 
   private idSuggestionTypes: Array<number> = [];
@@ -113,9 +117,11 @@ class TableFoot {
           this.statusTableCell.appendChild(this.insertionCloseButton);
           this.statusTableCell.appendChild(this.clearFormButton);
           this.statusTableCell.appendChild(this.insertionConfirmButton);
+          this.statusTableCell.appendChild(this.insertionErrorMessage);
+          this.insertionErrorMessage.style.display = 'none';
           this.insertionInputs[0].focus(); // focus first input
           this.insertionInputs.forEach((inputElement, columnIndex) => this.verifyInputValue(inputElement, columnIndex, true));
-          this.disableConfirmBtn();
+          this.checkAllInputsAreValid(true);
           break;
         case StatusMode.RowCount:
           this.updateRowCount();
@@ -221,7 +227,7 @@ class TableFoot {
         if (target === this.clearFormButton) {
           this.resetInputs();
         } else if (target === this.insertionConfirmButton) {
-          if (this.isValidInsertion) {
+          if (this.isValidInsertionForRow) {
             this.statusMode = StatusMode.InsertionVerification;
             const cellValues: Array<string> = this.getInputValues();
             recordRowInsertion(
@@ -246,50 +252,21 @@ class TableFoot {
       }
     }, true);
 
-    /*
-    this.insertionInputs.forEach((inputElement) => {
-      console.log(inputElement);
-      inputElement.addEventListener('blur', (event: Event) => {
-        console.log(`blur`);
-        console.log(event.target);
-        // if it is autocomplete then do nothing
-  
-        const target: HTMLElement = event.target as HTMLElement;
-        cellEditNewRow.deactivate();
-        if (isInput(target)) {
-          const columnIndex = this.insertionInputs.indexOf(target as HTMLInputElement);
-          this.verifyInputValue(target as HTMLInputElement, columnIndex);
-        }
-  
-      }, true);
-    });
-    */
-
-    tableElement.addEventListener('input', (event: Event) => {
+    tableElement.addEventListener('input', async (event: Event) => {
       const target = event.target as HTMLInputElement;
       if (this.isNewRowInsertionInput(target)) {
         const columnIndex = this.insertionInputs.indexOf(target as HTMLInputElement);
         if (columnIndex >= 0) {
-          //console.log('input on add new row form2');
-          //cellEditNewRow.activate(target.parentElement as HTMLTableCellElement); // new
-          this.verifyInputValue(target, columnIndex); //
+          await this.verifyInputValue(target, columnIndex);
+          this.checkAllInputsAreValid(false);
         }
       }
     }, true);
 
-    // sw: this is causing fields to appear with errors on load up
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     tableElement.addEventListener('focus', (event: Event) => {
-
       // need to deactivate auto complete
       cellEditNewRow.deactivate();
-
-      const target = event.target as HTMLElement;
-      if (this.isNewRowInsertionInput(target) && target.classList.contains(invalidClass)) {
-        this.insertionErrorMessage.textContent = target.dataset.errorMessage;
-        this.statusTableCell.appendChild(this.insertionErrorMessage);
-      } else {
-        this.insertionErrorMessage.remove();
-      }
     }, true);
   }
 
@@ -338,6 +315,12 @@ class TableFoot {
     this.disableConfirmBtn();
   }
 
+  verifyInputTab(inputElement: HTMLInputElement) {
+    const columnIndex = this.insertionInputs.indexOf(inputElement as HTMLInputElement);
+    this.verifyInputValue(inputElement, columnIndex);
+    this.checkAllInputsAreValid(false);
+  }
+
   private async verifyInputValue(inputElement: HTMLInputElement, columnIndex: number, addRowOpen: boolean = false) {
     //const inputElement = this.insertionInputs[columnIndex];
     const inputValue = inputElement.value;
@@ -346,14 +329,14 @@ class TableFoot {
 
     if (isInputRequired && inputValue === '') {
       this.reportInvalidInput(inputElement, 'This field is required', addRowOpen);
-      return;
+      return false;
     }
 
     const idSuggestionType = getIdSuggestionType(columnLabel);
     if (!verifyEdit(inputValue, idSuggestionType)) {
       // this input does not pass defined validation rule
       this.reportInvalidInput(inputElement, 'Value does not pass validation', addRowOpen);
-      return;
+      return false;
     }
 
     if (isColumnAutocompleteOnly(columnLabel)) {
@@ -362,25 +345,42 @@ class TableFoot {
       } else if (!await cellEditNewRow.hasSuggestion(inputValue)) {
         // this input's value should come from suggestion
         this.reportInvalidInput(inputElement, 'Value must come from suggestions', addRowOpen);
-        return;
+        return false;
       }
     }
 
     inputElement.classList.remove(invalidClass);
-    delete inputElement.dataset.errorMessage;
-    this.checkAllInputsAreValid();
-    return;
+    console.log('VERIFY IS TRUE');
+    return true;
   }
 
-  private checkAllInputsAreValid() {
+  private checkAllInputsAreValid(addRowOpen: boolean) {
     let inputsAreValid: boolean = true;
-    this.insertionInputs.forEach((inputElement) => {
-      if (!this.isValidInsertion || (inputElement.required && inputElement.value === '')) {
+    let i: number = 0;
+
+    console.log(this.insertionInputs);
+
+    this.insertionInputs.every((inputElement) => {
+      console.log(`${i} ${this.isValidInsertion(inputElement)}`);
+
+      if (!this.isValidInsertion(inputElement) || (inputElement.required && inputElement.value === '')) {
         inputsAreValid = false;
+        this.disableConfirmBtn();
+        if(!addRowOpen && !this.isValidInsertion(inputElement)) {
+          this.insertionErrorMessage.textContent = inputElement.dataset.errorMessage;
+          this.insertionErrorMessage.style.display = 'inline';
+        }
+        console.log(`${i} inputElement.value = ${inputElement.value}`);
+        console.log('RETURNING FALSE');
+        return false;
       }
+      i++;
+      return true;
     });
+
     if(inputsAreValid) {
       // every input has passed verification
+      this.insertionErrorMessage.style.display = 'none';
       this.enableConfirmBtn();
     }
   }

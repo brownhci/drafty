@@ -417,6 +417,9 @@ tableElement.addEventListener('keydown', function (event: KeyboardEvent) {
         cellEditNewRow.activate(target.parentElement as HTMLTableCellElement, event.key);
       } else {
         cellEditNewRow.deactivate();
+        if(isInput(target)) {
+          tableFoot.verifyInputTab(target as HTMLInputElement);
+        }
       }
     }
 
