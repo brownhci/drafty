@@ -2,6 +2,7 @@ import { getColumnLabel, getColumnLabelText } from '../../dom/sheet';
 import { getEnclosingTableRow } from '../../dom/navigate';
 import { recordDataBaitCreate, recordDataBaitWindowClosed } from '../../api/record-interactions';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  from '../../../../../types/databaits';
+import { getJSON } from '../../api/requests';
 
 interface Databait {
     idDatabait: string | number,
@@ -20,7 +21,8 @@ let databaitCurrent: Databait = {
 
 interface urlBase { // used for random
     idInteractionType: InteractionTypeDatabaitCreate,
-    idDatabaitCreateType: DatabaitCreateType
+    idDatabaitCreateType: DatabaitCreateType,
+    idSession: string | number
 }
 
 interface urlSimilar extends urlBase {
@@ -28,6 +30,13 @@ interface urlSimilar extends urlBase {
     value: string | number,
     rowValues: Record<string, string | number> 
 }
+
+async function getIdSession() {
+    const idSession = await getJSON('/usrsession');
+    return idSession;
+}
+// const idSession = await getIdSession(); // no top-level await
+
 
 //let idRow: string = undefined;
 
@@ -73,9 +82,12 @@ createSimilarBtn.addEventListener('click', function() {
     console.log('createSimilarBtn');
     // recordDataBaitCreate() // similar
 }, true);
-createRandomBtn.addEventListener('click', function() {
+createRandomBtn.addEventListener('click', async function() {
     console.log('createRandomBtn');
-    const baseUrl: urlBase = { idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random };
+    const baseUrl: urlBase = { 
+        idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random, 
+        idSession: await getIdSession() 
+    };
     getDatabait(apiUrlRandom, baseUrl);
 }, true);
 
@@ -86,8 +98,9 @@ function createUrlDataJSON(urlData: urlBase | urlSimilar): string {
         let urlValue = v;
         let urlParam = '&';
         if(i === 0) { urlParam = '?'; }
-        // SW: TODOY
+        // SW: TODO
         if(k === 'rowValues') {
+            console.log(urlValue);
             urlValue = JSON.stringify({'rowValues':urlValue});
         } 
         url += `${urlParam}${k}=${urlValue}`;
@@ -96,6 +109,14 @@ function createUrlDataJSON(urlData: urlBase | urlSimilar): string {
         i++;
     }
     return url;
+}
+function createBodyDataJSON(urlData: urlBase | urlSimilar) {
+    // eslint-disable-next-line prefer-const
+    let bodyData: Record<string, string | number> = {};
+    for (const [k, v] of Object.entries(urlData)) {
+        bodyData[k] = v;
+    }
+    return bodyData;
 }
 
 async function getDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
@@ -111,6 +132,28 @@ async function getDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
     .then(data => {
        /* DO SOMETHING HERE :) */
        //console.log(data[0]);
+       const databait = data[0];
+       databaitCurrent.idDatabait = databait.idDatabait;
+       databaitCurrent.sentence = databait.sentence;
+       databaitCurrent.labels = databait.labels;
+       databaitCurrent.columns = databait.columns;
+       updateDataBaitHTML(databait.sentence);
+     }).catch(error => console.error(error));
+}
+
+async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
+    console.log(`apiUrl = ${apiUrl}`);
+    const bodyData = JSON.stringify(createBodyDataJSON(urlData));
+    const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: bodyData
+    };
+    fetch(apiUrl, options)
+    .then(response => { return response.json(); })
+    .then(data => {
+       /* DO SOMETHING HERE :) */
+       console.log(data[0]);
        const databait = data[0];
        databaitCurrent.idDatabait = databait.idDatabait;
        databaitCurrent.sentence = databait.sentence;
@@ -162,6 +205,7 @@ function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl: urlBa
     const urlSimilar: urlSimilar = {
         idInteractionType: baseUrl.idInteractionType,
         idDatabaitCreateType: baseUrl.idDatabaitCreateType,
+        idSession: baseUrl.idSession,
         idUniqueId: idRow,
         value: tableCellElement.innerText,
         rowValues: candidateFields
@@ -170,14 +214,18 @@ function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl: urlBa
 }
 
 export async function activateDataBait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
-    const baseUrl: urlBase = { idInteractionType: idInteractionType, idDatabaitCreateType: idDatabaitCreateType };
+    const baseUrl: urlBase = { idInteractionType: idInteractionType, idDatabaitCreateType: idDatabaitCreateType, idSession: await getIdSession()};
     if (idDatabaitCreateType === DatabaitCreateType.navbar_menu) {
+        postDatabait(apiUrlRandom, baseUrl);
         // user has a cell selected
+        /*
         if (tableCellElement !== null && tableCellElement !== undefined) {
-            getDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+            //getDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+            getDatabait(apiUrlRandom, baseUrl);
         } else {
             getDatabait(apiUrlRandom, baseUrl);
         }
+        */
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_random) {
         getDatabait(apiUrlRandom, baseUrl);
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_like) {

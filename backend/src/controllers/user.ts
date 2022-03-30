@@ -403,6 +403,13 @@ export const postSeenWelcome = (req: Request, res: Response) => {
 };
 
 /**
+ * GET /usrsession
+ */
+ export const getSession = (req: Request, res: Response) => {
+  return res.status(200).json(req.session.user.idSession);
+};
+
+/**
  * GLOBAL MIDDLEWARE
  */
 export async function checkSessionUser(req: Request, res: Response, next: NextFunction) {
@@ -442,12 +449,9 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
 const heartbeat = 20 * 60000; // mins * 60000 milliseconds
 export async function checkSessionId(req: Request, res: Response, next: NextFunction) {
   const interactionTime = Date.now();
-  //logger.debug(await req.session.user.lastInteraction + ' == ' + interactionTime);
-  //logger.debug(interactionTime - await req.session.user.lastInteraction);
-  let newSession: boolean = false;
   if (((interactionTime - await req.session.user.lastInteraction) > heartbeat) || (await req.session.user.idSession === -1)) {
     req.session.user.idSession = await createSessionDB(req.session.user.idProfile, req.sessionID);
-    newSession = true;
+    //newSession = true;
   }
   req.session.user.lastInteraction = interactionTime;
   req.session.user.views++;
