@@ -96,12 +96,12 @@ class CellEditNewRow {
         }
     }
 
-    activate(target: HTMLTableCellElement, msg: string) {
-        console.log(`activate autocomplete ${msg}`);
+    async activate(target: HTMLTableCellElement, msg: string) {
+        //console.log(`activate autocomplete ${msg}`);
         this.target = target;
         this.inputElement = target.querySelector('input');
         
-        this.fetchNewRowValues(this.newRowValueFetchURL);
+        await this.fetchNewRowValues(this.newRowValueFetchURL);
         this.fuseSelect.query(this.inputElement.value);
 
         document.body.addEventListener('click', this.handleBodyClick, true);
