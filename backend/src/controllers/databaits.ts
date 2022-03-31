@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { TWITTER_API_KEY, TWITTER_API_SECRET_KEY, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET } from '../util/secrets';
 import Twitter from 'twitter'; 
-import { insertDataBaitVisit, updateDatabaitClosed }  from '../database/databaits';
+import { insertDataBaitVisit, updateDatabaitClosed, insertVisitFromSrc }  from '../database/databaits';
 
 const client = new Twitter({
     consumer_key: TWITTER_API_KEY,
@@ -92,8 +92,8 @@ export const postDataBaitCreated = (req: Request, res: Response) => {
 };
 
 //middleware
-export function checkDataBaitsVisit(req: Request, res: Response, next: NextFunction) {
-    if(req.query.d) {
+export function checkVisitFromSrc(req: Request, res: Response, next: NextFunction) {
+    if(req.query.d) { // idDataBait
         const idSession = req.session.user.idSession;
         const idDataBait = req.query.d as string;
         let source: string = '';
@@ -101,6 +101,21 @@ export function checkDataBaitsVisit(req: Request, res: Response, next: NextFunct
             source = req.query.src  as string;
         }
         insertDataBaitVisit(idSession, idDataBait, source);
+    } else {
+        const idSession = req.session.user.idSession;
+        let source: string = '';
+        if(req.query.src) {
+            source = req.query.src  as string;
+        }
+        let searchCol: string = '';
+        if(req.query.src) {
+            searchCol = req.query.searchcol  as string;
+        }
+        let searchVal: string = '';
+        if(req.query.src) {
+            searchVal = req.query.searchval  as string;
+        }
+        insertVisitFromSrc(idSession, source, searchCol, searchVal);
     }
     next();
   }
