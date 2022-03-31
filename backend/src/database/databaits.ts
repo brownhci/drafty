@@ -9,6 +9,7 @@ const stmtUpdateDatabaitTweetNextAction: string = 'UPDATE DatabaitTweet SET next
 const stmtUpdateDatabaitTweetLikes: string = 'UPDATE DatabaitTweet SET likes = ? WHERE idDatabaitTweet = ?';
 const stmtUpdateDatabaitTweetRetweets: string = 'UPDATE DatabaitTweet SET retweets = ? WHERE idDatabaitTweet = ?';
 const stmtInsertDatabaitVisit: string = 'INSERT INTO DatabaitVisit (idinteraction, idDatabait, source) VALUES(insert_interaction(?,?), ?, ?);';
+const stmtInsertVisit: string = 'INSERT INTO Visit (idinteraction, source) VALUES(insert_interaction(?,?), ?);';
 
 
 /**
@@ -88,9 +89,22 @@ export async function updateDatabaitTweetRetweets(retweets: string | number, idD
 //DB Code
 export function insertDataBaitVisit(idSession: string, idDataBait: string , source: string | number) {
     try {
-        const idInteractionType: number = 25;
+        const idInteractionType: number = 25; // databait-visit
         db.query(stmtInsertDatabaitVisit, [idSession, idInteractionType, idDataBait, source]);
     } catch (error) {
         logDbErr(error, 'error during insert databait visit', 'warn');
+    }
+}
+
+/**
+ * insert that someone came to drafty from clicking on a link with attribute src
+ */
+// DB Code
+export async function insertVisitFromSrc(idSession: string | number, src: string, searchCol: string, searchVal: string) {
+    try {
+        const idInteractionType: number = ; // 
+        await db.query(stmtInsertVisit, [idSession, idInteractionType, src, searchCol, searchVal]);
+    } catch (error) {
+        logDbErr(error, 'error during insertVisitFromSrc', 'warn');
     }
 }
