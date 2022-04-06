@@ -1,8 +1,9 @@
 import { getColumnLabel, getColumnLabelText } from '../../dom/sheet';
 import { getEnclosingTableRow } from '../../dom/navigate';
-import { recordDataBaitCreate, recordDataBaitWindowClosed } from '../../api/record-interactions';
+import { recordDataBaitCreate, recordDataBaitWindowClosed, recordDataBaitNextAction } from '../../api/record-interactions';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  from '../../../../../types/databaits';
 import { getJSON } from '../../api/requests';
+import { postDataBaitNextAction } from '../../api/endpoints';
 
 interface Databait {
     idDatabait: string | number,
@@ -88,6 +89,7 @@ createRandomBtn.addEventListener('click', async function() {
         idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random, 
         idSession: await getIdSession() 
     };
+    recordDataBaitNextAction(databaitCurrent.idDatabait, DatabaitAction.modal_random);
     postDatabait(apiUrlRandom, baseUrl);
 }, true);
 
