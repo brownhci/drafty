@@ -236,7 +236,7 @@ export async function activateDatabait(tableCellElement: HTMLTableCellElement, i
         // and generate a random one
         //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
     } else if (idDatabaitCreateType === DatabaitCreateType.right_click) {
-        postDatabait(apiUrlRandom, baseUrl);
+        postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
     } else if (idDatabaitCreateType === DatabaitCreateType.edit) {
         postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
     } else if (idDatabaitCreateType === DatabaitCreateType.new_row) {

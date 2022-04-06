@@ -7,6 +7,8 @@ import { StatusMode, tableFoot } from './table-foot';
 import { activeClass } from '../../constants/css-classes';
 import { isButton } from '../../dom/types';
 import { activeTableCellElement, activateTableCol } from '../../../sheet';
+import { activateDatabait } from './databaits';
+import { InteractionTypeDatabaitCreate, DatabaitCreateType } from '../../../../../types/databaits';
 
 
 const tableDataContextMenu: HTMLElement = document.getElementById('table-data-contextmenu');
@@ -173,6 +175,7 @@ tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
     case 'Did you know?':
         menuItem.toggle();
         //createDidYouKnow(activeTableCellElement);
+        activateDatabait(activeTableCellElement, InteractionTypeDatabaitCreate.right_click, DatabaitCreateType.right_click);
         break;
   }
   deactivateTableDataContextMenu();
