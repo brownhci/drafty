@@ -38,7 +38,7 @@ export async function updateDatabaitClosed(idDatabait: string | number) {
 
 export async function updateDatabaitNextAction(idDatabait: string | number, nextAction: DatabaitAction) {
     try {
-        await db.query(stmtUpdateDatabaitNextAction, [idDatabait, nextAction]);
+        await db.query(stmtUpdateDatabaitNextAction, [nextAction, idDatabait]);
     } catch (error) {
         logDbErr(error, 'error during updateDatabaitNextAction', 'warn');
     }
