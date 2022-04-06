@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from '../dom/navigate';
 import { isTableData } from '../dom/types';
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitTweet, postDatabaitVisit, postSearchColVisit, postDatabaitWindowClosed, postDatabaitNextAction } from './endpoints';
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitTweet, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction } from './endpoints';
 import { DatabaitAction } from '../../../../types/databaits';
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
@@ -200,12 +200,6 @@ export function recordDatabaitCreate(idSuggestion: string, idRow: string, tableR
     idSuggestion: idSuggestion,
     idRow: idRow,
     searchValues: rowValues
-  });
-}
-
-export function recordDatabaitWindowClosed(idDatabait: string | number) {
-  recordInteraction(postDatabaitWindowClosed(), {
-    idDatabait: idDatabait
   });
 }
 

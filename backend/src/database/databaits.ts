@@ -2,7 +2,6 @@ import { db, logDbErr } from './mysql';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  from '../types/databaits';
 
 const stmtInsertDatabait: string = `INSERT INTO Databaits (idInteraction, idUniqueID, idDatabaitTemplateType, idDatabaitCreateType, databait, columns, vals, notes, nextAction) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?, ?, '', null);`;
-const stmtUpdateDatabaitClosed: string = 'UPDATE Databaits SET closed = CURRENT_TIMESTAMP WHERE idDatabait = ?;';
 const stmtUpdateDatabaitNextAction: string = 'UPDATE Databaits SET closed = CURRENT_TIMESTAMP nextAction = ? WHERE idDatabait = ?';
 const stmtInsertDatabaitTweet: string = 'INSERT INTO DatabaitTweet (idInteraction, idDatabait, url, likes, retweets, nextAction) VALUES (insert_interaction(?,?), ?, ?, null, null, null);';
 const stmtUpdateDatabaitTweetNextAction: string = 'UPDATE DatabaitTweet SET nextAction = ? WHERE idDatabaitTweet = ?';
@@ -25,14 +24,6 @@ export async function insertDatabait(idSession: string, DatabaitCreateType: Data
     } catch (error) {
         logDbErr(error, 'error during insert Databait', 'warn');
         return [error];
-    }
-}
-
-export async function updateDatabaitClosed(idDatabait: string | number) {
-    try {
-        await db.query(stmtUpdateDatabaitClosed, [idDatabait]);
-    } catch (error) {
-        logDbErr(error, 'error during updateDatabaitClosed', 'warn');
     }
 }
 

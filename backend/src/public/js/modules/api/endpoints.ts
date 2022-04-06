@@ -98,10 +98,6 @@ export function postDatabaitCreated() {
   return '/databaits/create';
 }
 
-export function postDatabaitWindowClosed() {
-  return '/databaits/close';
-}
-
 export function postDatabaitNextAction() {
   return '/databaits/next';
 }

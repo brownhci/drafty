@@ -1,6 +1,6 @@
 import { getColumnLabel, getColumnLabelText } from '../../dom/sheet';
 import { getEnclosingTableRow } from '../../dom/navigate';
-import { recordDatabaitCreate, recordDatabaitWindowClosed, recordDatabaitNextAction } from '../../api/record-interactions';
+import { recordDatabaitCreate, recordDatabaitNextAction } from '../../api/record-interactions';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  from '../../../../../types/databaits';
 import { getJSON } from '../../api/requests';
 import { postDatabaitNextAction } from '../../api/endpoints';
@@ -71,7 +71,7 @@ function updateDatabaitHTML(databait: string) {
 
 dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
     dataBaitModal.style.display = 'none';
-    recordDatabaitWindowClosed(databaitCurrent.idDatabait);
+    recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.window_closed);
     event.stopPropagation();
 }, true);
 
@@ -89,6 +89,8 @@ createRandomBtn.addEventListener('click', async function() {
         idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random, 
         idSession: await getIdSession() 
     };
+    console.log('databaitCurrent');
+    console.log(databaitCurrent);
     recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.modal_random);
     postDatabait(apiUrlRandom, baseUrl);
 }, true);
@@ -249,7 +251,7 @@ function closeModal() {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     deactivateKeyListener();
     // record databait modal exit
-    //recordDatabaitWindowClosed(idDatabait);
+    recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.window_closed);
     dataBaitModal.style.display = 'none';
 }
 

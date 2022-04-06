@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { TWITTER_API_KEY, TWITTER_API_SECRET_KEY, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET } from '../util/secrets';
 import Twitter from 'twitter'; 
-import { insertDatabaitVisit, updateDatabaitClosed, insertVisitFromSrc, updateDatabaitNextAction }  from '../database/databaits';
+import { insertDatabaitVisit, insertVisitFromSrc, updateDatabaitNextAction }  from '../database/databaits';
 
 const client = new Twitter({
     consumer_key: TWITTER_API_KEY,
@@ -80,23 +80,6 @@ export const postDatabaitCreated = (req: Request, res: Response) => {
     } catch (error) {
       return res.sendStatus(500);
     }
-};
-
-
-/**
- * POST /databait/close
- *
- * record time when user closes window, or generate another databait
- * 
- * @param {string} req.body.idDatabait
- * @param {number} req.body.windowClose
- * 
- */
- export const postDatabaitWindowClosed = (req: Request, res: Response) => {
-    // right-click, edit, new-row, delete-row, navbar-menu, modal-like, modal-random
-    const idDatabait = req.body.idDatabait;
-    updateDatabaitClosed(idDatabait);
-    return res.sendStatus(200);
 };
 
 //middleware
