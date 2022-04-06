@@ -42,13 +42,12 @@ async function getIdSession() {
 
 const dataBaitModal: HTMLElement = document.getElementById('databait-screen');
 const dataBaitText: HTMLElement = document.getElementById('databait-text');
-const dataBaitModalClose: HTMLElement = document.getElementById('dataBaitModalClose');
+const dataBaitModalClose = <HTMLButtonElement>document.getElementById('dataBaitModalClose');
 const tweetBtn = <HTMLButtonElement>document.getElementById('btn-databait-tweet');
 const createSimilarBtn = <HTMLButtonElement>document.getElementById('btn-databait-similar');
 const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait-random');
 
 //const databaitLoadingMsg: string = `Creating something awesome...`;
-
 //const apiUrlAll: string = '/api-dyk/v1/databait/all';
 //const apiUrlType = (type: string): string => { return `/api-dyk/v1/databait/${type}`; };
 const apiUrlRandom: string = '/api-dyk/v1/databait/random';
@@ -66,6 +65,20 @@ databaitLinks.forEach( (element,i) => {
 
 function updateDatabaitHTML(databait: string) {
     dataBaitText.innerHTML = databait;
+}
+
+function activateCtrls() {
+    dataBaitModalClose.disabled = false;
+    tweetBtn.disabled = false;
+    createSimilarBtn.disabled = false;
+    createRandomBtn.disabled = false;
+}
+
+function deactivateCtrls() {
+    dataBaitModalClose.disabled = true;
+    tweetBtn.disabled = true;
+    createSimilarBtn.disabled = true;
+    createRandomBtn.disabled = true;
 }
 
 dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
@@ -145,6 +158,7 @@ async function getDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
 }
 
 async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
+    deactivateCtrls();
     console.log(`apiUrl = ${apiUrl}`);
     const bodyData = JSON.stringify(createBodyDataJSON(urlData));
     const options = {
@@ -163,6 +177,7 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
        databaitCurrent.labels = databait.labels;
        databaitCurrent.columns = databait.columns;
        updateDatabaitHTML(databait.sentence);
+       activateCtrls();
      }).catch(error => console.error(error));
 }
 
