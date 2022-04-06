@@ -1,6 +1,6 @@
 import { StatusMode, tableFoot } from './table-foot';
 import { deleteRow, deleteRowModalErrorActivate } from './delete-row';
-import { activateDataBait } from './databaits';
+import { activateDatabait } from './databaits';
 import { activeTableCellElement } from '../../../sheet';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate } from '../../../../../types/databaits';
 
@@ -42,7 +42,7 @@ navBarDelRowMobile.addEventListener('click', function(event: MouseEvent) {
 
 function didYouKnowSelect(event: MouseEvent) {
     event.preventDefault();
-    activateDataBait(activeTableCellElement,InteractionTypeDatabaitCreate.navbar_menu,DatabaitCreateType.navbar_menu);
+    activateDatabait(activeTableCellElement,InteractionTypeDatabaitCreate.navbar_menu,DatabaitCreateType.navbar_menu);
     event.stopPropagation();
 }
 navBarDidYouKnow.addEventListener('click', function(event: MouseEvent) {

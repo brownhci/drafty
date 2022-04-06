@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { TWITTER_API_KEY, TWITTER_API_SECRET_KEY, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET } from '../util/secrets';
 import Twitter from 'twitter'; 
-import { insertDataBaitVisit, updateDatabaitClosed, insertVisitFromSrc, updateDatabaitNextAction }  from '../database/databaits';
+import { insertDatabaitVisit, updateDatabaitClosed, insertVisitFromSrc, updateDatabaitNextAction }  from '../database/databaits';
 
 const client = new Twitter({
     consumer_key: TWITTER_API_KEY,
@@ -39,7 +39,7 @@ export const postTweet = (req: Request, res: Response) => {
 /**
  * POST /databait/tweet/next
  *
- * @param {string} req.body.idDataBait
+ * @param {string} req.body.idDatabait
  * 
  */
  export const postTweetNextAction = (req: Request, res: Response) => {
@@ -55,7 +55,7 @@ export const postTweet = (req: Request, res: Response) => {
  * @param {string} req.body.createdType
  * 
  */
-export const postDataBaitCreated = (req: Request, res: Response) => {
+export const postDatabaitCreated = (req: Request, res: Response) => {
     // right-click, edit, new-row, delete-row, navbar-menu, modal-like, modal-random
     const dataBait = req.body.dataBait;
     const dataBaitType = req.body.dataBaitType;
@@ -67,15 +67,15 @@ export const postDataBaitCreated = (req: Request, res: Response) => {
 /**
  * POST /databait/next
  *
- * @param {string} req.body.idDataBait
+ * @param {string} req.body.idDatabait
  * 
  */
- export const postDataBaitNextAction = (req: Request, res: Response) => {
+ export const postDatabaitNextAction = (req: Request, res: Response) => {
     try {
-        const idDataBait = req.body.idDataBait;
+        const idDatabait = req.body.idDatabait;
         const nextAction = req.body.nextAction;
-        //console.log(`postDataBaitNextAction for databait ${idDataBait}, next action = ${nextAction}`);
-        updateDatabaitNextAction(idDataBait, nextAction);
+        //console.log(`postDatabaitNextAction for databait ${idDatabait}, next action = ${nextAction}`);
+        updateDatabaitNextAction(idDatabait, nextAction);
       return res.sendStatus(200);
     } catch (error) {
       return res.sendStatus(500);
@@ -88,27 +88,27 @@ export const postDataBaitCreated = (req: Request, res: Response) => {
  *
  * record time when user closes window, or generate another databait
  * 
- * @param {string} req.body.idDataBait
+ * @param {string} req.body.idDatabait
  * @param {number} req.body.windowClose
  * 
  */
- export const postDataBaitWindowClosed = (req: Request, res: Response) => {
+ export const postDatabaitWindowClosed = (req: Request, res: Response) => {
     // right-click, edit, new-row, delete-row, navbar-menu, modal-like, modal-random
-    const idDataBait = req.body.idDataBait;
-    updateDatabaitClosed(idDataBait);
+    const idDatabait = req.body.idDatabait;
+    updateDatabaitClosed(idDatabait);
     return res.sendStatus(200);
 };
 
 //middleware
 export function checkVisitFromSrc(req: Request, res: Response, next: NextFunction) {
-    if(req.query.d) { // idDataBait
+    if(req.query.d) { // idDatabait
         const idSession = req.session.user.idSession;
-        const idDataBait = req.query.d as string;
+        const idDatabait = req.query.d as string;
         let source: string = '';
         if(req.query.src) {
             source = req.query.src  as string;
         }
-        insertDataBaitVisit(idSession, idDataBait, source);
+        insertDatabaitVisit(idSession, idDatabait, source);
     } else if(req.query.src) {
         const idSession = req.session.user.idSession;
         let source: string = '';
@@ -131,18 +131,18 @@ export function checkVisitFromSrc(req: Request, res: Response, next: NextFunctio
 /**
  * POST /databait/visit
  * 
- * @param {number} req.body.idDataBait
+ * @param {number} req.body.idDatabait
  *
  * @param {string} req.body.source
  */
- export const postDataBaitVisit = (req: Request, res: Response) => {
+ export const postDatabaitVisit = (req: Request, res: Response) => {
     const idSession = req.session.user.idSession;
-    const idDataBait: string = req.body.idDataBait;
+    const idDatabait: string = req.body.idDatabait;
     const source: string = req.body.source; // is this reliable?
   
     try {
-      //console.log('postDataBaitVisit:', idDataBait, source);
-      insertDataBaitVisit(idSession, idDataBait, source);
+      //console.log('postDatabaitVisit:', idDatabait, source);
+      insertDatabaitVisit(idSession, idDatabait, source);
       return res.sendStatus(200);
     } catch (error) {
       return res.sendStatus(500);

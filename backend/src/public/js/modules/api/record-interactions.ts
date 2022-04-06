@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from '../dom/navigate';
 import { isTableData } from '../dom/types';
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDataBaitTweet, postDataBaitVisit, postSearchColVisit, postDataBaitWindowClosed, postDataBaitNextAction } from './endpoints';
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitTweet, postDatabaitVisit, postSearchColVisit, postDatabaitWindowClosed, postDatabaitNextAction } from './endpoints';
 import { DatabaitAction } from '../../../../types/databaits';
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
@@ -187,41 +187,41 @@ export function recordGoogleSearch(idSuggestion: string, idRow: string, tableRow
   });
 }
 
-export function recordDataBaitVisit(idDataBait: string, source: string) {
-  recordInteraction(postDataBaitVisit(), {
-    idDataBait: idDataBait,
+export function recordDatabaitVisit(idDatabait: string, source: string) {
+  recordInteraction(postDatabaitVisit(), {
+    idDatabait: idDatabait,
     source: source
   });
 }
 
-export function recordDataBaitCreate(idSuggestion: string, idRow: string, tableRow: HTMLTableRowElement) {
+export function recordDatabaitCreate(idSuggestion: string, idRow: string, tableRow: HTMLTableRowElement) {
   const rowValues = getTableRowCellValues(tableRow);
-  recordInteraction(postDataBaitVisit(), {
+  recordInteraction(postDatabaitVisit(), {
     idSuggestion: idSuggestion,
     idRow: idRow,
     searchValues: rowValues
   });
 }
 
-export function recordDataBaitWindowClosed(idDatabait: string | number) {
-  recordInteraction(postDataBaitWindowClosed(), {
+export function recordDatabaitWindowClosed(idDatabait: string | number) {
+  recordInteraction(postDatabaitWindowClosed(), {
     idDatabait: idDatabait
   });
 }
 
-export function recordDataBaitNextAction(idDatabait: string | number, nextAction: DatabaitAction) {
-  console.log('recordDataBaitNextAction');
+export function recordDatabaitNextAction(idDatabait: string | number, nextAction: DatabaitAction) {
+  console.log('recordDatabaitNextAction');
   console.log(idDatabait);
-  recordInteraction(postDataBaitNextAction(), {
+  recordInteraction(postDatabaitNextAction(), {
     idDatabait: idDatabait,
     nextAction: nextAction,
   });
 }
 
 
-export function recordDataBaitTweet(idDataBait: string) {
-  recordInteraction(postDataBaitTweet(), {
-    idDataBait: idDataBait
+export function recordDatabaitTweet(idDatabait: string) {
+  recordInteraction(postDatabaitTweet(), {
+    idDatabait: idDatabait
   });
 }
 export function recordSearchColVisit(idSuggestionType: string, value: string) {

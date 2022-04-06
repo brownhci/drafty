@@ -28,17 +28,17 @@ export async function insertDatabait(idSession: string, DatabaitCreateType: Data
     }
 }
 
-export async function updateDatabaitClosed(idDataBait: string | number) {
+export async function updateDatabaitClosed(idDatabait: string | number) {
     try {
-        await db.query(stmtUpdateDatabaitClosed, [idDataBait]);
+        await db.query(stmtUpdateDatabaitClosed, [idDatabait]);
     } catch (error) {
         logDbErr(error, 'error during updateDatabaitClosed', 'warn');
     }
 }
 
-export async function updateDatabaitNextAction(idDataBait: string | number, nextAction: DatabaitAction) {
+export async function updateDatabaitNextAction(idDatabait: string | number, nextAction: DatabaitAction) {
     try {
-        await db.query(stmtUpdateDatabaitNextAction, [idDataBait, nextAction]);
+        await db.query(stmtUpdateDatabaitNextAction, [idDatabait, nextAction]);
     } catch (error) {
         logDbErr(error, 'error during updateDatabaitNextAction', 'warn');
     }
@@ -87,10 +87,10 @@ export async function updateDatabaitTweetRetweets(retweets: string | number, idD
  * insert that someone came to drafty from clicking on a databait link
  */
 //DB Code
-export function insertDataBaitVisit(idSession: string, idDataBait: string , source: string | number) {
+export function insertDatabaitVisit(idSession: string, idDatabait: string , source: string | number) {
     try {
         const idInteractionType: number = 25; // databait-visit
-        db.query(stmtInsertDatabaitVisit, [idSession, idInteractionType, idDataBait, source]);
+        db.query(stmtInsertDatabaitVisit, [idSession, idInteractionType, idDatabait, source]);
     } catch (error) {
         logDbErr(error, 'error during insert databait visit', 'warn');
     }

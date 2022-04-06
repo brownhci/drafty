@@ -2,7 +2,7 @@ import { getCellInTableRow, getRightTableCellElement } from './navigate';
 import { isInput } from './types';
 import { columnLabelClass, columnLabelTextClass, columnSearchClass, columnSortButtonClass } from '../constants/css-classes';
 import { measureTextWidth } from '../utils/length';
-import { recordDataBaitVisit } from '../api/record-interactions';
+import { recordDatabaitVisit } from '../api/record-interactions';
 
 /* <table> */
 export const tableElement: HTMLTableElement = document.getElementById('table') as HTMLTableElement;
@@ -209,7 +209,7 @@ export function checkUrlForSearchParams() {
       databaitSource = urlParams.get('databaitSource');
     }
     const databaitId: string = urlParams.get('databaitId');
-    recordDataBaitVisit(databaitId, databaitSource);
+    recordDatabaitVisit(databaitId, databaitSource);
   }
 
   // populate search column

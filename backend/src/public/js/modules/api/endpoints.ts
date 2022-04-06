@@ -74,11 +74,11 @@ export function postGoogleSearchURL() {
   return 'search-google';
 }
 
-export function postDataBaitCreate() {
+export function postDatabaitCreate() {
   return '/databait-create';
 }
 
-export function postDataBaitTweet() {
+export function postDatabaitTweet() {
   return '/databait-tweet';
 }
 
@@ -94,18 +94,18 @@ export function postTweetNextAction() {
   return '/databaits/tweet/next';
 }
 
-export function postDataBaitCreated() {
+export function postDatabaitCreated() {
   return '/databaits/create';
 }
 
-export function postDataBaitWindowClosed() {
+export function postDatabaitWindowClosed() {
   return '/databaits/close';
 }
 
-export function postDataBaitNextAction() {
+export function postDatabaitNextAction() {
   return '/databaits/next';
 }
 
-export function postDataBaitVisit() {
+export function postDatabaitVisit() {
   return '/databaits/visit';
 }

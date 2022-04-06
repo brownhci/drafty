@@ -161,7 +161,7 @@ export const postSearchColVisit = (req: Request, res: Response) => {
   const value: string = req.body.value;
 
   try {
-    //console.log('postDataBaitVisit:', idDataBait, source);
+    //console.log('postDatabaitVisit:', idDatabait, source);
     // sw: TODO - implement insertSearchColVisit + create DB structure
     //insertSearchColVisit(idSession, idSuggestionType, value);
     return res.sendStatus(200);

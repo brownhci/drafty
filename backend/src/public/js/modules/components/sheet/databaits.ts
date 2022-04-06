@@ -1,9 +1,9 @@
 import { getColumnLabel, getColumnLabelText } from '../../dom/sheet';
 import { getEnclosingTableRow } from '../../dom/navigate';
-import { recordDataBaitCreate, recordDataBaitWindowClosed, recordDataBaitNextAction } from '../../api/record-interactions';
+import { recordDatabaitCreate, recordDatabaitWindowClosed, recordDatabaitNextAction } from '../../api/record-interactions';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  from '../../../../../types/databaits';
 import { getJSON } from '../../api/requests';
-import { postDataBaitNextAction } from '../../api/endpoints';
+import { postDatabaitNextAction } from '../../api/endpoints';
 
 interface Databait {
     idDatabait: string | number,
@@ -65,23 +65,23 @@ databaitLinks.forEach( (element,i) => {
     });
 });
 
-function updateDataBaitHTML(databait: string) {
+function updateDatabaitHTML(databait: string) {
     dataBaitText.innerHTML = databait;
 }
 
 dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
     dataBaitModal.style.display = 'none';
-    recordDataBaitWindowClosed(databaitCurrent.idDatabait);
+    recordDatabaitWindowClosed(databaitCurrent.idDatabait);
     event.stopPropagation();
 }, true);
 
 tweetBtn.addEventListener('click', function() {
     console.log('tweetBtn');
-    // recordDataBaitTweet()
+    // recordDatabaitTweet()
 }, true);
 createSimilarBtn.addEventListener('click', function() {
     console.log('createSimilarBtn');
-    // recordDataBaitCreate() // similar
+    // recordDatabaitCreate() // similar
 }, true);
 createRandomBtn.addEventListener('click', async function() {
     console.log('createRandomBtn');
@@ -89,7 +89,7 @@ createRandomBtn.addEventListener('click', async function() {
         idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random, 
         idSession: await getIdSession() 
     };
-    recordDataBaitNextAction(databaitCurrent.idDatabait, DatabaitAction.modal_random);
+    recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.modal_random);
     postDatabait(apiUrlRandom, baseUrl);
 }, true);
 
@@ -139,7 +139,7 @@ async function getDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
        databaitCurrent.sentence = databait.sentence;
        databaitCurrent.labels = databait.labels;
        databaitCurrent.columns = databait.columns;
-       updateDataBaitHTML(databait.sentence);
+       updateDatabaitHTML(databait.sentence);
      }).catch(error => console.error(error));
 }
 
@@ -161,7 +161,7 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
        databaitCurrent.sentence = databait.sentence;
        databaitCurrent.labels = databait.labels;
        databaitCurrent.columns = databait.columns;
-       updateDataBaitHTML(databait.sentence);
+       updateDatabaitHTML(databait.sentence);
      }).catch(error => console.error(error));
 }
 
@@ -215,7 +215,7 @@ function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl: urlBa
     return urlSimilar;
 }
 
-export async function activateDataBait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
+export async function activateDatabait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
     const baseUrl: urlBase = { idInteractionType: idInteractionType, idDatabaitCreateType: idDatabaitCreateType, idSession: await getIdSession()};
     if (idDatabaitCreateType === DatabaitCreateType.navbar_menu) {
         postDatabait(apiUrlRandom, baseUrl);
@@ -249,7 +249,7 @@ function closeModal() {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     deactivateKeyListener();
     // record databait modal exit
-    //recordDataBaitWindowClosed(idDatabait);
+    //recordDatabaitWindowClosed(idDatabait);
     dataBaitModal.style.display = 'none';
 }
 
