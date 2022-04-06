@@ -102,7 +102,7 @@ export function insertDataBaitVisit(idSession: string, idDataBait: string , sour
 // DB Code
 export async function insertVisitFromSrc(idSession: string | number, src: string, searchCol: string, searchVal: string) {
     try {
-        const idInteractionType: number = ; // 
+        const idInteractionType: number = 38; // 
         await db.query(stmtInsertVisit, [idSession, idInteractionType, src, searchCol, searchVal]);
     } catch (error) {
         logDbErr(error, 'error during insertVisitFromSrc', 'warn');
