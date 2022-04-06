@@ -1,9 +1,8 @@
 import { getColumnLabel, getColumnLabelText } from '../../dom/sheet';
 import { getEnclosingTableRow } from '../../dom/navigate';
-import { recordDatabaitCreate, recordDatabaitNextAction } from '../../api/record-interactions';
+import { recordDatabaitNextAction } from '../../api/record-interactions';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  from '../../../../../types/databaits';
 import { getJSON } from '../../api/requests';
-import { postDatabaitNextAction } from '../../api/endpoints';
 
 interface Databait {
     idDatabait: string | number,
