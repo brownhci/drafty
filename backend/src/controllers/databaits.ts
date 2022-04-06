@@ -101,7 +101,7 @@ export function checkVisitFromSrc(req: Request, res: Response, next: NextFunctio
             source = req.query.src  as string;
         }
         insertDataBaitVisit(idSession, idDataBait, source);
-    } else {
+    } else if(req.query.src) {
         const idSession = req.session.user.idSession;
         let source: string = '';
         if(req.query.src) {
