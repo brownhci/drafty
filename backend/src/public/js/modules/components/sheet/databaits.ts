@@ -88,7 +88,7 @@ createRandomBtn.addEventListener('click', async function() {
         idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random, 
         idSession: await getIdSession() 
     };
-    getDatabait(apiUrlRandom, baseUrl);
+    postDatabait(apiUrlRandom, baseUrl);
 }, true);
 
 function createUrlDataJSON(urlData: urlBase | urlSimilar): string {
@@ -220,25 +220,25 @@ export async function activateDataBait(tableCellElement: HTMLTableCellElement, i
         // user has a cell selected
         /*
         if (tableCellElement !== null && tableCellElement !== undefined) {
-            //getDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
-            getDatabait(apiUrlRandom, baseUrl);
+            //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+            postDatabait(apiUrlRandom, baseUrl);
         } else {
-            getDatabait(apiUrlRandom, baseUrl);
+            postDatabait(apiUrlRandom, baseUrl);
         }
         */
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_random) {
-        getDatabait(apiUrlRandom, baseUrl);
+        postDatabait(apiUrlRandom, baseUrl);
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_like) {
         // need a row of data from the previous databait, or just push in the same values
         // and generate a random one
-        //getDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+        //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
     } else if (idDatabaitCreateType === DatabaitCreateType.right_click) {
-        getDatabait(apiUrlRandom, baseUrl);
+        postDatabait(apiUrlRandom, baseUrl);
     } else if (idDatabaitCreateType === DatabaitCreateType.edit) {
-        getDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+        postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
     } else if (idDatabaitCreateType === DatabaitCreateType.new_row) {
         // tableCellElement needs to be a cell in the new row created
-        //getDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+        //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
     }
     openModal();
 }
