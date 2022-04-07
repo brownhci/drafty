@@ -257,14 +257,14 @@ const voteIdInteractionType: Record<Vote, number> = {
  * update comment vote up
  */
 //DB Code
-export async function updateNewCommentVoteUp(idSession: string, idComment: string | number, vote: Vote, selected: number) {
+export async function updateNewCommentVoteUp(idSession: string, idComment: string | number, vote: Vote) {
     try {
         let stmtUpdateCommentVoteUpCount: string = stmtUpdateCommentVoteUpCountADD;
         if(vote.includes(deselect)) {
             stmtUpdateCommentVoteUpCount = stmtUpdateCommentVoteUpCountSUB;
         }
         db.query(stmtUpdateCommentVoteUpCount, [idComment]);
-        db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote, selected]);
+        db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote]);
     } catch (error) {
         logDbErr(error, 'error during insert updateNewCommentVoteUp', 'warn');
     }
@@ -274,14 +274,14 @@ export async function updateNewCommentVoteUp(idSession: string, idComment: strin
  * update comment vote down
  */
 //DB Code
-export async function updateNewCommentVoteDown(idSession: string, idComment: string | number, vote: Vote, selected: number) {
+export async function updateNewCommentVoteDown(idSession: string, idComment: string | number, vote: Vote) {
     try {
         let stmtUpdateCommentVoteUpCount: string = stmtUpdateCommentVoteDownCountADD;
         if(vote.includes(deselect)) {
             stmtUpdateCommentVoteUpCount = stmtUpdateCommentVoteDownCountSUB;
         }
         db.query(stmtUpdateCommentVoteUpCount, [idComment]);
-        db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote, selected]);
+        db.query(stmtInsertNewCommentVote, [idSession, voteIdInteractionType[vote], idComment, vote]);
     } catch (error) {
         logDbErr(error, 'error during insert updateNewCommentVoteDown', 'warn');
     }
