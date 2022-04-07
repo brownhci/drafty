@@ -28,7 +28,7 @@ interface urlBase { // used for random
 interface urlSimilar extends urlBase {
     idUniqueId: string | number,
     value: string | number,
-    rowValues: Record<string, string | number> 
+    rowValues: string // Record<string, string | number> 
 }
 
 async function getIdSession() {
@@ -149,10 +149,17 @@ async function getDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
        /* DO SOMETHING HERE :) */
        //console.log(data[0]);
        const databait = data[0];
-       databaitCurrent.idDatabait = databait.idDatabait;
-       databaitCurrent.sentence = databait.sentence;
-       databaitCurrent.labels = databait.labels;
-       databaitCurrent.columns = databait.columns;
+       if (databait.sentence.includes('Sorry we were not able to create a databait for your data. :(')) {
+        databaitCurrent.idDatabait = '';
+        databaitCurrent.sentence = 'Sorry we were not able to create a databait for the selected data. :(';
+        databaitCurrent.labels = [];
+        databaitCurrent.columns = [];
+       } else {
+        databaitCurrent.idDatabait = databait.idDatabait;
+        databaitCurrent.sentence = databait.sentence;
+        databaitCurrent.labels = databait.labels;
+        databaitCurrent.columns = databait.columns;
+       }
        updateDatabaitHTML(databait.sentence);
      }).catch(error => console.error(error));
 }
@@ -215,7 +222,7 @@ function openModal() {
     dataBaitModal.style.display = 'block';
 }
 
-function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl: urlBase) {
+async function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl: urlBase) {
     candidateFields = {};
     const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
     const idRow = tableRow.getAttribute('data-id');
@@ -226,7 +233,7 @@ function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl: urlBa
         idSession: baseUrl.idSession,
         idUniqueId: idRow,
         value: tableCellElement.innerText,
-        rowValues: candidateFields
+        rowValues: JSON.stringify(candidateFields)
     };
     return urlSimilar;
 }
@@ -251,9 +258,9 @@ export async function activateDatabait(tableCellElement: HTMLTableCellElement, i
         // and generate a random one
         //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
     } else if (idDatabaitCreateType === DatabaitCreateType.right_click) {
-        postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+        postDatabait(apiUrlSimilar, await createUrlSimilar(tableCellElement, baseUrl));
     } else if (idDatabaitCreateType === DatabaitCreateType.edit) {
-        postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+        postDatabait(apiUrlSimilar, await createUrlSimilar(tableCellElement, baseUrl));
     } else if (idDatabaitCreateType === DatabaitCreateType.new_row) {
         // tableCellElement needs to be a cell in the new row created
         //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
