@@ -23,7 +23,7 @@ const stmtInsertSearchGoogle: string = 'INSERT INTO SearchGoogle (idInteraction,
 
 const stmtInsertDataBaitVisit: string = 'INSERT INTO DataBaitVisit (idInteraction, idDataBait, source) VALUES (insert_interaction(?,?), ?, source);';
 
-const stmtSelectComments: string = 'SELECT c.*, i.timestamp, p.username FROM Comments c INNER JOIN Interaction i on c.idInteraction = i.idInteraction INNER JOIN users.Session s on s.idSession = i.idSession INNER JOIN users.Profile p on p.idProfile = s.idProfile WHERE c.idUniqueID = ? ORDER BY i.timestamp DESC;';
+const stmtSelectComments: string = `SELECT IF(cv.userVote is null, 'nothing', cv.userVote) as userVote, c.*, i.timestamp, p.username FROM Comments c INNER JOIN Interaction i on c.idInteraction = i.idInteraction INNER JOIN users.Session s on s.idSession = i.idSession INNER JOIN users.Profile p on p.idProfile = s.idProfile LEFT JOIN (SELECT cv.idComment, IF(cv.vote like '%deselect%', 'nothing', IF(cv.vote = 'voteUp', 'up', 'down')) as userVote FROM CommentVote cv INNER JOIN (SELECT idInteraction, idSession FROM Interaction WHERE idSession = ?) i on cv.idInteraction = i.idInteraction INNER JOIN users.Session s on s.idSession = i.idSession INNER JOIN users.Profile p on p.idProfile = s.idProfile ORDER BY idCommentVote DESC LIMIT 1) cv on c.idComment = cv.idComment WHERE c.idUniqueID = ? ORDER BY i.timestamp DESC;`;
 const stmtInsertCommentView: string = ' INSERT INTO CommentsView (idInteraction, idUniqueID) VALUES (insert_interaction(?,?),?)';
 const stmtInsertNewComment: string = 'INSERT INTO Comments (idInteraction, idUniqueID, comment, voteUp, voteDown) VALUES (insert_interaction(?,?), ?, ?, DEFAULT, DEFAULT);';
 const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote, selected) VALUES (insert_interaction(?,?), ?, ?, ?);';
@@ -219,7 +219,7 @@ export async function selectComments(idSession: string, idUniqueID: string | num
     try {
         const idInteractionType: number = 24; // comments view
         db.query(stmtInsertCommentView, [idSession, idInteractionType, idUniqueID]);
-        const [ results ] = await db.query(stmtSelectComments, [idUniqueID]);
+        const [ results ] = await db.query(stmtSelectComments, [idSession, idUniqueID]);
         return [null, results];
     } catch (error) {
         logDbErr(error, 'error during insert selectComments', 'warn');
