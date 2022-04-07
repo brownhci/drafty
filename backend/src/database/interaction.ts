@@ -263,9 +263,7 @@ export async function updateNewCommentVoteUp(idSession: string, idComment: strin
         if(vote.includes(deselect)) {
             stmtUpdateCommentVoteUpCount = stmtUpdateCommentVoteUpCountSUB;
         }
-        console.log(vote);
         const idInteractionType = voteIdInteractionType[vote];
-        console.log(idInteractionType);
         db.query(stmtUpdateCommentVoteUpCount, [idComment]);
         db.query(stmtInsertNewCommentVote, [idSession, idInteractionType, idComment, vote]);
     } catch (error) {
@@ -283,9 +281,7 @@ export async function updateNewCommentVoteDown(idSession: string, idComment: str
         if(vote.includes(deselect)) {
             stmtUpdateCommentVoteUpCount = stmtUpdateCommentVoteDownCountSUB;
         }
-        console.log(vote);
         const idInteractionType = voteIdInteractionType[vote];
-        console.log(idInteractionType);
         db.query(stmtUpdateCommentVoteUpCount, [idComment]);
         db.query(stmtInsertNewCommentVote, [idSession, idInteractionType, idComment, vote]);
     } catch (error) {
