@@ -112,6 +112,7 @@ function popupulateComments() {
      }
      return response.json();
   }).then(data => {
+    data.length != 0 ? 
     data.forEach((comment: CommentDataType, key: number) => {
       const id: number = comment.idComment;
       ids.push(id);
@@ -120,7 +121,7 @@ function popupulateComments() {
       if (key !== data.length - 1) {
         document.getElementById('commentsContainer').innerHTML += `<hr id="comments-hr">`;
       }
-    });
+    }) : document.getElementById('commentsContainer').innerHTML = `<div id="no-comment">no comments yet - be the first to write a comment! :)</div>`;
     handleVoteIds(ids);
     console.log(data);
   }).catch(error => console.error(error));
