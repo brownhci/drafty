@@ -62,7 +62,7 @@ function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, i
       button2.classList.remove(commentSelected);
       button2.classList.add(commentUnselected);
       decrement(id2);
-      id1.includes('upvote') ? postCommentVoteUp(commentId, 'voteDown-deselect') : postCommentVoteDown(commentId, 'voteUp-deselct');
+      id1.includes('upvote') ? postCommentVoteUp(commentId, 'voteDown-deselect') : postCommentVoteDown(commentId, 'voteUp-deselect');
     }
     return;
   }
@@ -70,7 +70,7 @@ function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, i
   if (button1.classList.contains(commentSelected)) {
     button1.classList.remove(commentSelected);
     button1.classList.add(commentUnselected);
-    id1.includes('upvote') ? postCommentVoteUp(commentId, 'voteUp-deselect') : postCommentVoteDown(commentId, 'voteDown-deselct');
+    id1.includes('upvote') ? postCommentVoteUp(commentId, 'voteUp-deselect') : postCommentVoteDown(commentId, 'voteDown-deselect');
     decrement(id1);
     return;
   }
