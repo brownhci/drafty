@@ -28,7 +28,7 @@ interface urlBase { // used for random
 interface urlSimilar extends urlBase {
     idUniqueId: string | number,
     value: string | number,
-    rowValues: string // Record<string, string | number> 
+    rowValues:  Record<string, string | number>  //string
 }
 
 async function getIdSession() {
@@ -233,7 +233,7 @@ async function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl:
         idSession: baseUrl.idSession,
         idUniqueId: idRow,
         value: tableCellElement.innerText,
-        rowValues: JSON.stringify(candidateFields)
+        rowValues: candidateFields
     };
     return urlSimilar;
 }
