@@ -161,7 +161,7 @@ const commentHTML = function (id: number, date: string, author: string, content:
       <div id="info">
         <div>${date}</div>
         ・
-        <div id="author">${author}</div>
+        <div id="author">${author ? author:'anonymous user'}</div>
       </div>
       <div id="content">
         <p>${content}</p>
