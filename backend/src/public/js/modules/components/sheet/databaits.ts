@@ -168,7 +168,6 @@ function openModal() {
 }
 
 async function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl: urlBase) {
-    candidateFields = {};
     const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
     const idRow = tableRow.getAttribute('data-id');
     candidateFields = await updateRowValues(tableRow.children); // 
@@ -178,6 +177,20 @@ async function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl:
         idSession: baseUrl.idSession,
         idUniqueId: idRow,
         value: tableCellElement.innerText,
+        rowValues: candidateFields
+    };
+    return urlSimilar;
+}
+
+async function createUrlSimilarExistingDatabait(dataBaitValues: Record<string,string>, baseUrl: urlBase) {
+
+    //candidateFields = await updateRowValues(tableRow.children); // 
+    const urlSimilar: urlSimilar = {
+        idInteractionType: baseUrl.idInteractionType,
+        idDatabaitCreateType: baseUrl.idDatabaitCreateType,
+        idSession: baseUrl.idSession,
+        idUniqueId: '',
+        value: '',
         rowValues: candidateFields
     };
     return urlSimilar;
@@ -201,12 +214,15 @@ export async function activateDatabait(tableCellElement: HTMLTableCellElement, i
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_like) {
         // need a row of data from the previous databait, or just push in the same values
         // and generate a random one
-        //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+        // find a table cell with matching values?
+        const urlSimilar = await createUrlSimilar(tableCellElement, baseUrl);
+        postDatabait(apiUrlSimilar, urlSimilar);
     } else if (idDatabaitCreateType === DatabaitCreateType.right_click) {
         const urlSimilar = await createUrlSimilar(tableCellElement, baseUrl);
         postDatabait(apiUrlSimilar, urlSimilar);
     } else if (idDatabaitCreateType === DatabaitCreateType.edit) {
-        postDatabait(apiUrlSimilar, await createUrlSimilar(tableCellElement, baseUrl));
+        const urlSimilar = await createUrlSimilar(tableCellElement, baseUrl);
+        postDatabait(apiUrlSimilar, urlSimilar);
     } else if (idDatabaitCreateType === DatabaitCreateType.new_row) {
         // tableCellElement needs to be a cell in the new row created
         //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
