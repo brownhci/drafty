@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
  
-goaccess /var/log/caddy/access.log \
+zcat -f /var/log/caddy/access* | goaccess -a \
   --html-pref='{"theme":"darkBlue","perPage":50,"layout":"vertical","showTables":true,"visitors":{"plot":{"chartType":"area-spline"}}}' \
   -o /vol/static/analytics.html \
   --http-protocol=no \
@@ -10,5 +10,6 @@ goaccess /var/log/caddy/access.log \
   --ignore-crawlers \
   --all-static-files \
   --log-format=CADDY \
+  --sort-panel=VISITORS,BY_HITS,DESC \
   --sort-panel=REQUESTS,BY_VISITORS,DESC
   
