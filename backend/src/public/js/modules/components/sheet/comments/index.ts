@@ -9,6 +9,7 @@ const getUniqueId = () => {
 };
 
 interface CommentDataType {
+  userVote: string;
   idComment: number;
   idInteraction: number;
   idUniqueId: number;
@@ -78,7 +79,7 @@ function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, i
 
 
 //Looping through to add "onclick" on each thumbs up/down to increment
-function handleVoteIds(ids: number[]) {
+function handleVoteIds(ids: number[], vote_dict) {
   ids.forEach((i: number) => {
     const thumbsUpId = 'thumbs-up-' + i.toString();
     const thumbsDownId = 'thumbs-down-' + i.toString();
@@ -86,9 +87,9 @@ function handleVoteIds(ids: number[]) {
     const downvoteId = 'downvote-' + i.toString();
     const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
     const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
-  
-    thumbsUpButton.classList.add(commentUnselected);
-    thumbsDownButton.classList.add(commentUnselected);
+
+    thumbsUpButton.classList.add(vote_dict[i] === 'up' ? commentSelected: commentUnselected);
+    thumbsDownButton.classList.add(vote_dict[i] === 'down' ? commentSelected: commentUnselected);
   
     //make this into separate function and just use for downvote also
     thumbsUpButton.onclick = function() {
@@ -103,6 +104,7 @@ function handleVoteIds(ids: number[]) {
 
 function popupulateComments() {
   const ids: number[] = [];
+  const vote_dict = {};
   const idUniqueId = getUniqueId();
   fetch(getCommentsURL(idUniqueId))
   .then(response => {
@@ -116,13 +118,14 @@ function popupulateComments() {
     data.forEach((comment: CommentDataType, key: number) => {
       const id: number = comment.idComment;
       ids.push(id);
+      vote_dict[id] = comment.userVote;
       if (key === 0) {document.getElementById('commentsContainer').innerHTML = null;}
       document.getElementById('commentsContainer').innerHTML += commentHTML(id, timestampToDate(comment.timestamp), comment.username, comment.comment, comment.voteUp, comment.voteDown);
       if (key !== data.length - 1) {
         document.getElementById('commentsContainer').innerHTML += `<hr id="comments-hr">`;
       }
     }) : document.getElementById('commentsContainer').innerHTML = `<div id="no-comment">no comments yet - be the first to write a comment! :)</div>`;
-    handleVoteIds(ids);
+    handleVoteIds(ids, vote_dict);
     console.log(data);
   }).catch(error => console.error(error));
 }
