@@ -8,7 +8,8 @@ interface Databait {
     idDatabait: string | number,
     sentence: string,
     labels: Array<string>,
-    columns: Array<string>
+    columns: Array<string>,
+    candidate_values: Record<string, Array<string>>
 }
 
 // eslint-disable-next-line prefer-const
@@ -16,7 +17,8 @@ let databaitCurrent: Databait = {
     idDatabait: '',
     sentence: '',
     labels: [],
-    columns: []
+    columns: [],
+    candidate_values: {}
 };
 
 interface urlBase { // used for random
@@ -91,9 +93,15 @@ tweetBtn.addEventListener('click', function() {
     console.log('tweetBtn');
     // recordDatabaitTweet()
 }, true);
-createSimilarBtn.addEventListener('click', function() {
+createSimilarBtn.addEventListener('click', async function() {
     console.log('createSimilarBtn');
     // recordDatabaitCreate() // similar
+    const baseUrl: urlBase = { 
+        idInteractionType: InteractionTypeDatabaitCreate.modal_like, idDatabaitCreateType: DatabaitCreateType.modal_like, 
+        idSession: await getIdSession()
+    };
+    console.log(databaitCurrent);
+    //createUrlSimilarExistingDatabait(databaitCurrent, baseUrl);
 }, true);
 createRandomBtn.addEventListener('click', async function() {
     console.log('createRandomBtn');
@@ -127,12 +135,13 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
     .then(response => { return response.json(); })
     .then(data => {
        /* DO SOMETHING HERE :) */
-       //console.log(data[0]);
+       console.log(data[0]);
        const databait = data[0];
        databaitCurrent.idDatabait = databait.idDatabait;
        databaitCurrent.sentence = databait.sentence;
        databaitCurrent.labels = databait.labels;
        databaitCurrent.columns = databait.columns;
+       databaitCurrent.candidate_values = databait.candidate_values;
        updateDatabaitHTML(databait.sentence);
        activateCtrls();
      }).catch(error => console.error(error));
