@@ -16,6 +16,8 @@ import { getColumnLabel, getTableRow, isColumnAutocompleteOnly, isTableCellEdita
 import { getRightTableCellElement } from '../../dom/navigate';
 import { getIdSuggestion, getIdSuggestionType, recordCellEdit } from '../../api/record-interactions';
 import { tableDataManager, updateActiveTableCellElement } from '../../../sheet';
+import { DatabaitCreateType, InteractionTypeDatabaitCreate } from '../../../../../types/databaits';
+import { activateDatabait } from './databaits';
 
 class CellEditor {
   private readonly formElement = document.getElementById('table-cell-input-form') as HTMLFormElement;
@@ -489,6 +491,8 @@ class CellEditor {
       cellElement.classList.add(userEditClass);
       // call backend api to send user submission
       recordCellEdit(cellElement, edit);
+      // create databait after editing a cell using that row's data
+      activateDatabait(cellElement, InteractionTypeDatabaitCreate.edit, DatabaitCreateType.edit);
     }
     return true;
   }
