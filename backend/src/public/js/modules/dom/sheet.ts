@@ -55,6 +55,14 @@ export function isColumnLabel(element: HTMLElement): boolean {
 export function getColumnLabel(index: number): HTMLTableCellElement {
   return getCellInTableRow(tableColumnLabels, index);
 }
+export function getColumnIndex(columnLabel: string): number {
+  for (let index = 0; index < tableHeadTopRowElement.childElementCount; index++) {
+    const columnLabelHeader: string = tableHeadTopRowElement.children[index].querySelector('span.column-label-text').innerHTML;
+    if(columnLabel === columnLabelHeader) {
+      return index;
+    }
+  }
+}
 export function* getTableCellElementsInRow(tableRowElement: HTMLTableRowElement) {
   yield* tableRowElement.cells;
 }
