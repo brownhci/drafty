@@ -247,7 +247,7 @@ class TableFoot {
                 const idSuggestions: Array<number> = this.reorderIdSuggestions(data.newRowIds, data.newRowFields);
                 const newRow: HTMLTableRowElement = this.prepareNewRow(idUniqueID, idSuggestions, cellValues);
                 this.insertNewRow(newRow);
-                this.setStatusTimeout(StatusMode.InsertionSuccess, 1000);
+                this.setStatusTimeout(StatusMode.InsertionSuccess, 4000);
                 const tableCellElement: HTMLTableCellElement = newRow.children[0]as HTMLTableCellElement;
                 activateDatabait(tableCellElement, InteractionTypeDatabaitCreate.new_row, DatabaitCreateType.new_row);
               }),
