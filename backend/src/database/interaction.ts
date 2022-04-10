@@ -23,7 +23,17 @@ const stmtInsertSearchGoogle: string = 'INSERT INTO SearchGoogle (idInteraction,
 
 const stmtInsertDataBaitVisit: string = 'INSERT INTO DataBaitVisit (idInteraction, idDataBait, source) VALUES (insert_interaction(?,?), ?, source);';
 
-const stmtSelectComments: string = `SELECT IF(cv.userVote is null, 'nothing', cv.userVote) as userVote, c.*, i.timestamp, p.username FROM Comments c INNER JOIN Interaction i on c.idInteraction = i.idInteraction INNER JOIN users.Session s on s.idSession = i.idSession INNER JOIN users.Profile p on p.idProfile = s.idProfile LEFT JOIN (SELECT cv.idComment, IF(cv.vote like '%deselect%', 'nothing', IF(cv.vote = 'voteUp', 'up', 'down')) as userVote FROM CommentVote cv INNER JOIN (SELECT idInteraction, idSession FROM Interaction WHERE idSession = ?) i on cv.idInteraction = i.idInteraction INNER JOIN users.Session s on s.idSession = i.idSession INNER JOIN users.Profile p on p.idProfile = s.idProfile ORDER BY idCommentVote DESC LIMIT 1) cv on c.idComment = cv.idComment WHERE c.idUniqueID = ? ORDER BY i.timestamp DESC;`;
+const stmtSelectComments: string = `SELECT IF(cv.userVote is null, 'nothing', cv.userVote) as userVote, c.*, i.timestamp, p.username
+FROM Comments c
+INNER JOIN Interaction i on c.idInteraction = i.idInteraction
+LEFT JOIN users.Session s on s.idSession = i.idSession
+LEFT JOIN users.Profile p on p.idProfile = s.idProfile
+LEFT JOIN (
+    SELECT cv.idComment, cv.idCommentVote, IF(cv.vote like '%deselect%', 'nothing', IF(cv.vote = 'voteUp', 'up', 'down')) as userVote
+    FROM CommentVote cv
+    INNER JOIN (select cv.idComment, MAX(cv.idCommentVote) idMax from CommentVote cv inner join Interaction i on i.idInteraction = cv.idInteraction where i.idSession = ? group by cv.idComment) cvm ON cvm.idMax = cv.idCommentVote
+) cv on c.idComment = cv.idComment
+WHERE c.idUniqueID = ? ORDER BY i.timestamp DESC;`;
 const stmtInsertCommentView: string = ' INSERT INTO CommentsView (idInteraction, idUniqueID) VALUES (insert_interaction(?,?),?)';
 const stmtInsertNewComment: string = 'INSERT INTO Comments (idInteraction, idUniqueID, comment, voteUp, voteDown) VALUES (insert_interaction(?,?), ?, ?, DEFAULT, DEFAULT);';
 const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote) VALUES (insert_interaction(?,?), ?, ?);';
