@@ -54,7 +54,7 @@ const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait
 const apiUrlRandom: string = '/api-dyk/v1/databait/random';
 const apiUrlSimilar: string = '/api-dyk/v1/databait/similar';
 
-function convertSentenceToHTML(sentenceOld, candidateValues) {
+function convertSentenceToHTML(sentenceOld: string, candidateValues: Record<string, Array<string>>) {
     let sentence: string = sentenceOld;
     for (const column in candidateValues) {
         candidateValues[column].forEach(value => {
@@ -152,7 +152,7 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
        databaitCurrent.labels = databait.labels;
        databaitCurrent.columns = databait.columns;
        databaitCurrent.candidate_values = databait.candidate_values;
-       updateDatabaitHTML(databait.sentence);
+       updateDatabaitHTML(convertSentenceToHTML(databait.sentence, databait.candidate_values));
        activateCtrls();
      }).catch(error => console.error(error));
 }
