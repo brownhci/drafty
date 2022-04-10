@@ -1,4 +1,4 @@
-import { getColumnLabel, getColumnLabelText } from '../../dom/sheet';
+import { getColumnIndex, getColumnLabel, getColumnLabelText } from '../../dom/sheet';
 import { getEnclosingTableRow } from '../../dom/navigate';
 import { recordDatabaitNextAction } from '../../api/record-interactions';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  from '../../../../../types/databaits';
@@ -30,7 +30,7 @@ interface urlBase { // used for random
 interface urlSimilar extends urlBase {
     idUniqueId: string | number,
     value: string | number,
-    rowValues:  Record<string, string | number>  //string
+    rowValues:  Record<string, Array<string | number>>  //string
 }
 
 async function getIdSession() {
@@ -58,7 +58,7 @@ function convertSentenceToHTML(sentenceOld: string, candidateValues: Record<stri
     let sentence: string = sentenceOld;
     for (const column in candidateValues) {
         candidateValues[column].forEach(value => {
-            const col_pos = 1; // sw TODO 
+            const col_pos = getColumnIndex(value); // sw TODO 
             sentence = sentence.replace(value, `<span data-colsearch="${col_pos}">${value}</span>`);
         });
     }
@@ -110,8 +110,7 @@ createSimilarBtn.addEventListener('click', async function() {
         idInteractionType: InteractionTypeDatabaitCreate.modal_like, idDatabaitCreateType: DatabaitCreateType.modal_like, 
         idSession: await getIdSession()
     };
-    console.log(databaitCurrent);
-    //createUrlSimilarExistingDatabait(databaitCurrent, baseUrl);
+    createUrlSimilarExistingDatabait(databaitCurrent, baseUrl);
 }, true);
 createRandomBtn.addEventListener('click', async function() {
     console.log('createRandomBtn');
@@ -201,7 +200,7 @@ async function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl:
     return urlSimilar;
 }
 
-async function createUrlSimilarExistingDatabait(dataBaitValues: Record<string,string>, baseUrl: urlBase) {
+async function createUrlSimilarExistingDatabait(Databait: Databait, baseUrl: urlBase) {
 
     //candidateFields = await updateRowValues(tableRow.children); // 
     const urlSimilar: urlSimilar = {
@@ -210,7 +209,7 @@ async function createUrlSimilarExistingDatabait(dataBaitValues: Record<string,st
         idSession: baseUrl.idSession,
         idUniqueId: '',
         value: '',
-        rowValues: candidateFields
+        rowValues: Databait.candidate_values
     };
     return urlSimilar;
 }
