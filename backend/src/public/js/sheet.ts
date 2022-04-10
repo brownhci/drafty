@@ -414,7 +414,7 @@ tableElement.addEventListener('keydown', function (event: KeyboardEvent) {
         tableFoot.toggle(StatusMode.Insertion);
       } else if(event.key !== 'Tab') {
         // activate new row cell editor when new character is typed
-        cellEditNewRow.activate(target.parentElement as HTMLTableCellElement, event.key);
+        cellEditNewRow.activate(target.parentElement as HTMLTableCellElement);
       } else {
         cellEditNewRow.deactivate();
         if(isInput(target)) {

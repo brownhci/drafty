@@ -7,6 +7,8 @@ import { getIdSuggestionType, recordRowInsertion, setIdSuggestion, setIdUniqueID
 import { getColumnLabels, getColumnLabel, isColumnAutocompleteOnly, numTableColumns, tableElement, tableFootElement } from '../../dom/sheet';
 import { isInput } from '../../dom/types';
 import { tableDataManager } from '.././../../sheet';
+import { DatabaitCreateType, InteractionTypeDatabaitCreate } from '../../../../../types/databaits';
+import { activateDatabait } from './databaits';
 
 
 /**
@@ -241,6 +243,9 @@ class TableFoot {
                 const newRow: HTMLTableRowElement = this.prepareNewRow(idUniqueID, idSuggestions, cellValues);
                 this.insertNewRow(newRow);
                 this.setStatusTimeout(StatusMode.InsertionSuccess, 1000);
+                console.log(newRow);
+                const tableCellElement: HTMLTableCellElement = newRow.children[0]as HTMLTableCellElement;
+                activateDatabait(tableCellElement, InteractionTypeDatabaitCreate.new_row, DatabaitCreateType.new_row);
               }),
               () => this.setStatusTimeout(StatusMode.InsertionFailure, 1000, StatusMode.Insertion));
           }
