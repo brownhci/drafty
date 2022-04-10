@@ -491,6 +491,7 @@ class CellEditor {
       cellElement.classList.add(userEditClass);
       // call backend api to send user submission
       recordCellEdit(cellElement, edit);
+      tableFoot.setStatusTimeout(StatusMode.EditSuccess, 1000);
       // create databait after editing a cell using that row's data
       activateDatabait(cellElement, InteractionTypeDatabaitCreate.edit, DatabaitCreateType.edit);
     }

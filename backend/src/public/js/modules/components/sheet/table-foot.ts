@@ -15,6 +15,8 @@ import { activateDatabait } from './databaits';
  * Describes what `statusTableRow` is used for
  */
 export enum StatusMode {
+  /** `EditSuccess` is used for assisting `edit cell` */
+  EditSuccess = 'edit-success',
   /** `statusTableRow` is used for assisting `insertionTableRow` */
   Insertion = 'insertion',
   /** `statusTableRow` is used for reporting a new row has been submitted to backend for verification */
@@ -134,6 +136,9 @@ class TableFoot {
         case StatusMode.ColumnCopy:
           this.statusTableCell.textContent = 'A column copied';
           break;
+        case StatusMode.EditSuccess:
+            this.statusTableCell.textContent = 'A new edit has been inserted';
+            break;
         case StatusMode.InsertionFailure:
           this.statusTableCell.textContent = 'Row insertion failure';
           break;
@@ -243,7 +248,6 @@ class TableFoot {
                 const newRow: HTMLTableRowElement = this.prepareNewRow(idUniqueID, idSuggestions, cellValues);
                 this.insertNewRow(newRow);
                 this.setStatusTimeout(StatusMode.InsertionSuccess, 1000);
-                console.log(newRow);
                 const tableCellElement: HTMLTableCellElement = newRow.children[0]as HTMLTableCellElement;
                 activateDatabait(tableCellElement, InteractionTypeDatabaitCreate.new_row, DatabaitCreateType.new_row);
               }),
