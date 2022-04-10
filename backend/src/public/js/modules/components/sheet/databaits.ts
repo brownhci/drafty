@@ -39,7 +39,6 @@ async function getIdSession() {
 }
 // const idSession = await getIdSession(); // no top-level await
 
-
 //let idRow: string = undefined;
 
 const dataBaitModal: HTMLElement = document.getElementById('databait-screen');
@@ -55,11 +54,22 @@ const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait
 const apiUrlRandom: string = '/api-dyk/v1/databait/random';
 const apiUrlSimilar: string = '/api-dyk/v1/databait/similar';
 
+function convertSentenceToHTML(sentenceOld, candidateValues) {
+    let sentence: string = sentenceOld;
+    for (const column in candidateValues) {
+        candidateValues[column].forEach(value => {
+            const col_pos = 1; // sw TODO 
+            sentence = sentence.replace(value, `<span data-colsearch="${col_pos}">${value}</span>`);
+        });
+    }
+    return sentence;
+}
+
 const databaitLinks = document.querySelectorAll('a.databait-url');
 databaitLinks.forEach( (element,i) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     element.addEventListener('click', (e) => {
-        console.log(element.textContent);
+            (element.textContent);
         console.log(element.getAttribute('data-col'));
         console.log('done');
     });
