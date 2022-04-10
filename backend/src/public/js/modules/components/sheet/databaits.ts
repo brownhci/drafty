@@ -110,7 +110,8 @@ createSimilarBtn.addEventListener('click', async function() {
         idInteractionType: InteractionTypeDatabaitCreate.modal_like, idDatabaitCreateType: DatabaitCreateType.modal_like, 
         idSession: await getIdSession()
     };
-    createUrlSimilarExistingDatabait(databaitCurrent, baseUrl);
+    const urlSimilar: urlSimilar = await createUrlSimilarExistingDatabait(databaitCurrent, baseUrl);
+    postDatabait(apiUrlSimilar, urlSimilar);
 }, true);
 createRandomBtn.addEventListener('click', async function() {
     console.log('createRandomBtn');
@@ -200,7 +201,7 @@ async function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl:
     return urlSimilar;
 }
 
-async function createUrlSimilarExistingDatabait(Databait: Databait, baseUrl: urlBase) {
+async function createUrlSimilarExistingDatabait(databait: Databait, baseUrl: urlBase) {
 
     //candidateFields = await updateRowValues(tableRow.children); // 
     const urlSimilar: urlSimilar = {
@@ -209,7 +210,7 @@ async function createUrlSimilarExistingDatabait(Databait: Databait, baseUrl: url
         idSession: baseUrl.idSession,
         idUniqueId: '',
         value: '',
-        rowValues: Databait.candidate_values
+        rowValues: databait.candidate_values
     };
     return urlSimilar;
 }
