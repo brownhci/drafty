@@ -137,7 +137,7 @@ class TableFoot {
           this.statusTableCell.textContent = 'A column copied';
           break;
         case StatusMode.EditSuccess:
-            this.statusTableCell.textContent = 'A new edit has been inserted';
+            this.statusTableCell.textContent = 'Thank you, your addition will be added within a few minutes.';
             break;
         case StatusMode.InsertionFailure:
           this.statusTableCell.textContent = 'Row insertion failure';
@@ -147,7 +147,7 @@ class TableFoot {
           columnLabelInsertRowMenuItem.deactivate();
           // previously inputted cell values has been saved
           this.resetInputs();
-          this.statusTableCell.textContent = 'A new row has been inserted';
+          this.statusTableCell.textContent = 'Thank you, your addition will be added within a few minutes.';
           break;
         case StatusMode.InsertionVerification:
           this.statusTableCell.innerHTML = `
