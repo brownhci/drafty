@@ -3,15 +3,15 @@
  * This handles the individual inputs for add new row.
  */
 import { alignElementHorizontally, placeElementAdjacently } from './align';
-import { getEditSuggestionURL, getNewRowValuesURL } from '../../api/endpoints';
-import { getIdSuggestion, getIdSuggestionType } from '../../api/record-interactions';
+import { getNewRowValuesURL } from '../../api/endpoints';
+import { getIdSuggestionType } from '../../api/record-interactions';
 import { activeClass } from '../../constants/css-classes';
-import { getCellInTableRow, getEnclosingTableCell } from '../../dom/navigate';
+import { getEnclosingTableCell } from '../../dom/navigate';
 import { getColumnLabel, tableFootElement } from '../../dom/sheet';
 import { isInput } from '../../dom/types';
 import { FuseSelect } from '../../fuse/sheet-fuse';
 import { debounce } from '../../utils/debounce';
-import { tableDataManager, updateActiveTableCellElement } from '../../../sheet';
+import { updateActiveTableCellElement } from '../../../sheet';
 import { getJSON } from '../../api/requests';
 
 interface Option {
@@ -28,12 +28,6 @@ class CellEditNewRow {
 
     get isActive(): boolean {
         return this.container.classList.contains(activeClass);
-    }
-
-    private get suggestionIdentifier(): number {
-        const columnIndex = this.target.cellIndex;
-        const firstRow = tableDataManager.source[0].element_ as HTMLTableRowElement;
-        return getIdSuggestion(getCellInTableRow(firstRow, columnIndex) as HTMLTableCellElement);
     }
 
     private get newRowValueFetchURL() {
@@ -96,7 +90,7 @@ class CellEditNewRow {
         }
     }
 
-    async activate(target: HTMLTableCellElement, msg: string) {
+    async activate(target: HTMLTableCellElement) {
         //console.log(`activate autocomplete ${msg}`);
         this.target = target;
         this.inputElement = target.querySelector('input');
