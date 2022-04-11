@@ -166,7 +166,8 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
        updateDatabaitHTML(convertSentenceToHTML(databait.sentence, databait.candidate_values));
        activateCtrls();
      }).catch(error => {
-         console.error(error);
+        console.error(error);
+        dataBaitText.innerHTML = `Oh we are so sorry, something went wrong. :(`;
      });
 }
 
