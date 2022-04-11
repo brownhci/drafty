@@ -7,23 +7,24 @@
 
 #commentIcon {
   margin: 16px;
+  display: none;
 }
 
 #comments {
+  display: none; //becomes flex when activated
   flex-direction: column;
   height: 40vh;
   width: 50vw;
   padding: 10px;
   margin: 10px;
-  outline: 2px solid grey;
+  outline: 2px solid $gray-500;
   font-family: sans-serif;
-  display: flex;
   font-style: normal;
   font-variant: normal;
   text-rendering: auto;
   -webkit-font-smoothing: antialiased;
   font-family: sans-serif;
-  background-color: white;
+  background-color: $white;
   min-width: 350px;
   max-width: 600px;
 }
@@ -39,7 +40,7 @@
 }
 
 #comment-icon-background {
-  color:#1089ff;
+  color: $primary;
 }
 
 #commentIcon:hover {
@@ -48,23 +49,26 @@
 
 #comment-close {
   height: 32px; 
-  color:darkgrey;
+  color:$gray-400;
   cursor: pointer;
 }
 
 #comment-close:hover {
-  color: grey;
+  color: $gray-500;
 }
 
 #newComment {
   display: flex;
   flex-direction: row;
-  padding: 8px 4px 0px 4px;
+  // padding: 8px 4px 0px 4px;
   justify-content: space-between;
-  background-color: white;
+  background-color: $white;
+  margin: 4px;
 }
 
 #newCommentTextbox {
+  outline: $gray-400;
+  color: $gray-400;
   height: 36px;
   width: 100%;
   line-height: 16px;
@@ -75,16 +79,16 @@
 #comment-button {
   display: flex;
   height: 36px;
-  background-color: #1089ff;
+  background-color: $primary;
   border: none;
-  color: white;
+  color: $white;
   text-align: center;
   align-items: center;
   justify-content: center;
   align-content: center;
   text-decoration: none;
   font-size: 12px;
-  margin: 0px 4px;
+  margin: 0px 0px 0px 4px;
   padding: 12px;
   border-radius: 4px;
   cursor: pointer;
@@ -94,7 +98,7 @@
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-  padding: 16px 2px;
+  margin: 16px 2px;
   width: 100%;
   height: 100%;
 }
@@ -105,9 +109,10 @@
   height: 100%;
   align-content: center;
   align-items: center;
-  justify-content: center;
-  color: grey;
+  justify-content: space-between;
+  color: $gray-500;
   font-size: 14px;
+  padding: 4px;
 }
 
 #commentContainer {
@@ -128,7 +133,7 @@
 #info {
   display: flex;
   flex-direction: row;
-  color: grey;
+  color: $gray-600;
   justify-content: left;
   font-size: 12px;
   padding-bottom: 4px;
@@ -143,7 +148,7 @@
   font-size: 14px;
   align-content: center;
   justify-content: left;
-  color: black;
+  color: $black;
 }
 
 #rating {
@@ -173,24 +178,24 @@
 }
 
 #comments-hr {
-  border-top: 1px dashed grey;
+  border-top: 1px dashed $gray-500;
   width: 100%;
 }
 
 .fa-thumbs-up,
 .fa-thumbs-down {
-  color: black;
+  color: $black;
   cursor: pointer;
 }
 .fa-thumbs-up:hover,
 .fa-thumbs-down:hover {
-  color: grey;
+  color: $gray-500;
 }
 
 .vote-selected {
-  color: #1089ff;
+  color: $primary;
 }
 
 .vote {
-  color: black;
+  color: $black;
 }

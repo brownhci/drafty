@@ -24,7 +24,7 @@ const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
 
 const timestampToDate = (timestamp: string) => {
-  return monthNames[parseInt(timestamp.substring(6,7))] + ' ' + parseInt(timestamp.substring(8,10)).toString() + ', ' + timestamp.substring(0,4);
+  return monthNames[parseInt(timestamp.substring(6,7)) - 1] + ' ' + parseInt(timestamp.substring(8,10)).toString() + ', ' + timestamp.substring(0,4);
 };
 
 const commentsDiv = document.getElementById('comments');
@@ -79,7 +79,7 @@ function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, i
 
 
 //Looping through to add "onclick" on each thumbs up/down to increment
-function handleVoteIds(ids: number[], vote_dict) {
+function handleVoteIds(ids: number[], vote_dict: Map<number, string>) {
   ids.forEach((i: number) => {
     const thumbsUpId = 'thumbs-up-' + i.toString();
     const thumbsDownId = 'thumbs-down-' + i.toString();
@@ -88,8 +88,8 @@ function handleVoteIds(ids: number[], vote_dict) {
     const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
     const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
 
-    thumbsUpButton.classList.add(vote_dict[i] === 'up' ? commentSelected: commentUnselected);
-    thumbsDownButton.classList.add(vote_dict[i] === 'down' ? commentSelected: commentUnselected);
+    thumbsUpButton.classList.add(vote_dict.get(i) === 'up' ? commentSelected: commentUnselected);
+    thumbsDownButton.classList.add(vote_dict.get(i) === 'down' ? commentSelected: commentUnselected);
   
     //make this into separate function and just use for downvote also
     thumbsUpButton.onclick = function() {
@@ -104,7 +104,7 @@ function handleVoteIds(ids: number[], vote_dict) {
 
 function popupulateComments() {
   const ids: number[] = [];
-  const vote_dict = {};
+  const vote_dict = new Map();
   const idUniqueId = getUniqueId();
   fetch(getCommentsURL(idUniqueId))
   .then(response => {
@@ -118,7 +118,8 @@ function popupulateComments() {
     data.forEach((comment: CommentDataType, key: number) => {
       const id: number = comment.idComment;
       ids.push(id);
-      vote_dict[id] = comment.userVote;
+      vote_dict.set(id, comment.userVote);
+      // vote_dict[id] = comment.userVote;
       if (key === 0) {document.getElementById('commentsContainer').innerHTML = null;}
       document.getElementById('commentsContainer').innerHTML += commentHTML(id, timestampToDate(comment.timestamp), comment.username, comment.comment, comment.voteUp, comment.voteDown);
       if (key !== data.length - 1) {
