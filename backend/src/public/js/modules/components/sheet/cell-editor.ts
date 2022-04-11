@@ -15,7 +15,7 @@ import { debounce } from '../../utils/debounce';
 import { getColumnLabel, getTableRow, isColumnAutocompleteOnly, isTableCellEditable, setTableDataText, tableScrollContainer } from '../../dom/sheet';
 import { getRightTableCellElement } from '../../dom/navigate';
 import { getIdSuggestion, getIdSuggestionType, recordCellEdit } from '../../api/record-interactions';
-import { tableDataManager, updateActiveTableCellElement } from '../../../sheet';
+import { tableDataManager, updateActiveTableCellElement, contributionTimeout } from '../../../sheet';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate } from '../../../../../types/databaits';
 import { activateDatabait } from './databaits';
 
@@ -491,7 +491,7 @@ class CellEditor {
       cellElement.classList.add(userEditClass);
       // call backend api to send user submission
       recordCellEdit(cellElement, edit);
-      tableFoot.setStatusTimeout(StatusMode.EditSuccess, 4000);
+      tableFoot.setStatusTimeout(StatusMode.EditSuccess, contributionTimeout);
       // create databait after editing a cell using that row's data
       activateDatabait(cellElement, InteractionTypeDatabaitCreate.edit, DatabaitCreateType.edit);
     }

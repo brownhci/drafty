@@ -6,7 +6,7 @@ import { activeClass, disabledClass, invalidClass, userEditClass } from '../../c
 import { getIdSuggestionType, recordRowInsertion, setIdSuggestion, setIdUniqueID } from '../../api/record-interactions';
 import { getColumnLabels, getColumnLabel, isColumnAutocompleteOnly, numTableColumns, tableElement, tableFootElement } from '../../dom/sheet';
 import { isInput } from '../../dom/types';
-import { tableDataManager } from '.././../../sheet';
+import { contributionTimeout, tableDataManager } from '.././../../sheet';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate } from '../../../../../types/databaits';
 import { activateDatabait } from './databaits';
 
@@ -247,7 +247,7 @@ class TableFoot {
                 const idSuggestions: Array<number> = this.reorderIdSuggestions(data.newRowIds, data.newRowFields);
                 const newRow: HTMLTableRowElement = this.prepareNewRow(idUniqueID, idSuggestions, cellValues);
                 this.insertNewRow(newRow);
-                this.setStatusTimeout(StatusMode.InsertionSuccess, 4000);
+                this.setStatusTimeout(StatusMode.InsertionSuccess, contributionTimeout);
                 const tableCellElement: HTMLTableCellElement = newRow.children[0]as HTMLTableCellElement;
                 activateDatabait(tableCellElement, InteractionTypeDatabaitCreate.new_row, DatabaitCreateType.new_row);
               }),

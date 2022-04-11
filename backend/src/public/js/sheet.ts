@@ -38,6 +38,9 @@ interface ActiveHTMLTableCellElement extends HTMLTableCellElement {
   lastActiveTimestamp?: number;
 }
 const recentTimeLimit: number = 1000;
+
+export const contributionTimeout: number = 4000;
+
 export let activeTableCellElement: ActiveHTMLTableCellElement = null;
 /* activate */
 

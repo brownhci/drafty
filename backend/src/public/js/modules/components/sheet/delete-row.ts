@@ -3,6 +3,7 @@ import { recordRowDelete } from '../../api/record-interactions';
 import { StatusMode, tableFoot } from './table-foot';
 import { activateDatabait } from './databaits';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate } from '../../../../../types/databaits';
+import { contributionTimeout } from '../../../sheet';
 
 let idRow: string = undefined;
 
@@ -59,7 +60,7 @@ submitBtn.addEventListener('click', function() {
     // idRow, deleteRowComment.value
     recordRowDelete(idRow, deleteRowComment.value);
     deleteRowModal.style.display = 'none';
-    tableFoot.setStatusTimeout(StatusMode.DeleteSuccess, 4000);
+    tableFoot.setStatusTimeout(StatusMode.DeleteSuccess, contributionTimeout);
     activateDatabait(null, InteractionTypeDatabaitCreate.navbar_menu, DatabaitCreateType.navbar_menu);
 }, true);
 
