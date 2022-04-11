@@ -121,7 +121,6 @@ function popupulateComments() {
       }
     }) : document.getElementById('commentsContainer').innerHTML = `<div id="no-comment">no comments yet - be the first to write a comment! :)</div>`;
     handleVoteIds(ids, vote_dict);
-    console.log(data);
   }).catch(error => console.error(error));
 }
 
