@@ -114,7 +114,6 @@ function popupulateComments() {
       const id: number = comment.idComment;
       ids.push(id);
       vote_dict.set(id, comment.userVote);
-      // vote_dict[id] = comment.userVote;
       if (key === 0) {document.getElementById('commentsContainer').innerHTML = null;}
       document.getElementById('commentsContainer').innerHTML += commentHTML(id, timestampToDate(comment.timestamp), comment.username, comment.comment, comment.voteUp, comment.voteDown);
       if (key !== data.length - 1) {
@@ -143,9 +142,6 @@ export function changeCommentLabel() {
   const profName: string = fullNameCell.includes('<') ? fullNameCell.slice(0, fullNameCell.indexOf('<') - 1) : fullNameCell;
   commentLabel.innerHTML = 'Comments for ' + profName;
 }
-
-commentsDiv.style.display = 'none';
-commentIcon.style.display = 'none';
 
 commentIcon.onclick = function () {
   activateCommentSection();
@@ -199,6 +195,7 @@ document.getElementById('comment-button').onclick = function () {
   (<HTMLInputElement>document.getElementById('newCommentTextbox')).value = '';
 };
 
+//esc closes comment section
 document.addEventListener('keydown', evt => {
   if (evt.key === 'Escape' && commentsDiv.style.display === 'flex') {
     activateCommentIcon();
