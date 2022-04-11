@@ -230,8 +230,6 @@ export function recordDatabaitCreate(idSuggestion: string, idRow: string, tableR
 }
 
 export function recordDatabaitNextAction(idDatabait: string | number, nextAction: DatabaitAction) {
-  console.log('recordDatabaitNextAction');
-  console.log(idDatabait);
   recordInteraction(postDatabaitNextAction(), {
     idDatabait: idDatabait,
     nextAction: nextAction,
