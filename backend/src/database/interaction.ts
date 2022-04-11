@@ -21,6 +21,27 @@ const stmtSearchMulti: string = 'INSERT INTO SearchMulti (idInteraction, idSugge
 
 const stmtInsertSearchGoogle: string = 'INSERT INTO SearchGoogle (idInteraction, idUniqueID, idSuggestion, searchValues) VALUES (insert_interaction(?,?), ?, ?, ?);';
 
+const stmtInsertDataBaitVisit: string = 'INSERT INTO DataBaitVisit (idInteraction, idDataBait, source) VALUES (insert_interaction(?,?), ?, source);';
+
+const stmtSelectComments: string = `SELECT IF(cv.userVote is null, 'nothing', cv.userVote) as userVote, c.*, i.timestamp, p.username
+FROM Comments c
+INNER JOIN Interaction i on c.idInteraction = i.idInteraction
+LEFT JOIN users.Session s on s.idSession = i.idSession
+LEFT JOIN users.Profile p on p.idProfile = s.idProfile
+LEFT JOIN (
+    SELECT cv.idComment, cv.idCommentVote, IF(cv.vote like '%deselect%', 'nothing', IF(cv.vote = 'voteUp', 'up', 'down')) as userVote
+    FROM CommentVote cv
+    INNER JOIN (select cv.idComment, MAX(cv.idCommentVote) idMax from CommentVote cv inner join Interaction i on i.idInteraction = cv.idInteraction where i.idSession = ? group by cv.idComment) cvm ON cvm.idMax = cv.idCommentVote
+) cv on c.idComment = cv.idComment
+WHERE c.idUniqueID = ? ORDER BY i.timestamp DESC;`;
+const stmtInsertCommentView: string = ' INSERT INTO CommentsView (idInteraction, idUniqueID) VALUES (insert_interaction(?,?),?)';
+const stmtInsertNewComment: string = 'INSERT INTO Comments (idInteraction, idUniqueID, comment, voteUp, voteDown) VALUES (insert_interaction(?,?), ?, ?, DEFAULT, DEFAULT);';
+const stmtInsertNewCommentVote: string = 'INSERT INTO CommentVote (idInteraction, idComment, vote) VALUES (insert_interaction(?,?), ?, ?);';
+const stmtUpdateCommentVoteUpCountADD: string = 'UPDATE Comments t SET t.voteUp = (t.voteUp + 1) WHERE t.idComment = ?;';
+const stmtUpdateCommentVoteUpCountSUB: string = 'UPDATE Comments t SET t.voteUp = (t.voteUp - 1) WHERE t.idComment = ?;';
+const stmtUpdateCommentVoteDownCountADD: string = 'UPDATE Comments t SET t.voteDown = (t.voteDown + 1) WHERE t.idComment = ?;';
+const stmtUpdateCommentVoteDownCountSUB: string = 'UPDATE Comments t SET t.voteDown = (t.voteDown - 1) WHERE t.idComment = ?;';
+
 /**
  * save new click
  */
@@ -183,5 +204,97 @@ export async function insertSearchGoogle(idSession: string, idRow: number | stri
         db.query(stmtInsertSearchGoogle, [idSession, idInteractionType, idRow, idSuggestion, searchValues.join(pipeDelim)]);
     } catch (error) {
         logDbErr(error, 'error during insert google search', 'warn');
+    }
+}
+
+/**
+ * insert that someone came to drafty from seeing a databait
+ */
+//DB Code
+export async function insertDataBaitVisit(idSession: string, idDataBait: string, source: string) {
+    try {
+        const idInteractionType: number = 24;
+        await db.query(stmtInsertDataBaitVisit, [idSession, idInteractionType, idDataBait, source]);
+    } catch (error) {
+        logDbErr(error, 'error during insert databait visit', 'warn');
+    }
+}
+
+
+/**
+ * get all comments for a row
+ */
+//DB Code
+export async function selectComments(idSession: string, idUniqueID: string | number) {
+    try {
+        const idInteractionType: number = 24; // comments view
+        db.query(stmtInsertCommentView, [idSession, idInteractionType, idUniqueID]);
+        const [ results ] = await db.query(stmtSelectComments, [idSession, idUniqueID]);
+        return [null, results];
+    } catch (error) {
+        logDbErr(error, 'error during insert selectComments', 'warn');
+        return [error];
+    }
+}
+
+
+/**
+ * insert new comment
+ */
+//DB Code
+export async function insertNewComment(idSession: string, idUniqueID: string | number, comment: string ) {
+    try {
+        const idInteractionType: number = 19;
+        const [ results ] = await db.query(stmtInsertNewComment, [idSession, idInteractionType, idUniqueID, comment]);
+        return [null, results];
+    } catch (error) {
+        logDbErr(error, 'error during insert insertNewComment', 'warn');
+        return [error];
+    }
+}
+
+// to match check in database
+const deselect: string = 'deselect';
+export type Vote = 'voteUp' | 'voteUp-deselect' | 'voteDown' | 'voteDown-deselect';
+const voteIdInteractionType: Record<Vote, number> = {
+    'voteUp': 20,
+    'voteUp-deselect': 21,
+    'voteDown': 22,
+    'voteDown-deselect': 23
+};
+
+/**
+ * update comment vote up
+ */
+//DB Code
+export async function updateNewCommentVoteUp(idSession: string, idComment: string | number, vote: Vote) {
+    try {
+        let stmtUpdateCommentVoteUpCount: string = stmtUpdateCommentVoteUpCountADD;
+        if(vote.includes(deselect)) {
+            stmtUpdateCommentVoteUpCount = stmtUpdateCommentVoteUpCountSUB;
+        }
+        const idInteractionType = voteIdInteractionType[vote];
+        db.query(stmtUpdateCommentVoteUpCount, [idComment]);
+        db.query(stmtInsertNewCommentVote, [idSession, idInteractionType, idComment, vote]);
+    } catch (error) {
+        logDbErr(error, 'error during insert updateNewCommentVoteUp', 'warn');
+    }
+}
+
+/**
+ * update comment vote down
+ */
+//DB Code
+export async function updateNewCommentVoteDown(idSession: string, idComment: string | number, vote: Vote) {
+    try {
+        let stmtUpdateCommentVoteUpCount: string = stmtUpdateCommentVoteDownCountADD;
+        if(vote.includes(deselect)) {
+            stmtUpdateCommentVoteUpCount = stmtUpdateCommentVoteDownCountSUB;
+        }
+        const idInteractionType = voteIdInteractionType[vote];
+        db.query(stmtUpdateCommentVoteUpCount, [idComment]);
+        db.query(stmtInsertNewCommentVote, [idSession, idInteractionType, idComment, vote]);
+    } catch (error) {
+        logDbErr(error, 'error during insert updateNewCommentVoteDown', 'warn');
     }
 }

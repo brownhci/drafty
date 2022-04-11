@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from '../dom/navigate';
 import { isTableData } from '../dom/types';
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitTweet, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction } from './endpoints';
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitTweet, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction, postNewCommentURL, postCommentVoteDownURL, postCommentVoteUpURL } from './endpoints';
 import { DatabaitAction } from '../../../../types/databaits';
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
@@ -80,8 +80,34 @@ function recordInteraction(
     } else {
       failureHandler(response);
     }
-  })
-    .catch(error => console.error('Network error when posting interaction: ', error));
+  }).catch(error => console.error('Network error when posting interaction: ', error));
+}
+
+// Get Data from Backend
+/**
+ * @param {string} url - The server endpoint at which the interaction will be recorded.
+ * @param {Record<any, any>} data - The data object sent in the post request.
+ * @param {ResponseHandler} [successHandler = () => undefined] - The handler when response reports success.
+ * @param {ResponseHandler} [failureHandler = console.error(`${response.status}: ${response.statusText}`)] - The handler when response reports failure. Defaults to log the error.
+ */
+function getData(
+  url: string,
+  successHandler: ResponseHandler = () => undefined,
+  failureHandler: ResponseHandler = response => console.error(`${response.status}: ${response.statusText}`)) {
+  fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }).then(response => {
+    // console.log(response.json());
+    if (response.ok) {
+      console.log(response.json());
+      successHandler(response);
+    } else {
+      failureHandler(response);
+    }
+  }).catch(error => console.error('Network error when posting interaction: ', error));
 }
 
 export function recordCellEdit(tableCellElement: HTMLTableCellElement, textContent: string) {
@@ -222,5 +248,26 @@ export function recordSearchColVisit(idSuggestionType: string, value: string) {
   recordInteraction(postSearchColVisit(), {
     idSuggestionType: idSuggestionType,
     value: value
+  });
+}
+
+export function postNewComment(idrow: string | number, comment: string) {
+  recordInteraction(postNewCommentURL(), {
+    idrow: idrow,
+    comment: comment
+  });
+}
+
+export function postCommentVoteUp(idComment: number, vote: string) {
+  recordInteraction(postCommentVoteUpURL(), {
+    idComment: idComment,
+    vote: vote
+  });
+}
+
+export function postCommentVoteDown(idComment: number, vote: string) {
+  recordInteraction(postCommentVoteDownURL(), {
+    idComment: idComment,
+    vote: vote
   });
 }

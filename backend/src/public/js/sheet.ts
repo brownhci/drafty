@@ -2,7 +2,7 @@ import { recordCellClick, recordCellDoubleClick } from './modules/api/record-int
 import { activeClass, activeAccompanyClass } from './modules/constants/css-classes';
 import './modules/components/welcome-screen';
 import './modules/components/sheet/navbar';
-// import './modules/components/sheet/comments/'; // removing until feature is done
+import './modules/components/sheet/comments/';
 import './modules/components/sheet/databaits';
 import './modules/components/sheet/delete-row';
 import { tableHeadOnMouseDown, tableHeadOnMouseMove } from './modules/components/sheet/resize-column';
@@ -18,6 +18,7 @@ import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElemen
 import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams } from './modules/dom/sheet';
 import { isInput, isTableData, isTableHead, isTableCell, isColumnSearchInput } from './modules/dom/types';
 import { cellEditNewRow } from './modules/components/sheet/cell-editor-new-row';
+import { activateCommentIcon, activateCommentSection, changeCommentLabel } from './modules/components/sheet/comments/';
 
 /* // testing function logic
 const startTime = performance.now();
@@ -44,6 +45,13 @@ export const contributionTimeout: number = 4000;
 export let activeTableCellElement: ActiveHTMLTableCellElement = null;
 /* activate */
 
+function activateCellEditor() {
+  cellEditor.formInput = getTableDataText(activeTableCellElement).trim();
+  const initialSearchValue = ''; // bc we want users to see all options
+  cellEditor.activateForm(activeTableCellElement, initialSearchValue);
+  activeTableCellElement.lastActiveTimestamp = null;
+}
+
 const editCaretId: string = 'edit-caret';
 const editCaret: string = `
     <span id="${editCaretId}">
@@ -54,6 +62,7 @@ const editCaret: string = `
 function activateEditCaret() {
   activeTableCellElement.innerHTML += editCaret;
   const editCaretElement = document.getElementById(editCaretId);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   editCaretElement.addEventListener('click', (event: MouseEvent) => {
     activateCellEditor();
   });
@@ -64,27 +73,6 @@ function deactivateEditCaret() {
     editCaretElement.remove();
   }
 }
-
-const commentIcon = document.getElementById('commentIcon');
-const commentDiv = document.getElementById('comments');
-const commentLabel = document.getElementById('comment-label');
-
-function activateCommentIcon() {
-  commentIcon.style.display = 'flex';
-  commentDiv.style.display = 'none';
-}
-
-function activateCommentSection() {
-  commentIcon.style.display = 'none';
-  commentDiv.style.display = 'flex';
-}
-
-function changeCommentLabel() {
-  const html: string = activeTableCellElement.innerHTML;
-  const profName: string = html.slice(0, html.indexOf('<') - 1);
-  commentLabel.innerHTML = 'Comments for ' + profName;
-}
-
 
 /**
  * renew the timestamp on the active table cell element.
@@ -100,9 +88,8 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
   if (shouldGetFocus) {
     activeTableCellElement.focus();
     activateEditCaret();
-    // sw: bring back in when we merge the  branches
-    //commentDiv.style.display === 'none' ? activateCommentIcon(): activateCommentSection();
-    //changeCommentLabel();
+    document.getElementById('comments').style.display === 'none' ? activateCommentIcon(): activateCommentSection();
+    changeCommentLabel();
   }
 }
 function activateTableHead(shouldGetFocus = true) {
@@ -236,13 +223,6 @@ function activeTableHeadOnRepeatedClick() {
     // only activate table column at repeated click (after even number of clicks)
     activateTableCol();
   }
-}
-
-function activateCellEditor() {
-  cellEditor.formInput = getTableDataText(activeTableCellElement).trim();
-  const initialSearchValue = ''; // bc we want users to see all options
-  cellEditor.activateForm(activeTableCellElement, initialSearchValue);
-  activeTableCellElement.lastActiveTimestamp = null;
 }
 
 function activeElementOnRepeatedClick() {

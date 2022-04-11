@@ -456,6 +456,7 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
   req.session.user.lastInteraction = interactionTime;
   req.session.user.views++;
   // sw: turning the A/B testing off
+  // sw: not putting people into experimental groups - naturalistic study
   //req.session.user.activeExperiments = getActiveExperiments(newSession, req.session.user.idSession);
   next();
 }
