@@ -68,15 +68,17 @@ function convertSentenceToHTML(sentenceOld: string, candidateValues: Record<stri
     return sentence;
 }
 
-const databaitLinks = document.querySelectorAll('a.databait-url');
-databaitLinks.forEach( (element,i) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    element.addEventListener('click', (e) => {
-            (element.textContent);
-        console.log(element.getAttribute('data-col'));
-        console.log('done');
+function addClickListenersToDatabaitsValues(){
+    const databaitLinks = document.querySelectorAll('a.databait-url');
+    databaitLinks.forEach( (element,i) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        element.addEventListener('click', (e) => {
+                (element.textContent);
+            console.log(element.getAttribute('data-col'));
+            console.log('done');
+        });
     });
-});
+}
 
 function updateDatabaitHTML(databait: string) {
     dataBaitText.innerHTML = databait;
