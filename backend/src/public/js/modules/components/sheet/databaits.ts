@@ -87,7 +87,7 @@ function resetContributionMessageHTML() {
 }
 
 function addContributionMessageHTML() {
-    conntributionMessage.innerHTML = 'Thank you, your addition will be added within a few minutes.';
+    conntributionMessage.innerHTML = 'Thank you, your contribution will be added in a few minutes.';
 }
 
 function activateCtrls() {
