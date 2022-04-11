@@ -121,7 +121,6 @@ function popupulateComments() {
       }
     }) : document.getElementById('commentsContainer').innerHTML = `<div id="no-comment">no comments yet - be the first to write a comment! :)</div>`;
     handleVoteIds(ids, vote_dict);
-    console.log(data);
   }).catch(error => console.error(error));
 }
 
@@ -182,6 +181,9 @@ const commentHTML = function (id: number, date: string, author: string, content:
   </div>
   `;
 };
+
+commentIcon.style.display = 'none';
+commentsDiv.style.display = 'none';
 
 //logic to add new comment post
 document.getElementById('comment-button').onclick = function () {
