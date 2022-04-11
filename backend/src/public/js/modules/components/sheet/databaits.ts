@@ -47,6 +47,7 @@ const dataBaitModalClose = <HTMLButtonElement>document.getElementById('dataBaitM
 const tweetBtn = <HTMLButtonElement>document.getElementById('btn-databait-tweet');
 const createSimilarBtn = <HTMLButtonElement>document.getElementById('btn-databait-similar');
 const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait-random');
+const conntributionMessage = <HTMLSpanElement>document.getElementById('databait-contribution-confirmation');
 
 //const databaitLoadingMsg: string = `Creating something awesome...`;
 //const apiUrlAll: string = '/api-dyk/v1/databait/all';
@@ -77,6 +78,14 @@ databaitLinks.forEach( (element,i) => {
 
 function updateDatabaitHTML(databait: string) {
     dataBaitText.innerHTML = databait;
+}
+
+function resetContributionMessageHTML() {
+    conntributionMessage.innerHTML = '';
+}
+
+function addContributionMessageHTML() {
+    conntributionMessage.innerHTML = 'Thank you, your addition will be added within a few minutes.';
 }
 
 function activateCtrls() {
@@ -217,6 +226,7 @@ async function createUrlSimilarExistingDatabait(databait: Databait, baseUrl: url
 
 export async function activateDatabait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
     const baseUrl: urlBase = { idInteractionType: idInteractionType, idDatabaitCreateType: idDatabaitCreateType, idSession: await getIdSession()};
+    resetContributionMessageHTML();
     if (idDatabaitCreateType === DatabaitCreateType.navbar_menu) {
         postDatabait(apiUrlRandom, baseUrl);
         // user has a cell selected
@@ -241,6 +251,7 @@ export async function activateDatabait(tableCellElement: HTMLTableCellElement, i
         postDatabait(apiUrlSimilar, urlSimilar);
     } else if (idDatabaitCreateType === DatabaitCreateType.edit) {
         const urlSimilar = await createUrlSimilar(tableCellElement, baseUrl);
+        addContributionMessageHTML();
         postDatabait(apiUrlSimilar, urlSimilar);
     } else if (idDatabaitCreateType === DatabaitCreateType.new_row) {
         // tableCellElement needs to be a cell in the new row created
