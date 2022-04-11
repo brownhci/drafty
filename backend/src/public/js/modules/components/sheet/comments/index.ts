@@ -182,6 +182,9 @@ const commentHTML = function (id: number, date: string, author: string, content:
   `;
 };
 
+commentIcon.style.display = 'none';
+commentsDiv.style.display = 'none';
+
 //logic to add new comment post
 document.getElementById('comment-button').onclick = function () {
   const content: string = (<HTMLInputElement>(
