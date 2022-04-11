@@ -135,6 +135,7 @@ export function activateCommentSection() {
   popupulateComments();
   commentIcon.style.display = 'none';
   commentsDiv.style.display = 'flex';
+  document.getElementById('newCommentTextbox').focus();
 }
 
 export function changeCommentLabel() {
