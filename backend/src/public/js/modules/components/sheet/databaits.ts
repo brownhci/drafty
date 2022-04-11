@@ -116,8 +116,9 @@ tweetBtn.addEventListener('click', function() {
     console.log('tweetBtn');
     // recordDatabaitTweet()
 }, true);
+
 createSimilarBtn.addEventListener('click', async function() {
-    console.log('createSimilarBtn');
+    //console.log('createSimilarBtn');
     // recordDatabaitCreate() // similar
     const baseUrl: urlBase = { 
         idInteractionType: InteractionTypeDatabaitCreate.modal_like, idDatabaitCreateType: DatabaitCreateType.modal_like, 
@@ -126,8 +127,9 @@ createSimilarBtn.addEventListener('click', async function() {
     const urlSimilar: urlSimilar = await createUrlSimilarExistingDatabait(databaitCurrent, baseUrl);
     postDatabait(apiUrlSimilar, urlSimilar);
 }, true);
+
 createRandomBtn.addEventListener('click', async function() {
-    console.log('createRandomBtn');
+    //console.log('createRandomBtn');
     const baseUrl: urlBase = { 
         idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random, 
         idSession: await getIdSession() 
@@ -158,7 +160,7 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
     .then(response => { return response.json(); })
     .then(data => {
        /* DO SOMETHING HERE :) */
-       console.log(data[0]);
+       //console.log(data[0]);
        const databait = data[0];
        databaitCurrent.idDatabait = databait.idDatabait;
        databaitCurrent.sentence = databait.sentence;
