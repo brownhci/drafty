@@ -32,11 +32,6 @@ const commentIcon = document.getElementById('commentIcon');
 const closeIcon = document.getElementById('comment-close');
 const commentLabel = document.getElementById('comment-label');
 
-export function activateCommentIcon() {
-  commentIcon.style.display = 'flex';
-  commentsDiv.style.display = 'none';
-}
-
 //function to increment the upvote/downvote HTML
 function increment(elementid: string) {
   let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
@@ -138,6 +133,11 @@ export function activateCommentSection() {
   document.getElementById('newCommentTextbox').focus();
 }
 
+export function activateCommentIcon() {
+  commentIcon.style.display = 'flex';
+  commentsDiv.style.display = 'none';
+}
+
 export function changeCommentLabel() {
   const fullNameCell: string = getTableRow(activeTableCellElement).getElementsByTagName('*')[0].innerHTML;
   const profName: string = fullNameCell.includes('<') ? fullNameCell.slice(0, fullNameCell.indexOf('<') - 1) : fullNameCell;
@@ -198,3 +198,9 @@ document.getElementById('comment-button').onclick = function () {
   `<hr id="comments-hr">` + commentsContainer.innerHTML;
   (<HTMLInputElement>document.getElementById('newCommentTextbox')).value = '';
 };
+
+document.addEventListener('keydown', evt => {
+  if (evt.key === 'Escape' && commentsDiv.style.display === 'flex') {
+    activateCommentIcon();
+  }
+});
