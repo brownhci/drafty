@@ -64,9 +64,9 @@ CREATE TABLE Profile (
 --
 
 INSERT INTO Profile (idProfile, idRole, username, email, password, passwordRaw, date_created, date_updated) VALUES
-(1, 1, 'swallace', 'shaun_wallace@brown.edu', '$2a$10$yNLWB88HUCX5Gthz9jA9WOE8bkRcEkfVfOUKF4VTmMKMtJiTtuHYG', 'q1w2e3r4', '2017-09-27 16:29:38', '2017-09-27 16:29:38'),
-(2, 1, 'system', 'sw90@cs.brown.edu', '$2a$10$yNLWB88HUCX5Gthz9jA9WOE8bkRcEkfVfOUKF4VTmMKMtJiTtuHYG', 'q1w2e3r4', '2017-09-27 16:29:38', '2017-09-27 16:29:38'),
-(3, 2, 'anonymous_user', NULL, '$2a$10$yNLWB88HUCX5Gthz9jA9WOE8bkRcEkfVfOUKF4VTmMKMtJiTtuHYG', 'q1w2e3r4', '2018-05-12 00:00:00', '2018-05-12 00:00:00'),
+(1, 1, 'swallace', 'swallace', '$2a$10$yNLWB88HUCX5Gthz9jA9WOE8bkRcEkfVfOUKF4VTmMKMtJiTtuHYG', '', '2017-09-27 16:29:38', '2017-09-27 16:29:38'),
+(2, 1, 'drafty_system', 'drafty_system', '$2a$10$yNLWB88HUCX5Gthz9jA9WOE8bkRcEkfVfOUKF4VTmMKMtJiTtuHYG', '', '2017-09-27 16:29:38', '2017-09-27 16:29:38'),
+(3, 2, 'anonymous_user', NULL, '$2a$10$yNLWB88HUCX5Gthz9jA9WOE8bkRcEkfVfOUKF4VTmMKMtJiTtuHYG', '', '2018-05-12 00:00:00', '2018-05-12 00:00:00'),
 (4, 2, NULL, NULL, NULL, NULL, '2020-03-28 21:03:00', '2020-03-28 21:03:00'),
 (5, 2, 'mrhotsauce0', 'mrhotsauce', '$2b$10$HukofNVxyEgfRTIJEYxKnOEN0J03pKl7jE0aF4/GleLWAdCspqDoa', NULL, '2020-03-28 21:03:27', '2020-03-28 21:03:27');
 
