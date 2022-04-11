@@ -10,6 +10,5 @@ zcat -f /var/log/caddy/access* | goaccess -a \
   --ignore-crawlers \
   --all-static-files \
   --log-format=CADDY \
-  --sort-panel=VISITORS,BY_HITS,DESC \
   --sort-panel=REQUESTS,BY_VISITORS,DESC
   
