@@ -48,6 +48,8 @@ const tweetBtn = <HTMLButtonElement>document.getElementById('btn-databait-tweet'
 const createSimilarBtn = <HTMLButtonElement>document.getElementById('btn-databait-similar');
 const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait-random');
 const conntributionMessage = <HTMLSpanElement>document.getElementById('databait-contribution-confirmation');
+//const loadingHTML: string = `<div class="fa-3x"><i class="fas fa-spinner fa-spin"></i></div>`;
+const loadingHTML: string = `Creating something awesome...`;
 
 //const databaitLoadingMsg: string = `Creating something awesome...`;
 //const apiUrlAll: string = '/api-dyk/v1/databait/all';
@@ -59,8 +61,8 @@ function convertSentenceToHTML(sentenceOld: string, candidateValues: Record<stri
     let sentence: string = sentenceOld;
     for (const column in candidateValues) {
         candidateValues[column].forEach(value => {
-            const col_pos = getColumnIndex(value); // sw TODO 
-            sentence = sentence.replace(value, `<span data-colsearch="${col_pos}">${value}</span>`);
+            const col_pos = getColumnIndex(column);
+            sentence = sentence.replace(value, `<span class="dyk-col-search" data-colsearch="${col_pos}">${value}</span>`);
         });
     }
     return sentence;
@@ -163,7 +165,9 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
        databaitCurrent.candidate_values = databait.candidate_values;
        updateDatabaitHTML(convertSentenceToHTML(databait.sentence, databait.candidate_values));
        activateCtrls();
-     }).catch(error => console.error(error));
+     }).catch(error => {
+         console.error(error);
+     });
 }
 
 /*
@@ -190,6 +194,7 @@ async function updateRowValues(tableRowChildren: HTMLCollection) {
 }
 
 function openModal() {
+    dataBaitText.innerHTML = loadingHTML;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     activateKeyListener();
     dataBaitModal.style.display = 'block';
@@ -229,21 +234,11 @@ export async function activateDatabait(tableCellElement: HTMLTableCellElement, i
     resetContributionMessageHTML();
     if (idDatabaitCreateType === DatabaitCreateType.navbar_menu) {
         postDatabait(apiUrlRandom, baseUrl);
-        // user has a cell selected
-        /*
-        if (tableCellElement !== null && tableCellElement !== undefined) {
-            //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
-            postDatabait(apiUrlRandom, baseUrl);
-        } else {
-            postDatabait(apiUrlRandom, baseUrl);
-        }
-        */
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_random) {
         postDatabait(apiUrlRandom, baseUrl);
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_like) {
         // need a row of data from the previous databait, or just push in the same values
         // and generate a random one
-        // find a table cell with matching values?
         const urlSimilar = await createUrlSimilar(tableCellElement, baseUrl);
         postDatabait(apiUrlSimilar, urlSimilar);
     } else if (idDatabaitCreateType === DatabaitCreateType.right_click) {
