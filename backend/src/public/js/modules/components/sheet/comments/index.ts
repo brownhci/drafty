@@ -192,7 +192,7 @@ document.getElementById('comment-button').onclick = function () {
   )).value;
   postNewComment(getUniqueId(), content);
   const commentsContainer = document.getElementById('commentsContainer');
-  commentsContainer.innerHTML = commentHTML(10, 'today', 'kaki', content, 0, 0) + 
+  commentsContainer.innerHTML = commentHTML(10, 'today', 'anonymous', content, 0, 0) + 
   `<hr id="comments-hr">` + commentsContainer.innerHTML;
   (<HTMLInputElement>document.getElementById('newCommentTextbox')).value = '';
 };
