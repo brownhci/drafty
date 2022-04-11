@@ -256,6 +256,10 @@ export async function activateDatabait(tableCellElement: HTMLTableCellElement, i
     } else if (idDatabaitCreateType === DatabaitCreateType.new_row) {
         // tableCellElement needs to be a cell in the new row created
         //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+    } else if (idDatabaitCreateType === DatabaitCreateType.delete_row) {
+        // it would be weird to show the data for a deleted row
+        addContributionMessageHTML();
+        postDatabait(apiUrlRandom, baseUrl);
     }
     openModal();
 }
