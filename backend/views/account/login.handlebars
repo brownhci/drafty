@@ -1,7 +1,7 @@
 <main id="form-container">
     <div id="login-component">
         <h1>Sign in to Drafty</h1>
-        <form action="/login" method="post" id="login-form" class="custom-validation" autocomplete novalidate>
+        <form action="/login" method="post" id="login-form" class="custom-validation" autocomplete="on" novalidate>
             {{> csrf }}
             {{> account/username-input-component }}
             {{> account/password-input-component showForget=true }}

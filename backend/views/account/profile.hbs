@@ -25,7 +25,7 @@
             {{#if signedIn}}
             <h2>Reset your password</h2>
             <form method="post" action="/account/password" id="password-reset-form" class="custom-validation"
-                autocomplete novalidate>
+                autocomplete="off" novalidate>
                 {{> csrf }}
                 {{> account/password-input-component showPasswordUsageExplanation=true }}
                 {{> account/confirm-input-component }}
