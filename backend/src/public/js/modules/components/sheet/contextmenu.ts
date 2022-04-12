@@ -135,12 +135,13 @@ export const columnLabelCountMenuItem = new MenuItem(columnLabelButtons[3] as HT
 export const columnLabelDistributionMenuItem = new MenuItem(columnLabelButtons[4] as HTMLButtonElement);
 
 export const tableDataButtons = tableDataContextMenu.children;
-export const tableDataEditMenuItem = new MenuItem(tableDataButtons[0] as HTMLButtonElement);
-export const tableDataCopyMenuItem = new MenuItem(tableDataButtons[1] as HTMLButtonElement);
-export const tableDataPasteMenuItem = new MenuItem(tableDataButtons[2] as HTMLButtonElement);
-export const tableDataInsertRowMenuItem = new MenuItem(tableDataButtons[3] as HTMLButtonElement);
-export const tableDataDeleteRowMenuItem = new MenuItem(tableDataButtons[4] as HTMLButtonElement);
-export const tableDataSearchGoogleMenuItem = new MenuItem(tableDataButtons[5] as HTMLButtonElement);
+export const tableDataDidYouKnowMenuItem = new MenuItem(tableDataButtons[0] as HTMLButtonElement);
+export const tableDataEditMenuItem = new MenuItem(tableDataButtons[1] as HTMLButtonElement);
+export const tableDataCopyMenuItem = new MenuItem(tableDataButtons[2] as HTMLButtonElement);
+export const tableDataPasteMenuItem = new MenuItem(tableDataButtons[3] as HTMLButtonElement);
+export const tableDataInsertRowMenuItem = new MenuItem(tableDataButtons[4] as HTMLButtonElement);
+export const tableDataDeleteRowMenuItem = new MenuItem(tableDataButtons[5] as HTMLButtonElement);
+export const tableDataSearchGoogleMenuItem = new MenuItem(tableDataButtons[6] as HTMLButtonElement);
 
 /* set up alias and conflicts */
 columnLabelInsertRowMenuItem.addToAlias(tableDataInsertRowMenuItem);
