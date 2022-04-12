@@ -97,7 +97,7 @@ function handleVoteIds(ids: number[], vote_dict: Map<number, string>) {
   });
 }
 
-function popupulateComments() {
+function populateComments() {
   const ids: number[] = [];
   const vote_dict = new Map();
   const idUniqueId = getUniqueId();
@@ -125,7 +125,7 @@ function popupulateComments() {
 }
 
 export function activateCommentSection() {
-  popupulateComments();
+  populateComments();
   commentIcon.style.display = 'none';
   commentsDiv.style.display = 'flex';
   document.getElementById('newCommentTextbox').focus();
