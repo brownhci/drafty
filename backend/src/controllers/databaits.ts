@@ -15,7 +15,7 @@ function getTweetURL(tweet: Twitter.ResponseData): string {
 }
 
 function cleanHashTag(value: string) {
-    return value.replace('-','').replace(',','').replace(' ','').replace('&','');
+    return value.replace('-','').replace(',','').replace(/\s+/g, '').replace('&','');
 }
 
 function getTweetHashes(labels: Array<string>, datasetname: string) {
