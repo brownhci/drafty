@@ -174,7 +174,6 @@ app.get('/data/csv/:name/:token', dataSharingCtrl.getCSV);
 // databaits + twitter
 app.post('/databaits/tweet', databaitsCtrl.postTweet);
 app.post('/databaits/tweet/next', databaitsCtrl.postTweetNextAction);
-app.post('/databaits/create', databaitsCtrl.postDatabaitCreated);
 app.post('/databaits/next', databaitsCtrl.postDatabaitNextAction);
 app.post('/databaits/visit', databaitsCtrl.postDatabaitVisit);
 
