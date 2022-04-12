@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from '../dom/navigate';
 import { isTableData } from '../dom/types';
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitTweet, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction, postNewCommentURL, postCommentVoteDownURL, postCommentVoteUpURL } from './endpoints';
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction, postNewCommentURL, postCommentVoteDownURL, postCommentVoteUpURL, postTweet, postTweetNextAction } from './endpoints';
 import { DatabaitAction } from '../../../../types/databaits';
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
@@ -236,12 +236,21 @@ export function recordDatabaitNextAction(idDatabait: string | number, nextAction
   });
 }
 
+export function recordDatabaitTweet(idDatabait: string | number, sentence: string, labels: Array<string>, datasetname: string = 'csprofessors') {
+  recordInteraction(postTweet(), {
+    idDatabait: idDatabait,
+    sentence: sentence,
+    labels: labels,
+    datasetname: datasetname
+  });
+}
 
-export function recordDatabaitTweet(idDatabait: string) {
-  recordInteraction(postDatabaitTweet(), {
+export function recordDatabaitTweetNextAction(idDatabait: string) {
+  recordInteraction(postTweetNextAction(), {
     idDatabait: idDatabait
   });
 }
+
 export function recordSearchColVisit(idSuggestionType: string, value: string) {
   recordInteraction(postSearchColVisit(), {
     idSuggestionType: idSuggestionType,
