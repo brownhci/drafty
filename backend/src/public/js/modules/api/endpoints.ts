@@ -94,10 +94,6 @@ export function postTweetNextAction() {
   return '/databaits/tweet/next';
 }
 
-export function postDatabaitCreated() {
-  return '/databaits/create';
-}
-
 export function postDatabaitNextAction() {
   return '/databaits/next';
 }
