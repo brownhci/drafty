@@ -15,7 +15,20 @@ function getTweetURL(tweet: Twitter.ResponseData): string {
 }
 
 function cleanHashTag(value: string) {
-    return value.replace('-','').replace(',','').replace(/\s+/g, '').replace('&','').replace('at','');
+    const universityNameShortener: Record<string, string> = {
+        'Massachusetts Institute of Technology': 'MIT',
+        'University of California, Berkeley': 'Berkeley',
+        'University of Texas at Austin': 'UniversityofTexas',
+        'Pennsylvania State University': 'PennState',
+        'California Institute of Technology': 'CalTech',
+        'Georgia Institute of Technology': 'GeorgiaTech',
+        'New York University': 'NYU',
+        'North Carolina State University': 'NCState'
+    };    
+    if (value in universityNameShortener) {
+        value = universityNameShortener[value];
+    }
+    return value.replace('-','').replace(',','').replace('&','').replace(' at ','').replace(/\s+/g, '');
 }
 
 function getTweetHashes(labels: Array<string>, datasetname: string) {
