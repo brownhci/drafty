@@ -93,14 +93,12 @@ function addContributionMessageHTML() {
 }
 
 function activateCtrls() {
-    dataBaitModalClose.disabled = false;
     tweetBtn.disabled = false;
     createSimilarBtn.disabled = false;
     createRandomBtn.disabled = false;
 }
 
 function deactivateCtrls() {
-    dataBaitModalClose.disabled = true;
     tweetBtn.disabled = true;
     createSimilarBtn.disabled = true;
     createRandomBtn.disabled = true;
