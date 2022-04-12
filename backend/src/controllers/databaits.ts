@@ -31,10 +31,16 @@ function cleanHashTag(value: string) {
     return value.replace('-','').replace(',','').replace('&','').replace(' at ','').replace(/\s+/g, '');
 }
 
+function isNumeric(n: string): boolean {
+    return !isNaN(parseFloat(n)) && !isNaN(parseFloat(n) - 0);
+  }
+
 function getTweetHashes(labels: Array<string>, datasetname: string) {
     let tweet_hashes: string = '';
     labels.forEach(label => {
-        tweet_hashes += `#${cleanHashTag(label)} `;
+        if(!isNumeric(label)) {
+            tweet_hashes += `#${cleanHashTag(label)} `;
+        }
     });
     return  `${tweet_hashes}#${cleanHashTag(datasetname)}`;
 }
