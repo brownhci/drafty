@@ -1,8 +1,9 @@
 import { getColumnIndex, getColumnLabel, getColumnLabelText } from '../../dom/sheet';
 import { getEnclosingTableRow } from '../../dom/navigate';
-import { recordDatabaitNextAction } from '../../api/record-interactions';
+import { recordDatabaitNextAction, recordDatabaitTweetNextAction } from '../../api/record-interactions';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  from '../../../../../types/databaits';
 import { getJSON } from '../../api/requests';
+import { postTweet } from '../../api/endpoints';
 
 interface Databait {
     idDatabait: string | number,
@@ -110,14 +111,12 @@ dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
     event.stopPropagation();
 }, true);
 
-tweetBtn.addEventListener('click', function() {
+tweetBtn.addEventListener('click', async function() {
     console.log('tweetBtn');
-    // recordDatabaitTweet()
+    postDatabaitTweet(databaitCurrent.idDatabait, databaitCurrent.sentence, databaitCurrent.labels, 'csprofessors');
 }, true);
 
 createSimilarBtn.addEventListener('click', async function() {
-    //console.log('createSimilarBtn');
-    // recordDatabaitCreate() // similar
     const baseUrl: urlBase = { 
         idInteractionType: InteractionTypeDatabaitCreate.modal_like, idDatabaitCreateType: DatabaitCreateType.modal_like, 
         idSession: await getIdSession()
@@ -127,7 +126,6 @@ createSimilarBtn.addEventListener('click', async function() {
 }, true);
 
 createRandomBtn.addEventListener('click', async function() {
-    //console.log('createRandomBtn');
     const baseUrl: urlBase = { 
         idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random, 
         idSession: await getIdSession() 
@@ -147,7 +145,6 @@ function createBodyDataJSON(urlData: urlBase | urlSimilar) {
 
 async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
     deactivateCtrls();
-    //console.log(`apiUrl = ${apiUrl}`);
     const bodyData = JSON.stringify(createBodyDataJSON(urlData));
     const options = {
         method: 'POST',
@@ -170,6 +167,36 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
      }).catch(error => {
         console.error(error);
         dataBaitText.innerHTML = `Oh we are so sorry, something went wrong. :(`;
+        activateCtrls();
+     });
+}
+
+async function postDatabaitTweet(idDatabait: string | number, sentence: string, labels: Array<string>, datasetname: string = 'csprofessors') {
+    deactivateCtrls();
+    const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
+    const bodyData = {
+        idDatabait: idDatabait,
+        sentence: sentence,
+        labels: labels,
+        datasetname: datasetname,
+        '_csrf': tableCellInputFormCSRFInput.value
+    };
+    const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyData)
+    };
+    fetch(postTweet(), options)
+    .then(response => { return response.json(); })
+    .then(data => {
+       /* DO SOMETHING HERE :) */
+       console.log(data);
+       window.open(data, '_blank');
+       activateCtrls();
+       tweetBtn.disabled = true;
+     }).catch(error => {
+        console.error(error);
+        dataBaitText.innerHTML = `Oh we are so sorry, something went wrong with the tweet. :(`;
         activateCtrls();
      });
 }
