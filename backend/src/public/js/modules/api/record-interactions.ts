@@ -216,8 +216,6 @@ export function recordDatabaitTweet(idDatabait: string | number, sentence: strin
     labels: labels,
     datasetname: datasetname
   });
-  console.log('response.json()');
-  console.log(response);
   return response; 
 }
 
@@ -231,13 +229,6 @@ export function recordSearchColVisit(idSuggestionType: string, value: string) {
   recordInteraction(postSearchColVisit(), {
     idSuggestionType: idSuggestionType,
     value: value
-  });
-}
-
-export function postNewComment(idrow: string | number, comment: string) {
-  recordInteraction(postNewCommentURL(), {
-    idrow: idrow,
-    comment: comment
   });
 }
 

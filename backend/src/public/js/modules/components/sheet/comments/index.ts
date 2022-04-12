@@ -1,6 +1,6 @@
 import { activeTableCellElement } from '../../../../sheet';
-import { getCommentsURL } from '../../../api/endpoints';
-import { getIdUniqueID, postCommentVoteDown, postCommentVoteUp, postNewComment } from '../../../api/record-interactions';
+import { getCommentsURL, postNewCommentURL } from '../../../api/endpoints';
+import { getIdUniqueID, postCommentVoteDown, postCommentVoteUp } from '../../../api/record-interactions';
 import { getTableRow } from '../../../dom/sheet';
 
 
@@ -184,6 +184,28 @@ const commentHTML = function (id: number, date: string, author: string, content:
 
 commentIcon.style.display = 'none';
 commentsDiv.style.display = 'none';
+
+function postNewComment(idrow: string | number, comment: string) {
+  const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
+    const bodyData = {
+      idrow: idrow,
+      comment: comment,
+        '_csrf': tableCellInputFormCSRFInput.value
+    };
+    const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyData)
+    };
+    fetch(postNewCommentURL(), options)
+    .then(response => { return response.json(); })
+    .then(data => {
+       /* TODO DO SOMETHING HERE :) */
+       console.log(data);
+     }).catch(error => {
+        console.error(error);
+     });
+}
 
 //logic to add new comment post
 document.getElementById('comment-button').onclick = function () {
