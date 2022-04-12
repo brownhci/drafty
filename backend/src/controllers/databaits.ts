@@ -35,18 +35,21 @@ function getTweetHashes(labels: Array<string>, datasetname: string) {
  * 
  */
 export const postTweet = (req: Request, res: Response) => {
+    console.log('postTweet');
     const idSession = req.session.user.idSession;
-    const idDatabait = req.body.idDataBait;
+    const idDatabait = req.body.idDatabait;
     const sentence = req.body.sentence;
     const datasetname = req.body.datasetname;
     const labels = req.body.labels;
     const databaitsMsq: string = `[source: drafty.cs.brown.edu/csprofessors?d=${idDatabait}&src=tw]`;
     const tweet_content: string = `${sentence}\n${getTweetHashes(labels, datasetname)}\n${databaitsMsq}`;
+    //console.log(tweet_content);
     // send tweet
     client.post('statuses/update', {status: tweet_content})
         .then(function (tweet) {
             const tweetURL = getTweetURL(tweet);
             insertDatabaitTweet(idSession, idDatabait, tweetURL);
+            //console.log(tweetURL);
             return res.status(200).json(tweetURL);
         })
         .catch(function (error) {
