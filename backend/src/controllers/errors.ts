@@ -46,11 +46,10 @@ export async function error500 (req: Request, res: Response) {
  * GLOBAL MIDDLEWARE
  */
 export async function errors(err: Error, req: Request, res: Response){
-  res.status(500);
-  console.log('ERRORS...',req.url);
-  //req.flash("errors", { msg: `Oops! There appears to be an error, our elves are hard at work on fixing it.`});
-  //res.redirect("/?errors");
+  //res.status(500);
+  console.log('ERRORS...', req.url);
 
+  /*
   res.render('pages/home', makeRenderObject({
     errors: true,
     ignoreHeader: true,
@@ -64,4 +63,5 @@ export async function errors(err: Error, req: Request, res: Response){
       },
     ]
   }, req));
+  */
 }
