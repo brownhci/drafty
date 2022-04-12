@@ -151,3 +151,7 @@ INSERT INTO `DatabaitNextAction` (`action`) VALUES ('select-databait-value-searc
 
 -- for when the system creates a databait (i.e., a cron job)
 INSERT INTO users.Session (idSession, idProfile, idExpressSession, start, end) VALUES (2, 2, null, '2022-03-17 10:58:14', null)
+
+alter table DatabaitTweet
+    add nextActionTimestamp timestamp null after created;
+    
