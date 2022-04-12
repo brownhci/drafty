@@ -83,33 +83,6 @@ function recordInteraction(
   }).catch(error => console.error('Network error when posting interaction: ', error));
 }
 
-// Get Data from Backend
-/**
- * @param {string} url - The server endpoint at which the interaction will be recorded.
- * @param {Record<any, any>} data - The data object sent in the post request.
- * @param {ResponseHandler} [successHandler = () => undefined] - The handler when response reports success.
- * @param {ResponseHandler} [failureHandler = console.error(`${response.status}: ${response.statusText}`)] - The handler when response reports failure. Defaults to log the error.
- */
-function getData(
-  url: string,
-  successHandler: ResponseHandler = () => undefined,
-  failureHandler: ResponseHandler = response => console.error(`${response.status}: ${response.statusText}`)) {
-  fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  }).then(response => {
-    // console.log(response.json());
-    if (response.ok) {
-      console.log(response.json());
-      successHandler(response);
-    } else {
-      failureHandler(response);
-    }
-  }).catch(error => console.error('Network error when posting interaction: ', error));
-}
-
 export function recordCellEdit(tableCellElement: HTMLTableCellElement, textContent: string) {
   // supply enough fields to update database entry for table cell, also updates the table cell with the new `idSuggestion` value
   recordInteraction('/suggestions/new', {
@@ -237,12 +210,15 @@ export function recordDatabaitNextAction(idDatabait: string | number, nextAction
 }
 
 export function recordDatabaitTweet(idDatabait: string | number, sentence: string, labels: Array<string>, datasetname: string = 'csprofessors') {
-  recordInteraction(postTweet(), {
+  const response = recordInteraction(postTweet(), {
     idDatabait: idDatabait,
     sentence: sentence,
     labels: labels,
     datasetname: datasetname
   });
+  console.log('response.json()');
+  console.log(response);
+  return response; 
 }
 
 export function recordDatabaitTweetNextAction(idDatabait: string) {
