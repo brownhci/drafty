@@ -36,11 +36,11 @@ export async function updateDatabaitNextAction(idDatabait: string | number, next
     }
 }
 
-export async function insertDatabaitTweet(idSession: string) {
+export async function insertDatabaitTweet(idSession: string, idDatabait: string | number, twitterUrl: string) {
     try {
-        const idInteractionType: number = 34;
+        const idInteractionType: number = 34; // databait-tweet
         // 'INSERT INTO (idInteraction, idDatabait, url, likes, retweets, nextAction) VALUES (insert_interaction(?,?), ?, ?, null, null, null);'
-        await db.query(stmtInsertDatabaitTweet, [idSession, idInteractionType]);
+        await db.query(stmtInsertDatabaitTweet, [idSession, idInteractionType, idDatabait, twitterUrl]);
     } catch (error) {
         logDbErr(error, 'error during insertDatabaitTweet', 'warn');
     }
