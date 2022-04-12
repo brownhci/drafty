@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { TWITTER_API_KEY, TWITTER_API_SECRET_KEY, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET } from '../util/secrets';
 import Twitter from 'twitter'; 
-import { insertDatabaitVisit, insertVisitFromSrc, updateDatabaitNextAction }  from '../database/databaits';
+import { insertDatabaitVisit, insertVisitFromSrc, updateDatabaitNextAction, insertDatabaitTweet }  from '../database/databaits';
 
 const client = new Twitter({
     consumer_key: TWITTER_API_KEY,
@@ -14,6 +14,18 @@ function getTweetURL(tweet: Twitter.ResponseData): string {
     return `https://twitter.com/did_you_know_cs/status/${tweet.id_str}`;
 }
 
+function cleanHashTag(value: string) {
+    return value.replace('-','').replace(',','').replace(' ','').replace('&','');
+}
+
+function getTweetHashes(labels: Array<string>, datasetname: string) {
+    let tweet_hashes: string = '';
+    labels.forEach(label => {
+        tweet_hashes += `#${cleanHashTag(label)} `;
+    });
+    return  `${tweet_hashes}#${cleanHashTag(datasetname)}`;
+}
+
 /**
  * POST /databait/tweet
  *
@@ -23,12 +35,19 @@ function getTweetURL(tweet: Twitter.ResponseData): string {
  * 
  */
 export const postTweet = (req: Request, res: Response) => {
-    client.post('statuses/update', {status: 'testing...'})
+    const idSession = req.session.user.idSession;
+    const idDatabait = req.body.idDataBait;
+    const sentence = req.body.sentence;
+    const datasetname = req.body.datasetname;
+    const labels = req.body.labels;
+    const databaitsMsq: string = `[source: drafty.cs.brown.edu/csprofessors?d=${idDatabait}&src=tw]`;
+    const tweet_content: string = `${sentence}\n${getTweetHashes(labels, datasetname)}\n${databaitsMsq}`;
+    // send tweet
+    client.post('statuses/update', {status: tweet_content})
         .then(function (tweet) {
-            console.log(tweet);
-            console.log(tweet.id_str);
             const tweetURL = getTweetURL(tweet);
-            return res.sendStatus(200);
+            insertDatabaitTweet(idSession, idDatabait, tweetURL);
+            return res.status(200).json(tweetURL);
         })
         .catch(function (error) {
             console.log(error);
@@ -44,24 +63,6 @@ export const postTweet = (req: Request, res: Response) => {
  */
  export const postTweetNextAction = (req: Request, res: Response) => {
     res.status(200);
-};
-
-/**
- * POST /databait/create
- *
- * @param {string} req.body.dataBait
- * @param {string} req.body.dataBaitType
- * @param {Array<string>} req.body.labels
- * @param {string} req.body.createdType
- * 
- */
-export const postDatabaitCreated = (req: Request, res: Response) => {
-    // right-click, edit, new-row, delete-row, navbar-menu, modal-like, modal-random
-    const dataBait = req.body.dataBait;
-    const dataBaitType = req.body.dataBaitType;
-    const labels = req.body.labels;
-    const createdType = req.body.createdType;
-    return res.sendStatus(200);
 };
 
 /**
