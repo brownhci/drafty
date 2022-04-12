@@ -16,8 +16,6 @@ const columnLabelContextMenu: HTMLElement = document.getElementById('column-labe
 const contextMenuClass = 'contextmenu';
 export function activateTableDataContextMenu(event: MouseEvent) {
   tableDataContextMenu.classList.add(activeClass);
-  console.log('TableData ContextMenu');
-  console.log(event.clientX, event.clientY);
   placeElementInViewport(tableDataContextMenu, event.clientX, event.clientY);
 }
 export function deactivateTableDataContextMenu() {
