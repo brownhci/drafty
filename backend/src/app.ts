@@ -211,8 +211,6 @@ app.get('/:sheet/edit_history', userCtrl.checkReturnPath, sheetCtrl.getSheetEdit
 // handle missing pages
 app.get('*', function (req, res) {
   console.log(`ERROR - Cannot find requested page ${req.originalUrl}`);
-  //sw: bc homepage was moved flash errors do not show up 
-  //req.flash("errors", { msg: `Cannot find requested page ${req.originalUrl}`});
   res.redirect('/');
 });
 
