@@ -165,7 +165,7 @@ export function activateSortPanel(targetElement: HTMLElement) {
   // position sort panel
   const targetDimensions = targetElement.getBoundingClientRect();
   alignElementHorizontally(columnSortPanel, targetDimensions);
-  columnSortPanel.style.top = `${targetDimensions.bottom}px`;
+  columnSortPanel.style.top = `${targetDimensions.bottom-50}px`;
 
   updateDisabledOptions();
 }
