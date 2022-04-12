@@ -66,7 +66,7 @@ def build_column_label_cell(row, column_index):
         noneditable_indices.append(column_index)
         content_editable = 'contenteditable="false"'
     free_edit = 'false' if row['isFreeEdit'] else 'true'
-    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" data-autocomplete-only="{free_edit}" tabindex="-1" scope="col" class="column-label" {content_editable}><span class="column-label-text">{colname}</span><button class="sort-btn"><span class="sr-only sr-only-focusable">Sort</span></button></th>\n'
+    return f'<th id="column-label{column_index}" data-id-suggestion-type="{id_suggestion_type}" data-autocomplete-only="{free_edit}" tabindex="-1" scope="col" class="column-label" {content_editable}><span class="column-label-text">{colname}</span><button class="sort-btn"><span class="sr-only sr-only-focusable" aria-label="sort-{colname}"></span></button></th>\n'
 
 
 def build_column_labels_row(cursor):
