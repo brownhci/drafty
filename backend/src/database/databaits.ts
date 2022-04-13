@@ -1,5 +1,5 @@
 import { db, logDbErr } from './mysql';
-import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  from '../types/databaits';
+import { DatabaitCreateType, DatabaitAction }  from '../types/databaits';
 
 const stmtInsertDatabait: string = `INSERT INTO Databaits (idInteraction, idUniqueID, idDatabaitTemplateType, idDatabaitCreateType, databait, columns, vals, notes, nextAction) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?, ?, '', null);`;
 const stmtUpdateDatabaitNextAction: string = 'UPDATE Databaits SET closed = CURRENT_TIMESTAMP, nextAction = ? WHERE idDatabait = ?';
@@ -9,7 +9,7 @@ const stmtUpdateDatabaitTweetNextAction: string = 'UPDATE DatabaitTweet SET  clo
 const stmtUpdateDatabaitTweetLikes: string = 'UPDATE DatabaitTweet SET likes = ? WHERE idDatabaitTweet = ?';
 const stmtUpdateDatabaitTweetRetweets: string = 'UPDATE DatabaitTweet SET retweets = ? WHERE idDatabaitTweet = ?';
 const stmtInsertDatabaitVisit: string = 'INSERT INTO DatabaitVisit (idinteraction, idDatabait, source) VALUES(insert_interaction(?,?), ?, ?);';
-const stmtInsertVisit: string = 'INSERT INTO Visit (idinteraction, source) VALUES(insert_interaction(?,?), ?);';
+const stmtInsertVisit: string = 'INSERT INTO Visit (idinteraction, source, searchCol, searchVal) VALUES(insert_interaction(?,?), ?, ?, ?);';
 
 
 /**
@@ -104,7 +104,9 @@ export function insertDatabaitVisit(idSession: string, idDatabait: string , sour
 // DB Code
 export async function insertVisitFromSrc(idSession: string | number, src: string, searchCol: string, searchVal: string) {
     try {
+        console.log(src, searchCol, searchVal);
         const idInteractionType: number = 38; // 
+        // INSERT INTO Visit (idinteraction, source) VALUES(insert_interaction(?,?), ?);
         await db.query(stmtInsertVisit, [idSession, idInteractionType, src, searchCol, searchVal]);
     } catch (error) {
         logDbErr(error, 'error during insertVisitFromSrc', 'warn');
