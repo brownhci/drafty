@@ -55,12 +55,7 @@ const tweetBtn = <HTMLButtonElement>document.getElementById('btn-databait-tweet'
 const createSimilarBtn = <HTMLButtonElement>document.getElementById('btn-databait-similar');
 const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait-random');
 const conntributionMessage = <HTMLSpanElement>document.getElementById('databait-contribution-confirmation');
-//const loadingHTML: string = `<div class="fa-3x"><i class="fas fa-spinner fa-spin"></i></div>`;
 const loadingHTML: string = `Creating something awesome...`;
-
-//const databaitLoadingMsg: string = `Creating something awesome...`;
-//const apiUrlAll: string = '/api-dyk/v1/databait/all';
-//const apiUrlType = (type: string): string => { return `/api-dyk/v1/databait/${type}`; };
 const apiUrlRandom: string = '/api-dyk/v1/databait/random';
 const apiUrlSimilar: string = '/api-dyk/v1/databait/similar';
 
