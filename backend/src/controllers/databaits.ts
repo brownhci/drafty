@@ -61,7 +61,7 @@ function getTweetHashes(labels: Array<string>, datasetname: string) {
  * 
  */
 export const postTweet = (req: Request, res: Response) => {
-    console.log('postTweet');
+    //console.log('postTweet');
     const idSession = req.session.user.idSession;
     const idDatabait = req.body.idDatabait;
     const sentence = req.body.sentence;
@@ -69,12 +69,12 @@ export const postTweet = (req: Request, res: Response) => {
     const labels = req.body.labels;
     const databaitsMsq: string = `[source: drafty.cs.brown.edu/csprofessors?d=${idDatabait}&src=tw]`;
     const tweet_content: string = `${sentence}\n${getTweetHashes(labels, datasetname)}\n${databaitsMsq}`;
-    console.log(tweet_content);
+    //console.log(tweet_content);
     // send tweet
     client.post('statuses/update', {status: tweet_content})
         .then(async function (tweet) {
             const tweetURL = getTweetURL(tweet);
-            console.log(tweetURL);
+            //console.log(tweetURL);
             const [error,results] = await insertDatabaitTweet(idSession, idDatabait, tweetURL);
             if (error) {
                 return res.sendStatus(500);
