@@ -158,7 +158,6 @@ function populateComments() {
   const ids: number[] = [];
   const vote_dict = new Map();
   const idUniqueId = getUniqueId();
-  console.log('populateComments');
   fetch(getCommentsURL(idUniqueId))
     .then((response) => {
       const contentType = response.headers.get('content-type');
