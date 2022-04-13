@@ -3,7 +3,7 @@ import { DatabaitCreateType, InteractionTypeDatabaitCreate, DatabaitAction }  fr
 
 const stmtInsertDatabait: string = `INSERT INTO Databaits (idInteraction, idUniqueID, idDatabaitTemplateType, idDatabaitCreateType, databait, columns, vals, notes, nextAction) VALUES (insert_interaction(?,?), ?, ?, ?, ?, ?, ?, '', null);`;
 const stmtUpdateDatabaitNextAction: string = 'UPDATE Databaits SET closed = CURRENT_TIMESTAMP, nextAction = ? WHERE idDatabait = ?';
-
+const stmtUpdateDatabaitNextActionSearchValue: string = 'UPDATE Databaits SET notes = ? WHERE idDatabait = ?';
 const stmtInsertDatabaitTweet: string = 'INSERT INTO DatabaitTweet (idInteraction, idDatabait, url, likes, retweets, nextAction) VALUES (insert_interaction(?,?), ?, ?, null, null, null);';
 const stmtUpdateDatabaitTweetNextAction: string = 'UPDATE DatabaitTweet SET  closed = CURRENT_TIMESTAMP, nextAction = ? WHERE idDatabaitTweet = ?';
 const stmtUpdateDatabaitTweetLikes: string = 'UPDATE DatabaitTweet SET likes = ? WHERE idDatabaitTweet = ?';
@@ -31,6 +31,14 @@ export async function insertDatabait(idSession: string, DatabaitCreateType: Data
 export async function updateDatabaitNextAction(idDatabait: string | number, nextAction: DatabaitAction) {
     try {
         await db.query(stmtUpdateDatabaitNextAction, [nextAction, idDatabait]);
+    } catch (error) {
+        logDbErr(error, 'error during updateDatabaitNextAction', 'warn');
+    }
+}
+
+export async function updateDatabaitNextActionSearchValye(idDatabait: string | number, searchValue: DatabaitAction) {
+    try {
+        await db.query(stmtUpdateDatabaitNextActionSearchValue, [searchValue, idDatabait]);
     } catch (error) {
         logDbErr(error, 'error during updateDatabaitNextAction', 'warn');
     }
