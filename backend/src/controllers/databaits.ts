@@ -118,9 +118,13 @@ export const postTweet = (req: Request, res: Response) => {
         const nextAction = req.body.nextAction;
         //console.log(`postDatabaitNextAction for databait ${idDatabait}, next action = ${nextAction}`);
         updateDatabaitNextAction(idDatabait, nextAction);
-      return res.sendStatus(200);
+        if(req.body.valueSearch) {
+            const searchValue = req.body.searchValue;
+            updateDatabaitNextAction(idDatabait, searchValue);
+        }
+        return res.sendStatus(200);
     } catch (error) {
-      return res.sendStatus(500);
+        return res.sendStatus(500);
     }
 };
 
