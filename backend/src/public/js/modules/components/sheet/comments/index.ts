@@ -114,7 +114,7 @@ function populateComments() {
       const id: number = comment.idComment;
       ids.push(id);
       vote_dict.set(id, comment.userVote);
-      if (key === 0) {document.getElementById('commentsContainer').innerHTML = null;}
+      if (key === 0) { document.getElementById('commentsContainer').innerHTML = null; }
       document.getElementById('commentsContainer').innerHTML += commentHTML(id, timestampToDate(comment.timestamp), comment.username, comment.comment, comment.voteUp, comment.voteDown);
       if (key !== data.length - 1) {
         document.getElementById('commentsContainer').innerHTML += `<hr id="comments-hr">`;
@@ -201,7 +201,12 @@ function postNewComment(idrow: string | number, comment: string) {
     .then(response => { return response.json(); })
     .then(data => {
        /* TODO DO SOMETHING HERE :) */
-       console.log(data);
+       //console.log(data);
+       const idComment = data;
+       const commentsContainer = document.getElementById('commentsContainer');
+      // TODO need to check idComment and get user's name
+      commentsContainer.innerHTML = commentHTML(idComment, 'today', 'anonymous', comment, 0, 0) + 
+      `<hr id="comments-hr">` + commentsContainer.innerHTML;
      }).catch(error => {
         console.error(error);
      });
@@ -213,9 +218,6 @@ document.getElementById('comment-button').onclick = function () {
     document.getElementById('newCommentTextbox')
   )).value;
   postNewComment(getUniqueId(), content);
-  const commentsContainer = document.getElementById('commentsContainer');
-  commentsContainer.innerHTML = commentHTML(10, 'today', 'anonymous', content, 0, 0) + 
-  `<hr id="comments-hr">` + commentsContainer.innerHTML;
   (<HTMLInputElement>document.getElementById('newCommentTextbox')).value = '';
 };
 
