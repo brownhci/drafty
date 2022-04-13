@@ -113,47 +113,6 @@ function deactivateCtrls() {
     createRandomBtn.disabled = true;
 }
 
-dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
-    dataBaitModal.style.display = 'none';
-    recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.window_closed);
-    if(databaitCurrent.tweetActive) {
-        recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.window_closed);
-    }
-    event.stopPropagation();
-}, true);
-
-tweetBtn.addEventListener('click', async function() {
-    deactivateCtrls();
-    postDatabaitTweet(databaitCurrent.idDatabait, databaitCurrent.sentence, databaitCurrent.labels, 'csprofessors');
-}, true);
-
-createSimilarBtn.addEventListener('click', async function() {
-    deactivateCtrls();
-    const baseUrl: urlBase = { 
-        idInteractionType: InteractionTypeDatabaitCreate.modal_like, idDatabaitCreateType: DatabaitCreateType.modal_like, 
-        idSession: await getIdSession()
-    };
-    const urlSimilar: urlSimilar = await createUrlSimilarExistingDatabait(databaitCurrent, baseUrl);
-    postDatabait(apiUrlSimilar, urlSimilar);
-    recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.modal_like);
-    if(databaitCurrent.tweetActive) {
-        recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.modal_like);
-    }
-}, true);
-
-createRandomBtn.addEventListener('click', async function() {
-    deactivateCtrls();
-    const baseUrl: urlBase = { 
-        idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random, 
-        idSession: await getIdSession() 
-    };
-    postDatabait(apiUrlRandom, baseUrl);
-    recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.modal_random);
-    if(databaitCurrent.tweetActive) {
-        recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.modal_random);
-    }
-}, true);
-
 function createBodyDataJSON(urlData: urlBase | urlSimilar) {
     // eslint-disable-next-line prefer-const
     let bodyData: Record<string, string | number> = {};
@@ -224,6 +183,47 @@ async function postDatabaitTweet(idDatabait: string | number, sentence: string, 
         activateCtrls();
      });
 }
+
+dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
+    dataBaitModal.style.display = 'none';
+    recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.window_closed);
+    if(databaitCurrent.tweetActive) {
+        recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.window_closed);
+    }
+    event.stopPropagation();
+}, true);
+
+tweetBtn.addEventListener('click', async function() {
+    deactivateCtrls();
+    postDatabaitTweet(databaitCurrent.idDatabait, databaitCurrent.sentence, databaitCurrent.labels, 'csprofessors');
+}, true);
+
+createSimilarBtn.addEventListener('click', async function() {
+    deactivateCtrls();
+    const baseUrl: urlBase = { 
+        idInteractionType: InteractionTypeDatabaitCreate.modal_like, idDatabaitCreateType: DatabaitCreateType.modal_like, 
+        idSession: await getIdSession()
+    };
+    const urlSimilar: urlSimilar = await createUrlSimilarExistingDatabait(databaitCurrent, baseUrl);
+    postDatabait(apiUrlSimilar, urlSimilar);
+    recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.modal_like);
+    if(databaitCurrent.tweetActive) {
+        recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.modal_like);
+    }
+}, true);
+
+createRandomBtn.addEventListener('click', async function() {
+    deactivateCtrls();
+    const baseUrl: urlBase = { 
+        idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random, 
+        idSession: await getIdSession() 
+    };
+    postDatabait(apiUrlRandom, baseUrl);
+    recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.modal_random);
+    if(databaitCurrent.tweetActive) {
+        recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.modal_random);
+    }
+}, true);
 
 /*
 * 
