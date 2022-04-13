@@ -120,8 +120,7 @@ function createVotingFunctionality(
   new_comment: boolean = false,
   vote_dict?: Map<number, string>
 ) {
-  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] =
-    getVotingElementIds(id);
+  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] = getVotingElementIds(id);
   const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
   const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
 
@@ -159,6 +158,7 @@ function populateComments() {
   const ids: number[] = [];
   const vote_dict = new Map();
   const idUniqueId = getUniqueId();
+  console.log('populateComments');
   fetch(getCommentsURL(idUniqueId))
     .then((response) => {
       const contentType = response.headers.get('content-type');
@@ -296,8 +296,11 @@ function postNewComment(idrow: string | number, comment: string) {
         commentHTML(idComment, 'today', 'anonymous', comment, 0, 0) +
         `<hr id="comments-hr">` +
         commentsContainer.innerHTML;
-      const new_comment = true;
-      createVotingFunctionality(idComment, new_comment);
+      //const new_comment = true;
+      //createVotingFunctionality(idComment, new_comment);
+      populateComments(); 
+      // sw: extra db call but it fixes a bug 
+      // where people can still vote after new comment is made
     })
     .catch((error) => {
       console.error(error);
