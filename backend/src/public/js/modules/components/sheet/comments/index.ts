@@ -299,6 +299,8 @@ function postNewComment(idrow: string | number, comment: string) {
       // createVotingFunctionality(idComment, new_comment);
     })
     .catch((error) => {
+      // TODO: in the future,
+      // consider how we should communicate to the user there was an error 
       console.error(error);
     });
 }
