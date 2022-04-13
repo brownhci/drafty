@@ -120,8 +120,7 @@ function createVotingFunctionality(
   new_comment: boolean = false,
   vote_dict?: Map<number, string>
 ) {
-  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] =
-    getVotingElementIds(id);
+  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] = getVotingElementIds(id);
   const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
   const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
 
@@ -287,7 +286,7 @@ function postNewComment(idrow: string | number, comment: string) {
     .then((response) => {
       return response.json();
     })
-    .then((data) => {
+    .then(() => {
       populateComments();
       // const idComment = data;
       // const commentsContainer = document.getElementById('commentsContainer');

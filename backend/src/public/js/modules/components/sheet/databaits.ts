@@ -44,10 +44,8 @@ async function getIdSession() {
     const idSession = await getJSON('/usrsession');
     return idSession;
 }
-// const idSession = await getIdSession(); // no top-level await
 
-//let idRow: string = undefined;
-
+const dataBaitTitle: HTMLElement = document.getElementById('databait-modal-title');
 const dataBaitModal: HTMLElement = document.getElementById('databait-screen');
 const dataBaitText: HTMLElement = document.getElementById('databait-text');
 const dataBaitModalClose = <HTMLButtonElement>document.getElementById('dataBaitModalClose');
@@ -55,12 +53,7 @@ const tweetBtn = <HTMLButtonElement>document.getElementById('btn-databait-tweet'
 const createSimilarBtn = <HTMLButtonElement>document.getElementById('btn-databait-similar');
 const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait-random');
 const conntributionMessage = <HTMLSpanElement>document.getElementById('databait-contribution-confirmation');
-//const loadingHTML: string = `<div class="fa-3x"><i class="fas fa-spinner fa-spin"></i></div>`;
 const loadingHTML: string = `Creating something awesome...`;
-
-//const databaitLoadingMsg: string = `Creating something awesome...`;
-//const apiUrlAll: string = '/api-dyk/v1/databait/all';
-//const apiUrlType = (type: string): string => { return `/api-dyk/v1/databait/${type}`; };
 const apiUrlRandom: string = '/api-dyk/v1/databait/random';
 const apiUrlSimilar: string = '/api-dyk/v1/databait/similar';
 
@@ -108,10 +101,12 @@ function updateDatabaitHTML(databait: string) {
 
 function resetContributionMessageHTML() {
     conntributionMessage.innerHTML = '';
+    dataBaitTitle.innerHTML = 'Did you know?';
 }
 
 function addContributionMessageHTML() {
     conntributionMessage.innerHTML = 'Thank you, your contribution will be added in a few minutes.';
+    dataBaitTitle.innerHTML = 'Thank you, did you know?';
 }
 
 function activateCtrls() {
@@ -239,7 +234,7 @@ async function postDatabaitTweet(idDatabait: string | number, sentence: string, 
     .then(response => { return response.json(); })
     .then(data => {
        /* DO SOMETHING HERE :) */
-       console.log(data);
+       //console.log(data);
        databaitCurrent.idDatabaitTweet = data.idDatabaitTweet;
        databaitCurrent.tweetActive = true;
        databaitCurrent.tweetURL = data.tweetURL;
@@ -303,13 +298,12 @@ function openModal() {
 export async function activateDatabait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
     const baseUrl: urlBase = { idInteractionType: idInteractionType, idDatabaitCreateType: idDatabaitCreateType, idSession: await getIdSession()};
     resetContributionMessageHTML();
+    // create a databait based on a user's interaction
     if (idDatabaitCreateType === DatabaitCreateType.navbar_menu) {
         postDatabait(apiUrlRandom, baseUrl);
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_random) {
         postDatabait(apiUrlRandom, baseUrl);
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_like) {
-        // need a row of data from the previous databait, or just push in the same values
-        // and generate a random one
         const urlSimilar = await createUrlSimilar(tableCellElement, baseUrl);
         postDatabait(apiUrlSimilar, urlSimilar);
     } else if (idDatabaitCreateType === DatabaitCreateType.right_click) {
@@ -322,6 +316,7 @@ export async function activateDatabait(tableCellElement: HTMLTableCellElement, i
     } else if (idDatabaitCreateType === DatabaitCreateType.new_row) {
         // tableCellElement needs to be a cell in the new row created
         //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+        addContributionMessageHTML();
         postDatabait(apiUrlRandom, baseUrl);
     } else if (idDatabaitCreateType === DatabaitCreateType.delete_row) {
         // it would be weird to show the data for a deleted row

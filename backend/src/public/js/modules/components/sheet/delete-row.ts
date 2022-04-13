@@ -60,8 +60,9 @@ submitBtn.addEventListener('click', function() {
     // idRow, deleteRowComment.value
     recordRowDelete(idRow, deleteRowComment.value);
     deleteRowModal.style.display = 'none';
-    tableFoot.setStatusTimeout(StatusMode.DeleteSuccess, contributionTimeout);
-    activateDatabait(null, InteractionTypeDatabaitCreate.navbar_menu, DatabaitCreateType.navbar_menu);
+    // sw: message in databait
+    //tableFoot.setStatusTimeout(StatusMode.DeleteSuccess, contributionTimeout);
+    activateDatabait(null, InteractionTypeDatabaitCreate.delete_row, DatabaitCreateType.delete_row);
 }, true);
 
 function getCSProfessorNameUniv(tableRow: HTMLTableRowElement) {

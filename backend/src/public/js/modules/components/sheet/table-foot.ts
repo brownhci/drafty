@@ -137,7 +137,9 @@ class TableFoot {
           this.statusTableCell.textContent = 'A column copied';
           break;
         case StatusMode.EditSuccess:
-            this.statusTableCell.textContent = 'Thank you, your addition will be added within a few minutes.';
+            // sw: removing for now, as the databait modal has this message
+            // TODO: this is not being taken away after edit -> add new row 
+            //this.statusTableCell.textContent = 'Thank you, your addition will be added within a few minutes.';
             break;
         case StatusMode.InsertionFailure:
           this.statusTableCell.textContent = 'Row insertion failure';
@@ -147,7 +149,8 @@ class TableFoot {
           columnLabelInsertRowMenuItem.deactivate();
           // previously inputted cell values has been saved
           this.resetInputs();
-          this.statusTableCell.textContent = 'Thank you, your addition will be added within a few minutes.';
+          // sw: removing for now, as the databait modal has this message
+          //this.statusTableCell.textContent = 'Thank you, your addition will be added within a few minutes.';
           break;
         case StatusMode.InsertionVerification:
           this.statusTableCell.innerHTML = `
