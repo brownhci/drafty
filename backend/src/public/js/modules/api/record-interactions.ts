@@ -219,9 +219,10 @@ export function recordDatabaitTweet(idDatabait: string | number, sentence: strin
   return response; 
 }
 
-export function recordDatabaitTweetNextAction(idDatabait: string) {
+export function recordDatabaitTweetNextAction(idDatabait: string | number, nextAction: DatabaitAction) {
   recordInteraction(postTweetNextAction(), {
-    idDatabait: idDatabait
+    idDatabait: idDatabait,
+    nextAction: nextAction,
   });
 }
 
