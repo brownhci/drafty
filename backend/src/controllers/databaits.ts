@@ -23,7 +23,14 @@ function cleanHashTag(value: string) {
         'California Institute of Technology': 'CalTech',
         'Georgia Institute of Technology': 'GeorgiaTech',
         'New York University': 'NYU',
-        'North Carolina State University': 'NCState'
+        'North Carolina State University': 'NCState',
+        'University of North Carolina at Chapel Hill': 'UNC',
+        'Case Western Reserve University': 'Case Western Reserve',
+        'Worcester Polytechnic Institute': 'WPI',
+        'University of Massachusetts Amherst': 'UMASS',
+        'University of Southern California': 'USC',
+        'Rensselaer Polytechnic Institute': 'RPI',
+        'University of Illinois at Urbana-Champaign': 'UofIllinois'
     };    
     if (value in universityNameShortener) {
         value = universityNameShortener[value];
@@ -65,11 +72,19 @@ export const postTweet = (req: Request, res: Response) => {
     console.log(tweet_content);
     // send tweet
     client.post('statuses/update', {status: tweet_content})
-        .then(function (tweet) {
+        .then(async function (tweet) {
             const tweetURL = getTweetURL(tweet);
-            insertDatabaitTweet(idSession, idDatabait, tweetURL);
             console.log(tweetURL);
-            return res.status(200).json(tweetURL);
+            const [error,results] = await insertDatabaitTweet(idSession, idDatabait, tweetURL);
+            if (error) {
+                return res.sendStatus(500);
+            }
+            console.log(results);
+            const data = {
+                tweetURL: tweetURL,
+                idDatabaitTweet: results.insertId
+            };
+            return res.status(200).json(data);
         })
         .catch(function (error) {
             console.log(error);
