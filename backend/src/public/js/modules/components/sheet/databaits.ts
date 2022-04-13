@@ -116,6 +116,9 @@ function deactivateCtrls() {
 dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
     dataBaitModal.style.display = 'none';
     recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.window_closed);
+    if(databaitCurrent.tweetActive) {
+        recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.window_closed);
+    }
     event.stopPropagation();
 }, true);
 
@@ -132,6 +135,10 @@ createSimilarBtn.addEventListener('click', async function() {
     };
     const urlSimilar: urlSimilar = await createUrlSimilarExistingDatabait(databaitCurrent, baseUrl);
     postDatabait(apiUrlSimilar, urlSimilar);
+    recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.modal_like);
+    if(databaitCurrent.tweetActive) {
+        recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.modal_like);
+    }
 }, true);
 
 createRandomBtn.addEventListener('click', async function() {
@@ -140,8 +147,11 @@ createRandomBtn.addEventListener('click', async function() {
         idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random, 
         idSession: await getIdSession() 
     };
-    recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.modal_random);
     postDatabait(apiUrlRandom, baseUrl);
+    recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.modal_random);
+    if(databaitCurrent.tweetActive) {
+        recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.modal_random);
+    }
 }, true);
 
 function createBodyDataJSON(urlData: urlBase | urlSimilar) {
@@ -203,11 +213,9 @@ async function postDatabaitTweet(idDatabait: string | number, sentence: string, 
     .then(data => {
        /* DO SOMETHING HERE :) */
        console.log(data);
-        
        databaitCurrent.idDatabaitTweet = data.idDatabaitTweet;
        databaitCurrent.tweetActive = true;
        databaitCurrent.tweetURL = data.tweetURL;
-
        window.open(data.tweetURL, '_blank');
        activateCtrls();
      }).catch(error => {
@@ -312,6 +320,9 @@ function closeModal() {
     deactivateKeyListener();
     // record databait modal exit
     recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.window_closed);
+    if(databaitCurrent.tweetActive) {
+        recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.window_closed);
+    }
     dataBaitModal.style.display = 'none';
 }
 
