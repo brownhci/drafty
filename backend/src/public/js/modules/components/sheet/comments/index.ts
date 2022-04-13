@@ -27,6 +27,14 @@ const timestampToDate = (timestamp: string) => {
   return monthNames[parseInt(timestamp.substring(6,7)) - 1] + ' ' + parseInt(timestamp.substring(8,10)).toString() + ', ' + timestamp.substring(0,4);
 };
 
+const getVotingElementIds = function (id: number) {
+  const thumbsUpId = 'thumbs-up-' + id.toString();
+  const thumbsDownId = 'thumbs-down-' + id.toString();
+  const upvoteId = 'upvote-' + id.toString();
+  const downvoteId = 'downvote-' + id.toString();
+  return [thumbsUpId, thumbsDownId, upvoteId, downvoteId];
+};
+
 const commentsDiv = document.getElementById('comments');
 const commentIcon = document.getElementById('commentIcon');
 const closeIcon = document.getElementById('comment-close');
@@ -73,27 +81,34 @@ function voteOnclick (button1: HTMLElement, button2: HTMLElement, id1: string, i
 }
 
 
+function createVotingFunctionality(id: number, new_comment: boolean = false, vote_dict?: Map<number, string>, ) {
+  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] = getVotingElementIds(id);
+  const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
+  const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
+
+  if(vote_dict && !new_comment) {
+    thumbsUpButton.classList.add(vote_dict.get(id) === 'up' ? commentSelected: commentUnselected);
+    thumbsDownButton.classList.add(vote_dict.get(id) === 'down' ? commentSelected: commentUnselected);
+  } else {
+    thumbsUpButton.classList.add(commentUnselected);
+    thumbsDownButton.classList.add(commentUnselected);
+  }
+
+  //make this into separate function and just use for downvote also
+  thumbsUpButton.onclick = function() {
+    voteOnclick (thumbsUpButton, thumbsDownButton, upvoteId, downvoteId, id);
+  };
+
+  thumbsDownButton.onclick = function() {
+    voteOnclick (thumbsDownButton, thumbsUpButton, downvoteId, upvoteId, id);
+  };
+}
+
 //Looping through to add "onclick" on each thumbs up/down to increment
 function handleVoteIds(ids: number[], vote_dict: Map<number, string>) {
-  ids.forEach((i: number) => {
-    const thumbsUpId = 'thumbs-up-' + i.toString();
-    const thumbsDownId = 'thumbs-down-' + i.toString();
-    const upvoteId = 'upvote-' + i.toString();
-    const downvoteId = 'downvote-' + i.toString();
-    const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
-    const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
-
-    thumbsUpButton.classList.add(vote_dict.get(i) === 'up' ? commentSelected: commentUnselected);
-    thumbsDownButton.classList.add(vote_dict.get(i) === 'down' ? commentSelected: commentUnselected);
-  
-    //make this into separate function and just use for downvote also
-    thumbsUpButton.onclick = function() {
-      voteOnclick (thumbsUpButton, thumbsDownButton, upvoteId, downvoteId, i);
-    };
-  
-    thumbsDownButton.onclick = function() {
-      voteOnclick (thumbsDownButton, thumbsUpButton, downvoteId, upvoteId, i);
-    };
+  ids.forEach((id: number) => {
+    const new_comment = false;
+    createVotingFunctionality(id, new_comment, vote_dict);
   });
 }
 
@@ -152,17 +167,14 @@ closeIcon.onclick = function () {
 
 //html element for each comment
 const commentHTML = function (id: number, date: string, author: string, content: string, numUpvote: number, numDownvote: number)  {
-  const thumbsUpId = 'thumbs-up-' + id.toString();
-  const thumbsDownId = 'thumbs-down-' + id.toString();
-  const upvoteId = 'upvote-' + id.toString();
-  const downvoteId = 'downvote-' + id.toString();
+  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] = getVotingElementIds(id);
   return `
   <div id="commentContainer">
     <div id="contentContainer">
       <div id="info">
         <div>${date}</div>
         ・
-        <div id="author">${author ? author:'anonymous user'}</div>
+        <div id="author">${author ? author:'anonymous'}</div>
       </div>
       <div id="content">
         <p>${content}</p>
@@ -204,9 +216,10 @@ function postNewComment(idrow: string | number, comment: string) {
        //console.log(data);
        const idComment = data;
        const commentsContainer = document.getElementById('commentsContainer');
-      // TODO need to check idComment and get user's name
-      commentsContainer.innerHTML = commentHTML(idComment, 'today', 'anonymous', comment, 0, 0) + 
-      `<hr id="comments-hr">` + commentsContainer.innerHTML;
+       // TODO need to check idComment and get user's name
+       commentsContainer.innerHTML = commentHTML(idComment, 'today', 'anonymous', comment, 0, 0) + `<hr id="comments-hr">` + commentsContainer.innerHTML;
+       const new_comment = true;
+       createVotingFunctionality(idComment, new_comment);
      }).catch(error => {
         console.error(error);
      });
