@@ -10,7 +10,10 @@ interface Databait {
     sentence: string,
     labels: Array<string>,
     columns: Array<string>,
-    candidate_values: Record<string, Array<string>>
+    candidate_values: Record<string, Array<string>>,
+    idDatabaitTweet: string | number,
+    tweetURL: string,
+    tweetActive: boolean,
 }
 
 // eslint-disable-next-line prefer-const
@@ -19,7 +22,10 @@ let databaitCurrent: Databait = {
     sentence: '',
     labels: [],
     columns: [],
-    candidate_values: {}
+    candidate_values: {},
+    idDatabaitTweet: '',
+    tweetURL: '',
+    tweetActive: false
 };
 
 interface urlBase { // used for random
@@ -69,7 +75,7 @@ function convertSentenceToHTML(sentenceOld: string, candidateValues: Record<stri
     return sentence;
 }
 
-function addClickListenersToDatabaitsValues(){
+function addClickListenersToDatabaitsValues() {
     const databaitLinks = document.querySelectorAll('a.databait-url');
     databaitLinks.forEach( (element,i) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -94,7 +100,9 @@ function addContributionMessageHTML() {
 }
 
 function activateCtrls() {
-    tweetBtn.disabled = false;
+    if(!databaitCurrent.tweetActive) {
+        tweetBtn.disabled = false;
+    }
     createSimilarBtn.disabled = false;
     createRandomBtn.disabled = false;
 }
@@ -112,11 +120,12 @@ dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
 }, true);
 
 tweetBtn.addEventListener('click', async function() {
-    console.log('tweetBtn');
+    deactivateCtrls();
     postDatabaitTweet(databaitCurrent.idDatabait, databaitCurrent.sentence, databaitCurrent.labels, 'csprofessors');
 }, true);
 
 createSimilarBtn.addEventListener('click', async function() {
+    deactivateCtrls();
     const baseUrl: urlBase = { 
         idInteractionType: InteractionTypeDatabaitCreate.modal_like, idDatabaitCreateType: DatabaitCreateType.modal_like, 
         idSession: await getIdSession()
@@ -126,6 +135,7 @@ createSimilarBtn.addEventListener('click', async function() {
 }, true);
 
 createRandomBtn.addEventListener('click', async function() {
+    deactivateCtrls();
     const baseUrl: urlBase = { 
         idInteractionType: InteractionTypeDatabaitCreate.modal_random, idDatabaitCreateType: DatabaitCreateType.modal_random, 
         idSession: await getIdSession() 
@@ -162,6 +172,9 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
        databaitCurrent.labels = databait.labels;
        databaitCurrent.columns = databait.columns;
        databaitCurrent.candidate_values = databait.candidate_values;
+       databaitCurrent.idDatabaitTweet = '';
+       databaitCurrent.tweetActive = false;
+       databaitCurrent.tweetURL = '';
        updateDatabaitHTML(convertSentenceToHTML(databait.sentence, databait.candidate_values));
        activateCtrls();
      }).catch(error => {
@@ -172,7 +185,6 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
 }
 
 async function postDatabaitTweet(idDatabait: string | number, sentence: string, labels: Array<string>, datasetname: string = 'csprofessors') {
-    deactivateCtrls();
     const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
     const bodyData = {
         idDatabait: idDatabait,
@@ -191,9 +203,13 @@ async function postDatabaitTweet(idDatabait: string | number, sentence: string, 
     .then(data => {
        /* DO SOMETHING HERE :) */
        console.log(data);
-       window.open(data, '_blank');
+        
+       databaitCurrent.idDatabaitTweet = data.idDatabaitTweet;
+       databaitCurrent.tweetActive = true;
+       databaitCurrent.tweetURL = data.tweetURL;
+
+       window.open(data.tweetURL, '_blank');
        activateCtrls();
-       tweetBtn.disabled = true;
      }).catch(error => {
         console.error(error);
         dataBaitText.innerHTML = `Oh we are so sorry, something went wrong with the tweet. :(`;
