@@ -82,10 +82,10 @@ function handleVoteIds(ids: number[], vote_dict: Map<number, string>) {
     const downvoteId = 'downvote-' + i.toString();
     const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
     const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
-
+    
     thumbsUpButton.classList.add(vote_dict.get(i) === 'up' ? commentSelected: commentUnselected);
     thumbsDownButton.classList.add(vote_dict.get(i) === 'down' ? commentSelected: commentUnselected);
-  
+
     //make this into separate function and just use for downvote also
     thumbsUpButton.onclick = function() {
       voteOnclick (thumbsUpButton, thumbsDownButton, upvoteId, downvoteId, i);
@@ -199,14 +199,8 @@ function postNewComment(idrow: string | number, comment: string) {
     };
     fetch(postNewCommentURL(), options)
     .then(response => { return response.json(); })
-    .then(data => {
-       /* TODO DO SOMETHING HERE :) */
-       //console.log(data);
-       const idComment = data;
-       const commentsContainer = document.getElementById('commentsContainer');
-      // TODO need to check idComment and get user's name
-      commentsContainer.innerHTML = commentHTML(idComment, 'today', 'anonymous', comment, 0, 0) + 
-      `<hr id="comments-hr">` + commentsContainer.innerHTML;
+    .then(() => {
+      populateComments();
      }).catch(error => {
         console.error(error);
      });
