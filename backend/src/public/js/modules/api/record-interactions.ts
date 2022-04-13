@@ -202,10 +202,11 @@ export function recordDatabaitCreate(idSuggestion: string, idRow: string, tableR
   });
 }
 
-export function recordDatabaitNextAction(idDatabait: string | number, nextAction: DatabaitAction) {
+export function recordDatabaitNextAction(idDatabait: string | number, nextAction: DatabaitAction, valueSearch?: string | number) {
   recordInteraction(postDatabaitNextAction(), {
     idDatabait: idDatabait,
     nextAction: nextAction,
+    valueSearch: valueSearch
   });
 }
 
