@@ -82,6 +82,10 @@ function addClickListenersToDatabaitsValues() {
             const eventInput = new Event('input');
             searchInputElement.dispatchEvent(eventInput);
             dataBaitModal.style.display = 'none';
+            recordDatabaitNextAction(databaitCurrent.idDatabait, DatabaitAction.select_value_search, searchInputElement.value);
+            if(databaitCurrent.tweetActive) {
+                recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.select_value_search);
+            }
             event.stopPropagation();
         }, true);
     }
