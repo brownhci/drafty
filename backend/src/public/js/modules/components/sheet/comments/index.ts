@@ -288,16 +288,16 @@ function postNewComment(idrow: string | number, comment: string) {
       return response.json();
     })
     .then((data) => {
-      // alternatively, populateComments();
-      const idComment = data;
-      const commentsContainer = document.getElementById('commentsContainer');
-      // TODO need to check idComment and get user's name
-      commentsContainer.innerHTML =
-        commentHTML(idComment, 'today', 'anonymous', comment, 0, 0) +
-        `<hr id="comments-hr">` +
-        commentsContainer.innerHTML;
-      const new_comment = true;
-      createVotingFunctionality(idComment, new_comment);
+      populateComments();
+      // const idComment = data;
+      // const commentsContainer = document.getElementById('commentsContainer');
+      // // TODO need to check idComment and get user's name
+      // commentsContainer.innerHTML =
+      //   commentHTML(idComment, 'today', 'anonymous', comment, 0, 0) +
+      //   `<hr id="comments-hr">` +
+      //   commentsContainer.innerHTML;
+      // const new_comment = true;
+      // createVotingFunctionality(idComment, new_comment);
     })
     .catch((error) => {
       console.error(error);

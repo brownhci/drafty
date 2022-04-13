@@ -27,6 +27,7 @@
   background-color: $white;
   min-width: 350px;
   max-width: 600px;
+  min-height: 180px;
 }
 
 #comment-header {
@@ -178,6 +179,8 @@
 }
 
 #comments-hr {
+  align-self: center;
+  margin: 8px;
   border-top: 1px dashed $gray-500;
   width: 100%;
 }
