@@ -64,27 +64,38 @@ const loadingHTML: string = `Creating something awesome...`;
 const apiUrlRandom: string = '/api-dyk/v1/databait/random';
 const apiUrlSimilar: string = '/api-dyk/v1/databait/similar';
 
+const cssClassColSearch = 'dyk-col-search';
+const dataColSearch = 'data-colsearch';
+
+function getSearchInputElement(col: string | number): HTMLInputElement {
+    return document.getElementById(`column-search-input${col}`) as HTMLInputElement;
+}
+
+function addClickListenersToDatabaitsValues() {
+    const databaitLinks = dataBaitText.getElementsByClassName(cssClassColSearch);
+    for (let i = 0; i < databaitLinks.length; i++) {
+        const element: HTMLElement = databaitLinks[i] as HTMLElement;
+        element.addEventListener('click', function(event: MouseEvent) {
+            const colPos = element.getAttribute(dataColSearch);
+            const searchInputElement: HTMLInputElement = getSearchInputElement(colPos);
+            searchInputElement.value = element.textContent;
+            const eventInput = new Event('input');
+            searchInputElement.dispatchEvent(eventInput);
+            dataBaitModal.style.display = 'none';
+            event.stopPropagation();
+        }, true);
+    }
+}
+
 function convertSentenceToHTML(sentenceOld: string, candidateValues: Record<string, Array<string>>) {
     let sentence: string = sentenceOld;
     for (const column in candidateValues) {
         candidateValues[column].forEach(value => {
             const col_pos = getColumnIndex(column);
-            sentence = sentence.replace(value, `<span class="dyk-col-search" data-colsearch="${col_pos}">${value}</span>`);
+            sentence = sentence.replace(value, `<span class="${cssClassColSearch}" ${dataColSearch}="${col_pos}">${value}</span>`);
         });
     }
     return sentence;
-}
-
-function addClickListenersToDatabaitsValues() {
-    const databaitLinks = document.querySelectorAll('a.databait-url');
-    databaitLinks.forEach( (element,i) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        element.addEventListener('click', (e) => {
-                (element.textContent);
-            console.log(element.getAttribute('data-col'));
-            console.log('done');
-        });
-    });
 }
 
 function updateDatabaitHTML(databait: string) {
@@ -111,6 +122,58 @@ function deactivateCtrls() {
     tweetBtn.disabled = true;
     createSimilarBtn.disabled = true;
     createRandomBtn.disabled = true;
+}
+
+/*
+* 
+* columnName: [cellValues...]
+* 
+'fields': {
+        'University': ['Carnegie Mellon University', 'Brown University', 'Harvard University'],
+        'SubField': ['Artificial Intelligence', 'Software Engineering', 'Databases'],
+        'Doctorate': ['Harvard University','Brown University', 'Northeastern University']
+    }s
+*/
+let candidateFields: {[index: string]:any} = {};
+async function updateRowValues(tableRowChildren: HTMLCollection) {
+    for (let i = 0; i < tableRowChildren.length; i++) {
+        const columnLabelText: string = getColumnLabelText(getColumnLabel(i));
+        const cellValue = tableRowChildren[i].textContent.trim();
+        if (cellValue !== '' && columnLabelText !== 'FullName') {
+            // API expects only 1 value per column
+            candidateFields[columnLabelText] = cellValue;
+        }
+    }
+    return candidateFields;
+}
+
+async function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl: urlBase) {
+    const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
+    const idRow = tableRow.getAttribute('data-id');
+    candidateFields = await updateRowValues(tableRow.children); // 
+    const urlSimilar: urlSimilar = {
+        idInteractionType: baseUrl.idInteractionType,
+        idDatabaitCreateType: baseUrl.idDatabaitCreateType,
+        idSession: baseUrl.idSession,
+        idUniqueId: idRow,
+        value: tableCellElement.innerText,
+        rowValues: candidateFields
+    };
+    return urlSimilar;
+}
+
+async function createUrlSimilarExistingDatabait(databait: Databait, baseUrl: urlBase) {
+
+    //candidateFields = await updateRowValues(tableRow.children); // 
+    const urlSimilar: urlSimilar = {
+        idInteractionType: baseUrl.idInteractionType,
+        idDatabaitCreateType: baseUrl.idDatabaitCreateType,
+        idSession: baseUrl.idSession,
+        idUniqueId: '',
+        value: '',
+        rowValues: databait.candidate_values
+    };
+    return urlSimilar;
 }
 
 function createBodyDataJSON(urlData: urlBase | urlSimilar) {
@@ -145,6 +208,7 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
        databaitCurrent.tweetActive = false;
        databaitCurrent.tweetURL = '';
        updateDatabaitHTML(convertSentenceToHTML(databait.sentence, databait.candidate_values));
+       addClickListenersToDatabaitsValues();
        activateCtrls();
      }).catch(error => {
         console.error(error);
@@ -225,63 +289,11 @@ createRandomBtn.addEventListener('click', async function() {
     }
 }, true);
 
-/*
-* 
-* columnName: [cellValues...]
-* 
-'fields': {
-        'University': ['Carnegie Mellon University', 'Brown University', 'Harvard University'],
-        'SubField': ['Artificial Intelligence', 'Software Engineering', 'Databases'],
-        'Doctorate': ['Harvard University','Brown University', 'Northeastern University']
-    }s
-*/
-let candidateFields: {[index: string]:any} = {};
-async function updateRowValues(tableRowChildren: HTMLCollection) {
-    for (let i = 0; i < tableRowChildren.length; i++) {
-        const columnLabelText: string = getColumnLabelText(getColumnLabel(i));
-        const cellValue = tableRowChildren[i].textContent.trim();
-        if (cellValue !== '' && columnLabelText !== 'FullName') {
-            // API expects only 1 value per column
-            candidateFields[columnLabelText] = cellValue;
-        }
-    }
-    return candidateFields;
-}
-
 function openModal() {
     dataBaitText.innerHTML = loadingHTML;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     activateKeyListener();
     dataBaitModal.style.display = 'block';
-}
-
-async function createUrlSimilar(tableCellElement: HTMLTableCellElement, baseUrl: urlBase) {
-    const tableRow: HTMLTableRowElement = getEnclosingTableRow(tableCellElement);
-    const idRow = tableRow.getAttribute('data-id');
-    candidateFields = await updateRowValues(tableRow.children); // 
-    const urlSimilar: urlSimilar = {
-        idInteractionType: baseUrl.idInteractionType,
-        idDatabaitCreateType: baseUrl.idDatabaitCreateType,
-        idSession: baseUrl.idSession,
-        idUniqueId: idRow,
-        value: tableCellElement.innerText,
-        rowValues: candidateFields
-    };
-    return urlSimilar;
-}
-
-async function createUrlSimilarExistingDatabait(databait: Databait, baseUrl: urlBase) {
-
-    //candidateFields = await updateRowValues(tableRow.children); // 
-    const urlSimilar: urlSimilar = {
-        idInteractionType: baseUrl.idInteractionType,
-        idDatabaitCreateType: baseUrl.idDatabaitCreateType,
-        idSession: baseUrl.idSession,
-        idUniqueId: '',
-        value: '',
-        rowValues: databait.candidate_values
-    };
-    return urlSimilar;
 }
 
 export async function activateDatabait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
