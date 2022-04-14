@@ -16,6 +16,7 @@ const stmtInsertVisit: string = 'INSERT INTO Visit (idinteraction, source, searc
 * function to update database
  */
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function insertDatabait(idSession: string, DatabaitCreateType: DatabaitCreateType) {
     try {
         const idInteractionType: number = 0; // create from DatabaitCreateType
@@ -104,7 +105,6 @@ export function insertDatabaitVisit(idSession: string, idDatabait: string , sour
 // DB Code
 export async function insertVisitFromSrc(idSession: string | number, src: string, searchCol: string, searchVal: string) {
     try {
-        console.log(src, searchCol, searchVal);
         const idInteractionType: number = 38; // 
         // INSERT INTO Visit (idinteraction, source) VALUES(insert_interaction(?,?), ?);
         await db.query(stmtInsertVisit, [idSession, idInteractionType, src, searchCol, searchVal]);
