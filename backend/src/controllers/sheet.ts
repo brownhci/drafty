@@ -27,9 +27,9 @@ export async function getSheet(req: Request, res: Response) {
   } else if (req.session.user.isAuth && !req.session.user.isAdmin && sheetData.admin_only) {
     req.flash('errors', { msg: 'Oh sorry this sheet is protected or under development :('});
   } else {
-    const sheetName = await getRequestedSheetName(sheetURL);
+    const [sheetName, sheetTitle] = await getRequestedSheetName(sheetURL);
     const sheetPath = await getRequestedSheetPath(sheetURL);
-    res.render('pages/sheet', makeRenderObject({ title: `${sheetName}`, sheetName: sheetName, sheetPath: sheetPath, sheetURL: sheetURL, sheetActive: 1, sheetOrEditHistoryActive: 1 }, req));
+    res.render('pages/sheet', makeRenderObject({ title: `${sheetTitle}`, sheetName: sheetName, sheetPath: sheetPath, sheetURL: sheetURL, sheetActive: 1, sheetOrEditHistoryActive: 1 }, req));
   }
 }
 
@@ -53,8 +53,8 @@ export async function getSheetEditHistory(req: Request, res: Response) {
   } else if (req.session.user.isAuth && !req.session.user.isAdmin && sheetData.admin_only) {
     req.flash('errors', { msg: 'Oh sorry this sheet is protected or under development :('});
   } else {
-    const sheetName = await getRequestedSheetName(sheetURL);
+    const [sheetName, sheetTitle] = await getRequestedSheetName(sheetURL);
     const editHistoryPath = await getRequestedEditHistorySheetPath(sheetURL);
-    res.render('pages/edit_history', makeRenderObject({ title: `${sheetName}`, sheetName: sheetName, sheetURL: sheetURL, editHistoryPath: editHistoryPath, sheetActive: 0, sheetOrEditHistoryActive: 1 }, req));
+    res.render('pages/edit_history', makeRenderObject({ title: `${sheetTitle}`, sheetName: sheetName, sheetURL: sheetURL, editHistoryPath: editHistoryPath, sheetActive: 0, sheetOrEditHistoryActive: 1 }, req));
   }
 }

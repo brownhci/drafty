@@ -4,6 +4,7 @@ csprofessors:
     in_menu: 1
     on_homepage: 1
     name: "CS Professors"
+    title: "Computer Science Professor Profile"
 
 2300profs:
     login_required: 1
@@ -11,6 +12,7 @@ csprofessors:
     in_menu: 0
     on_homepage: 0
     name: "CS Professors Study"
+    title: "Computer Science Professor Profile"
 
 demo:
     login_required: 1
@@ -18,4 +20,5 @@ demo:
     in_menu: 0
     on_homepage: 0
     name: "Demo Sheet"
+    title: "Drafty Demo"
     

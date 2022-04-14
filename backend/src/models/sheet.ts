@@ -45,7 +45,7 @@ export async function getRequestedSheetName(urlName: string) {
     try {
         const yamlData: any = await getSheetsYAML();
         if(urlName in yamlData) {
-            return yamlData[urlName].name;
+            return [yamlData[urlName].name, yamlData[urlName].title];
         } else {
             throw new Error('yaml data does not contain urlName: ' + urlName);
         }
