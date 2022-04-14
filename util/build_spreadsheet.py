@@ -10,7 +10,6 @@ db_name = ''
 db_user = 'test'
 db_pass = 'test'
 
-
 sql_col_order = "SELECT * FROM SuggestionType st WHERE isActive = 1 ORDER BY st.columnOrder"
 sql_col_widths = '''
                 SELECT s.idSuggestionType, (ROUND(AVG(LENGTH(s.suggestion))) * 6.6) + 140 as avg_length
@@ -20,13 +19,19 @@ sql_col_widths = '''
                 GROUP BY s.idSuggestionType
                 '''
 sql_suggestions = '''
-            SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, st.columnOrder
-            FROM Suggestions s
-            INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType
-            INNER JOIN UniqueId u ON u.idUniqueID = s.idUniqueID
-            WHERE s.active = 1 AND st.isActive = 1 AND u.active = 1
-            ORDER BY idUniqueID, st.columnOrder, confidence desc
-          '''
+                SELECT s.idSuggestion, s.idSuggestionType, s.idUniqueID, s.suggestion, smax.columnOrder
+                FROM (SELECT idUniqueID FROM UniqueId WHERE active = 1) u
+                INNER JOIN Suggestions s ON s.idUniqueID = u.idUniqueID
+                INNER JOIN (
+                    SELECT idUniqueID, st.idSuggestionType, st.columnOrder, MAX(confidence) max_conf
+                    FROM Suggestions s
+                    INNER JOIN SuggestionType st ON st.idSuggestionType = s.idSuggestionType
+                    WHERE s.active = 1 AND st.isActive = 1
+                    GROUP BY s.idUniqueID, s.idSuggestionType, st.columnOrder
+                    ORDER BY st.columnOrder
+                ) smax ON smax.idUniqueID = s.idUniqueID AND smax.idSuggestionType = s.idSuggestionType AND smax.max_conf = s.confidence
+                ORDER BY s.idUniqueId, smax.columnOrder
+                '''
 
 
 def build_column_width(row, column_index, column_widths):
@@ -43,12 +48,11 @@ def build_column_width(row, column_index, column_widths):
 def build_colgroup(column_widths):
     cursor.execute(sql_col_order)
     rows = cursor.fetchall()
+    number_of_cols = len(rows)
     return f'<colgroup>{"".join(build_column_width(row, i, column_widths) for i, row in enumerate(rows))}</colgroup>\n'
 
 
-num_columns = None
-
-
+num_columns = None # set below
 def get_column_widths(cursor):
     cursor.execute(sql_col_widths)
     rows = cursor.fetchall()
@@ -128,52 +132,35 @@ def build_table_datarow_cell(row, cellindex):
     return f'<td id="{id_suggestion}" tabindex="-1" {content_editable}>{suggestion}</td>'
 
 
+def build_table_cell(idSuggestion, suggestion, column_index):
+    suggestion = ''.join(chr(c) for c in suggestion.encode('ascii', 'xmlcharrefreplace') if c != 0)
+    content_editable = 'contenteditable="false"' if column_index in noneditable_indices else ""
+    return f'<td id="{idSuggestion}" tabindex="-1" {content_editable}>{suggestion}</td>'
+
+
 def pad_iterator(orig_iter, filler, target_len):
     padded_iter = itertools.chain(orig_iter, itertools.repeat(filler))
     return itertools.islice(padded_iter, target_len)
 
 
-def build_table_row(rows_iter):
-    # TODO  optimize with manual loop
-    rows_iter1, rows_iter2 = itertools.tee(rows_iter)
-    first_tablecell = next(rows_iter1)
-    id_unique_id = first_tablecell['idUniqueID']
-    first_id_suggetion_type = first_tablecell['idSuggestionType']
-    id_suggestion_types = set([first_id_suggetion_type])
-
-    def best_in_type(row):
-        """
-        Gets the first cell with new idSuggestionType field
-        (most confident one)
-        """
-        if row['idSuggestionType'] not in id_suggestion_types:
-            id_suggestion_types.add(row['idSuggestionType'])
-            return True
-        return False
-
-    same_row = lambda row: row['idUniqueID'] == id_unique_id
-    tablecell_rows_iter = itertools.chain([first_tablecell],
-                                          filter(best_in_type, itertools.takewhile(same_row, rows_iter1)))
-    rest_rows_iter = itertools.dropwhile(same_row, rows_iter2)
-    datarow_cell_iter = (build_table_datarow_cell(row, i) for i, row in enumerate(
-        pad_iterator(
-            tablecell_rows_iter,
-            filler={'suggestion': ''},
-            target_len=num_columns)))
-    return f'<tr data-id="{id_unique_id}">{"".join(datarow_cell_iter)}</tr>', rest_rows_iter
-
-
 def build_table_data_sections(cursor):
     cursor.execute(sql_suggestions)
     rows = cursor.fetchall()
-    rows_iter = iter(rows)
     data_rows = []
-    try:
-        while True:
-            data_row, rows_iter = build_table_row(rows_iter)
-            data_rows.append(data_row)
-    except StopIteration:
-        return f'<template id="table-data"><tbody>{"".join(data_rows)}</tbody></template>'
+    current_row = ''
+    for i in range(0, len(rows), num_columns):
+        idRow = rows[i]['idUniqueID']
+        current_row = ''
+        lookup = i + num_columns
+        column_index = 0
+        for row in rows[i:lookup]:
+            idSuggestion = row['idSuggestion']
+            suggestion = row['suggestion']
+            new_cell = build_table_cell(idSuggestion,suggestion,column_index)
+            current_row += new_cell
+            column_index += 1
+        data_rows.append(f'<tr data-id="{idRow}">{current_row}</tr>')
+    return f'<template id="table-data"><tbody>{"".join(data_rows)}</tbody></template>'
 
 
 def build_table_file(cursor):
@@ -201,7 +188,7 @@ def get_db_creds():
 
 if __name__ == '__main__':
     # python3 build_spreadsheet.py --host localhost --database 2300profs 2300profs.handlebars
-    # python3 build_spreadsheet.py --host=localhost --database=csprofessors csprofessors.handlebars
+    # python3 build_spreadsheet.py --host localhost --database csprofessors csprofessors.handlebars
     parser = argparse.ArgumentParser(description='Write database data to table HTML file.')
     parser.add_argument('--host', default='localhost',
                         help='The host of the MySQL database')
