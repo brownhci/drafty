@@ -8,7 +8,8 @@ const columnWidthCache = new LocalStorageCache(Number.POSITIVE_INFINITY);
 function keyFunction(index: number) {
   return `columnWidth${index}`;
 }
-function getPreferredColumnWidth(index: number): string {
+
+function getPreferredColumnWidth(index: number, msg: string): string {
   const tableColumnElement: HTMLTableColElement = getTableColElement(index);
   if (tableColumnElement) {
     const dataWidth = tableColumnElement.dataset.width;
@@ -17,20 +18,20 @@ function getPreferredColumnWidth(index: number): string {
   // sw: TODO - this is the local storage which never gets triggered bc the if stmt is always true
   return columnWidthCache.retrieve(keyFunction(index));
 }
+
 export function getMinimumColumnWidth(index: number) {
   const columnLabelText: string = getColumnLabelText(getColumnLabel(index));
-
   const textWidth: number = measureTextWidth(columnLabelText);
   const paddingWidth: number = em2px(0.75) * 2;
   const sortButtonWidth: number = 30;
-  const slack: number = 80;
+  const slack: number = 0; // sw: this is causing join year to be extra large, does not affect other cols
   return textWidth + paddingWidth + sortButtonWidth + slack;
 }
+
 function loadPreferredColumnWidths(respectMinimumColumnWidth: boolean = true) {
   let index = 0;
   for (const tableColElement of tableColElements) {
-    const preferredColumnWidth: string = getPreferredColumnWidth(index);
-
+    const preferredColumnWidth: string = getPreferredColumnWidth(index, '::from loadPreferredColumnWidths::');
     const tableColEl = tableColElement as HTMLTableColElement;
     if (preferredColumnWidth) {
       let columnWidth: string;
@@ -39,13 +40,12 @@ function loadPreferredColumnWidths(respectMinimumColumnWidth: boolean = true) {
       } else {
         columnWidth = preferredColumnWidth;
       }
-        tableColEl.style.width = columnWidth;
+      tableColEl.style.width = columnWidth;
     } else {
       if (respectMinimumColumnWidth) {
         tableColEl.style.width = `${getMinimumColumnWidth(index)}px`;
       }
     }
-
     index += 1;
   }
 }
@@ -82,7 +82,6 @@ export function updateTableColumnSearchWidth(columnSearch: HTMLTableCellElement)
   const padding = 24;
   const slack = 44;
   const estimatedTextWidth = textLength + slack + padding;
-
   const currentTextWidthCanFit = columnSearchInput.offsetWidth;
   if (estimatedTextWidth > currentTextWidthCanFit) {
     const index = columnSearch.cellIndex;
@@ -90,6 +89,7 @@ export function updateTableColumnSearchWidth(columnSearch: HTMLTableCellElement)
     updateTableColumnWidth(index, `${newColumnWidth}px`);
   }
 }
+
 export function updateTableCellWidth(tableCellElement: HTMLTableCellElement, resizeAmount: number) {
   if (resizeAmount === 0) {
     return;
@@ -99,6 +99,5 @@ export function updateTableCellWidth(tableCellElement: HTMLTableCellElement, res
   // in pixels
   const currentColumnWidth = tableCellElement.clientWidth;
   const newColumnWidth = Math.max(getMinimumColumnWidth(index), currentColumnWidth + resizeAmount);
-
   updateTableColumnWidth(index, `${newColumnWidth}px`);
 }
