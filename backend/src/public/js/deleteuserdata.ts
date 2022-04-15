@@ -1,5 +1,5 @@
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
-const deleteUserDataForm = document.getElementById('delete-data-form');
+const deleteUserDataButton = document.getElementById('delete-data-form-btn');
 const thankYouMessage = document.getElementById('delete-data-thankyou');
 function deleteUserDataPOST() {
   const data: Record<any, any> = {'_csrf': tableCellInputFormCSRFInput.value};
@@ -24,7 +24,7 @@ function deleteUserDataPOST() {
           console.error('There was an error!', error);
       });
 }
-deleteUserDataForm.addEventListener('click', (e) => {
+deleteUserDataButton.addEventListener('click', (e) => {
   e.preventDefault();
   deleteUserDataPOST();
 });
