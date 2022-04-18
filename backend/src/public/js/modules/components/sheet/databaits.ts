@@ -211,8 +211,9 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
        activateCtrls();
      }).catch(error => {
         console.error(error);
-        dataBaitText.innerHTML = `Oh we are so sorry, something went wrong. :(`;
+        dataBaitText.innerHTML = `Oh we are sorry, there was an issue creating a new did you know. Please try again.`;
         activateCtrls();
+        tweetBtn.disabled = false;
      });
 }
 
