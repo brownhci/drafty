@@ -35,7 +35,7 @@ function cleanHashTag(value: string) {
     if (value in universityNameShortener) {
         value = universityNameShortener[value];
     }
-    return value.replace('-','').replace(',','').replace('&','').replace(' at ','').replace(/\s+/g, '');
+    return value.replace('-','').replace(',','').replace('&','').replace(' at ','').replace(/\s+/g, '').replace('.','');
 }
 
 function isNumeric(n: string): boolean {
