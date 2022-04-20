@@ -30,7 +30,18 @@ function cleanHashTag(value: string) {
         'University of Massachusetts Amherst': 'UMASS',
         'University of Southern California': 'USC',
         'Rensselaer Polytechnic Institute': 'RPI',
-        'University of Illinois at Urbana-Champaign': 'UofIllinois'
+        'University of Illinois at Urbana-Champaign': 'UofIllinois',
+        'Carnegie Mellon University': 'CMU',
+        'Artificial Intelligence': 'AI',
+        'Human-Computer Interaction': 'HCI',
+        'Comp. Bio & Bioinformatics': 'CompBio',
+        'Algorithms & Complexity': 'Algorithms',
+        'Embedded & Real-Time Systems': 'EmbeddedSystems',
+        'Machine Learning & Data Mining': 'Machine Learning',
+        'High-Performance Computing': 'HPC',
+        'The Web & Information Retrieval': 'IR',
+        'Programming Languages': 'PL',
+        'Natural Language Processing': 'NPL'
     };    
     if (value in universityNameShortener) {
         value = universityNameShortener[value];
