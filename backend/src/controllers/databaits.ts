@@ -41,7 +41,7 @@ function cleanHashTag(value: string) {
         'High-Performance Computing': 'HPC',
         'The Web & Information Retrieval': 'IR',
         'Programming Languages': 'PL',
-        'Natural Language Processing': 'NPL'
+        'Natural Language Processing': 'NLP'
     };    
     if (value in universityNameShortener) {
         value = universityNameShortener[value];
