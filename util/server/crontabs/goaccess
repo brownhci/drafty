@@ -1,0 +1,4 @@
+# /etc/cron.d/
+
+### run goaccess command every 24 hours
+0 */24 * * * root cd /vol/drafty_source/drafty/util/server/ && ./run_goaccess

@@ -1,0 +1,18 @@
+# /etc/cron.d/
+
+### render sheets
+*/2 * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_spreadsheet.py --host=localhost --database=csprofessors csprofessors.handlebars
+#* * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_spreadsheet.py --host=localhost --database=2300profs 2300profs.hbs
+
+### edit history
+*/3 * * * * root cd /vol/drafty_source/drafty/util/ && python3 build_edit_history.py --host=localhost --database=csprofessors csprofessors.handlebars
+
+### csv version
+*/7 * * * * root cd /vol/drafty_source/drafty/util/ && python3 gen_data_csv.py --database csprofessors
+
+### regen data for CSOpenRankings
+*/5 * * * * root cd /vol/csopenrankings/backend/generators/ && python3 makeAllJson.py 
+*/5 * * * * root cd /vol/csopenrankings/backend/generators/ && python3 create_static_table.py
+
+### generate a databait from the system
+0 */24 * * * root cd /vol/DataBaits/databaits-api && python3 generate_databaits.py --csv "drafty_source/drafty/backend/data_sharing/csprofessors.csv" --tweet 
