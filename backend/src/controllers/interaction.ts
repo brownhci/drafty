@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertCopyColumn, insertSearch, insertSort, insertSearchGoogle } from '../database/interaction';
+import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertSearch, insertSort, insertSearchGoogle } from '../database/interaction';
 
 /**
  * POST /click
@@ -149,28 +149,6 @@ export const postSearchGoogle = (req: Request, res: Response) => {
 };
 
 /**
- * POST /searchcol-visit
- * 
- * @param {number} req.body.idSuggestionType
- *
- * @param {string} req.body.value
- */
-export const postSearchColVisit = (req: Request, res: Response) => {
-  const idSession = req.session.user.idSession;
-  const idSuggestionType: string = req.body.idSuggestionType;
-  const value: string = req.body.value;
-
-  try {
-    //console.log('postDatabaitVisit:', idDatabait, source);
-    // sw: TODO - implement insertSearchColVisit + create DB structure
-    //insertSearchColVisit(idSession, idSuggestionType, value);
-    return res.sendStatus(200);
-  } catch (error) {
-    return res.sendStatus(500);
-  }
-};
-
-/**
  * POST /paste-cell
  * Copy
  *
@@ -202,24 +180,6 @@ export const postCopyCell = (req: Request, res: Response) => {
   const idSuggestion: number | string = req.body.idSuggestion;
   try {
     insertCopyCell(idSession, idSuggestion);
-    return res.sendStatus(200);
-  } catch (error) {
-    return res.sendStatus(500);
-  }
-};
-
-/**
- * POST /copy-column
- * Copy entire column
- *
- * @param {number} req.body.idSuggestionType
- */
-export const postCopyColumn = (req: Request, res: Response) => {
-  const idSession = req.session.user.idSession;
-  const idSuggestionType: number | string = req.body.idSuggestionType;
-
-  try {
-    insertCopyColumn(idSession, idSuggestionType);
     return res.sendStatus(200);
   } catch (error) {
     return res.sendStatus(500);

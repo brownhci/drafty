@@ -96,19 +96,6 @@ export async function insertCopyCell(idSession: string, idSuggestion: number | s
 }
 
 /**
- * save new copy column
- */
-//DB Code
-export async function insertCopyColumn(idSession: string, idSuggestionType: number | string) {
-    try {
-        const idInteractionType: number = 14;
-        await db.query(stmtInsertCopy, [idSession, idInteractionType, idSuggestionType]);
-    } catch (error) {
-        logDbErr(error, 'error during insert copy column', 'warn');
-    }
-}
-
-/**
  * save new sort
  */
 //DB Code
