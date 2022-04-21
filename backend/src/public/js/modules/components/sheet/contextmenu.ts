@@ -6,7 +6,7 @@ import { deleteRow } from './delete-row';
 import { StatusMode, tableFoot } from './table-foot';
 import { activeClass } from '../../constants/css-classes';
 import { isButton } from '../../dom/types';
-import { activeTableCellElement, activateTableCol } from '../../../sheet';
+import { activeTableCellElement } from '../../../sheet';
 import { activateDatabait } from './databaits';
 import { InteractionTypeDatabaitCreate, DatabaitCreateType } from '../../../../../types/databaits';
 
@@ -187,9 +187,6 @@ tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
 columnLabelContextMenu.addEventListener('click', function(event: MouseEvent) {
   const menuItem = MenuItem.find(event.target as HTMLElement);
   switch (menuItem.action) {
-    case 'Copy Column':
-      activateTableCol();
-      // fallthrough
     case 'Copy':
       copyTableCellElement(activeTableCellElement);
       break;

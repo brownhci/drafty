@@ -2,10 +2,9 @@ import { cellEditor } from './cell-editor';
 import { StatusMode, tableFoot } from './table-foot';
 import { clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyCopyBuffer, copyTextToCopyBuffer, hasCopyModifier, getCopyBuffer } from '../../utils/copy';
 import { hasTextSelected } from '../../utils/selection';
-import { recordCellCopy, recordColumnCopy, recordPaste } from '../../api/record-interactions';
+import { recordCellCopy, recordPaste } from '../../api/record-interactions';
 import { isTableData, isTableHead } from '../../dom/types';
-import { getColumnLabel, getTableCellText, getTableDataText, isColumnLabel, isColumnSearchInput, isTableCellEditable, tableElement } from '../../dom/sheet';
-import { activeTableCellElement, activeTableColElement, tableDataManager } from '../../../sheet';
+import { getTableCellText, getTableDataText, isColumnLabel, isColumnSearchInput, isTableCellEditable, tableElement } from '../../dom/sheet';
 
 const copiedClass = 'copied';
 
@@ -26,35 +25,15 @@ function removeCurrentCopyTarget() {
 interface ConsumableKeyboardEvent extends KeyboardEvent {
   consumed?: boolean;
 }
+
 function copyCellTextToCopyBuffer(tableCellElement: HTMLTableCellElement) {
   copyTextToCopyBuffer(getTableCellText(tableCellElement), tableCellElement.id);
 }
-function copyTableColumnToCopyBuffer(index: number) {
-  let textToCopy = '';
 
-  for (const viewModel of tableDataManager.fullView) {
-    const tableRow = viewModel.element_ as HTMLTableRowElement;
-    const text = tableRow.cells[index].textContent;
-    textToCopy += `${text}\n`;
-  }
-  const id: string = ''; //sw: bc this was a copy column operation
-  copyTextToCopyBuffer(textToCopy.trimRight(),id);
-}
 export function copyTableCellElement(tableCellElement: HTMLTableCellElement, ignoreSelection: boolean = true) {
   removeCurrentCopyTarget();
   clearCopyBuffer();
-
-  let elementToHighlight;
-  if (activeTableColElement) {
-    // copy entire column
-    const columnIndex: number = activeTableCellElement.cellIndex;
-    copyTableColumnToCopyBuffer(columnIndex);
-    elementToHighlight = activeTableColElement;
-    copyCopyBuffer();
-    recordColumnCopy(getColumnLabel(columnIndex));
-    tableFoot.setStatusTimeout(StatusMode.ColumnCopy, 1000);
-    makeElementCopyTarget(elementToHighlight);
-  } else if (isTableData(tableCellElement) || isColumnLabel(tableCellElement)) {
+  if (isTableData(tableCellElement) || isColumnLabel(tableCellElement)) {
     if (!ignoreSelection && hasTextSelected(tableCellElement)) {
       // copy selected part
       copyCurrentSelectionToCopyBuffer();
@@ -62,7 +41,7 @@ export function copyTableCellElement(tableCellElement: HTMLTableCellElement, ign
       // copy single table cell
       copyCellTextToCopyBuffer(tableCellElement);
     }
-    elementToHighlight = tableCellElement;
+    const elementToHighlight = tableCellElement;
     if (isTableData(tableCellElement)) {
       // do not record copy on table head element
       recordCellCopy(tableCellElement);
