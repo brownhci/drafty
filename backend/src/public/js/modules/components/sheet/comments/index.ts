@@ -208,6 +208,7 @@ export function activateCommentSection() {
 export function activateCommentIcon() {
   commentIcon.style.display = 'flex';
   commentsDiv.style.display = 'none';
+  activeTableCellElement.focus();
 }
 
 export function changeCommentLabel() {
