@@ -308,6 +308,7 @@ class CellEditor {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   activateForm(cellElement: HTMLTableCellElement, searchVal: string) {
     if (cellElement && isTableCellEditable(cellElement)) {
       if (!this.willFormDeactivateWhenCellNoLongerReachable) {

@@ -1,9 +1,7 @@
 import { getEnclosingTableRow } from '../../dom/navigate';
 import { recordRowDelete } from '../../api/record-interactions';
-import { StatusMode, tableFoot } from './table-foot';
 import { activateDatabait } from './databaits';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate } from '../../../../../types/databaits';
-import { contributionTimeout } from '../../../sheet';
 
 let idRow: string = undefined;
 

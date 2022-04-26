@@ -13,6 +13,7 @@ import { CharacterDataChangeEvent, ChildListChangeEvent, PropertyChangeEvent } f
  * @param {Array<MutationRecord>} mutations - An array of MutationRecord objects describing each change that occurred
  * @param {MutationObserver} observer - The MutationObserver which invoked the callback
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type MutationCallback = (mutations: Array<MutationRecord>, observer: MutationObserver) => void;
 
 /**

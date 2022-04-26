@@ -45,6 +45,7 @@ export async function error500 (req: Request, res: Response) {
 /**
  * GLOBAL MIDDLEWARE
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function errors(err: Error, req: Request, res: Response){
   //res.status(500);
   console.log('ERRORS...', req.url);

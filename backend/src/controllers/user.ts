@@ -6,7 +6,7 @@ import logger from '../util/logger';
 //import process from "../util/process"; sw - npm warning never used :/
 import { Request, Response, NextFunction } from 'express';
 import { UserModel, usernameFieldName, passwordFieldName, passwordResetToken, passwordResetExpires } from '../models/user';
-import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup, getUserExperiments, insertNewUserExperiment } from '../database/user';
+import { findUserByField, createUser, updateUser, insertSession, updateSession, updateUserNewSignup } from '../database/user';
 import { usernameExists, usernameNotTaken, isNotEmail, isValidUsername, checkPasswordLength, confirmMatchPassword } from '../validation/validators';
 import { encryptPassword } from '../util/encrypt';
 import { makeRenderObject } from '../config/handlebars-helpers';
@@ -168,6 +168,7 @@ export interface ExperimentRole {
  * check if experiments exist, if not update them
  * 
  */
+/*
 async function getActiveExperiments(newSession: boolean, idSession: string) {
   try {
     // eslint-disable-next-line prefer-const
@@ -194,6 +195,7 @@ async function getActiveExperiments(newSession: boolean, idSession: string) {
     logger.error(err);
   }
 }
+*/
 
 /**
  * Function to create new Session in our DB (not express-session)

@@ -9,7 +9,7 @@ function keyFunction(index: number) {
   return `columnWidth${index}`;
 }
 
-function getPreferredColumnWidth(index: number, msg: string): string {
+function getPreferredColumnWidth(index: number): string {
   const tableColumnElement: HTMLTableColElement = getTableColElement(index);
   if (tableColumnElement) {
     const dataWidth = tableColumnElement.dataset.width;
@@ -31,7 +31,7 @@ export function getMinimumColumnWidth(index: number) {
 function loadPreferredColumnWidths(respectMinimumColumnWidth: boolean = true) {
   let index = 0;
   for (const tableColElement of tableColElements) {
-    const preferredColumnWidth: string = getPreferredColumnWidth(index, '::from loadPreferredColumnWidths::');
+    const preferredColumnWidth: string = getPreferredColumnWidth(index);
     const tableColEl = tableColElement as HTMLTableColElement;
     if (preferredColumnWidth) {
       let columnWidth: string;

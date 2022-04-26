@@ -134,20 +134,18 @@ export function tableHeadOnMouseDown(tableCellElement: HTMLTableCellElement, eve
     resizeStartX = event.pageX;
     repositionResizeVisualCue(tableHeadAtMouseLeft, resizeStartX);
     activateResizeVisualCue();
-    addResizeListeners();
+    //addResizeListeners(); // users can easily make columns too wide
   }
   event.stopPropagation();
 }
 
+/* sw: unused
 function addResizeListeners() {
   tableElement.addEventListener('mousemove', tableHeadOnMouseMove, true);
   tableElement.addEventListener('mouseup', tableHeadOnMouseUp, true);
 }
+*/
 
-function removeResizeListeners() {
-  tableElement.removeEventListener('mousemove', tableHeadOnMouseMove, true);
-  tableElement.removeEventListener('mouseup', tableHeadOnMouseUp, true);
-}
 
 export function tableHeadOnMouseUp(event: MouseEvent) {
   if (isResizing) {
@@ -166,6 +164,12 @@ export function tableHeadOnMouseUp(event: MouseEvent) {
   }
   isResizing = false;
   deactivateResizeVisualCue();
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   removeResizeListeners();
   event.stopPropagation();
+}
+
+function removeResizeListeners() {
+  tableElement.removeEventListener('mousemove', tableHeadOnMouseMove, true);
+  tableElement.removeEventListener('mouseup', tableHeadOnMouseUp, true);
 }
