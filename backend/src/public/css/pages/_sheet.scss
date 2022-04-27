@@ -170,6 +170,7 @@ inset 0px -1px 0px 0px $table-border-color;
         @extend .btn-sm;
         @extend .d-none;
         @extend .w-100;
+        min-height: 33px;
 
         #locate-cell-icon {
           @extend .fas;
