@@ -328,6 +328,7 @@ export async function activateDatabait(tableCellElement: HTMLTableCellElement, i
 }
 
 function closeModal() {
+    dataBaitModal.style.display = 'none';
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     deactivateKeyListener();
     // record databait modal exit
@@ -335,7 +336,6 @@ function closeModal() {
     if(databaitCurrent.tweetActive) {
         recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.window_closed);
     }
-    dataBaitModal.style.display = 'none';
 }
 
 function escKeyListener(event: KeyboardEvent) {
