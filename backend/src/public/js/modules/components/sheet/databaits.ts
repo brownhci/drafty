@@ -351,3 +351,10 @@ function activateKeyListener() {
 function deactivateKeyListener() {
     document.removeEventListener('keydown', (event) => escKeyListener(event));
 }
+
+dataBaitModal.addEventListener('click', function(event: MouseEvent) {
+    const element = <HTMLElement>event.target;
+    if(element.id === 'databait-screen') {
+        closeModal();
+    }
+});
