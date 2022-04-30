@@ -1,9 +1,10 @@
 import fuzzysort from 'fuzzysort';
 //import { Option as Opt } from "../components/sheet/suggestions";
-import { fuseSelectRootContainerClass, autocompleteSuggestionClass, optionContainerClass, optionClass, optionTextClass } from '../constants/css-classes';
+import { fuseSelectRootContainerClass, autocompleteSuggestionClass, optionContainerClass, optionClass, optionTextClass, previousEditClass } from '../constants/css-classes';
 import { activeClass } from '../constants/css-classes';
 import { tableDataManager } from '../../sheet';
 import { getCellInTableRow } from '../dom/navigate';
+import { convertArrayOption, convertArrayPrevSuggestions, Option } from '../components/sheet/suggestions';
 
 // sw: convert to class so it can be reused
 const fuzzySortOptions = {
@@ -21,6 +22,7 @@ fuzzySortOptions.keys = null;
 
 export class FuzzySelect {
     private options: Fuzzysort.Results;
+    public isNewRow: boolean = false;
 
     /**
     * @returns The count of suggestions that are actually rendered.
@@ -40,10 +42,6 @@ export class FuzzySelect {
     constructor(options: Fuzzysort.Results = fuzzysort.go('', [], fuzzySortOptions)) {
         this.options = options;
         this.initializeSelect();
-    }
-
-    hasSuggestion(query: string): boolean {
-        return this.suggestionsLookup.has(query.toLowerCase());
     }
 
     private initializeSelect() {
@@ -79,7 +77,7 @@ export class FuzzySelect {
         return optionTextElement;
     }
 
-    private createNewResultsContainer(options: Fuzzysort.Results): HTMLElement {
+    private createNewResultsContainer(options: Fuzzysort.Results, suggestionsPrev?: Array<string>): HTMLElement {
         const optionContainer = this.createOptionContainer(options);
 
         for (let i = 0; i < options.length; i++) {
@@ -90,7 +88,11 @@ export class FuzzySelect {
             optionTextElement.title = option.target;
             optionTextElement.innerHTML = option.target;
             optionTextElement.innerHTML = fuzzysort.highlight(option, '<b>', '</b>');
-
+            if(suggestionsPrev) {
+                if(suggestionsPrev.includes(option.target)) {
+                    optionTextElement.classList.add(previousEditClass);
+                }
+            }
             optionElement.appendChild(optionTextElement);
             optionContainer.appendChild(optionElement);
         }
@@ -132,8 +134,7 @@ export class FuzzySelect {
 
             if (optionTextElement.nodeName === 'B') {
                 // sw: this handles when someone clicks on a bold letter
-                // when clicking on bold letter it return <b>some text</b> instead of the 
-                // div required element containing the 'fuse-select-option' css class
+                // when clicking on bold letter it return <b>some text</b> instead of the div required element containing the 'fuse-select-option' css class
                 optionTextElement = optionTextElement.parentElement.parentElement.querySelector(`.${optionTextClass}`);
             } else if (!optionTextElement.classList.contains(optionTextClass)) {
                 optionTextElement = optionTextElement.querySelector(`.${optionTextClass}`);
@@ -141,7 +142,6 @@ export class FuzzySelect {
 
             if (optionTextElement) {
                 callback(optionTextElement.textContent);
-                // the "click" event is fully handled here
                 event.stopPropagation();
             }
         });
@@ -173,16 +173,39 @@ export class FuzzySelect {
         return arr;
     }
 
-    async query(searchVal: string, columnIndex: number) {
+    async getAddNewRowValues(col: number) {
+        // sw: TODO
+        const n: number = tableDataManager.source.length;
+        const arr: Array<string> = [];
+        for (let row = 0; row < n; ++row) {
+            const rowEle = tableDataManager.source[row].element_ as HTMLTableRowElement;
+            const cellValue = getCellInTableRow(rowEle, col).textContent.trim();
+            if (!arr.includes(cellValue)) {
+                arr.push(cellValue);
+            }
+        }
+        arr.sort();
+        return arr;
+    }
+
+    async getCellEditorValues(col: number) {
+        // sw: TODO
+        const n: number = tableDataManager.source.length;
+        const arr: Array<string> = [];
+        for (let row = 0; row < n; ++row) {
+            const rowEle = tableDataManager.source[row].element_ as HTMLTableRowElement;
+            const cellValue = getCellInTableRow(rowEle, col).textContent.trim();
+            if (!arr.includes(cellValue)) {
+                arr.push(cellValue);
+            }
+        }
+        arr.sort();
+        return arr;
+    }
+
+    async querySearchColumn(searchVal: string, columnIndex: number) {
         const colValues: Array<string> = await this.getColumn(columnIndex);
         const results: Fuzzysort.Results = fuzzysort.go(searchVal, colValues, fuzzySortOptions);
-        /*
-        console.log(
-            `results total = ${results.total}, 
-            val = ${searchVal}, 
-            col = ${columnIndex}`
-        );
-        */
         if (results.total > 0) {
             this.createNewResultsContainer(results);
         } else {
@@ -190,15 +213,23 @@ export class FuzzySelect {
         }
     }
 
-    /*
-    async queryNewRow(searchVal: string, columnIndex: number) {
-        // sw: get data from api
-        const results: Fuzzysort.Results = fuzzysort.go(searchVal, colValues, fuzzySortOptions);
+    async queryNewRow(searchVal: string, options: Array<string>) {
+        const results: Fuzzysort.Results = fuzzysort.go(searchVal, options, fuzzySortOptions);
         if (results.total > 0) {
             this.createNewResultsContainer(results);
         } else {
-            this.createDefaultResultsContainer(colValues);
+            this.createDefaultResultsContainer(options);
         }
     }
-    */
+
+    async queryCell(searchVal: string, options: Array<Option>) {
+        const suggestions: Array<string> = convertArrayOption(options);
+        const suggestionsPrev: Array<string> =  convertArrayPrevSuggestions(options);
+        const results: Fuzzysort.Results = fuzzysort.go(searchVal, options, fuzzySortOptions);
+        if (results.total > 0) {
+            this.createNewResultsContainer(results, suggestionsPrev);
+        } else {
+            this.createDefaultResultsContainer(suggestions);
+        }
+    }
 }

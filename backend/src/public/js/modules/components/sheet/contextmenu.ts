@@ -1,5 +1,6 @@
 import { placeElementInViewport } from './align';
-import { cellEditor } from './cell-editor';
+//import { cellEditor } from './cell-editor';
+import { cellEditor } from './cell-editor-fuzzy';
 import { copyTableCellElement, pasteToTableCellElement } from './copy-paste';
 import { openGoogleSearch } from './search-google';
 import { deleteRow } from './delete-row';
@@ -155,7 +156,7 @@ tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
   const menuItem = MenuItem.find(event.target as HTMLElement);
   switch (menuItem.action) {
     case 'Edit':
-      cellEditor.activateForm(activeTableCellElement,''); // initialSearchValue
+      cellEditor.activateForm(activeTableCellElement,'', 'right-click-menu'); // initialSearchValue
       break;
     case 'Copy':
       copyTableCellElement(activeTableCellElement);

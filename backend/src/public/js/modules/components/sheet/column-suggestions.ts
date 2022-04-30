@@ -35,19 +35,14 @@ class ColumnSuggestions {
   }
 
   constructor() {
-
     this.fuzzySelect.handleClickOnOption((text: string) => {
-      console.log('handleClickOnOption()');
       // this dictates what happens when an autocompletion option is clicked
       if (this.inputElement) {
         this.inputElement.value = text;
         this.inputElement.dispatchEvent(new Event('input'));
-
-        //console.log(`deactivate --- fuzzy handle click option`);
         this.deactivate();
       }
     });
-
     this.fuzzySelect.mount(element => this.container.appendChild(element));
     tableHeadSearchElement.addEventListener('input', debounce(this.inputHandler)), true;
   }
@@ -56,7 +51,7 @@ class ColumnSuggestions {
     const target = event.target as HTMLElement;
     if (columnSuggestions.isActive && target === columnSuggestions.inputElement) {
       // the input for searching, filter the suggestions
-      columnSuggestions.fuzzySelect.query(columnSuggestions.inputElement.value, columnSuggestions.target.cellIndex);
+      columnSuggestions.fuzzySelect.querySearchColumn(columnSuggestions.inputElement.value, columnSuggestions.target.cellIndex);
       columnSuggestions.align();
     }
   }
@@ -68,7 +63,7 @@ class ColumnSuggestions {
     this.container.classList.add(activeClass);
     this.align();
     // perform query
-    this.fuzzySelect.query(this.inputElement.value, this.target.cellIndex);
+    this.fuzzySelect.querySearchColumn(this.inputElement.value, this.target.cellIndex);
     document.body.addEventListener('click', this.handleBodyClick, true);
   }
 

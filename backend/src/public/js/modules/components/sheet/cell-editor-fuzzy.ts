@@ -6,8 +6,7 @@
 
 import { verifyEdit } from './edit-validation';
 import { StatusMode, tableFoot } from './table-foot';
-import { FuseSelect } from '../../fuse/sheet-fuse';
-import { initializeFuseSelect, updateFuseSelect } from './suggestions';
+import { FuzzySelect } from '../../fuzzy/sheet-fuzzy';
 import { alignElementHorizontally } from './align';
 import { activeClass, inputtingClass, invalidClass, userEditClass } from '../../constants/css-classes';
 import { getViewportHeight, getViewportWidth } from '../../utils/length';
@@ -18,6 +17,8 @@ import { getIdSuggestion, getIdSuggestionType, recordCellEdit } from '../../api/
 import { tableDataManager, updateActiveTableCellElement, contributionTimeout } from '../../../sheet';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate } from '../../../../../types/databaits';
 import { activateDatabait } from './databaits';
+import { getEditValuesURL, Option } from './suggestions';
+import { getJSON } from '../../api/requests';
 
 class CellEditor {
   private readonly formElement = document.getElementById('table-cell-input-form') as HTMLFormElement;
@@ -35,7 +36,8 @@ class CellEditor {
   /** a flag indicates whether the form will automatically deactivate when cell is no longer reachable by scrolling */
   private willFormDeactivateWhenCellNoLongerReachable: boolean = false;
 
-  fuseSelect: FuseSelect;
+  fuzzySelect: FuzzySelect =  new FuzzySelect();
+  private options: Array<Option>;
 
   get isActive(): boolean {
     return this.formElement.classList.contains(activeClass);
@@ -50,7 +52,6 @@ class CellEditor {
   }
   set formInput(value: string) {
     this.formInputElement.value = value;
-    //this.resizeFormToFitText(value, 108); // sw: this gets called twice
   }
 
   private get formWidth(): number {
@@ -85,7 +86,14 @@ class CellEditor {
 
   constructor() {
     this.initializeEventListeners();
-    this.fuseSelect = initializeFuseSelect(this.formInputElement, element => this.mountFuseSelect(element));
+    this.fuzzySelect.handleClickOnOption((text: string) => {
+      // this dictates what happens when an autocompletion option is clicked
+      if (this.formInputElement) {
+        this.formInputElement.value = text;
+        this.formInputElement.dispatchEvent(new Event('input'));
+      }
+    });
+    this.fuzzySelect.mount(element => this.mountSelect(element));
   }
 
   /**
@@ -101,7 +109,7 @@ class CellEditor {
       return false;
     }
 
-    if (this.fuseSelect.rootContainer.contains(target)) {
+    if (this.fuzzySelect.rootContainer.contains(target)) {
       return false;
     }
 
@@ -112,7 +120,7 @@ class CellEditor {
     this.formInputElement.focus({ preventScroll: true });
   }
 
-  private mountFuseSelect(element: HTMLElement) {
+  private mountSelect(element: HTMLElement) {
     this.formContainerElement.insertBefore(element, this.formContainerElement.lastElementChild);
   }
 
@@ -170,7 +178,7 @@ class CellEditor {
     });
 
     this.formInputElement.addEventListener('input', (event) => {
-      this.fuseSelect.query(this.formInput); // sw: TODO replace fuse
+      this.fuzzySelect.queryCell(this.formInput, this.options);
       event.stopPropagation();
     }, { passive: true });
 
@@ -308,8 +316,18 @@ class CellEditor {
     }
   }
 
+  private async fetchPrevSuggestions(url: string): Promise<Array<Option>> {
+    const suggestions = await getJSON(url);
+    if (!suggestions) { return null; }
+    const arraySuggestionValues = Object.keys(suggestions)
+        .map(function(key) { return suggestions[key]; });
+    const options: Array<Option> = arraySuggestionValues;
+    return options;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  activateForm(cellElement: HTMLTableCellElement, searchVal: string) {
+  async activateForm(cellElement: HTMLTableCellElement, searchVal: string, msg: string) {
+    console.log('fuzzy activateForm');
     if (cellElement && isTableCellEditable(cellElement)) {
       if (!this.willFormDeactivateWhenCellNoLongerReachable) {
         // one-time setup for automatic deactivation of cell editor
@@ -317,17 +335,17 @@ class CellEditor {
         this.willFormDeactivateWhenCellNoLongerReachable = true;
       }
 
+      this.options = await this.fetchPrevSuggestions(getEditValuesURL(getIdSuggestion(cellElement)));
+
       this.cellElement = cellElement;
       const columnIndex = this.cellElement.cellIndex;
       const columnLabel = getColumnLabel(columnIndex);
       this.resizeFormToFitText(columnLabel.offsetWidth);
-
       this.formElement.classList.add(activeClass); // sw: shows edit input on DOM
       this.focusFormInput();
-
-      // remount the fuse select
-      this.fuseSelect.mount(element => this.mountFuseSelect(element));
-      updateFuseSelect(this.fuseSelect, getIdSuggestion(this.cellElement), getIdSuggestionType(columnLabel));
+      
+      this.fuzzySelect.mount(element => this.mountSelect(element));
+      this.fuzzySelect.queryCell('', this.options);
 
       this.alignTableCellInputForm();
       this.showHelpWhenInactivityReached();
@@ -390,7 +408,7 @@ class CellEditor {
     alignElementHorizontally(this.formElement, cellDimensions);
 
     if (formHeight > viewportHeight) {
-      this.fuseSelect.unmount();
+      this.fuzzySelect.unmount();
       formHeight = this.formElement.getBoundingClientRect().height;
     }
     /**
@@ -473,10 +491,10 @@ class CellEditor {
       invalidFeedback = 'Value does not pass validation';
     }
     if (isColumnAutocompleteOnly(getColumnLabel(cellElement.cellIndex))) {
-      if (!this.fuseSelect.hasSuggestion(edit)) {
+      //if (!this.options.includes(edit)) { // SW TODO!!!
         validationResult = false;
         invalidFeedback = 'Value must come from suggestions';
-      }
+      //}
     }
     if (validationResult) {
       this.deactivateInvalidFeedback();

@@ -1,4 +1,4 @@
-import { cellEditor } from './cell-editor';
+import { cellEditor } from './cell-editor-fuzzy';
 import { StatusMode, tableFoot } from './table-foot';
 import { clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyCopyBuffer, copyTextToCopyBuffer, hasCopyModifier, getCopyBuffer } from '../../utils/copy';
 import { hasTextSelected } from '../../utils/selection';
@@ -74,7 +74,7 @@ function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: s
   const copyCellIdSuggestion = getCopyBuffer().name;
   recordPaste(pasteVal, pasteCellVal, pasteCellIdSuggestion, copyCellVal, copyCellIdSuggestion);
 
-  cellEditor.activateForm(tableCellElement, text);
+  cellEditor.activateForm(tableCellElement, text, 'tableCellElementOnPaste');
 }
 export function pasteToTableCellElement(tableCellElement: HTMLTableCellElement) {
   if (navigator.clipboard) {
