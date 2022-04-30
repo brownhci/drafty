@@ -327,7 +327,6 @@ class CellEditor {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async activateForm(cellElement: HTMLTableCellElement, searchVal: string, msg: string) {
-    console.log('fuzzy activateForm');
     if (cellElement && isTableCellEditable(cellElement)) {
       if (!this.willFormDeactivateWhenCellNoLongerReachable) {
         // one-time setup for automatic deactivation of cell editor

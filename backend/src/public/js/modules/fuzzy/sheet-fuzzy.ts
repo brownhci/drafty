@@ -173,36 +173,6 @@ export class FuzzySelect {
         return arr;
     }
 
-    async getAddNewRowValues(col: number) {
-        // sw: TODO
-        const n: number = tableDataManager.source.length;
-        const arr: Array<string> = [];
-        for (let row = 0; row < n; ++row) {
-            const rowEle = tableDataManager.source[row].element_ as HTMLTableRowElement;
-            const cellValue = getCellInTableRow(rowEle, col).textContent.trim();
-            if (!arr.includes(cellValue)) {
-                arr.push(cellValue);
-            }
-        }
-        arr.sort();
-        return arr;
-    }
-
-    async getCellEditorValues(col: number) {
-        // sw: TODO
-        const n: number = tableDataManager.source.length;
-        const arr: Array<string> = [];
-        for (let row = 0; row < n; ++row) {
-            const rowEle = tableDataManager.source[row].element_ as HTMLTableRowElement;
-            const cellValue = getCellInTableRow(rowEle, col).textContent.trim();
-            if (!arr.includes(cellValue)) {
-                arr.push(cellValue);
-            }
-        }
-        arr.sort();
-        return arr;
-    }
-
     async querySearchColumn(searchVal: string, columnIndex: number) {
         const colValues: Array<string> = await this.getColumn(columnIndex);
         const results: Fuzzysort.Results = fuzzysort.go(searchVal, colValues, fuzzySortOptions);
