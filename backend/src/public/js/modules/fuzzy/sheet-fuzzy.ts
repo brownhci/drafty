@@ -197,6 +197,7 @@ export class FuzzySelect {
         const suggestionsPrev: Array<string> =  convertArrayPrevSuggestions(options);
         const results: Fuzzysort.Results = fuzzysort.go(searchVal, suggestions, fuzzySortOptions);
         if (results.total > 0) {
+            console.log(suggestionsPrev);
             this.createNewResultsContainer(results, suggestionsPrev);
         } else {
             this.createDefaultResultsContainer(suggestions);
