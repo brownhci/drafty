@@ -4,9 +4,10 @@ const helpUsText: HTMLElement = document.getElementById('helpus-text');
 
 
 function openModal() {
-    helpUsText.innerHTML = loadingHTML;
+    // helpUsText.innerHTML = loadingHTML;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     // activateKeyListener();
+    console.log(helpUsModal.style.display);
     helpUsModal.style.display = 'block';
 }
 
