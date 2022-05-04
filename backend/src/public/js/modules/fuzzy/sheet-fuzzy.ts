@@ -112,14 +112,11 @@ export class FuzzySelect {
             optionTextElement.innerHTML = option;
             if(suggestionsPrev) {
                 if(suggestionsPrev.includes(option)) {
-                    console.log(option);
-                    console.log(suggestionsPrev.includes(option));
                     optionElement.classList.add(previousEditClass);
                 }
             }
             optionElement.appendChild(optionTextElement);
             optionContainer.appendChild(optionElement);
-            break;
         }
 
         this.replaceOptionContainer(optionContainer);
