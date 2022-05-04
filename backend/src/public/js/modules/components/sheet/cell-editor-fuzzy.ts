@@ -17,7 +17,7 @@ import { getIdSuggestion, getIdSuggestionType, recordCellEdit } from '../../api/
 import { tableDataManager, updateActiveTableCellElement, contributionTimeout } from '../../../sheet';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate } from '../../../../../types/databaits';
 import { activateDatabait } from './databaits';
-import { getEditValuesURL, Option } from './suggestions';
+import { convertArrayOption, getEditValuesURL, Option } from './suggestions';
 import { getJSON } from '../../api/requests';
 
 class CellEditor {
@@ -169,6 +169,7 @@ class CellEditor {
             this.closeForm(false);
             break;
           case 'Enter':
+            console.log('Enter');
             this.closeForm(true);
             event.preventDefault();
             break;
@@ -477,7 +478,8 @@ class CellEditor {
    *
    * @returns {boolean} Whether the saving succeeded. If saving succeeds, cleanup action like closing the form or emptying the input can be taken.
    */
-  saveEdit(): boolean {
+   saveEdit(): boolean {
+    console.log('saveEdit()');
     const edit = this.formInput;
     const cellElement = this.cellElement;
 
@@ -490,10 +492,11 @@ class CellEditor {
       invalidFeedback = 'Value does not pass validation';
     }
     if (isColumnAutocompleteOnly(getColumnLabel(cellElement.cellIndex))) {
-      //if (!this.options.includes(edit)) { // SW TODO!!!
+      const suggestions: Array<string> = convertArrayOption(this.options);
+      if (!suggestions.includes(edit)) {
         validationResult = false;
         invalidFeedback = 'Value must come from suggestions';
-      //}
+      }
     }
     if (validationResult) {
       this.deactivateInvalidFeedback();
