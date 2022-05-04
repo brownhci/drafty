@@ -27,10 +27,18 @@ const stmtDeactivateRow: string = 'UPDATE UniqueId SET active = 0, notes = ? WHE
 
 const stmtSelectSuggestionsWithSuggestionType: string = 'SELECT suggestion FROM Suggestions WHERE idSuggestionType = ? AND active = 1 GROUP BY suggestion ORDER BY suggestion asc';
 const stmtSelectSuggestionsForNewRow: string = 'SELECT value as suggestion, 0 as prevSugg FROM SuggestionTypeValues WHERE idSuggestionType = ? and active = 1 ORDER BY value ASC';
-const stmtSelectSuggestionsForEdit: string = 'SELECT suggestion, 1 as prevSugg FROM Suggestions  WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = ?) '
-  + ' UNION '
-  + ' SELECT stv.value as suggestion, 0 as prevSugg  FROM (SELECT * FROM SuggestionTypeValues WHERE active = 1) stv WHERE stv.idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) '
-  + ' ORDER BY prevSugg DESC, suggestion ASC ';
+const stmtSelectSuggestionsForEdit: string = `SELECT *
+FROM (
+SELECT suggestion, 1 as prevSugg
+FROM Suggestions
+WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = 2) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = 2)
+UNION ALL
+SELECT stv.value as suggestion, 0 as prevSugg
+FROM (SELECT * FROM SuggestionTypeValues WHERE active = 1) stv
+WHERE stv.idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = 2)
+) as data
+GROUP BY suggestion
+ORDER BY suggestion;`;
 
 const stmtGetSuggestionTypeValidationRule: string = 'SELECT idSuggestionType, regex FROM SuggestionType;';
 
