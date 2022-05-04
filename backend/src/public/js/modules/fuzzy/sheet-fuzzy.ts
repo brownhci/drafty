@@ -101,9 +101,8 @@ export class FuzzySelect {
         return this.optionContainer = optionContainer;
     }
 
-    private createDefaultResultsContainer(options: Array<string>) {
+    private createDefaultResultsContainer(options: Array<string>, suggestionsPrev?: Array<string>) {
         const optionContainer = this.createOptionContainer(options);
-
         for (let i = 0; i < options.length; i++) {
             const optionElement = this.createOptionElement();
             const optionTextElement = this.createOptionText();
@@ -111,9 +110,16 @@ export class FuzzySelect {
             const option: string = options[i];
             optionTextElement.title = option;
             optionTextElement.innerHTML = option;
-
+            if(suggestionsPrev) {
+                if(suggestionsPrev.includes(option)) {
+                    console.log(option);
+                    console.log(suggestionsPrev.includes(option));
+                    optionElement.classList.add(previousEditClass);
+                }
+            }
             optionElement.appendChild(optionTextElement);
             optionContainer.appendChild(optionElement);
+            break;
         }
 
         this.replaceOptionContainer(optionContainer);
@@ -196,11 +202,12 @@ export class FuzzySelect {
         const suggestions: Array<string> = convertArrayOption(options);
         const suggestionsPrev: Array<string> =  convertArrayPrevSuggestions(options);
         const results: Fuzzysort.Results = fuzzysort.go(searchVal, suggestions, fuzzySortOptions);
+        console.log(`results.total = ${results.total}`);
         if (results.total > 0) {
             console.log(suggestionsPrev);
             this.createNewResultsContainer(results, suggestionsPrev);
         } else {
-            this.createDefaultResultsContainer(suggestions);
+            this.createDefaultResultsContainer(suggestions, suggestionsPrev);
         }
     }
 }
