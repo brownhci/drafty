@@ -31,9 +31,7 @@ export class FuzzySelect {
         return this.optionContainer.childElementCount;
     }
 
-    private suggestionsLookup: Set<string>;
-
-    private optionContainer: HTMLElement;
+    optionContainer: HTMLElement;
     longestText: string;
 
     rootContainer: HTMLElement;

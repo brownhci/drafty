@@ -346,9 +346,9 @@ class CellEditor {
       
       this.fuzzySelect.mount(element => this.mountSelect(element));
       this.fuzzySelect.queryCell('', this.options);
-
       this.alignTableCellInputForm();
       this.showHelpWhenInactivityReached();
+      this.addAutoCompleteListeners();
     }
   }
 
@@ -471,6 +471,12 @@ class CellEditor {
     this.formWidth = textWidth + slack;
   }
 
+  addAutoCompleteListeners() {
+    console.log(this.fuzzySelect.optionContainer);
+    // loop through and add click listeners
+    // maybe add arrow nav and enter too
+  }
+
   /**
    * Save and record the current `this.formInput`.
    *
@@ -479,7 +485,6 @@ class CellEditor {
    * @returns {boolean} Whether the saving succeeded. If saving succeeds, cleanup action like closing the form or emptying the input can be taken.
    */
    saveEdit(): boolean {
-    console.log('saveEdit()');
     const edit = this.formInput;
     const cellElement = this.cellElement;
 
