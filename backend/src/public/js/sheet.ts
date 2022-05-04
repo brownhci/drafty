@@ -4,6 +4,7 @@ import './modules/components/welcome-screen';
 import './modules/components/sheet/navbar';
 import './modules/components/sheet/comments/';
 import './modules/components/sheet/databaits';
+import './modules/components/sheet/helpus';
 import './modules/components/sheet/delete-row';
 import { tableHeadOnMouseDown, tableHeadOnMouseMove } from './modules/components/sheet/resize-column';
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from './modules/components/sheet/column-sort-panel';

@@ -55,7 +55,6 @@ navBarDidYouKnowMobile.addEventListener('click', function(event: MouseEvent) {
 }, true);
 
 function helpUsSelect(event: MouseEvent) {
-    console.log('hihihi');
     event.preventDefault();
     // activateDatabait(activeTableCellElement,InteractionTypeDatabaitCreate.navbar_menu,DatabaitCreateType.navbar_menu);
     activateHelpUs(activeTableCellElement);
