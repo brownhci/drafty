@@ -47,8 +47,7 @@ export let activeTableCellElement: ActiveHTMLTableCellElement = null;
 
 function activateCellEditor() {
   cellEditor.formInput = getTableDataText(activeTableCellElement).trim();
-  const initialSearchValue = ''; // bc we want users to see all options
-  cellEditor.activateForm(activeTableCellElement, initialSearchValue, 'activateCellEditor');
+  cellEditor.activateForm(activeTableCellElement);
   activeTableCellElement.lastActiveTimestamp = null;
 }
 
@@ -291,7 +290,7 @@ interface ConsumableKeyboardEvent extends KeyboardEvent {
 }
 function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
   const initialSearchValue = event.key;
-  cellEditor.activateForm(tableDataElement, initialSearchValue, 'tableDataElementOnInput');
+  cellEditor.activateForm(tableDataElement, initialSearchValue);
   event.consumed = true;
 }
 function tableCellElementOnInput(event: ConsumableKeyboardEvent) {
