@@ -193,9 +193,12 @@ export class FuzzySelect {
         }
     }
 
-    async queryCell(searchVal: string, options: Array<Option>) {
+    async queryCell(searchVal: string, options: Array<Option>, textInput: boolean) {
         const suggestions: Array<string> = convertArrayOption(options);
         const suggestionsPrev: Array<string> =  convertArrayPrevSuggestions(options);
+        if(!textInput) {
+            searchVal = ''; // sw: so opening a cell shows all values
+        }
         const results: Fuzzysort.Results = fuzzysort.go(searchVal, suggestions, fuzzySortOptions);
         if (results.total > 0) {
             this.createNewResultsContainer(results, suggestionsPrev);
