@@ -87,10 +87,11 @@ class CellEditor {
   constructor() {
     this.initializeEventListeners();
     this.fuzzySelect.handleClickOnOption((text: string) => {
-      // this dictates what happens when an autocompletion option is clicked
+      // what happens when an autocompletion option is clicked
       if (this.formInputElement) {
         this.formInputElement.value = text;
         this.formInputElement.dispatchEvent(new Event('input'));
+        this.closeForm(true);
       }
     });
     this.fuzzySelect.mount(element => this.mountSelect(element));
@@ -169,7 +170,6 @@ class CellEditor {
             this.closeForm(false);
             break;
           case 'Enter':
-            console.log('Enter');
             this.closeForm(true);
             event.preventDefault();
             break;
@@ -349,7 +349,6 @@ class CellEditor {
       this.formInputElement.value = editText;
       this.alignTableCellInputForm();
       this.showHelpWhenInactivityReached();
-      this.addAutoCompleteListeners();
     }
   }
 
@@ -470,16 +469,6 @@ class CellEditor {
   private resizeFormToFitText(textWidth: number, slack: number = 0) {
     //this.formWidth = measureTextWidth(text) + slack; // measureTextWidth is a huge performance hit
     this.formWidth = textWidth + slack;
-  }
-
-  addAutoCompleteListeners() {
-    console.log('addAutoCompleteListeners()');
-    console.log(this.fuzzySelect.optionContainer);
-    // loop through and add click listeners
-    // maybe add arrow nav and enter too
-    this.fuzzySelect.optionContainer.addEventListener('click', function(event) {
-      console.log(event.target);
-    });
   }
 
   /**
