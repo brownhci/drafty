@@ -179,7 +179,7 @@ class CellEditor {
     });
 
     this.formInputElement.addEventListener('input', (event) => {
-      this.fuzzySelect.queryCell(this.formInput, this.options);
+      this.fuzzySelect.queryCell(this.formInput, this.options, true);
       event.stopPropagation();
     }, { passive: true });
 
@@ -327,25 +327,25 @@ class CellEditor {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async activateForm(cellElement: HTMLTableCellElement, searchVal: string, msg: string) {
+  async activateForm(cellElement: HTMLTableCellElement, editText?: string) {
     if (cellElement && isTableCellEditable(cellElement)) {
       if (!this.willFormDeactivateWhenCellNoLongerReachable) {
         // one-time setup for automatic deactivation of cell editor
         this.deactivateFormWhenCellNoLongerReachable();
         this.willFormDeactivateWhenCellNoLongerReachable = true;
       }
-
+      if(!editText) {
+        editText = cellElement.innerText.trim();
+      }
       this.options = await this.fetchPrevSuggestions(getEditValuesURL(getIdSuggestion(cellElement)));
-
       this.cellElement = cellElement;
       const columnIndex = this.cellElement.cellIndex;
       const columnLabel = getColumnLabel(columnIndex);
       this.resizeFormToFitText(columnLabel.offsetWidth);
       this.formElement.classList.add(activeClass); // sw: shows edit input on DOM
       this.focusFormInput();
-      
       this.fuzzySelect.mount(element => this.mountSelect(element));
-      this.fuzzySelect.queryCell('', this.options);
+      this.fuzzySelect.queryCell(editText, this.options, false);
       this.alignTableCellInputForm();
       this.showHelpWhenInactivityReached();
       this.addAutoCompleteListeners();
@@ -472,9 +472,13 @@ class CellEditor {
   }
 
   addAutoCompleteListeners() {
+    console.log('addAutoCompleteListeners()');
     console.log(this.fuzzySelect.optionContainer);
     // loop through and add click listeners
     // maybe add arrow nav and enter too
+    this.fuzzySelect.optionContainer.addEventListener('click', function(event) {
+      console.log(event.target);
+    });
   }
 
   /**
