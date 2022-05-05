@@ -74,7 +74,7 @@ function tableCellElementOnPaste(tableCellElement: HTMLTableCellElement, text: s
   const copyCellIdSuggestion = getCopyBuffer().name;
   recordPaste(pasteVal, pasteCellVal, pasteCellIdSuggestion, copyCellVal, copyCellIdSuggestion);
 
-  cellEditor.activateForm(tableCellElement, text, 'tableCellElementOnPaste');
+  cellEditor.activateForm(tableCellElement, text);
 }
 export function pasteToTableCellElement(tableCellElement: HTMLTableCellElement) {
   if (navigator.clipboard) {
