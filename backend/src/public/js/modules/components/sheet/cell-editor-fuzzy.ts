@@ -346,6 +346,7 @@ class CellEditor {
       this.focusFormInput();
       this.fuzzySelect.mount(element => this.mountSelect(element));
       this.fuzzySelect.queryCell(editText, this.options, false);
+      this.formInputElement.value = editText;
       this.alignTableCellInputForm();
       this.showHelpWhenInactivityReached();
       this.addAutoCompleteListeners();
