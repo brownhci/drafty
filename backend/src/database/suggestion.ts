@@ -31,11 +31,11 @@ const stmtSelectSuggestionsForEdit: string = `SELECT *
 FROM (
 SELECT suggestion, 1 as prevSugg
 FROM Suggestions
-WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = 2) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = 2)
+WHERE idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?) AND idUniqueID = (SELECT idUniqueID FROM Suggestions WHERE idSuggestion = ?)
 UNION ALL
 SELECT stv.value as suggestion, 0 as prevSugg
 FROM (SELECT * FROM SuggestionTypeValues WHERE active = 1) stv
-WHERE stv.idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = 2)
+WHERE stv.idSuggestionType = (SELECT idSuggestionType FROM Suggestions WHERE idSuggestion = ?)
 ) as data
 GROUP BY suggestion
 ORDER BY suggestion;`;
