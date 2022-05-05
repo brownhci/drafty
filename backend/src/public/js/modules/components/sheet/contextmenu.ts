@@ -156,7 +156,7 @@ tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
   const menuItem = MenuItem.find(event.target as HTMLElement);
   switch (menuItem.action) {
     case 'Edit':
-      cellEditor.activateForm(activeTableCellElement,'', 'right-click-menu'); // initialSearchValue
+      cellEditor.activateForm(activeTableCellElement);
       break;
     case 'Copy':
       copyTableCellElement(activeTableCellElement);
