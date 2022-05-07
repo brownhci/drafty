@@ -24,8 +24,6 @@ export function deactivateTableDataContextMenu() {
 }
 export function activateColumnLabelContextMenu(event: MouseEvent) {
   columnLabelContextMenu.classList.add(activeClass);
-  console.log('ColumnLabel ContextMenu');
-  console.log(event.clientX, event.clientY);
   placeElementInViewport(columnLabelContextMenu, event.clientX, event.clientY);
 }
 export function deactivateColumnLabelContextMenu() {
@@ -45,7 +43,6 @@ class MenuItem {
   readonly conflicts: Set<MenuItem> = new Set();
 
   get action(): string {
-    console.log(this.item);
     return this.item.innerText.trim();
   }
 
