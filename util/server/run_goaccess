@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
  
-zcat -f /var/log/caddy/access* | goaccess -a \
+zcat -f /var/log/caddy/access* | goaccess - -a \
   --html-pref='{"theme":"darkBlue","perPage":50,"layout":"vertical","showTables":true,"visitors":{"plot":{"chartType":"area-spline"}}}' \
   -o /vol/static/analytics.html \
   --http-protocol=no \
