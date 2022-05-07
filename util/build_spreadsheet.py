@@ -82,7 +82,7 @@ def build_column_labels_row(cursor):
 def build_column_search_row():
     # &#xF002; is the looking glass icon to use as a palceholder
     search_input = '''<th id="column-search{column_search_index}" class="column-search" scope="col" tabindex="-1">
-                        <label for="column-search-input{column_search_index}" class="sr-only sr-only-focusable">
+                        <label for="column-search-input{column_search_index}" class="sr-only sr-only-focusable" placeholder="search">
                             Search in Column
                         </label>
                         <input id="column-search-input{column_search_index}" type="search" placeholder="&#xF002;" autocomplete="off">

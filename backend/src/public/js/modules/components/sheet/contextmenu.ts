@@ -1,5 +1,6 @@
 import { placeElementInViewport } from './align';
-import { cellEditor } from './cell-editor';
+//import { cellEditor } from './cell-editor';
+import { cellEditor } from './cell-editor-fuzzy';
 import { copyTableCellElement, pasteToTableCellElement } from './copy-paste';
 import { openGoogleSearch } from './search-google';
 import { deleteRow } from './delete-row';
@@ -23,8 +24,6 @@ export function deactivateTableDataContextMenu() {
 }
 export function activateColumnLabelContextMenu(event: MouseEvent) {
   columnLabelContextMenu.classList.add(activeClass);
-  console.log('ColumnLabel ContextMenu');
-  console.log(event.clientX, event.clientY);
   placeElementInViewport(columnLabelContextMenu, event.clientX, event.clientY);
 }
 export function deactivateColumnLabelContextMenu() {
@@ -44,7 +43,6 @@ class MenuItem {
   readonly conflicts: Set<MenuItem> = new Set();
 
   get action(): string {
-    console.log(this.item);
     return this.item.innerText.trim();
   }
 
@@ -155,7 +153,7 @@ tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
   const menuItem = MenuItem.find(event.target as HTMLElement);
   switch (menuItem.action) {
     case 'Edit':
-      cellEditor.activateForm(activeTableCellElement,''); // initialSearchValue
+      cellEditor.activateForm(activeTableCellElement);
       break;
     case 'Copy':
       copyTableCellElement(activeTableCellElement);
