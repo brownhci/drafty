@@ -1,5 +1,4 @@
 import { cellEditNewRow } from './cell-editor-new-row';
-import { columnLabelInsertRowMenuItem } from './contextmenu';
 import { verifyEdit } from './edit-validation';
 import { ViewModel } from './table-data-manager/ViewModel';
 import { activeClass, disabledClass, invalidClass, userEditClass } from '../../constants/css-classes';
@@ -145,8 +144,6 @@ class TableFoot {
           this.statusTableCell.textContent = 'Row insertion failure';
           break;
         case StatusMode.InsertionSuccess:
-          // deactivate contextmenu insert row menu item since insertion has finished
-          columnLabelInsertRowMenuItem.deactivate();
           // previously inputted cell values has been saved
           this.resetInputs();
           // sw: removing for now, as the databait modal has this message
@@ -259,7 +256,6 @@ class TableFoot {
         } else if (target === this.insertionCloseButton) {
           // deactivate contextmenu insert row menu item since insertion has finished
           this.resetInputs();
-          columnLabelInsertRowMenuItem.deactivate();
           this.statusMode = StatusMode.Idle;
         }
       }
