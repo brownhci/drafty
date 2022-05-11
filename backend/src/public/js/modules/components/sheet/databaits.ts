@@ -294,6 +294,7 @@ function openModal() {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     activateKeyListener();
     dataBaitModal.style.display = 'block';
+    dataBaitModal.focus();
 }
 
 export async function activateDatabait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
