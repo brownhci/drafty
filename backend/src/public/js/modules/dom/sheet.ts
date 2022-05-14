@@ -136,7 +136,7 @@ export function isTableCellEditable(tableCellElement: HTMLTableCellElement) {
 }
 
 export function getTableDataText(tableCellElement: HTMLTableCellElement) {
-  return tableCellElement.textContent;
+  return tableCellElement.textContent.trim();
 }
 export function setTableDataText(tableCellElement: HTMLTableCellElement, text: string) {
   return tableCellElement.textContent = text;
