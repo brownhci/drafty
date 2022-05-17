@@ -1,13 +1,8 @@
 import { tableDataManager } from '../../../sheet';
+import { getIdSuggestion, getIdSuggestionType } from '../../api/record-interactions';
 import { getCellInTableRow } from '../../dom/navigate';
-import { getTableRow } from '../../dom/sheet';
-
-enum CellType {
-    JoinYear = 'joinyear',
-    Subfield = 'subfield',
-    Bachelors = 'bachelors',
-    Doctorate = 'doctorate'
-}
+import { getColumnLabel } from '../../dom/sheet';
+import { updateFuseSelect } from './suggestions';
 
 interface HelpUsInterface {
     university: string,
@@ -29,6 +24,7 @@ const generateSentence = (i: HelpUsInterface) => {
 };
 
 const helpUsModal: HTMLElement = document.getElementById('helpus-screen');
+const helpUsNextButton = <HTMLButtonElement> document.getElementById('btn-helpus-next');
 const helpUsModalClose = <HTMLButtonElement>document.getElementById('helpusModalClose');
 const helpusText: HTMLElement = document.getElementById('helpus-text');
 
@@ -68,12 +64,17 @@ function getEmptyCell() {
         for (let col = 2; col < 6; ++col) {
             const cellValue = getCellInTableRow(rowEle, col)?.textContent.trim();
             if (!cellValue) {
-                console.log(`${shuffled[row]} and ${col} is super awesome`);
                 return [shuffled[row], col];
             }
         }
     }
     return [];
+}
+
+function generateSubmitButton (colIndex: number) {
+    //fuse ??
+    this.fuseSelect.mount(element => this.mountFuseSelect(element));
+    updateFuseSelect(this.fuseSelect, getIdSuggestion(this.cellElement), getIdSuggestionType(getColumnLabel(colIndex)));
 }
 
 function openModal() {
@@ -86,11 +87,17 @@ function openModal() {
     const profUniversity = getCellInTableRow(rowEle, 1)?.textContent.trim();
     const info : HelpUsInterface = {university: profUniversity, professor: profName, emptyCell: col};
     updateHelpusHTML(generateSentence(info));
+    // generateSubmitButton(col);
 }
 
 export async function activateHelpUs() {
     openModal();
 }
+
+helpUsNextButton.addEventListener('click', function(event: MouseEvent) {
+    openModal();
+}, true);
+
 
 helpUsModalClose.addEventListener('click', function(event: MouseEvent) {
     helpUsModal.style.display = 'none';
