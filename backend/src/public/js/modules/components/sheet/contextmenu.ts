@@ -1,5 +1,6 @@
 import { placeElementInViewport } from './align';
-import { cellEditor } from './cell-editor';
+//import { cellEditor } from './cell-editor';
+import { cellEditor } from './cell-editor-fuzzy';
 import { copyTableCellElement, pasteToTableCellElement } from './copy-paste';
 import { openGoogleSearch } from './search-google';
 import { deleteRow } from './delete-row';
@@ -9,6 +10,7 @@ import { isButton } from '../../dom/types';
 import { activeTableCellElement } from '../../../sheet';
 import { activateDatabait } from './databaits';
 import { InteractionTypeDatabaitCreate, DatabaitCreateType } from '../../../../../types/databaits';
+import { activateCommentSection } from './comments';
 
 
 const tableDataContextMenu: HTMLElement = document.getElementById('table-data-contextmenu');
@@ -23,8 +25,6 @@ export function deactivateTableDataContextMenu() {
 }
 export function activateColumnLabelContextMenu(event: MouseEvent) {
   columnLabelContextMenu.classList.add(activeClass);
-  console.log('ColumnLabel ContextMenu');
-  console.log(event.clientX, event.clientY);
   placeElementInViewport(columnLabelContextMenu, event.clientX, event.clientY);
 }
 export function deactivateColumnLabelContextMenu() {
@@ -44,7 +44,6 @@ class MenuItem {
   readonly conflicts: Set<MenuItem> = new Set();
 
   get action(): string {
-    console.log(this.item);
     return this.item.innerText.trim();
   }
 
@@ -69,31 +68,6 @@ class MenuItem {
     }
 
     return this.buttonToMenuItem.get(element as HTMLButtonElement);
-  }
-
-  activate() {
-    this.item.classList.add(activeClass);
-    for (const menuItem of this.alias) {
-      menuItem.item.classList.add(activeClass);
-    }
-    for (const menuItem of this.conflicts) {
-      menuItem.item.classList.remove(activeClass);
-    }
-  }
-
-  deactivate() {
-    this.item.classList.remove(activeClass);
-    for (const menuItem of this.alias) {
-      menuItem.item.classList.remove(activeClass);
-    }
-  }
-
-  toggle() {
-    if (this.item.classList.contains(activeClass)) {
-      this.deactivate();
-    } else {
-      this.activate();
-    }
   }
 
   /**
@@ -139,7 +113,8 @@ export const tableDataCopyMenuItem = new MenuItem(tableDataButtons[2] as HTMLBut
 export const tableDataPasteMenuItem = new MenuItem(tableDataButtons[3] as HTMLButtonElement);
 export const tableDataInsertRowMenuItem = new MenuItem(tableDataButtons[4] as HTMLButtonElement);
 export const tableDataDeleteRowMenuItem = new MenuItem(tableDataButtons[5] as HTMLButtonElement);
-export const tableDataSearchGoogleMenuItem = new MenuItem(tableDataButtons[6] as HTMLButtonElement);
+export const tableDataCommentMenuItem = new MenuItem(tableDataButtons[6] as HTMLButtonElement);
+export const tableDataSearchGoogleMenuItem = new MenuItem(tableDataButtons[7] as HTMLButtonElement);
 
 /* set up alias and conflicts */
 columnLabelInsertRowMenuItem.addToAlias(tableDataInsertRowMenuItem);
@@ -155,7 +130,7 @@ tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
   const menuItem = MenuItem.find(event.target as HTMLElement);
   switch (menuItem.action) {
     case 'Edit':
-      cellEditor.activateForm(activeTableCellElement,''); // initialSearchValue
+      cellEditor.activateForm(activeTableCellElement);
       break;
     case 'Copy':
       copyTableCellElement(activeTableCellElement);
@@ -164,22 +139,21 @@ tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
       pasteToTableCellElement(activeTableCellElement);
       break;
     case 'Add Row':
-      menuItem.toggle();
       tableFoot.toggle(StatusMode.Insertion);
       break;
     case 'Delete Row':
-        menuItem.toggle();
         deleteRow(activeTableCellElement);
         break;
     case 'Search Google':
-      menuItem.toggle();
       openGoogleSearch(activeTableCellElement);
       break;
     case 'Did you know?':
-        menuItem.toggle();
-        //createDidYouKnow(activeTableCellElement);
-        activateDatabait(activeTableCellElement, InteractionTypeDatabaitCreate.right_click, DatabaitCreateType.right_click);
-        break;
+      //createDidYouKnow(activeTableCellElement);
+      activateDatabait(activeTableCellElement, InteractionTypeDatabaitCreate.right_click, DatabaitCreateType.right_click);
+      break;
+    case 'Comment':
+      activateCommentSection();
+      break;
   }
   deactivateTableDataContextMenu();
   event.stopPropagation();
@@ -191,11 +165,9 @@ columnLabelContextMenu.addEventListener('click', function(event: MouseEvent) {
       copyTableCellElement(activeTableCellElement);
       break;
     case 'Add Row':
-      menuItem.toggle();
       tableFoot.toggle(StatusMode.Insertion);
       break;
     case 'Count':
-      menuItem.toggle();
       tableFoot.toggle(StatusMode.RowCount);
       break;
   }

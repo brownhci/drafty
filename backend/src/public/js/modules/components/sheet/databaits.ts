@@ -40,6 +40,23 @@ interface urlSimilar extends urlBase {
     rowValues:  Record<string, Array<string | number>>  //string
 }
 
+const databaitsSeen: Record<string,number> = {
+    cell:0,
+    delRow:0,
+    addRow:0
+};
+
+
+function checkUserViewsDYK(editType: string): boolean {
+    databaitsSeen[editType] += 1;
+    const views = databaitsSeen[editType];
+    if (views > 2) {
+        return false; // do not generate a databait
+    } else {
+        return true;
+    }
+}
+
 async function getIdSession() {
     const idSession = await getJSON('/usrsession');
     return idSession;
@@ -294,14 +311,20 @@ function openModal() {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     activateKeyListener();
     dataBaitModal.style.display = 'block';
+    dataBaitModal.focus();
 }
 
 export async function activateDatabait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
     const baseUrl: urlBase = { idInteractionType: idInteractionType, idDatabaitCreateType: idDatabaitCreateType, idSession: await getIdSession()};
     resetContributionMessageHTML();
+    let showUserModal: boolean = true;
+
     // create a databait based on a user's interaction
     if (idDatabaitCreateType === DatabaitCreateType.navbar_menu) {
-        postDatabait(apiUrlRandom, baseUrl);
+        showUserModal = checkUserViewsDYK('addRow');
+        if(showUserModal) {
+            postDatabait(apiUrlRandom, baseUrl);
+        }
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_random) {
         postDatabait(apiUrlRandom, baseUrl);
     } else if (idDatabaitCreateType === DatabaitCreateType.modal_like) {
@@ -311,20 +334,30 @@ export async function activateDatabait(tableCellElement: HTMLTableCellElement, i
         const urlSimilar = await createUrlSimilar(tableCellElement, baseUrl);
         postDatabait(apiUrlSimilar, urlSimilar);
     } else if (idDatabaitCreateType === DatabaitCreateType.edit) {
-        const urlSimilar = await createUrlSimilar(tableCellElement, baseUrl);
-        addContributionMessageHTML();
-        postDatabait(apiUrlSimilar, urlSimilar);
+        showUserModal = checkUserViewsDYK('cell');
+        if(showUserModal) {
+            const urlSimilar = await createUrlSimilar(tableCellElement, baseUrl);
+            addContributionMessageHTML();
+            postDatabait(apiUrlSimilar, urlSimilar);
+        }
     } else if (idDatabaitCreateType === DatabaitCreateType.new_row) {
-        // tableCellElement needs to be a cell in the new row created
-        //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
-        addContributionMessageHTML();
-        postDatabait(apiUrlRandom, baseUrl);
+        showUserModal = checkUserViewsDYK('addRow');
+        if(showUserModal) {
+            // tableCellElement needs to be a cell in the new row created
+            //postDatabait(apiUrlSimilar, createUrlSimilar(tableCellElement, baseUrl));
+            addContributionMessageHTML();
+            postDatabait(apiUrlRandom, baseUrl);
+        }
     } else if (idDatabaitCreateType === DatabaitCreateType.delete_row) {
-        // it would be weird to show the data for a deleted row
-        addContributionMessageHTML();
-        postDatabait(apiUrlRandom, baseUrl);
+        showUserModal = checkUserViewsDYK('delRow');
+        if(showUserModal) {
+            // it would be weird to show the data for a deleted row
+            addContributionMessageHTML();
+            postDatabait(apiUrlRandom, baseUrl);
+        }
     }
-    openModal();
+    console.log(databaitsSeen);
+    if(showUserModal) { openModal(); }
 }
 
 function closeModal() {

@@ -1,0 +1,492 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Alias {
+  idAlias      Int     @id @default(autoincrement())
+  idSuggestion Int
+  alias        String? @db.VarChar(500)
+  count        Int     @default(1)
+
+  @@index([idSuggestion], map: "fk_Alias_Suggestion1_idx")
+}
+
+model Click {
+  idInteraction Int     @id
+  idSuggestion  Int
+  rowvalues     String? @db.VarChar(500)
+
+  @@index([idInteraction], map: "fk_Click_Interaction1_idx")
+  @@index([idSuggestion], map: "fk_Click_Suggestion1_idx")
+}
+
+model CommentVote {
+  idCommentVote Int         @id @default(autoincrement())
+  idInteraction Int
+  idComment     Int
+  vote          String      @db.VarChar(20)
+  Comments      Comments    @relation(fields: [idComment], references: [idComment], onUpdate: Restrict, map: "table_name___fk_comments_akhsdfashjld")
+  Interaction   Interaction @relation(fields: [idInteraction], references: [idInteraction], onUpdate: Restrict, map: "table_name___fk_interaction_akdhfa")
+
+  @@index([idComment], map: "table_name___fk_comments_akhsdfashjld")
+  @@index([idInteraction], map: "table_name___fk_interaction_akdhfa")
+}
+
+model Comments {
+  idComment     Int           @id @default(autoincrement())
+  idInteraction Int
+  idUniqueID    Int
+  comment       String        @db.LongText
+  voteUp        Int           @default(0)
+  voteDown      Int           @default(0)
+  Interaction   Interaction   @relation(fields: [idInteraction], references: [idInteraction], onUpdate: Restrict, map: "Comments___fk_idInteraction_ksjdfba87aidsb")
+  UniqueId      UniqueId      @relation(fields: [idUniqueID], references: [idUniqueID], onUpdate: Restrict, map: "Comments___fk_iduniqid_oq83eyfgqwuyofhba")
+  CommentVote   CommentVote[]
+
+  @@index([idInteraction], map: "Comments___fk_idInteraction_ksjdfba87aidsb")
+  @@index([idUniqueID], map: "Comments___fk_iduniqid_oq83eyfgqwuyofhba")
+}
+
+model CommentsView {
+  idCommentsView Int          @id @default(autoincrement())
+  idUniqueID     Int?
+  idInteraction  Int?
+  Interaction    Interaction? @relation(fields: [idInteraction], references: [idInteraction], onDelete: Restrict, onUpdate: Restrict, map: "CommentsView___fk_interaction_aljhsdfg5123")
+  UniqueId       UniqueId?    @relation(fields: [idUniqueID], references: [idUniqueID], onDelete: Restrict, onUpdate: Restrict, map: "CommentsView___fk_comments_alksdhfga1231")
+
+  @@index([idUniqueID], map: "CommentsView___fk_comments_alksdhfga1231")
+  @@index([idInteraction], map: "CommentsView___fk_interaction_aljhsdfg5123")
+}
+
+model Copy {
+  idInteraction Int
+  idSuggestion  Int
+  Interaction   Interaction @relation(fields: [idInteraction], references: [idInteraction], onUpdate: Restrict, map: "_fk_idInteraction_4447654")
+  Suggestions   Suggestions @relation(fields: [idSuggestion], references: [idSuggestion], onUpdate: Restrict, map: "_fk_idSuggestion_4417654")
+
+  @@id([idInteraction, idSuggestion])
+  @@index([idSuggestion], map: "_fk_idSuggestion_4417654")
+}
+
+model CopyColumn {
+  idInteraction    Int
+  idSuggestionType Int
+  Interaction      Interaction    @relation(fields: [idInteraction], references: [idInteraction], onUpdate: Restrict, map: "_fk_idInteraction_CopyColumn_alsdfh12356")
+  SuggestionType   SuggestionType @relation(fields: [idSuggestionType], references: [idSuggestionType], onUpdate: Restrict, map: "_fk_idSuggestionType_CopyColumn_alsdfh12356")
+
+  @@id([idInteraction, idSuggestionType])
+  @@index([idSuggestionType], map: "_fk_idSuggestionType_CopyColumn_alsdfh12356")
+}
+
+model DataType {
+  idDataType Int     @id @default(autoincrement())
+  type       String? @db.VarChar(45)
+}
+
+model DatabaitCreateType {
+  idDatabaitCreateType Int         @id @default(autoincrement())
+  type                 String?     @db.VarChar(50)
+  Databaits            Databaits[]
+}
+
+model DatabaitNextAction {
+  idDatabaitNextAction Int             @id @default(autoincrement())
+  action               String?         @db.VarChar(50)
+  DatabaitTweet        DatabaitTweet[]
+  Databaits            Databaits[]
+}
+
+model DatabaitTemplateType {
+  idDatabaitTemplateType Int         @id @default(autoincrement())
+  template               String?     @db.VarChar(50)
+  Databaits              Databaits[]
+}
+
+model DatabaitTweet {
+  idDatabaitTweet     Int                 @id @default(autoincrement())
+  idInteraction       Int
+  idDatabait          Int
+  url                 String              @db.VarChar(2500)
+  likes               Int?
+  retweets            Int?
+  created             DateTime            @default(now()) @db.Timestamp(0)
+  nextActionTimestamp DateTime?           @db.Timestamp(0)
+  nextAction          Int?
+  Interaction         Interaction         @relation(fields: [idInteraction], references: [idInteraction], onUpdate: Restrict, map: "_fk_idInteraction_DatabaitTweet_t615das")
+  DatabaitNextAction  DatabaitNextAction? @relation(fields: [nextAction], references: [idDatabaitNextAction], onDelete: Restrict, onUpdate: Restrict, map: "_fk_nextAction_DatabaitTweet_t615das")
+
+  @@index([idInteraction], map: "_fk_idInteraction_DatabaitTweet_t615das")
+  @@index([nextAction], map: "_fk_nextAction_DatabaitTweet_t615das")
+}
+
+model DatabaitVisit {
+  idInteraction Int         @unique(map: "_unique_id_interaction_databaitvisit")
+  idDatabait    Int
+  source        String?     @db.VarChar(200)
+  Databaits     Databaits   @relation(fields: [idDatabait], references: [idDatabait], onUpdate: Restrict, map: "_fk_idDatabait_DatabaitVisit_b123gda")
+  Interaction   Interaction @relation(fields: [idInteraction], references: [idInteraction], onUpdate: Restrict, map: "_fk_idInteraction_DatabaitVisit_asdhjk16341")
+
+  @@index([idDatabait], map: "_fk_idDatabait_DatabaitVisit_b123gda")
+}
+
+model Databaits {
+  idDatabait             Int                  @id @default(autoincrement())
+  idInteraction          Int
+  idUniqueID             Int?
+  idDatabaitTemplateType Int
+  idDatabaitCreateType   Int
+  databait               String               @db.VarChar(1500)
+  columns                String?              @db.VarChar(1500)
+  vals                   String?              @db.VarChar(1500)
+  notes                  String               @db.VarChar(5000)
+  created                DateTime             @default(now()) @db.Timestamp(0)
+  closed                 DateTime             @default(dbgenerated("('0000-00-00 00:00:00')")) @db.Timestamp(0)
+  nextAction             Int?
+  DatabaitCreateType     DatabaitCreateType   @relation(fields: [idDatabaitCreateType], references: [idDatabaitCreateType], onUpdate: Restrict, map: "_fk_idDatabaitCreateType_b6345das")
+  DatabaitTemplateType   DatabaitTemplateType @relation(fields: [idDatabaitTemplateType], references: [idDatabaitTemplateType], onUpdate: Restrict, map: "_fk_idDatabaitTemplateType_b6345das")
+  Interaction            Interaction          @relation(fields: [idInteraction], references: [idInteraction], onUpdate: Restrict, map: "_fk_idInteraction_Databaits_a6a3344")
+  UniqueId               UniqueId?            @relation(fields: [idUniqueID], references: [idUniqueID], onDelete: Restrict, onUpdate: Restrict, map: "_fk_idUniqueID_Databaits_b111edss")
+  DatabaitNextAction     DatabaitNextAction?  @relation(fields: [nextAction], references: [idDatabaitNextAction], onDelete: Restrict, onUpdate: Restrict, map: "_fk_databaits_nextAction_b6345das")
+  DatabaitVisit          DatabaitVisit[]
+
+  @@index([nextAction], map: "_fk_databaits_nextAction_b6345das")
+  @@index([idDatabaitCreateType], map: "_fk_idDatabaitCreateType_b6345das")
+  @@index([idDatabaitTemplateType], map: "_fk_idDatabaitTemplateType_b6345das")
+  @@index([idInteraction], map: "_fk_idInteraction_Databaits_a6a3344")
+  @@index([idUniqueID], map: "_fk_idUniqueID_Databaits_b111edss")
+}
+
+model DoubleClick {
+  idInteraction Int     @id
+  idSuggestion  Int
+  rowvalues     String? @db.VarChar(500)
+
+  @@index([idInteraction], map: "fk_DoubleClick_Interaction1_idx")
+  @@index([idSuggestion], map: "fk_DoubleClick_Suggestion1_idx")
+}
+
+model Edit {
+  IdInteraction Int
+  idEdit        Int           @id @default(autoincrement())
+  idEntryType   Int
+  mode          String        @default("normal") @db.VarChar(25)
+  isCorrect     Int?          @default(2) @db.TinyInt
+  Interaction   Interaction   @relation(fields: [IdInteraction], references: [idInteraction], onUpdate: Restrict, map: "_fk_idInteraction_from_edit_asdlhg1235")
+  EntryType     EntryType     @relation(fields: [idEntryType], references: [idEntryType], onUpdate: Restrict, map: "_fk_idEntryType_from_edit_asllhg1233")
+  Edit_DelRow   Edit_DelRow[] @ignore
+  Edit_NewRow   Edit_NewRow[]
+
+  @@index([idEntryType], map: "_fk_idEntryType_from_edit_asllhg1233")
+  @@index([IdInteraction], map: "idInteraction_index_adfhj126")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model Edit_DelRow {
+  idEdit     Int
+  idUniqueID Int
+  comment    String   @db.VarChar(250)
+  Edit       Edit     @relation(fields: [idEdit], references: [idEdit], onUpdate: Restrict, map: "ALTER TABLE `Edit_DelRow` ADD  CONSTRAINT `_fk_edit_akjdhaas` FO")
+  UniqueId   UniqueId @relation(fields: [idUniqueID], references: [idUniqueID], onUpdate: Restrict, map: "_fk_UniqueID_1027836asda")
+
+  @@index([idEdit], map: "ALTER TABLE `Edit_DelRow` ADD  CONSTRAINT `_fk_edit_akjdhaas` FO")
+  @@index([idUniqueID], map: "_fk_UniqueID_1027836asda")
+  @@ignore
+}
+
+model Edit_NewRow {
+  idEdit       Int
+  idSuggestion Int
+  isCorrect    Int         @default(2) @db.TinyInt
+  Edit         Edit        @relation(fields: [idEdit], references: [idEdit], onUpdate: Restrict, map: "_fk_idEdit_from_Edit_NewRow_asdkl123")
+  Suggestions  Suggestions @relation(fields: [idSuggestion], references: [idSuggestion], onUpdate: Restrict, map: "_fk_idSuggestion_from_Edit_NewRow_asdkl123")
+
+  @@unique([idEdit, idSuggestion], map: "idEdit")
+  @@index([idEdit], map: "_index_edit_suggestion_idEdit_agsdh1872dg")
+  @@index([idSuggestion], map: "_index_edit_suggestion_idSuggestion_agsdh1872dg")
+}
+
+model Edit_Suggestion {
+  idEdit           Int
+  idSuggestion     Int
+  isPrevSuggestion Boolean
+  isNew            Boolean
+  isChosen         Boolean
+
+  @@unique([idEdit, idSuggestion], map: "idEdit")
+  @@index([idEdit], map: "_index_edit_suggestion_idEdit_agsdh1872dg")
+  @@index([idSuggestion], map: "_index_edit_suggestion_idSuggestion_agsdh1872dg")
+}
+
+model EntryType {
+  idEntryType Int     @id @default(autoincrement())
+  type        String? @db.VarChar(45)
+  Edit        Edit[]
+}
+
+model Experiment {
+  idExperiment Int     @id @default(autoincrement())
+  experiment   String? @db.VarChar(45)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model Experiment_Session {
+  idSession    Int
+  idExperiment Int
+  date_created DateTime? @default(now()) @db.DateTime(0)
+
+  @@ignore
+}
+
+model Interaction {
+  idInteraction     Int             @id @default(autoincrement())
+  idSession         Int
+  idInteractionType Int
+  timestamp         DateTime?       @default(now()) @db.DateTime(0)
+  CommentVote       CommentVote[]
+  Comments          Comments[]
+  CommentsView      CommentsView[]
+  Copy              Copy[]
+  CopyColumn        CopyColumn[]
+  DatabaitTweet     DatabaitTweet[]
+  DatabaitVisit     DatabaitVisit?
+  Databaits         Databaits[]
+  Edit              Edit[]
+  Search            Search[]        @ignore
+  SearchGoogle      SearchGoogle?
+  SearchMulti       SearchMulti[]
+  Sort              Sort[]
+  Visit             Visit[]
+
+  @@index([idInteractionType], map: "fk_Interaction_InteractionType1_idx")
+  @@index([idSession], map: "fk_Interaction_Session1_idx")
+}
+
+model InteractionType {
+  idInteractionType Int     @id @default(autoincrement())
+  interaction       String? @db.VarChar(45)
+}
+
+model Paste {
+  idInteraction                                        Int          @id
+  pasteValue                                           String       @db.VarChar(1500)
+  copyCellIdSuggestion                                 Int?
+  copyCellValue                                        String?      @db.VarChar(1500)
+  pasteCellIdSuggestion                                Int
+  pasteCellValue                                       String       @db.VarChar(1500)
+  Suggestions_Paste_copyCellIdSuggestionToSuggestions  Suggestions? @relation("Paste_copyCellIdSuggestionToSuggestions", fields: [copyCellIdSuggestion], references: [idSuggestion], onDelete: Restrict, onUpdate: Restrict, map: "_fk_copy_id_suggestion_197823")
+  Suggestions_Paste_pasteCellIdSuggestionToSuggestions Suggestions  @relation("Paste_pasteCellIdSuggestionToSuggestions", fields: [pasteCellIdSuggestion], references: [idSuggestion], onUpdate: Restrict, map: "_fk_paste_id_suggestion_197823")
+
+  @@index([copyCellIdSuggestion], map: "_fk_copy_id_suggestion_197823")
+  @@index([pasteCellIdSuggestion], map: "_fk_paste_id_suggestion_197823")
+}
+
+model Profile {
+  idProfile    Int       @id @default(autoincrement())
+  idRole       Int       @default(2)
+  username     String?   @unique(map: "unique_username_profile") @db.VarChar(45)
+  email        String?   @unique(map: "unique_email_profile") @db.VarChar(45)
+  password     String?   @db.VarChar(500)
+  passwordRaw  String?   @db.VarChar(100)
+  date_created DateTime? @default(now()) @db.DateTime(0)
+  date_updated DateTime? @default(now()) @db.DateTime(0)
+
+  @@index([idRole], map: "index_idRole_profileTable")
+}
+
+model RemoveUserData {
+  id_removeuserdata Int       @id @default(autoincrement())
+  id_profile        Int
+  id_session        Int
+  timestamp         DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model Role {
+  idRole Int    @id @default(autoincrement())
+  role   String @db.VarChar(20)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model Search {
+  idInteraction    Int
+  idSuggestionType Int
+  idSearchType     Int            @default(3)
+  isPartial        Boolean        @default(true)
+  isMulti          Int            @default(0)
+  isFromUrl        Int            @default(0)
+  value            String?        @db.VarChar(150)
+  matchedValues    Bytes?         @db.Blob
+  Interaction      Interaction    @relation(fields: [idInteraction], references: [idInteraction], onDelete: NoAction, onUpdate: NoAction, map: "fk_Search_Interaction1")
+  SearchType       SearchType     @relation(fields: [idSearchType], references: [idSearchType], onUpdate: Restrict, map: "fk_id_search_type_1")
+  SuggestionType   SuggestionType @relation(fields: [idSuggestionType], references: [idSuggestionType], onUpdate: Restrict, map: "search_ibfk_1")
+
+  @@index([idSuggestionType], map: "_fk_idSuggestionType_12835gv")
+  @@index([idSearchType], map: "_index_idSearchType_182356")
+  @@index([idInteraction], map: "fk_Search_Interaction1_idx")
+  @@ignore
+}
+
+model SearchGoogle {
+  IdInteraction Int         @unique(map: "IdInteraction")
+  idUniqueID    Int
+  idSuggestion  Int
+  searchValues  String      @db.VarChar(3000)
+  Interaction   Interaction @relation(fields: [IdInteraction], references: [idInteraction], onUpdate: Restrict, map: "_fk_idInteraction_SearchGoogle_a645das")
+  Suggestions   Suggestions @relation(fields: [idSuggestion], references: [idSuggestion], onUpdate: Restrict, map: "_fk_idSuggestion_SearchGoogle_a645das")
+  UniqueId      UniqueId    @relation(fields: [idUniqueID], references: [idUniqueID], onUpdate: Restrict, map: "_fk_idUniqueID_SearchGoogle_a645das")
+
+  @@index([idSuggestion], map: "_fk_idSuggestion_SearchGoogle_a645das")
+  @@index([idUniqueID], map: "_fk_idUniqueID_SearchGoogle_a645das")
+}
+
+model SearchMulti {
+  idInteraction    Int
+  idSuggestionType Int
+  idSearchType     Int            @default(3)
+  value            String?        @db.VarChar(150)
+  Interaction      Interaction    @relation(fields: [idInteraction], references: [idInteraction], onDelete: NoAction, onUpdate: NoAction, map: "fk_SearchMulti_Interaction112312")
+  SearchType       SearchType     @relation(fields: [idSearchType], references: [idSearchType], onUpdate: Restrict, map: "fk_id_Search_type_112312")
+  SuggestionType   SuggestionType @relation(fields: [idSuggestionType], references: [idSuggestionType], onUpdate: Restrict, map: "SearchMulti_ibfk_11231")
+
+  @@id([idInteraction, idSuggestionType])
+  @@index([idSuggestionType], map: "_fk_idSuggestionType_12835gv")
+  @@index([idSearchType], map: "_index_idSearchType_182356")
+  @@index([idInteraction], map: "fk_SearchMulti_Interaction1_idx")
+}
+
+model SearchType {
+  idSearchType Int           @id @default(autoincrement())
+  type         String        @db.VarChar(20)
+  Search       Search[]      @ignore
+  SearchMulti  SearchMulti[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model SelectRange {
+  idInteraction Int
+  idSuggestion  Int
+  rowvalues     String? @db.VarChar(500)
+
+  @@index([idInteraction], map: "fk_Click_Interaction2_idx")
+  @@index([idSuggestion], map: "fk_Click_Suggestion2_idx")
+  @@ignore
+}
+
+model Session {
+  idSession Int       @id @default(autoincrement())
+  idProfile Int?
+  start     DateTime? @default(now()) @db.DateTime(0)
+  end       DateTime? @db.DateTime(0)
+
+  @@index([idProfile], map: "fk_Session_Profile1_idx")
+}
+
+model Sort {
+  idInteraction    Int
+  idSuggestionType Int
+  isAsc            Boolean        @default(true)
+  isTrigger        Boolean        @default(true)
+  isMulti          Boolean        @default(false)
+  Interaction      Interaction    @relation(fields: [idInteraction], references: [idInteraction], onUpdate: Restrict, map: "_fk_idInteraction_1827365")
+  SuggestionType   SuggestionType @relation(fields: [idSuggestionType], references: [idSuggestionType], onUpdate: Restrict, map: "_fk_idSuggestionType_2827365")
+
+  @@id([idInteraction, idSuggestionType])
+  @@index([idInteraction], map: "fk_Sort_Interaction1_idx")
+  @@index([idSuggestionType], map: "fk_Sort_SuggestionType1_idx")
+}
+
+model SuggestionType {
+  idSuggestionType Int           @id @default(autoincrement())
+  idDataType       Int
+  name             String?       @db.VarChar(45)
+  isActive         Boolean       @default(true)
+  regex            String        @default(".*") @db.VarChar(150)
+  makesRowUnique   Boolean?      @default(false)
+  canBeBlank       Boolean       @default(false)
+  isFreeEdit       Boolean       @default(true)
+  isDate           Boolean       @default(false)
+  isLink           Boolean       @default(false)
+  isCurrency       Boolean       @default(false)
+  isEditable       Int           @default(1)
+  isPrivate        Int           @default(0)
+  columnOrder      Int?
+  CopyColumn       CopyColumn[]
+  Search           Search[]      @ignore
+  SearchMulti      SearchMulti[]
+  Sort             Sort[]
+  Suggestions      Suggestions[]
+
+  @@index([idDataType], map: "fk_SuggestionType_DataType1_idx")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model SuggestionTypeValues {
+  idSuggestionType Int
+  value            String? @db.VarChar(150)
+  active           Boolean @default(true)
+
+  @@unique([idSuggestionType, value], map: "PRIMARY_id_and_value")
+  @@unique([idSuggestionType, value], map: "idSuggestionType")
+  @@index([idSuggestionType], map: "fk_idSuggestioType_1827635")
+  @@ignore
+}
+
+model Suggestions {
+  idSuggestion                                   Int            @id @unique(map: "idSuggestion") @default(autoincrement())
+  idSuggestionType                               Int
+  idUniqueID                                     Int
+  idProfile                                      Int            @default(2)
+  suggestion                                     String         @default("") @db.VarChar(1500)
+  active                                         Boolean        @default(true)
+  confidence                                     BigInt?
+  last_updated                                   DateTime       @default(now()) @db.DateTime(0)
+  SuggestionType                                 SuggestionType @relation(fields: [idSuggestionType], references: [idSuggestionType], onUpdate: Restrict, map: "fk_idSuggestionType_123687")
+  Copy                                           Copy[]
+  Edit_NewRow                                    Edit_NewRow[]
+  Paste_Paste_copyCellIdSuggestionToSuggestions  Paste[]        @relation("Paste_copyCellIdSuggestionToSuggestions")
+  Paste_Paste_pasteCellIdSuggestionToSuggestions Paste[]        @relation("Paste_pasteCellIdSuggestionToSuggestions")
+  SearchGoogle                                   SearchGoogle[]
+
+  @@index([idSuggestionType], map: "fk_Suggestion_SuggestionType1_idx")
+  @@index([idUniqueID], map: "fk_Suggestion_UniqueID_idx")
+  @@index([idSuggestion], map: "idSuggestion_2")
+}
+
+model UniqueId {
+  idUniqueID   Int            @id @default(autoincrement())
+  active       Boolean        @default(true)
+  notes        String?        @db.VarChar(150)
+  Comments     Comments[]
+  CommentsView CommentsView[]
+  Databaits    Databaits[]
+  Edit_DelRow  Edit_DelRow[]  @ignore
+  SearchGoogle SearchGoogle[]
+}
+
+model ViewChange {
+  idInteraction Int
+  viewname      String @db.VarChar(50)
+
+  @@id([idInteraction, viewname])
+}
+
+model Visit {
+  idVisit       Int         @id @unique(map: "Visit_idVisit_uindex") @default(autoincrement())
+  idInteraction Int
+  source        String?     @db.VarChar(500)
+  searchCol     String?     @db.VarChar(50)
+  searchVal     String?     @db.VarChar(500)
+  Interaction   Interaction @relation(fields: [idInteraction], references: [idInteraction], onUpdate: Restrict, map: "Visit___fk_interaction")
+
+  @@index([idInteraction], map: "Visit___fk_interaction")
+}
+
+model sessions {
+  session_id String  @id @db.VarChar(128)
+  expires    Int     @db.UnsignedInt
+  data       String? @db.Text
+}

@@ -8,7 +8,7 @@ import './modules/components/sheet/helpus';
 import './modules/components/sheet/delete-row';
 import { tableHeadOnMouseDown, tableHeadOnMouseMove } from './modules/components/sheet/resize-column';
 import { activateSortPanel, deactivateSortPanel, tableCellSortButtonOnClick } from './modules/components/sheet/column-sort-panel';
-import { cellEditor } from './modules/components/sheet/cell-editor';
+import { cellEditor } from './modules/components/sheet/cell-editor-fuzzy';
 import './modules/components/sheet/column-search';
 import { columnSuggestions } from './modules/components/sheet/column-suggestions';
 import { activateColumnLabelContextMenu, activateTableDataContextMenu, deactivateColumnLabelContextMenu, deactivateTableDataContextMenu } from './modules/components/sheet/contextmenu';
@@ -48,8 +48,7 @@ export let activeTableCellElement: ActiveHTMLTableCellElement = null;
 
 function activateCellEditor() {
   cellEditor.formInput = getTableDataText(activeTableCellElement).trim();
-  const initialSearchValue = ''; // bc we want users to see all options
-  cellEditor.activateForm(activeTableCellElement, initialSearchValue);
+  cellEditor.activateForm(activeTableCellElement);
   activeTableCellElement.lastActiveTimestamp = null;
 }
 

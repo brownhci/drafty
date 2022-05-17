@@ -13,8 +13,8 @@
 
 // suggestions
 
-export function getNewRowValuesURL(idSuggestion: number) {
-  return `/suggestions/fornewrow?idSuggestion=${idSuggestion}`;
+export function getNewRowValuesURL(idSuggestionType: number) {
+  return `/suggestions/fornewrow?idSuggestion=${idSuggestionType}`;
 }
 
 export function getEditSuggestionURL(idSuggestion: number) {

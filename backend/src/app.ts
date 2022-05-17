@@ -53,10 +53,6 @@ app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }))
 
 // View Engine
 import helpers from './config/handlebars-helpers';
-// handlebars express config
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-
-//const hbs = require('express-handlebars');
 import { engine } from 'express-handlebars';
 import { IncomingMessage, ServerResponse } from 'http';
 import { Middleware } from 'express-validator/src/base';
@@ -117,6 +113,10 @@ app.all('/api-dyk/*', function(req: IncomingMessage, res: ServerResponse) {
   proxy.web(req, res, {target: 'http://localhost:5000'});
 });
 app.use(unless('/api-dyk/*', bodyParser.json())); // must be after dyk proxy
+
+// sw: required for lusca to handle csrf tokens on form POST requests
+app.use(bodyParser.urlencoded({ extended: true })); 
+
 app.use(flash());
 app.use(lusca.csrf());
 app.use(lusca.csp({

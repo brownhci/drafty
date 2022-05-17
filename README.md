@@ -2,14 +2,15 @@
 
 Drafty strives to keep data up-to-date by recruiting people to review it from the crowd of people who are already using it. The data is hosted on Drafty, a web-based spreadsheet. Potential reviewers are matched to topics they likely have an interest in, by inferring their interest from interactions such as text highlighting, pointing, searching, sorting, and clicks. This continual review allows the maintenance of data to be self-sustaining over time.
 
-# HCOMP 2017 paper
+# HCOMP 2017 and CSCW 2021 papers
 
-Please look in the branch "shaun=dev-branch" to find the source code used in the HCOMP 2017 paper:
+Please look in the branch "shaun=dev-branch" to find the source code used in the papers:
 
 Drafty: Enlisting Users to be Editors who Maintain Structured Data
+Shaun Wallace, Lucy van Kleunen, Marianne Aubin-Le Quere, Abraham Peterkin, Yirui Huang, Jeff Huang
 
-Wallace S., Van Kleunen L., Aubin-Le Quere M., Peterkin A., Huang Y., Huang J.
-
+Case Studies on the Motivation and Performance of Contributors Who Verify and Maintain In-Flux Tabular Datasets
+Shaun Wallace, Alexandra Papoutsaki, Neilly H. Tan, Hua Guo, Jeff Huang
 
 # Basic Systems and Server Operations
 For additional scripts, the server folder has numerous scripts to update and manage the live server.

@@ -1,11 +1,11 @@
 <main id="form-container">
     <div id="login-component">
         <h1>Sign in to Drafty</h1>
-        <form action="/login" method="post" id="login-form" class="custom-validation" autocomplete="on" novalidate>
+        <form id="login-form" action="/login" method="POST" class="custom-validation">
             {{> csrf }}
             {{> account/username-input-component }}
             {{> account/password-input-component showForget=true }}
-            <button type="submit">Submit</button>
+            <button type="submit" value="Submit">Submit</button>
         </form>
         {{> account/signup-modal showEmailUsageExplanation=true }}
     </div>

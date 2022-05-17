@@ -1,4 +1,4 @@
-import { cellEditor } from './cell-editor';
+import { cellEditor } from './cell-editor-fuzzy';
 import { StatusMode, tableFoot } from './table-foot';
 import { clearCopyBuffer, copyCurrentSelectionToCopyBuffer, copyCopyBuffer, copyTextToCopyBuffer, hasCopyModifier, getCopyBuffer } from '../../utils/copy';
 import { hasTextSelected } from '../../utils/selection';
