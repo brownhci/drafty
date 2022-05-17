@@ -1,5 +1,6 @@
 import { tableDataManager } from '../../../sheet';
 import { getCellInTableRow } from '../../dom/navigate';
+import { getTableRow } from '../../dom/sheet';
 
 enum CellType {
     JoinYear = 'joinyear',
@@ -11,17 +12,20 @@ enum CellType {
 interface HelpUsInterface {
     university: string,
     professor: string,
-    emptyCell: CellType
+    emptyCell: number
 }
 
-const sample: HelpUsInterface = {
-    university: 'Brown University',
-    professor: 'Jeff Huang',
-    emptyCell: CellType.Bachelors,
-};
-
 const generateSentence = (i: HelpUsInterface) => {
-    return 'Do you know where ' + i.professor + ' from ' + i.university + ' got their ' + i.emptyCell + '?';
+    switch (i.emptyCell) {
+        case 2:
+            return 'Do you know when ' + i.professor + ' joined ' + i.university + '?';
+        case 3:
+            return 'Do you know what the subfield of ' + i.professor + ' from ' + i.university + ' is?';
+        case 4:
+            return 'Do you know where ' + i.professor + ' from ' + i.university + ' got their bachelor degree from?';
+        case 5:
+            return 'Do you know where ' + i.professor + ' from ' + i.university + ' got their doctorate degree from?';
+    }
 };
 
 const helpUsModal: HTMLElement = document.getElementById('helpus-screen');
@@ -61,12 +65,11 @@ function getEmptyCell() {
     const shuffled = shuffle(arr);
     for (let row = 0; row < n; ++row) {
         const rowEle = tableDataManager.source[shuffled[row]].element_ as HTMLTableRowElement;
-        for (let col = 2; row < 6; ++col) {
-            const cellValue = getCellInTableRow(rowEle, col).textContent.trim();
+        for (let col = 2; col < 6; ++col) {
+            const cellValue = getCellInTableRow(rowEle, col)?.textContent.trim();
             if (!cellValue) {
-                console.log(`${row} and $ is super awesome`);
-                console.log(row + ' ' + col);
-                return [row, col];
+                console.log(`${shuffled[row]} and ${col} is super awesome`);
+                return [shuffled[row], col];
             }
         }
     }
@@ -75,8 +78,14 @@ function getEmptyCell() {
 
 function openModal() {
     helpUsModal.style.display = 'block';
-    getEmptyCell();
-    updateHelpusHTML(generateSentence(sample));
+    const emptyCell: number[] = getEmptyCell();
+    if (emptyCell.length != 2) return; // prob should generate error statement
+    const rowEle = tableDataManager.source[emptyCell[0]].element_ as HTMLTableRowElement;
+    const col = emptyCell[1];
+    const profName = getCellInTableRow(rowEle, 0)?.textContent.trim();
+    const profUniversity = getCellInTableRow(rowEle, 1)?.textContent.trim();
+    const info : HelpUsInterface = {university: profUniversity, professor: profName, emptyCell: col};
+    updateHelpusHTML(generateSentence(info));
 }
 
 export async function activateHelpUs() {
