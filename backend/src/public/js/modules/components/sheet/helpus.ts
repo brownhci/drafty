@@ -17,9 +17,9 @@ const generateSentence = (i: HelpUsInterface) => {
         case 3:
             return 'Do you know what the subfield of ' + i.professor + ' from ' + i.university + ' is?';
         case 4:
-            return 'Do you know where ' + i.professor + ' from ' + i.university + ' got their bachelor degree from?';
+            return 'Do you know where ' + i.professor + ' from ' + i.university + ' got their bachelors degree?';
         case 5:
-            return 'Do you know where ' + i.professor + ' from ' + i.university + ' got their doctorate degree from?';
+            return 'Do you know where ' + i.professor + ' from ' + i.university + ' got their doctorate degree?';
     }
 };
 
@@ -96,6 +96,7 @@ export async function activateHelpUs() {
 
 helpUsNextButton.addEventListener('click', function(event: MouseEvent) {
     openModal();
+    event.stopPropagation();
 }, true);
 
 
