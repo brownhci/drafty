@@ -289,7 +289,12 @@ interface ConsumableKeyboardEvent extends KeyboardEvent {
   consumed?: boolean;
 }
 function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  const initialSearchValue = event.key;
+  let initialSearchValue = event.key;
+  if(event.key == 'Enter') {
+    initialSearchValue = tableDataElement.innerText.trim();
+  } else if (event.key == 'Backspace') {
+    initialSearchValue = '';
+  }
   cellEditor.activateForm(tableDataElement, initialSearchValue);
   event.consumed = true;
 }
@@ -360,6 +365,9 @@ function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event
     case 'v':
       tableCellElementOnPasteKeyPressed(tableCellElement, event);
       break;
+    case 'a':
+        tableCellElementOnPasteKeyPressed(tableCellElement, event);
+        break;
     case 'Escape':
       deactivateSortPanel();
     // fallthrough
@@ -377,12 +385,22 @@ function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event
     case 'Super':
     case 'Symbol':
     case 'SymbolLock':
+      console.log('key down');
+      console.log(event.key);
       event.consumed = true;
   }
+  /*
+  if (event.shiftKey) {console.log('shift is down');}
+  if (event.altKey) {console.log('alt is down');}
+  if (event.ctrlKey) {console.log('ctrl is down');}
+  if (event.metaKey) {console.log('cmd is down');}
+  */
   if (event.consumed) {
     event.preventDefault();
   } else {
-    tableCellElementOnInput(event);
+    if(!event.ctrlKey && !event.metaKey) {
+      tableCellElementOnInput(event);
+    }
   }
 }
 tableElement.addEventListener('keydown', function (event: KeyboardEvent) {
