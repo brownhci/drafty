@@ -1,8 +1,6 @@
 import { tableDataManager } from '../../../sheet';
-import { getIdSuggestion, getIdSuggestionType } from '../../api/record-interactions';
+import { recordCellEdit } from '../../api/record-interactions';
 import { getCellInTableRow } from '../../dom/navigate';
-import { getColumnLabel } from '../../dom/sheet';
-import { updateFuseSelect } from './suggestions';
 
 interface HelpUsInterface {
     university: string,
@@ -13,7 +11,7 @@ interface HelpUsInterface {
 const generateSentence = (i: HelpUsInterface) => {
     switch (i.emptyCell) {
         case 2:
-            return 'Do you know when ' + i.professor + ' joined ' + i.university + '?';
+            return 'Do you know when ' + i.professor + ' joined ' + i.university + ' as a professor?';
         case 3:
             return 'Do you know what the subfield of ' + i.professor + ' from ' + i.university + ' is?';
         case 4:
@@ -23,10 +21,13 @@ const generateSentence = (i: HelpUsInterface) => {
     }
 };
 
-const helpUsModal: HTMLElement = document.getElementById('helpus-screen');
-const helpUsNextButton = <HTMLButtonElement> document.getElementById('btn-helpus-next');
-const helpUsModalClose = <HTMLButtonElement>document.getElementById('helpusModalClose');
+const helpusModal: HTMLElement = document.getElementById('helpus-screen');
+const helpusNextButton = <HTMLButtonElement> document.getElementById('btn-helpus-next');
+const helpusModalClose = <HTMLButtonElement>document.getElementById('helpusModalClose');
 const helpusText: HTMLElement = document.getElementById('helpus-text');
+//disable submit button when cell not filled out
+const helpusSubmit = <HTMLButtonElement>document.getElementById('btn-helpus-submit');
+const helpusInput: HTMLElement = document.getElementById('helpus-input');
 
 
 function updateHelpusHTML(sentence: string) {
@@ -71,14 +72,13 @@ function getEmptyCell() {
     return [];
 }
 
-function generateSubmitButton (colIndex: number) {
-    //fuse ??
-    this.fuseSelect.mount(element => this.mountFuseSelect(element));
-    updateFuseSelect(this.fuseSelect, getIdSuggestion(this.cellElement), getIdSuggestionType(getColumnLabel(colIndex)));
+function updateCellInfo (rowElement: HTMLTableRowElement, col: number) {
+    const cellElement = getCellInTableRow(rowElement, col);
+    recordCellEdit(cellElement, helpusInput.innerHTML);
 }
 
 function openModal() {
-    helpUsModal.style.display = 'block';
+    helpusModal.style.display = 'block';
     const emptyCell: number[] = getEmptyCell();
     if (emptyCell.length != 2) return; // prob should generate error statement
     const rowEle = tableDataManager.source[emptyCell[0]].element_ as HTMLTableRowElement;
@@ -87,20 +87,23 @@ function openModal() {
     const profUniversity = getCellInTableRow(rowEle, 1)?.textContent.trim();
     const info : HelpUsInterface = {university: profUniversity, professor: profName, emptyCell: col};
     updateHelpusHTML(generateSentence(info));
-    // generateSubmitButton(col);
+    helpusSubmit.addEventListener('click', function(event: MouseEvent) {
+        updateCellInfo(rowEle, col);
+        event.stopPropagation();
+    }, true);
 }
 
 export async function activateHelpUs() {
     openModal();
 }
 
-helpUsNextButton.addEventListener('click', function(event: MouseEvent) {
+helpusNextButton.addEventListener('click', function(event: MouseEvent) {
     openModal();
     event.stopPropagation();
 }, true);
 
 
-helpUsModalClose.addEventListener('click', function(event: MouseEvent) {
-    helpUsModal.style.display = 'none';
+helpusModalClose.addEventListener('click', function(event: MouseEvent) {
+    helpusModal.style.display = 'none';
     event.stopPropagation();
 }, true);
