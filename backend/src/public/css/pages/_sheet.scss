@@ -642,6 +642,8 @@ inset 0px -1px 0px 0px $table-border-color;
           @extend .px-4;
           @extend .py-2;
           @extend .rounded;
+          margin-right: 1em;
+          vertical-align: sub;
         }
       }
     }

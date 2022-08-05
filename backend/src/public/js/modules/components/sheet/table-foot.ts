@@ -121,7 +121,9 @@ class TableFoot {
           this.statusTableCell.appendChild(this.clearFormButton);
           this.statusTableCell.appendChild(this.insertionConfirmButton);
           this.statusTableCell.appendChild(this.insertionErrorMessage);
+          this.statusTableCell.appendChild(this.criteriaMessage);
           this.insertionErrorMessage.style.display = 'none';
+          this.criteriaMessage.innerHTML = '<span style="vertical-align: sub;">Criteria: tenure-track professors who can solely advise a CS PhD student.</span>';
           this.insertionInputs[0].focus(); // focus first input
           this.insertionInputs.forEach((inputElement, columnIndex) => this.verifyInputValue(inputElement, columnIndex, true));
           this.checkAllInputsAreValid(true);
@@ -185,13 +187,15 @@ class TableFoot {
   private insertionConfirmButton: HTMLButtonElement = document.createElement('button');
   /** show in the status table row, used for show the error associated with the active input */
   private insertionErrorMessage: HTMLElement = document.createElement('span');
+  /** show in the status table row, used to show drafty inclusion criteria */
+  private criteriaMessage: HTMLElement = document.createElement('span');
   /** show in the status table row, used for discarding the data inputted for the new row */
   private clearFormButton: HTMLButtonElement = document.createElement('button');
   /** show in the status table row, used for closing the table footer */
   private insertionCloseButton: HTMLButtonElement = document.createElement('button');
   /** the HTML template for new row */
   private newRowTemplate: HTMLTableRowElement;
-
+  
   constructor() {
     this.statusTableCell.colSpan = numTableColumns;
     // Idle is the initial mode, supplement its class
