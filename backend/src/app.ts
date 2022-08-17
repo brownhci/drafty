@@ -159,6 +159,7 @@ app.get('/usrsession', userCtrl.getSession);
 
 // getting help
 app.get('/help', helpCtrl.getHelp);
+app.get('/help_test', helpCtrl.getHelp);
 
 // passport accounts
 app.get('/account', userCtrl.checkReturnPath, userCtrl.getAccount);
