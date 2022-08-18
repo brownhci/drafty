@@ -70,10 +70,13 @@ export const logout = async (req: Request, res: Response) => {
   /*
   req.logout(); // this should destroy the cookie
   */
-  req.logout();
-  req.session.user.isAuth = false;
-  req.session.isAuth = false;
-  res.redirect(req.session.returnTo || '/');
+  //req.logout();
+  req.logout(function(err) {
+    logger.info('user controller slogout() error: ' + err);
+    req.session.user.isAuth = false;
+    req.session.isAuth = false;
+    res.redirect(req.session.returnTo || '/');
+  });
 };
 
 /**
@@ -155,47 +158,6 @@ export async function createAnonUser() {
     logger.error(err);
   }
 }
-
-export interface ExperimentRole {
-  idExperiment: string;
-  experiment: string;
-  role: string;
-}
-
-/**
- * Function to get Active Experiments
- * 
- * check if experiments exist, if not update them
- * 
- */
-/*
-async function getActiveExperiments(newSession: boolean, idSession: string) {
-  try {
-    // eslint-disable-next-line prefer-const
-    let experiments: { [key: string]: any } = {};
-    const [error, results] = await getUserExperiments(idSession);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    results.forEach(function(experimentRole: any, index: number, array: any){
-      //console.log(experimentRole);
-      const idExperiment: string = experimentRole.idExperiment;
-      let role: string = experimentRole.role;
-      const randrole: string = experimentRole.randrole;
-      if(experimentRole.idSession !== idSession) {
-        insertNewUserExperiment(idSession, idExperiment, randrole);
-        role = randrole;
-      } 
-      //experiments.push( { idExperiment: idExperiment, experiment: experimentRole.experiment, role: role  } );
-      experiments[experimentRole.experiment] = { idExperiment: idExperiment, role: role  };
-    });
-    if (error) {
-      throws;
-    }
-    return experiments; // results.insertId; need to supply new IDs
-  } catch (err) {
-    logger.error(err);
-  }
-}
-*/
 
 /**
  * Function to create new Session in our DB (not express-session)
@@ -453,13 +415,9 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
   const interactionTime = Date.now();
   if (((interactionTime - await req.session.user.lastInteraction) > heartbeat) || (await req.session.user.idSession === -1)) {
     req.session.user.idSession = await createSessionDB(req.session.user.idProfile, req.sessionID);
-    //newSession = true;
   }
   req.session.user.lastInteraction = interactionTime;
   req.session.user.views++;
-  // sw: turning the A/B testing off
-  // sw: not putting people into experimental groups - naturalistic study
-  //req.session.user.activeExperiments = getActiveExperiments(newSession, req.session.user.idSession);
   next();
 }
 
