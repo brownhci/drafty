@@ -218,7 +218,7 @@ export function changeCommentLabel() {
   const profName: string = fullNameCell.includes('<')
     ? fullNameCell.slice(0, fullNameCell.indexOf('<') - 1)
     : fullNameCell;
-  commentLabel.innerHTML = 'Comments for ' + profName;
+  commentLabel.innerHTML = 'Comments about ' + profName;
 }
 
 commentIcon.onclick = function () {
