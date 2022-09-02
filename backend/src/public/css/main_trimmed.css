@@ -13539,7 +13539,26 @@ nav {
 
 #commentIcon {
   margin: 16px;
-  display: none; }
+  display: none;
+  background: #1089ff;
+  width: fit-content;
+  border-radius: 10px;
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 15%) !important;
+}
+.default-fonts {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.comments-btn-label {
+  font-size: 16px; 
+  color: rgba(255, 255, 255, 0.8) !important; 
+  margin: 0 auto; 
+  text-align: center
+}
+
+.comments-btn-label:hover {
+  color: white;
+}
 
 #comments {
   display: none;
@@ -13549,7 +13568,6 @@ nav {
   padding: 10px;
   margin: 10px;
   outline: 2px solid #adb5bd;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   font-style: normal;
   font-variant: normal;
   text-rendering: auto;
@@ -13557,7 +13575,8 @@ nav {
   background-color: #fff;
   min-width: 350px;
   max-width: 600px;
-  min-height: 180px; }
+  min-height: 180px; 
+}
 
 #comment-header {
   display: flex;
