@@ -192,7 +192,7 @@ function populateComments() {
           })
         : (document.getElementById(
             'commentsContainer'
-          ).innerHTML = `<div id="no-comment">no comments yet - be the first to write a comment! :)</div>`);
+          ).innerHTML = `<div id="no-comment">no comments yet - be the first to comment! :)</div>`);
       handleVoteIds(ids, vote_dict);
     })
     .catch((error) => console.error(error));
