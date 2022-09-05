@@ -33,7 +33,6 @@ export const getLogin = (req: Request, res: Response) => {
 export const postLogin = async (req: Request, res: Response, next: NextFunction) => {
   const idProfile = req.session.user.idProfile;
   const idSession = req.session.user.idSession;
-  console.log(idProfile,idSession);
   // check for errors
   if (
     idProfile && idSession && (
@@ -56,10 +55,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
       if (err) { 
         return next(err); 
       }
-      console.log(idProfile,idSession);
       // update the sessions user.idProfile to match and update the Session tables idProfile
-      console.log(user.idProfile);
-      console.log(user);
       updateSession(idProfile, idSession);
     });
     req.session.user.idProfile = user.idProfile;
@@ -78,11 +74,12 @@ export const logout = async (req: Request, res: Response) => {
   req.logout(); // this should destroy the cookie
   */
   //req.logout();
-  req.logout(function(err) {
-    logger.info('user controller logout() error: ' + err);
+  try {
     req.session.user.isAuth = false;
     res.redirect(req.session.returnTo || '/');
-  });
+  } catch (error) {
+    logger.info('user controller logout() error: ' + error);
+  }
 };
 
 /**
@@ -114,28 +111,17 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
       return res.redirect('/signup');
     }
 
+    // creates new user
     const username = req.body.username;
     const password: string = await encryptPassword(req.body.password);
-    // creates new user
-    const newUser = {
-      [usernameFieldName]: username,
-      [passwordFieldName]: password,
-    };
-
     const [error] = await updateUserNewSignup(username, password, req.session.user.idProfile);
     if (error) {
       return next(error);
     }
 
-    // successful insertion
-    req.logIn(newUser, (err) => {
-      if (err) {
-        return next(err);
-      }
-      // need to update session
-      req.session.user.isAuth = true;
-      res.redirect(req.session.returnTo || '/');
-    });
+    // successful insertion, need to update session server side
+    req.session.user.isAuth = true;
+    res.redirect(req.session.returnTo || '/');
   } catch (err) {
     logger.error(err);
   }
