@@ -58,7 +58,11 @@ const helpers = {
 };
 
 export function makeRenderObject(renderObject: any, req: RequestWithUser) {
-  renderObject['signedIn'] = !!req.session.user.isAuth;
+  let isAuth = false;
+  if(req.session && req.session.user && req.session.user.isAuth) {
+    isAuth = req.session.user.isAuth;
+  }
+  renderObject['signedIn'] = !!isAuth;
   renderObject['sheetNameToURL'] = sheetNameToURL;
   return renderObject;
 }
