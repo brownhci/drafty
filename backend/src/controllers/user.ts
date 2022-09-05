@@ -45,6 +45,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
   // we're good, do something
   passport.authenticate('local', (err: Error, user: UserModel) => {
     if (err) { 
+      logger.info(err);
       return next(err); 
     }
     if (!user) {
@@ -53,6 +54,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
     }
     req.login(user, (err) => {
       if (err) { 
+        logger.info(err);
         return next(err); 
       }
       // update the sessions user.idProfile to match and update the Session tables idProfile
@@ -417,7 +419,7 @@ export async function checkSessionId(req: Request, res: Response, next: NextFunc
  * GLOBAL MIDDLEWARE
  */
 export async function checkReturnPath(req: Request, res: Response, next: NextFunction) {
-  if (!req.path.includes('favicon')) {
+  if (!req.path.includes('favicon') && !req.path.includes('service-worker.js')) {
     req.session.returnTo = req.path;
   }
   next();
