@@ -63,7 +63,6 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
       updateSession(idProfile, idSession);
     });
     req.session.user.idProfile = user.idProfile;
-    req.session.isAuth = true;
     req.session.user.isAuth = true;
     console.log(req.session.returnTo);
     res.redirect(req.session.returnTo || '/');
@@ -82,7 +81,6 @@ export const logout = async (req: Request, res: Response) => {
   req.logout(function(err) {
     logger.info('user controller logout() error: ' + err);
     req.session.user.isAuth = false;
-    req.session.isAuth = false;
     res.redirect(req.session.returnTo || '/');
   });
 };
@@ -136,7 +134,6 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
       }
       // need to update session
       req.session.user.isAuth = true;
-      req.session.isAuth = true;
       res.redirect(req.session.returnTo || '/');
     });
   } catch (err) {
