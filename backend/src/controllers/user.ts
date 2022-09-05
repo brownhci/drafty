@@ -31,12 +31,17 @@ export const getLogin = (req: Request, res: Response) => {
  * Sign in using email and password.
  */
 export const postLogin = async (req: Request, res: Response, next: NextFunction) => {
+  const idProfile = req.session.user.idProfile;
+  const idSession = req.session.user.idSession;
+  console.log(idProfile,idSession);
   // check for errors
   if (
-    await isNotEmail(req) === false ||
-    await isValidUsername(req) === false ||
-    await checkPasswordLength(req) === false) {
-    return res.redirect('/login');
+    idProfile && idSession && (
+      await isNotEmail(req) === false ||
+      await isValidUsername(req) === false ||
+      await checkPasswordLength(req) === false
+    )) {
+      return res.redirect('/login');
   }
   // we're good, do something
   passport.authenticate('local', (err: Error, user: UserModel) => {
@@ -51,14 +56,17 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
       if (err) { 
         return next(err); 
       }
+      console.log(idProfile,idSession);
       // update the sessions user.idProfile to match and update the Session tables idProfile
-      const idProfile = user.idProfile;
-      updateSession(idProfile, req.session.user.idSession);
-      req.session.user.idProfile = idProfile;
-      req.session.isAuth = true;
-      req.session.user.isAuth = true;
-      res.redirect(req.session.returnTo || '/');
+      console.log(user.idProfile);
+      console.log(user);
+      updateSession(idProfile, idSession);
     });
+    req.session.user.idProfile = user.idProfile;
+    req.session.isAuth = true;
+    req.session.user.isAuth = true;
+    console.log(req.session.returnTo);
+    res.redirect(req.session.returnTo || '/');
   })(req, res, next);
 };
 
@@ -72,7 +80,7 @@ export const logout = async (req: Request, res: Response) => {
   */
   //req.logout();
   req.logout(function(err) {
-    logger.info('user controller slogout() error: ' + err);
+    logger.info('user controller logout() error: ' + err);
     req.session.user.isAuth = false;
     req.session.isAuth = false;
     res.redirect(req.session.returnTo || '/');
