@@ -186,6 +186,22 @@ export function* getTableCellElementsInColumn(index: number, skipColumnLabel: bo
   }
 }
 
+/**
+ * Gets the table cell elements for the profs.
+ *
+ * @yields {HTMLTableCellElement} Table cells in the specified column.
+ */
+export function getAllProfNameElements() {
+  const values = [];
+  // console.log(tableRowElements[3].firstElementChild);
+  for (let i = 2; i < tableRowElements.length; i++) {
+    const element = tableRowElements[i].children[0] as HTMLElement;
+    // element.style.background = 'linear-gradient(-135deg,#608A32 35px,#000 0)';
+    values.push(element);
+  }
+  return values;
+}
+
 export function getTableCellText(tableCellElement: HTMLTableCellElement) {
   if (isColumnLabel(tableCellElement)) {
     return getColumnLabelText(tableCellElement);

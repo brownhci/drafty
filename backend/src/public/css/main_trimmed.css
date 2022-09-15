@@ -13771,6 +13771,22 @@ span.dyk-col-search {
 #edit-caret:hover {
   color: darkgrey; }
 
+#comment-indicator {
+  z-index: 10;
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: orange;
+}
+  
+.triangle-topleft {
+  float: left;
+  width: 0;
+  height: 0;
+  border-top: 100px solid orange;
+  border-right: 100px solid transparent;
+}
+
 #table-container table th,
 #table-container table td {
   text-overflow: ellipsis; }
