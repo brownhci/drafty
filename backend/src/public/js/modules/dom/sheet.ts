@@ -3,6 +3,7 @@ import { isInput } from './types';
 import { columnLabelClass, columnLabelTextClass, columnSearchClass, columnSortButtonClass } from '../constants/css-classes';
 import { measureTextWidth } from '../utils/length';
 import { recordDatabaitVisit } from '../api/record-interactions';
+import { getCommentsURL } from '../api/endpoints';
 
 /* <table> */
 export const tableElement: HTMLTableElement = document.getElementById('table') as HTMLTableElement;
@@ -195,6 +196,9 @@ export function getAllProfNameElements() {
   const values = [];
   // console.log(tableRowElements[3].firstElementChild);
   for (let i = 2; i < tableRowElements.length; i++) {
+    fetch(getCommentsURL(i)).then((data) => console.log(data));
+    // const data = getCommentsURL(i);
+    // console.log(data);
     const element = tableRowElements[i].children[0] as HTMLElement;
     // element.style.background = 'linear-gradient(-135deg,#608A32 35px,#000 0)';
     values.push(element);

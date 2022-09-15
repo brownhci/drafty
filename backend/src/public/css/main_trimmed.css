@@ -13780,11 +13780,14 @@ span.dyk-col-search {
 }
   
 .triangle-topleft {
+  position: absolute;
+  left: 0;
+  margin-top: -27px;
   float: left;
   width: 0;
   height: 0;
-  border-top: 100px solid orange;
-  border-right: 100px solid transparent;
+  border-top: 8px solid orange;
+  border-right: 8px solid transparent;
 }
 
 #table-container table th,
