@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { selectComments, insertNewComment, updateNewCommentVoteUp, updateNewCommentVoteDown } from '../database/interaction';
 
 /**
- * POST /comments/:idrow
+ * GET /comments/:idrow
  * 
  * @param {string} req.query.idrow
  *
