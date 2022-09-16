@@ -27,6 +27,7 @@ import * as dataSharingCtrl from './controllers/datasharing';
 import * as dataPrivacyCtrl from './controllers/dataprivacy';
 import * as databaitsCtrl from './controllers/databaits';
 import * as commentsCtrl from './controllers/comments';
+import * as experimentsCtrl from './controllers/experiments';
 // import * as middlewareTests from "./util/middlewaretests";
 
 // API keys and Passport configuration
@@ -166,6 +167,8 @@ app.post('/account/password', passportConfig.isAuthenticated, userCtrl.postUpdat
 
 // data privacy
 app.post('/account/delete', dataPrivacyCtrl.postRemoveData);
+
+app.post('/experiment/survey/link', experimentsCtrl.postLink);
 
 // data sharing
 //app.get('/data/edithistory', dataSharingCtrl.getEditHistory); // unused
