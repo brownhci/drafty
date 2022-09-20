@@ -7,6 +7,7 @@ module.exports = {
     deleteuserdata: './deleteuserdata.ts',
     main: './main.ts',
     navbar: './navbar.ts',
+    dce_survey: './dce_survey.ts',
     sheet: './sheet.ts',
     edit_history: './edit_history.ts',
     view: './modules/components/sheet/table-data-manager/View.ts'
