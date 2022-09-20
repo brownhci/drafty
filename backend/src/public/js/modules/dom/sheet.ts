@@ -193,12 +193,10 @@ export function* getTableCellElementsInColumn(index: number, skipColumnLabel: bo
  * @yields {HTMLTableCellElement} Table cells in the specified column.
  */
 export function getAllProfNameElements() {
-  const values = [];
+  const values: HTMLElement[] = [];
   // console.log(tableRowElements[3].firstElementChild);
   for (let i = 2; i < tableRowElements.length; i++) {
-    fetch(getCommentsURL(i)).then((data) => console.log(data));
-    // const data = getCommentsURL(i);
-    // console.log(data);
+    // fetch(getCommentsURL(i)).then((data) => console.log(data)).then((response) => console.log(response));
     const element = tableRowElements[i].children[0] as HTMLElement;
     // element.style.background = 'linear-gradient(-135deg,#608A32 35px,#000 0)';
     values.push(element);
