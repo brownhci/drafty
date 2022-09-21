@@ -1,4 +1,4 @@
-import { recordCellClick, recordCellDoubleClick } from './modules/api/record-interactions';
+import { getIdUniqueID, recordCellClick, recordCellDoubleClick } from './modules/api/record-interactions';
 import { activeClass, activeAccompanyClass } from './modules/constants/css-classes';
 import './modules/components/welcome-screen';
 import './modules/components/sheet/navbar';
@@ -19,6 +19,7 @@ import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel,
 import { isInput, isTableData, isTableHead, isTableCell, isColumnSearchInput } from './modules/dom/types';
 import { cellEditNewRow } from './modules/components/sheet/cell-editor-new-row';
 import { activateCommentIcon, activateCommentSection, changeCommentLabel } from './modules/components/sheet/comments/';
+import { getCommentsURL } from './modules/api/endpoints';
 
 /* // testing function logic
 const startTime = performance.now();
@@ -74,15 +75,37 @@ function deactivateEditCaret() {
 }
 
 // const commentIndicatorId: string = 'comment-indicator';
-const commentIndicator: string = `
-  <div class="triangle-topleft"></div>
-`;
+// const commentIndicator = (id: number) => {
+//   return `
+//   <div id="comment-indicator-${id}" class="triangle-topleft"/>
+// `;
+// };
 
 
 function activateCommentIndicator() {
-  const profNameElements: HTMLElement[] = getAllProfNameElements();
+  const profNameElements: HTMLTableCellElement[] = getAllProfNameElements();
   for (const e of profNameElements) {
-    e.innerHTML += commentIndicator;
+    const uniqueId = getIdUniqueID(e);
+    const commentIndicator = `<div id="comment-indicator-${uniqueId}" class="triangle-topleft"/>`;
+    if (!isNaN(uniqueId)) fetch(getCommentsURL(uniqueId))
+      .then((response) => {
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new TypeError(`Oops, we did not get JSON!`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.length !== 0) {
+          e.innerHTML += commentIndicator;
+        }
+        const commentIndicatorElement = document.getElementById('comment-indicator-' + uniqueId);
+        commentIndicatorElement?.addEventListener('click', (event: MouseEvent) => {
+          activateCommentSection(uniqueId);
+          changeCommentLabel(e);
+        });
+      })
+      .catch((error) => console.error(error));
   }
 }
 

@@ -2,7 +2,7 @@ import { getCellInTableRow, getRightTableCellElement } from './navigate';
 import { isInput } from './types';
 import { columnLabelClass, columnLabelTextClass, columnSearchClass, columnSortButtonClass } from '../constants/css-classes';
 import { measureTextWidth } from '../utils/length';
-import { recordDatabaitVisit } from '../api/record-interactions';
+import { getIdUniqueID, recordDatabaitVisit } from '../api/record-interactions';
 import { getCommentsURL } from '../api/endpoints';
 
 /* <table> */
@@ -193,12 +193,9 @@ export function* getTableCellElementsInColumn(index: number, skipColumnLabel: bo
  * @yields {HTMLTableCellElement} Table cells in the specified column.
  */
 export function getAllProfNameElements() {
-  const values: HTMLElement[] = [];
-  // console.log(tableRowElements[3].firstElementChild);
+  const values: HTMLTableCellElement[] = [];
   for (let i = 2; i < tableRowElements.length; i++) {
-    // fetch(getCommentsURL(i)).then((data) => console.log(data)).then((response) => console.log(response));
-    const element = tableRowElements[i].children[0] as HTMLElement;
-    // element.style.background = 'linear-gradient(-135deg,#608A32 35px,#000 0)';
+    const element = tableRowElements[i].children[0] as HTMLTableCellElement;
     values.push(element);
   }
   return values;

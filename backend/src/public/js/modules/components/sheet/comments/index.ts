@@ -154,10 +154,10 @@ function handleVoteIds(ids: number[], vote_dict: Map<number, string>) {
   });
 }
 
-function populateComments() {
+export function populateComments(uniqueId = -1) {
   const ids: number[] = [];
   const vote_dict = new Map();
-  const idUniqueId = getUniqueId();
+  const idUniqueId = uniqueId === -1 ? getUniqueId() : uniqueId;
   fetch(getCommentsURL(idUniqueId))
     .then((response) => {
       const contentType = response.headers.get('content-type');
@@ -198,8 +198,8 @@ function populateComments() {
     .catch((error) => console.error(error));
 }
 
-export function activateCommentSection() {
-  populateComments();
+export function activateCommentSection(uniqueId = -1) {
+  populateComments(uniqueId);
   commentIcon.style.display = 'none';
   commentsDiv.style.display = 'flex';
   document.getElementById('newCommentTextbox').focus();
@@ -211,9 +211,9 @@ export function activateCommentIcon() {
   activeTableCellElement.focus();
 }
 
-export function changeCommentLabel() {
+export function changeCommentLabel(element = activeTableCellElement) {
   const fullNameCell: string = getTableRow(
-    activeTableCellElement
+    element
   ).getElementsByTagName('*')[0].innerHTML;
   const profName: string = fullNameCell.includes('<')
     ? fullNameCell.slice(0, fullNameCell.indexOf('<') - 1)
