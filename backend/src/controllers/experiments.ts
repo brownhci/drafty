@@ -14,6 +14,6 @@ import { Request, Response } from 'express';
     const results = {
         link: link,
         activate: 0
-    }
+    };
     return res.status(200).json(results);
 };
