@@ -7,13 +7,18 @@ import { Request, Response } from 'express';
  *
  */
  export const postLink = async (req: Request, res: Response) => {
-    console.log('postLink');
-    const idSession = req.session.user.idSession;
-    const link = `https://brown.co1.qualtrics.com/jfe/form/SV_8JswNQ78QUfkDlA?trackId=pilot1${idSession}0`;
-
     const results = {
-        link: link,
-        activate: 0
+        link: '',
+        active: false
     };
-    return res.status(200).json(results);
+    try {
+        const idSession = req.session.user.idSession;
+        const idProfile = req.session.user.idSession;
+        const link = `https://brown.co1.qualtrics.com/jfe/form/SV_8JswNQ78QUfkDlA?trackId=pilot1${idSession}0${idProfile}`;
+        results.link = link;
+        results.active = true;
+        return res.status(200).json(results);
+    } catch (error) {
+        return res.status(200).json(results);
+    }
 };
