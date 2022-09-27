@@ -13766,7 +13766,9 @@ span.dyk-col-search {
 #edit-caret {
   cursor: pointer;
   float: right;
-  color: lightgray; }
+  color: lightgray;
+  margin-right: 4px;
+}
 
 #edit-caret:hover {
   color: darkgrey; }
