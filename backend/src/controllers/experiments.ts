@@ -13,8 +13,8 @@ import { Request, Response } from 'express';
     };
     try {
         const idSession = req.session.user.idSession;
-        const idProfile = req.session.user.idSession;
-        const link = `https://brown.co1.qualtrics.com/jfe/form/SV_8JswNQ78QUfkDlA?trackId=pilot1${idSession}0${idProfile}`;
+        const idProfile = req.session.user.idProfile;
+        const link = `https://brown.co1.qualtrics.com/jfe/form/SV_8JswNQ78QUfkDlA?trackId=pilot1${idSession}a${idProfile}`;
         results.link = link;
         results.active = true;
         return res.status(200).json(results);
