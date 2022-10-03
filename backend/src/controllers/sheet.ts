@@ -29,7 +29,11 @@ export async function getSheet(req: Request, res: Response) {
   } else {
     const [sheetName, sheetTitle] = await getRequestedSheetName(sheetURL);
     const sheetPath = await getRequestedSheetPath(sheetURL);
-    res.render('pages/sheet', makeRenderObject({ title: `${sheetTitle}`, sheetName: sheetName, sheetPath: sheetPath, sheetURL: sheetURL, sheetActive: 1, sheetOrEditHistoryActive: 1 }, req));
+    let source = false;
+    if(req.session.user.source && req.session.user.source.includes('prolific')) {
+      source = true;
+    }
+    res.render('pages/sheet', makeRenderObject({ title: `${sheetTitle}`, sheetName: sheetName, sheetPath: sheetPath, sheetURL: sheetURL, sheetActive: 1, sheetOrEditHistoryActive: 1, source: source }, req));
   }
 }
 
