@@ -1,12 +1,13 @@
 <main id="account-container" class="centered-section-layout">
     <div>
         <h1>Hi, <span id="username">{{username}}0{{idProfile}}1</span></h1>
-        <!--
-        <p>
-            To receive credit at <i>Amazon Mechanical Turk</i>, please use this <b>animal code</b>:
-            <br><b>rabbit_{{idProfile}}_{{idSession}}_{{idExpress}}</b>
-        </p>
-        -->
+
+        {{#if source}}
+            <h5>
+                To receive credit at Prolific, please use this <b>completion code</b>: <h3>C1JT25IJ</h3>
+            </h5>
+        {{/if}}
+
         <section>
             <h2>Data Privacy</h2>
             <p>

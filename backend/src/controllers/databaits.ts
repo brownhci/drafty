@@ -164,6 +164,7 @@ export function checkVisitFromSrc(req: Request, res: Response, next: NextFunctio
             searchVal = req.query.searchval  as string;
         }
         insertVisitFromSrc(idSession, source, searchCol, searchVal);
+        req.session.user.source = source;
     }
     next();
   }

@@ -169,7 +169,15 @@ export const getAccount = (req: Request, res: Response) => {
   if (req.session.user.isAuth) {
     username = req.session.user.username;
   }
-  res.render('account/profile', makeRenderObject({ title: 'Account Management', username: username, idProfile: req.session.user.idProfile, idSession: req.session.user.idSession, idExpress: req.sessionID }, req));
+  let source = false;
+  console.log('req.session.user.source');
+  console.log(req.session.user.source);
+  if(req.session.user.source) {
+    console.log(typeof req.session.user.source);
+    if(req.session.user.source.includes('prolific')) {
+    source = true;
+  }}
+  res.render('account/profile', makeRenderObject({ title: 'Account Management', username: username, idProfile: req.session.user.idProfile, idSession: req.session.user.idSession, idExpress: req.sessionID, source: source }, req));
 };
 
 /**
@@ -383,6 +391,7 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
       isAuth: false,
       isAdmin: false,
       activeExperiments: {},
+      source: '',
       views: 0,
       trafficUUID: uuid,
       lastURL: url,
