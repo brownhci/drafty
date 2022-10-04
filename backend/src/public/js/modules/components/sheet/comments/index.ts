@@ -42,7 +42,7 @@ const monthNames = [
 
 const timestampToDate = (timestamp: string) => {
   return (
-    monthNames[parseInt(timestamp.substring(6, 7)) - 1] +
+    monthNames[parseInt(timestamp.substring(5, 7)) - 1] +
     ' ' +
     parseInt(timestamp.substring(8, 10)).toString() +
     ', ' +
