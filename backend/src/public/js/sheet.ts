@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 import { getIdUniqueID, recordCellClick, recordCellDoubleClick } from './modules/api/record-interactions';
 import { activeClass, activeAccompanyClass } from './modules/constants/css-classes';
 import './modules/components/welcome-screen';
@@ -74,14 +75,6 @@ function deactivateEditCaret() {
   }
 }
 
-// const commentIndicatorId: string = 'comment-indicator';
-// const commentIndicator = (id: number) => {
-//   return `
-//   <div id="comment-indicator-${id}" class="triangle-topleft"/>
-// `;
-// };
-
-
 function activateCommentIndicator() {
   const profNameElements: HTMLTableCellElement[] = getAllProfNameElements();
   for (const e of profNameElements) {
@@ -96,10 +89,10 @@ function activateCommentIndicator() {
         return response.json();
       })
       .then((data) => {
-        if (data.length !== 0) {
+        const commentIndicatorElement = document.getElementById('comment-indicator-' + uniqueId);
+        if (data.length !== 0 && !e.innerHTML.includes(commentIndicator)) {
           e.innerHTML += commentIndicator;
         }
-        const commentIndicatorElement = document.getElementById('comment-indicator-' + uniqueId);
         commentIndicatorElement?.addEventListener('click', (event: MouseEvent) => {
           activateCommentSection(uniqueId);
           changeCommentLabel(e);

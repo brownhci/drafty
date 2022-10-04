@@ -65,15 +65,15 @@ const commentLabel = document.getElementById('comment-label');
 
 //function to increment the upvote/downvote HTML
 function increment(elementid: string) {
-  let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
+  let curNum = parseInt(document.getElementById(elementid)!.innerHTML, 10);
   curNum++;
-  document.getElementById(elementid).innerHTML = curNum.toString();
+  document.getElementById(elementid)!.innerHTML = curNum.toString();
 }
 
 function decrement(elementid: string) {
-  let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
+  let curNum = parseInt(document.getElementById(elementid)!.innerHTML, 10);
   curNum--;
-  document.getElementById(elementid).innerHTML = curNum.toString();
+  document.getElementById(elementid)!.innerHTML = curNum.toString();
 }
 
 const commentSelected: string = 'vote-selected';
@@ -120,29 +120,30 @@ function createVotingFunctionality(
   new_comment: boolean = false,
   vote_dict?: Map<number, string>
 ) {
-  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] = getVotingElementIds(id);
-  const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
-  const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
+  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] =
+    getVotingElementIds(id);
+  const thumbsUpButton: HTMLElement | null = document.getElementById(thumbsUpId);
+  const thumbsDownButton: HTMLElement | null = document.getElementById(thumbsDownId);
 
   if (vote_dict && !new_comment) {
-    thumbsUpButton.classList.add(
+    thumbsUpButton?.classList.add(
       vote_dict.get(id) === 'up' ? commentSelected : commentUnselected
     );
-    thumbsDownButton.classList.add(
+    thumbsDownButton?.classList.add(
       vote_dict.get(id) === 'down' ? commentSelected : commentUnselected
     );
   } else {
-    thumbsUpButton.classList.add(commentUnselected);
-    thumbsDownButton.classList.add(commentUnselected);
+    thumbsUpButton?.classList.add(commentUnselected);
+    thumbsDownButton?.classList.add(commentUnselected);
   }
 
   //make this into separate function and just use for downvote also
-  thumbsUpButton.onclick = function () {
-    voteOnclick(thumbsUpButton, thumbsDownButton, upvoteId, downvoteId, id);
+  thumbsUpButton!.onclick = function () {
+    voteOnclick(thumbsUpButton!, thumbsDownButton!, upvoteId, downvoteId, id);
   };
 
-  thumbsDownButton.onclick = function () {
-    voteOnclick(thumbsDownButton, thumbsUpButton, downvoteId, upvoteId, id);
+  thumbsDownButton!.onclick = function () {
+    voteOnclick(thumbsDownButton!, thumbsUpButton!, downvoteId, upvoteId, id);
   };
 }
 
@@ -173,9 +174,9 @@ export function populateComments(uniqueId = -1) {
             ids.push(id);
             vote_dict.set(id, comment.userVote);
             if (key === 0) {
-              document.getElementById('commentsContainer').innerHTML = null;
+              document.getElementById('commentsContainer')!.innerHTML = '';
             }
-            document.getElementById('commentsContainer').innerHTML +=
+            document.getElementById('commentsContainer')!.innerHTML +=
               commentHTML(
                 id,
                 timestampToDate(comment.timestamp),
@@ -187,12 +188,12 @@ export function populateComments(uniqueId = -1) {
             if (key !== data.length - 1) {
               document.getElementById(
                 'commentsContainer'
-              ).innerHTML += `<hr id="comments-hr">`;
+              )!.innerHTML += `<hr id="comments-hr">`;
             }
           })
         : (document.getElementById(
             'commentsContainer'
-          ).innerHTML = `<div id="no-comment">no comments yet - be the first to comment! :)</div>`);
+          )!.innerHTML = `<div id="no-comment">no comments yet - be the first to comment! :)</div>`);
       handleVoteIds(ids, vote_dict);
     })
     .catch((error) => console.error(error));
@@ -200,32 +201,31 @@ export function populateComments(uniqueId = -1) {
 
 export function activateCommentSection(uniqueId = -1) {
   populateComments(uniqueId);
-  commentIcon.style.display = 'none';
-  commentsDiv.style.display = 'flex';
-  document.getElementById('newCommentTextbox').focus();
+  commentIcon!.style.display = 'none';
+  commentsDiv!.style.display = 'flex';
+  document.getElementById('newCommentTextbox')!.focus();
 }
 
 export function activateCommentIcon() {
-  commentIcon.style.display = 'flex';
-  commentsDiv.style.display = 'none';
+  commentIcon!.style.display = 'flex';
+  commentsDiv!.style.display = 'none';
   activeTableCellElement.focus();
 }
 
 export function changeCommentLabel(element = activeTableCellElement) {
-  const fullNameCell: string = getTableRow(
-    element
-  ).getElementsByTagName('*')[0].innerHTML;
+  const fullNameCell: string =
+    getTableRow(element).getElementsByTagName('*')[0].innerHTML;
   const profName: string = fullNameCell.includes('<')
     ? fullNameCell.slice(0, fullNameCell.indexOf('<') - 1)
     : fullNameCell;
-  commentLabel.innerHTML = 'Comments about ' + profName;
+  commentLabel!.innerHTML = 'Comments about ' + profName;
 }
 
-commentIcon.onclick = function () {
+commentIcon!.onclick = function () {
   activateCommentSection();
 };
 
-closeIcon.onclick = function () {
+closeIcon!.onclick = function () {
   activateCommentIcon();
 };
 
@@ -266,13 +266,13 @@ const commentHTML = function (
   `;
 };
 
-commentIcon.style.display = 'none';
-commentsDiv.style.display = 'none';
+commentIcon!.style.display = 'none';
+commentsDiv!.style.display = 'none';
 
 function postNewComment(idrow: string | number, comment: string) {
   const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector(
     'input[name=\'_csrf\']'
-  );
+  )!;
   const bodyData = {
     idrow: idrow,
     comment: comment,
@@ -301,13 +301,13 @@ function postNewComment(idrow: string | number, comment: string) {
     })
     .catch((error) => {
       // TODO: in the future,
-      // consider how we should communicate to the user there was an error 
+      // consider how we should communicate to the user there was an error
       console.error(error);
     });
 }
 
 //logic to add new comment post
-document.getElementById('comment-button').onclick = function () {
+document.getElementById('comment-button')!.onclick = function () {
   const content: string = (<HTMLInputElement>(
     document.getElementById('newCommentTextbox')
   )).value;
@@ -317,7 +317,7 @@ document.getElementById('comment-button').onclick = function () {
 
 //esc closes comment section
 document.addEventListener('keydown', (evt) => {
-  if (evt.key === 'Escape' && commentsDiv.style.display === 'flex') {
+  if (evt.key === 'Escape' && commentsDiv!.style.display === 'flex') {
     activateCommentIcon();
   }
 });
