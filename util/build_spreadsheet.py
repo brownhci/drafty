@@ -33,6 +33,15 @@ sql_suggestions = '''
                 ORDER BY s.idUniqueId, smax.columnOrder
                 '''
 
+sql_comments = "SELECT idUniqueID, count(*) as ct FROM Comments GROUP BY idUniqueID;"
+comments = []
+
+def build_comments():
+    cursor.execute(sql_comments)
+    rows = cursor.fetchall()
+    for r in rows:
+        comments.append(r['idUniqueID'])
+
 
 def build_column_width(row, column_index, column_widths):
     idSuggestionType = row['idSuggestionType']
@@ -170,6 +179,7 @@ def build_table_file(cursor):
 
 
 def save_to_file(output_file, cursor):
+    build_comments()
     with atomic_write(output_file, overwrite=True) as f:
         f.write(build_table_file(cursor))
 
