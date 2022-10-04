@@ -13782,6 +13782,7 @@ span.dyk-col-search {
   height: 0;
   border-top: 10px solid #ffb52e;
   border-left: 10px solid transparent;
+  z-index: -1;
 }
 
 #table-container table th,
