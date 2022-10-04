@@ -15,3 +15,18 @@ Next steps:
 3. Run prisma db pull to turn your database schema into a Prisma schema.
 4. Run prisma generate to generate the Prisma Client. You can then start querying your database.
 ```
+
+```
+npm install prisma --save-dev
+cd prisma
+
+# if new
+npx prisma init --datasource-provider mariadb
+
+# if not proceed to update schema from live db
+npx prisma db pull
+
+# push changes from prisma schema to db
+npx prisma migrate dev --name init
+
+```

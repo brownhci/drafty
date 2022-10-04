@@ -3,11 +3,14 @@ const surveyBanner: HTMLElement | null = document.getElementById('dce-survey-ban
 const surveyBtn: HTMLElement | null = document.getElementById('survey-link');
 const closeBtn: HTMLElement | null = document.getElementById('close-dce-survey-banner');
 
-closeBtn?.addEventListener('click', function(e) {
-  console.log('close');
+function closeSurvey() {
   if (surveyBanner != undefined) {
     surveyBanner.style.display = 'none';
   }
+}
+
+closeBtn?.addEventListener('click', function() {
+  closeSurvey();
 });
 
 const data: Record<any, any> = {'_csrf': CSRFInput?.value};
@@ -26,7 +29,11 @@ const data: Record<any, any> = {'_csrf': CSRFInput?.value};
             const error = (data && data.message) || response.status;
             return Promise.reject(error);
         }
-        console.log(data);
+        if(data.active) {
+          surveyBtn?.setAttribute('href', data.link);
+        } else {
+          closeSurvey();
+        }
     }).catch(error => {
         console.error('There was an error!', error);
     });

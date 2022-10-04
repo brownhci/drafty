@@ -62,7 +62,7 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
     });
     req.session.user.idProfile = user.idProfile;
     req.session.user.isAuth = true;
-    console.log(req.session.returnTo);
+    req.session.user.username = user.username;
     res.redirect(req.session.returnTo || '/');
   })(req, res, next);
 };
@@ -123,6 +123,7 @@ export const postSignup = async (req: Request, res: Response, next: NextFunction
 
     // successful insertion, need to update session server side
     req.session.user.isAuth = true;
+    req.session.user.username = username;
     res.redirect(req.session.returnTo || '/');
   } catch (err) {
     logger.error(err);
@@ -145,7 +146,6 @@ export async function createAnonUser() {
     if (error) {
       throws;
     }
-    //console.log(`anon user id = ${results.insertId}`);
     return results.insertId;
   } catch (err) {
     logger.error(err);
@@ -167,10 +167,17 @@ export async function createSessionDB(idProfile: number, idExpressSession: strin
 export const getAccount = (req: Request, res: Response) => {
   let username = 'Anonymous User';
   if (req.session.user.isAuth) {
-    const user = req.user as Partial<UserModel>;
-    username = user.username;
+    username = req.session.user.username;
   }
-  res.render('account/profile', makeRenderObject({ title: 'Account Management', username: username, idProfile: req.session.user.idProfile, idSession: req.session.user.idSession, idExpress: req.sessionID }, req));
+  let source = false;
+  console.log('req.session.user.source');
+  console.log(req.session.user.source);
+  if(req.session.user.source) {
+    console.log(typeof req.session.user.source);
+    if(req.session.user.source.includes('prolific')) {
+    source = true;
+  }}
+  res.render('account/profile', makeRenderObject({ title: 'Account Management', username: username, idProfile: req.session.user.idProfile, idSession: req.session.user.idSession, idExpress: req.sessionID, source: source }, req));
 };
 
 /**
@@ -184,8 +191,8 @@ export const postUpdatePassword = async (req: Request, res: Response, next: Next
     return res.redirect('/account');
   }
 
-  const user = req.user as Partial<UserModel>;
-  const username = user.username;
+  //const user = req.user as Partial<UserModel>;
+  const username = req.session.user.username;
   const password: string = await encryptPassword(req.body.password);
   const updatedUser = {
     [passwordFieldName]: password,
@@ -372,8 +379,6 @@ export const postSeenWelcome = (req: Request, res: Response) => {
 export async function checkSessionUser(req: Request, res: Response, next: NextFunction) {
   const uuid = req.cookies['draftyUnique'];
   const url = req.url;
-  //console.log('Referer = ',req.header('Referer'));
-  //console.log(req.headers);
   if (!req.session.user) {
     if (req.user) {
       logger.debug(req.sessionID + ' :: NO USER but there is a passport :: ' + req.user);
@@ -382,9 +387,11 @@ export async function checkSessionUser(req: Request, res: Response, next: NextFu
     req.session.user = {
       idSession: -1,
       idProfile: await createAnonUser(),
+      username: 'AnonymousUser',
       isAuth: false,
       isAdmin: false,
       activeExperiments: {},
+      source: '',
       views: 0,
       trafficUUID: uuid,
       lastURL: url,
