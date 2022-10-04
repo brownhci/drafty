@@ -13773,23 +13773,15 @@ span.dyk-col-search {
 #edit-caret:hover {
   color: darkgrey; }
 
-#comment-indicator {
-  z-index: 10;
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: orange;
-}
-  
 .triangle-topleft {
   position: absolute;
-  left: 0;
+  left: 223px;
   margin-top: -27px;
   float: left;
   width: 0;
   height: 0;
-  border-top: 8px solid orange;
-  border-right: 8px solid transparent;
+  border-top: 10px solid #ffb52e;
+  border-left: 10px solid transparent;
 }
 
 #table-container table th,

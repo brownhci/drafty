@@ -16,24 +16,15 @@ inset 0px -1px 0px 0px $table-border-color;
   color: darkgrey;
 }
 
-#comment-indicator {
-  z-index: 10;
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: orange;
-}
-
 .triangle-topleft {
-  // position: absolute;
+  position: absolute;
+  left: 223px;
+  margin-top: -27px;
   float: left;
   width: 0;
   height: 0;
-  border-top: 100px solid orange;
-  border-right: 100px solid transparent;
-  // width: 10px;
-  // height: 10px;
-  // color: red;
+  border-top: 10px solid #ffb52e;
+  border-left: 10px solid transparent;
 }
 
 %cell-overflow {

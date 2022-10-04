@@ -116,7 +116,6 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
   if (shouldGetFocus) {
     activeTableCellElement.focus();
     activateEditCaret();
-    activateCommentIndicator();
     document.getElementById('comments').style.display === 'none' ? activateCommentIcon(): activateCommentSection();
     changeCommentLabel();
   }
@@ -485,3 +484,4 @@ tableCellSortButtonOnClick(tableElement.querySelectorAll('.sort-btn')[1] as HTML
 tableCellSortButtonOnClick(tableElement.querySelectorAll('.sort-btn')[0] as HTMLButtonElement, false);
 
 checkUrlForSearchParams();
+activateCommentIndicator();
