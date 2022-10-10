@@ -81,7 +81,7 @@ const commentUnselected: string = 'vote';
 
 function voteOnclick(
   button1: HTMLElement,
-  button2: HTMLElement,
+  // button2: HTMLElement,
   id1: string,
   id2: string,
   commentId: number
@@ -93,14 +93,14 @@ function voteOnclick(
       ? postCommentVoteUp(commentId, 'voteUp')
       : postCommentVoteDown(commentId, 'voteDown');
     increment(id1);
-    if (button2.classList.contains(commentSelected)) {
-      button2.classList.remove(commentSelected);
-      button2.classList.add(commentUnselected);
-      decrement(id2);
-      id1.includes('upvote')
-        ? postCommentVoteUp(commentId, 'voteDown-deselect')
-        : postCommentVoteDown(commentId, 'voteUp-deselect');
-    }
+    // if (button2.classList.contains(commentSelected)) {
+    //   button2.classList.remove(commentSelected);
+    //   button2.classList.add(commentUnselected);
+    //   decrement(id2);
+    //   id1.includes('upvote')
+    //     ? postCommentVoteUp(commentId, 'voteDown-deselect')
+    //     : postCommentVoteDown(commentId, 'voteUp-deselect');
+    // }
     return;
   }
 
@@ -123,28 +123,28 @@ function createVotingFunctionality(
   const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] =
     getVotingElementIds(id);
   const thumbsUpButton: HTMLElement | null = document.getElementById(thumbsUpId);
-  const thumbsDownButton: HTMLElement | null = document.getElementById(thumbsDownId);
+  // const thumbsDownButton: HTMLElement | null = document.getElementById(thumbsDownId);
 
   if (vote_dict && !new_comment) {
     thumbsUpButton?.classList.add(
       vote_dict.get(id) === 'up' ? commentSelected : commentUnselected
     );
-    thumbsDownButton?.classList.add(
-      vote_dict.get(id) === 'down' ? commentSelected : commentUnselected
-    );
+    // thumbsDownButton?.classList.add(
+    //   vote_dict.get(id) === 'down' ? commentSelected : commentUnselected
+    // );
   } else {
     thumbsUpButton?.classList.add(commentUnselected);
-    thumbsDownButton?.classList.add(commentUnselected);
+    // thumbsDownButton?.classList.add(commentUnselected);
   }
 
   //make this into separate function and just use for downvote also
   thumbsUpButton!.onclick = function () {
-    voteOnclick(thumbsUpButton!, thumbsDownButton!, upvoteId, downvoteId, id);
+    voteOnclick(thumbsUpButton!, upvoteId, downvoteId, id);
   };
 
-  thumbsDownButton!.onclick = function () {
-    voteOnclick(thumbsDownButton!, thumbsUpButton!, downvoteId, upvoteId, id);
-  };
+  // thumbsDownButton!.onclick = function () {
+  //   voteOnclick(thumbsDownButton!, thumbsUpButton!, downvoteId, upvoteId, id);
+  // };
 }
 
 //Looping through to add "onclick" on each thumbs up/down to increment
