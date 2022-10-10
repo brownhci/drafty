@@ -257,10 +257,6 @@ const commentHTML = function (
         <i class="fa fa-thumbs-up" id="${thumbsUpId}"></i>
         <div class="numVote" id=${upvoteId}>${numUpvote}</div>
       </div>
-      <div id="wrapper">
-        <i class="fa fa-thumbs-down" id=${thumbsDownId}></i>
-        <div class="numVote" id=${downvoteId}>${numDownvote}</div>
-      </div>
     </div>
   </div>
   `;

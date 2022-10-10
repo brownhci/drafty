@@ -13688,7 +13688,7 @@ nav {
   min-width: 84px;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   align-content: center;
   font-size: 15px;
   padding: 4px; }
