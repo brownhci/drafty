@@ -20,7 +20,7 @@ import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel,
 import { isInput, isTableData, isTableHead, isTableCell, isColumnSearchInput } from './modules/dom/types';
 import { cellEditNewRow } from './modules/components/sheet/cell-editor-new-row';
 import { activateCommentIcon, activateCommentSection, changeCommentLabel } from './modules/components/sheet/comments/';
-import { getCommentsURL } from './modules/api/endpoints';
+// import { getCommentsURL } from './modules/api/endpoints';
 
 /* // testing function logic
 const startTime = performance.now();
@@ -75,32 +75,32 @@ function deactivateEditCaret() {
   }
 }
 
-function activateCommentIndicator() {
-  const profNameElements: HTMLTableCellElement[] = getAllProfNameElements();
-  for (const e of profNameElements) {
-    const uniqueId = getIdUniqueID(e);
-    const commentIndicator = `<div id="comment-indicator-${uniqueId}" class="triangle-topleft"/>`;
-    if (!isNaN(uniqueId)) fetch(getCommentsURL(uniqueId))
-      .then((response) => {
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          throw new TypeError(`Oops, we did not get JSON!`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        const commentIndicatorElement = document.getElementById('comment-indicator-' + uniqueId);
-        if (data.length !== 0 && !e.innerHTML.includes(commentIndicator)) {
-          e.innerHTML += commentIndicator;
-        }
-        commentIndicatorElement?.addEventListener('click', (event: MouseEvent) => {
-          activateCommentSection(uniqueId);
-          changeCommentLabel(e);
-        });
-      })
-      .catch((error) => console.error(error));
-  }
-}
+// function activateCommentIndicator() {
+//   const profNameElements: HTMLTableCellElement[] = getAllProfNameElements();
+//   for (const e of profNameElements) {
+//     const uniqueId = getIdUniqueID(e);
+//     const commentIndicator = `<div id="comment-indicator-${uniqueId}" class="triangle-topleft"/>`;
+//     if (!isNaN(uniqueId)) fetch(getCommentsURL(uniqueId))
+//       .then((response) => {
+//         const contentType = response.headers.get('content-type');
+//         if (!contentType || !contentType.includes('application/json')) {
+//           throw new TypeError(`Oops, we did not get JSON!`);
+//         }
+//         return response.json();
+//       })
+//       .then((data) => {
+//         const commentIndicatorElement = document.getElementById('comment-indicator-' + uniqueId);
+//         if (data.length !== 0 && !e.innerHTML.includes(commentIndicator)) {
+//           e.innerHTML += commentIndicator;
+//         }
+//         commentIndicatorElement?.addEventListener('click', (event: MouseEvent) => {
+//           activateCommentSection(uniqueId);
+//           changeCommentLabel(e);
+//         });
+//       })
+//       .catch((error) => console.error(error));
+//   }
+// }
 
 /**
  * renew the timestamp on the active table cell element.
@@ -484,4 +484,4 @@ tableCellSortButtonOnClick(tableElement.querySelectorAll('.sort-btn')[1] as HTML
 tableCellSortButtonOnClick(tableElement.querySelectorAll('.sort-btn')[0] as HTMLButtonElement, false);
 
 checkUrlForSearchParams();
-activateCommentIndicator();
+// activateCommentIndicator();

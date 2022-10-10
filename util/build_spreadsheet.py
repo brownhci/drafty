@@ -166,6 +166,9 @@ def build_table_data_sections(cursor):
             idSuggestion = row['idSuggestion']
             suggestion = row['suggestion']
             new_cell = build_table_cell(idSuggestion,suggestion,column_index)
+            if idRow in comments and row['idSuggestionType'] == 1:
+                profname_end_idx = new_cell[1:].find('<')
+                new_cell = new_cell[:profname_end_idx] + '<div id="comment-indicator-' + str(idRow) + '" class="triangle-topleft"/>' + new_cell[profname_end_idx + 1:]
             current_row += new_cell
             column_index += 1
         data_rows.append(f'<tr data-id="{idRow}">{current_row}</tr>')
