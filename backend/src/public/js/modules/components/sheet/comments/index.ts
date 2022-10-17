@@ -269,6 +269,18 @@ function postNewComment(idrow: string | number, comment: string) {
   const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector(
     'input[name=\'_csrf\']'
   )!;
+  let url = '';
+  const urlRegex = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
+  if (comment.includes('https://')) {
+      const idx = comment.indexOf('https://');
+      const substring = comment.substring(idx);
+      url = substring.replace(/\n/g, ' ').split(' ')[0];
+      let tag = '';
+      if (urlRegex.test(url)) {
+        tag = '<a href=' + url + '>' + url + '</a>';
+        comment = comment.replace(url, tag);
+      }
+  }
   const bodyData = {
     idrow: idrow,
     comment: comment,
