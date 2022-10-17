@@ -116,7 +116,8 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
   if (shouldGetFocus) {
     activeTableCellElement.focus();
     activateEditCaret();
-    document.getElementById('comments').style.display === 'none' ? activateCommentIcon(): activateCommentSection();
+    if (activeTableCellElement.innerHTML.includes('comment-indicator'))  activateCommentSection();
+    document.getElementById('comments')!.style.display === 'none' ? activateCommentIcon(): activateCommentSection();
     changeCommentLabel();
   }
 }
@@ -484,4 +485,3 @@ tableCellSortButtonOnClick(tableElement.querySelectorAll('.sort-btn')[1] as HTML
 tableCellSortButtonOnClick(tableElement.querySelectorAll('.sort-btn')[0] as HTMLButtonElement, false);
 
 checkUrlForSearchParams();
-// activateCommentIndicator();
