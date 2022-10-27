@@ -42,7 +42,7 @@ const monthNames = [
 
 const timestampToDate = (timestamp: string) => {
   return (
-    monthNames[parseInt(timestamp.substring(6, 7)) - 1] +
+    monthNames[parseInt(timestamp.substring(5, 7)) - 1] +
     ' ' +
     parseInt(timestamp.substring(8, 10)).toString() +
     ', ' +
@@ -65,15 +65,15 @@ const commentLabel = document.getElementById('comment-label');
 
 //function to increment the upvote/downvote HTML
 function increment(elementid: string) {
-  let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
+  let curNum = parseInt(document.getElementById(elementid)!.innerHTML, 10);
   curNum++;
-  document.getElementById(elementid).innerHTML = curNum.toString();
+  document.getElementById(elementid)!.innerHTML = curNum.toString();
 }
 
 function decrement(elementid: string) {
-  let curNum = parseInt(document.getElementById(elementid)?.innerHTML, 10);
+  let curNum = parseInt(document.getElementById(elementid)!.innerHTML, 10);
   curNum--;
-  document.getElementById(elementid).innerHTML = curNum.toString();
+  document.getElementById(elementid)!.innerHTML = curNum.toString();
 }
 
 const commentSelected: string = 'vote-selected';
@@ -81,7 +81,7 @@ const commentUnselected: string = 'vote';
 
 function voteOnclick(
   button1: HTMLElement,
-  button2: HTMLElement,
+  // button2: HTMLElement,
   id1: string,
   id2: string,
   commentId: number
@@ -93,14 +93,14 @@ function voteOnclick(
       ? postCommentVoteUp(commentId, 'voteUp')
       : postCommentVoteDown(commentId, 'voteDown');
     increment(id1);
-    if (button2.classList.contains(commentSelected)) {
-      button2.classList.remove(commentSelected);
-      button2.classList.add(commentUnselected);
-      decrement(id2);
-      id1.includes('upvote')
-        ? postCommentVoteUp(commentId, 'voteDown-deselect')
-        : postCommentVoteDown(commentId, 'voteUp-deselect');
-    }
+    // if (button2.classList.contains(commentSelected)) {
+    //   button2.classList.remove(commentSelected);
+    //   button2.classList.add(commentUnselected);
+    //   decrement(id2);
+    //   id1.includes('upvote')
+    //     ? postCommentVoteUp(commentId, 'voteDown-deselect')
+    //     : postCommentVoteDown(commentId, 'voteUp-deselect');
+    // }
     return;
   }
 
@@ -120,30 +120,31 @@ function createVotingFunctionality(
   new_comment: boolean = false,
   vote_dict?: Map<number, string>
 ) {
-  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] = getVotingElementIds(id);
-  const thumbsUpButton: HTMLElement = document.getElementById(thumbsUpId);
-  const thumbsDownButton: HTMLElement = document.getElementById(thumbsDownId);
+  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] =
+    getVotingElementIds(id);
+  const thumbsUpButton: HTMLElement | null = document.getElementById(thumbsUpId);
+  // const thumbsDownButton: HTMLElement | null = document.getElementById(thumbsDownId);
 
   if (vote_dict && !new_comment) {
-    thumbsUpButton.classList.add(
+    thumbsUpButton?.classList.add(
       vote_dict.get(id) === 'up' ? commentSelected : commentUnselected
     );
-    thumbsDownButton.classList.add(
-      vote_dict.get(id) === 'down' ? commentSelected : commentUnselected
-    );
+    // thumbsDownButton?.classList.add(
+    //   vote_dict.get(id) === 'down' ? commentSelected : commentUnselected
+    // );
   } else {
-    thumbsUpButton.classList.add(commentUnselected);
-    thumbsDownButton.classList.add(commentUnselected);
+    thumbsUpButton?.classList.add(commentUnselected);
+    // thumbsDownButton?.classList.add(commentUnselected);
   }
 
   //make this into separate function and just use for downvote also
-  thumbsUpButton.onclick = function () {
-    voteOnclick(thumbsUpButton, thumbsDownButton, upvoteId, downvoteId, id);
+  thumbsUpButton!.onclick = function () {
+    voteOnclick(thumbsUpButton!, upvoteId, downvoteId, id);
   };
 
-  thumbsDownButton.onclick = function () {
-    voteOnclick(thumbsDownButton, thumbsUpButton, downvoteId, upvoteId, id);
-  };
+  // thumbsDownButton!.onclick = function () {
+  //   voteOnclick(thumbsDownButton!, thumbsUpButton!, downvoteId, upvoteId, id);
+  // };
 }
 
 //Looping through to add "onclick" on each thumbs up/down to increment
@@ -154,10 +155,10 @@ function handleVoteIds(ids: number[], vote_dict: Map<number, string>) {
   });
 }
 
-function populateComments() {
+export function populateComments(uniqueId = -1) {
   const ids: number[] = [];
   const vote_dict = new Map();
-  const idUniqueId = getUniqueId();
+  const idUniqueId = uniqueId === -1 ? getUniqueId() : uniqueId;
   fetch(getCommentsURL(idUniqueId))
     .then((response) => {
       const contentType = response.headers.get('content-type');
@@ -173,9 +174,9 @@ function populateComments() {
             ids.push(id);
             vote_dict.set(id, comment.userVote);
             if (key === 0) {
-              document.getElementById('commentsContainer').innerHTML = null;
+              document.getElementById('commentsContainer')!.innerHTML = '';
             }
-            document.getElementById('commentsContainer').innerHTML +=
+            document.getElementById('commentsContainer')!.innerHTML +=
               commentHTML(
                 id,
                 timestampToDate(comment.timestamp),
@@ -187,45 +188,44 @@ function populateComments() {
             if (key !== data.length - 1) {
               document.getElementById(
                 'commentsContainer'
-              ).innerHTML += `<hr id="comments-hr">`;
+              )!.innerHTML += `<hr id="comments-hr">`;
             }
           })
         : (document.getElementById(
             'commentsContainer'
-          ).innerHTML = `<div id="no-comment">no comments yet - be the first to comment! :)</div>`);
+          )!.innerHTML = `<div id="no-comment">no comments yet - be the first to comment! :)</div>`);
       handleVoteIds(ids, vote_dict);
     })
     .catch((error) => console.error(error));
 }
 
-export function activateCommentSection() {
-  populateComments();
-  commentIcon.style.display = 'none';
-  commentsDiv.style.display = 'flex';
-  document.getElementById('newCommentTextbox').focus();
+export function activateCommentSection(uniqueId = -1) {
+  populateComments(uniqueId);
+  commentIcon!.style.display = 'none';
+  commentsDiv!.style.display = 'flex';
+  document.getElementById('newCommentTextbox')!.focus();
 }
 
 export function activateCommentIcon() {
-  commentIcon.style.display = 'flex';
-  commentsDiv.style.display = 'none';
+  commentIcon!.style.display = 'flex';
+  commentsDiv!.style.display = 'none';
   activeTableCellElement.focus();
 }
 
-export function changeCommentLabel() {
-  const fullNameCell: string = getTableRow(
-    activeTableCellElement
-  ).getElementsByTagName('*')[0].innerHTML;
+export function changeCommentLabel(element = activeTableCellElement) {
+  const fullNameCell: string =
+    getTableRow(element).getElementsByTagName('*')[0].innerHTML;
   const profName: string = fullNameCell.includes('<')
     ? fullNameCell.slice(0, fullNameCell.indexOf('<') - 1)
     : fullNameCell;
-  commentLabel.innerHTML = 'Comments about ' + profName;
+  commentLabel!.innerHTML = 'Comments about ' + profName;
 }
 
-commentIcon.onclick = function () {
+commentIcon!.onclick = function () {
   activateCommentSection();
 };
 
-closeIcon.onclick = function () {
+closeIcon!.onclick = function () {
   activateCommentIcon();
 };
 
@@ -257,22 +257,30 @@ const commentHTML = function (
         <i class="fa fa-thumbs-up" id="${thumbsUpId}"></i>
         <div class="numVote" id=${upvoteId}>${numUpvote}</div>
       </div>
-      <div id="wrapper">
-        <i class="fa fa-thumbs-down" id=${thumbsDownId}></i>
-        <div class="numVote" id=${downvoteId}>${numDownvote}</div>
-      </div>
     </div>
   </div>
   `;
 };
 
-commentIcon.style.display = 'none';
-commentsDiv.style.display = 'none';
+commentIcon!.style.display = 'none';
+commentsDiv!.style.display = 'none';
 
 function postNewComment(idrow: string | number, comment: string) {
   const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector(
     'input[name=\'_csrf\']'
-  );
+  )!;
+  let url = '';
+  const urlRegex = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
+  if (comment.includes('https://')) {
+      const idx = comment.indexOf('https://');
+      const substring = comment.substring(idx);
+      url = substring.replace(/\n/g, ' ').split(' ')[0];
+      let tag = '';
+      if (urlRegex.test(url)) {
+        tag = '<a href=' + url + '>' + url + '</a>';
+        comment = comment.replace(url, tag);
+      }
+  }
   const bodyData = {
     idrow: idrow,
     comment: comment,
@@ -289,25 +297,16 @@ function postNewComment(idrow: string | number, comment: string) {
     })
     .then(() => {
       populateComments();
-      // const idComment = data;
-      // const commentsContainer = document.getElementById('commentsContainer');
-      // // TODO need to check idComment and get user's name
-      // commentsContainer.innerHTML =
-      //   commentHTML(idComment, 'today', 'anonymous', comment, 0, 0) +
-      //   `<hr id="comments-hr">` +
-      //   commentsContainer.innerHTML;
-      // const new_comment = true;
-      // createVotingFunctionality(idComment, new_comment);
     })
     .catch((error) => {
       // TODO: in the future,
-      // consider how we should communicate to the user there was an error 
+      // consider how we should communicate to the user there was an error
       console.error(error);
     });
 }
 
 //logic to add new comment post
-document.getElementById('comment-button').onclick = function () {
+document.getElementById('comment-button')!.onclick = function () {
   const content: string = (<HTMLInputElement>(
     document.getElementById('newCommentTextbox')
   )).value;
@@ -317,7 +316,7 @@ document.getElementById('comment-button').onclick = function () {
 
 //esc closes comment section
 document.addEventListener('keydown', (evt) => {
-  if (evt.key === 'Escape' && commentsDiv.style.display === 'flex') {
+  if (evt.key === 'Escape' && commentsDiv!.style.display === 'flex') {
     activateCommentIcon();
   }
 });

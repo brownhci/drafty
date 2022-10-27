@@ -2,7 +2,8 @@ import { getCellInTableRow, getRightTableCellElement } from './navigate';
 import { isInput } from './types';
 import { columnLabelClass, columnLabelTextClass, columnSearchClass, columnSortButtonClass } from '../constants/css-classes';
 import { measureTextWidth } from '../utils/length';
-import { recordDatabaitVisit } from '../api/record-interactions';
+import { getIdUniqueID, recordDatabaitVisit } from '../api/record-interactions';
+import { getCommentsURL } from '../api/endpoints';
 
 /* <table> */
 export const tableElement: HTMLTableElement = document.getElementById('table') as HTMLTableElement;
@@ -185,6 +186,20 @@ export function* getTableCellElementsInColumn(index: number, skipColumnLabel: bo
     yield cell;
   }
 }
+
+// /**
+//  * Gets the table cell elements for the profs.
+//  *
+//  * @yields {HTMLTableCellElement} Table cells in the specified column.
+//  */
+// export function getAllProfNameElements() {
+//   const values: number[] = [];
+//   for (let i = 2; i < tableRowElements.length; i++) {
+//     const element = tableRowElements[i].children[0] as HTMLTableCellElement;
+//     values.push(element);
+//   }
+//   return values;
+// }
 
 export function getTableCellText(tableCellElement: HTMLTableCellElement) {
   if (isColumnLabel(tableCellElement)) {
