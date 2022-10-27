@@ -79,7 +79,7 @@ function deactivateEditCaret() {
 //   const profNameElements: HTMLTableCellElement[] = getAllProfNameElements();
 //   for (const e of profNameElements) {
 //     const uniqueId = getIdUniqueID(e);
-//     const commentIndicator = `<div id="comment-indicator-${uniqueId}" class="triangle-topleft"/>`;
+//     const commentIndicator = `<div id="comment-indicator-${uniqueId}" class="triangle-comments"/>`;
 //     if (!isNaN(uniqueId)) fetch(getCommentsURL(uniqueId))
 //       .then((response) => {
 //         const contentType = response.headers.get('content-type');
