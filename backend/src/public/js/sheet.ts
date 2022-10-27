@@ -16,7 +16,7 @@ import { tableCellElementOnCopyKeyPressed, tableCellElementOnPasteKeyPressed } f
 import { StatusMode, tableFoot } from './modules/components/sheet/table-foot';
 import { TabularView } from './modules/components/sheet/tabular-view';
 import { getLeftTableCellElement, getRightTableCellElement, getUpTableCellElement, getDownTableCellElement } from './modules/dom/navigate';
-import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams, getAllProfNameElements } from './modules/dom/sheet';
+import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel, getTableDataText, isColumnLabelSortButton, isColumnLabel, isColumnSearch, isTableCellEditable, getColumnSearch, getTableColElement, checkUrlForSearchParams } from './modules/dom/sheet';
 import { isInput, isTableData, isTableHead, isTableCell, isColumnSearchInput } from './modules/dom/types';
 import { cellEditNewRow } from './modules/components/sheet/cell-editor-new-row';
 import { activateCommentIcon, activateCommentSection, changeCommentLabel } from './modules/components/sheet/comments/';
