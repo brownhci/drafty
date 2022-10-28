@@ -205,7 +205,7 @@ export function changeCommentLabel(element = activeTableCellElement) {
   const profName: string = fullNameCell.includes('<')
     ? fullNameCell.slice(0, fullNameCell.indexOf('<') - 1)
     : fullNameCell;
-  commentLabel!.innerHTML = 'Comments about ' + profName;
+  commentLabel!.innerHTML = 'Notes about Professor ' + profName;
 }
 
 commentIcon!.onclick = function () {
