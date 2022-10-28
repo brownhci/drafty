@@ -200,12 +200,8 @@ export function activateCommentIcon() {
 }
 
 export function changeCommentLabel(element = activeTableCellElement) {
-  const fullNameCell: string =
-    getTableRow(element).getElementsByTagName('*')[0].innerHTML;
-  const profName: string = fullNameCell.includes('<')
-    ? fullNameCell.slice(0, fullNameCell.indexOf('<') - 1)
-    : fullNameCell;
-  commentLabel!.innerHTML = 'Notes about Professor ' + profName;
+  const fullNameCell: string | null = getTableRow(element).getElementsByTagName('*')[0].textContent;
+  commentLabel!.innerHTML = 'Notes about Professor ' + fullNameCell;
 }
 
 commentIcon!.onclick = function () {
