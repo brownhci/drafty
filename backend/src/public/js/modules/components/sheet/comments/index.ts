@@ -220,8 +220,12 @@ const commentHTML = function (
   content: string,
   numUpvote: number,
 ) {
-  const [thumbsUpId, upvoteId] =
-    getVotingElementIds(id);
+  const anon = 'anonymous';
+  let authorNote = author ? author : anon;
+  if(authorNote === 'system') {
+    authorNote = anon;
+  }
+  const [thumbsUpId, upvoteId] = getVotingElementIds(id);
   return `
   <div id="commentContainer">
     <div id="contentContainer">
