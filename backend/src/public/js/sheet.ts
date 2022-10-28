@@ -1,5 +1,5 @@
 /* eslint-disable quotes */
-import { getIdUniqueID, recordCellClick, recordCellDoubleClick } from './modules/api/record-interactions';
+import { recordCellClick, recordCellDoubleClick } from './modules/api/record-interactions';
 import { activeClass, activeAccompanyClass } from './modules/constants/css-classes';
 import './modules/components/welcome-screen';
 import './modules/components/sheet/navbar';

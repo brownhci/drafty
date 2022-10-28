@@ -52,10 +52,8 @@ const timestampToDate = (timestamp: string) => {
 
 const getVotingElementIds = function (id: number) {
   const thumbsUpId = 'thumbs-up-' + id.toString();
-  const thumbsDownId = 'thumbs-down-' + id.toString();
   const upvoteId = 'upvote-' + id.toString();
-  const downvoteId = 'downvote-' + id.toString();
-  return [thumbsUpId, thumbsDownId, upvoteId, downvoteId];
+  return [thumbsUpId, upvoteId];
 };
 
 const commentsDiv = document.getElementById('comments');
@@ -120,10 +118,9 @@ function createVotingFunctionality(
   new_comment: boolean = false,
   vote_dict?: Map<number, string>
 ) {
-  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] =
+  const [thumbsUpId, upvoteId] =
     getVotingElementIds(id);
   const thumbsUpButton: HTMLElement | null = document.getElementById(thumbsUpId);
-  // const thumbsDownButton: HTMLElement | null = document.getElementById(thumbsDownId);
 
   if (vote_dict && !new_comment) {
     thumbsUpButton?.classList.add(
@@ -238,7 +235,7 @@ const commentHTML = function (
   numUpvote: number,
   numDownvote: number
 ) {
-  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] =
+  const [thumbsUpId, upvoteId] =
     getVotingElementIds(id);
   return `
   <div id="commentContainer">
@@ -270,7 +267,8 @@ function postNewComment(idrow: string | number, comment: string) {
     'input[name=\'_csrf\']'
   )!;
   let url = '';
-  const urlRegex = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
+  //const urlRegex = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
+  const urlRegex = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_.~#?&=]*)$/;
   if (comment.includes('https://')) {
       const idx = comment.indexOf('https://');
       const substring = comment.substring(idx);

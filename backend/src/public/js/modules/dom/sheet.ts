@@ -2,9 +2,7 @@ import { getCellInTableRow, getRightTableCellElement } from './navigate';
 import { isInput } from './types';
 import { columnLabelClass, columnLabelTextClass, columnSearchClass, columnSortButtonClass } from '../constants/css-classes';
 import { measureTextWidth } from '../utils/length';
-import { getIdUniqueID, recordDatabaitVisit } from '../api/record-interactions';
-import { getCommentsURL } from '../api/endpoints';
-
+import { recordDatabaitVisit } from '../api/record-interactions';
 /* <table> */
 export const tableElement: HTMLTableElement = document.getElementById('table') as HTMLTableElement;
 /* the container inside which the table can be scrolled */
