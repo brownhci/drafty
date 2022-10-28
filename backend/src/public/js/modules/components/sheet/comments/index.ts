@@ -180,7 +180,7 @@ export function populateComments(uniqueId = -1) {
           })
         : (document.getElementById(
             'commentsContainer'
-          )!.innerHTML = `<div id="no-comment">no comments yet - be the first to comment! :)</div>`);
+          )!.innerHTML = `<div id="no-comment">No note yet - be the first to add a note! :)</div>`);
       handleVoteIds(ids, vote_dict);
     })
     .catch((error) => console.error(error));
