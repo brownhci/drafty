@@ -81,7 +81,6 @@ function voteOnclick(
   button1: HTMLElement,
   // button2: HTMLElement,
   id1: string,
-  id2: string,
   commentId: number
 ) {
   if (button1.classList.contains(commentUnselected)) {
@@ -91,14 +90,6 @@ function voteOnclick(
       ? postCommentVoteUp(commentId, 'voteUp')
       : postCommentVoteDown(commentId, 'voteDown');
     increment(id1);
-    // if (button2.classList.contains(commentSelected)) {
-    //   button2.classList.remove(commentSelected);
-    //   button2.classList.add(commentUnselected);
-    //   decrement(id2);
-    //   id1.includes('upvote')
-    //     ? postCommentVoteUp(commentId, 'voteDown-deselect')
-    //     : postCommentVoteDown(commentId, 'voteUp-deselect');
-    // }
     return;
   }
 
@@ -136,7 +127,7 @@ function createVotingFunctionality(
 
   //make this into separate function and just use for downvote also
   thumbsUpButton!.onclick = function () {
-    voteOnclick(thumbsUpButton!, upvoteId, downvoteId, id);
+    voteOnclick(thumbsUpButton!, upvoteId, id);
   };
 
   // thumbsDownButton!.onclick = function () {
@@ -179,8 +170,7 @@ export function populateComments(uniqueId = -1) {
                 timestampToDate(comment.timestamp),
                 comment.username,
                 comment.comment,
-                comment.voteUp,
-                comment.voteDown
+                comment.voteUp
               );
             if (key !== data.length - 1) {
               document.getElementById(
@@ -233,7 +223,6 @@ const commentHTML = function (
   author: string,
   content: string,
   numUpvote: number,
-  numDownvote: number
 ) {
   const [thumbsUpId, upvoteId] =
     getVotingElementIds(id);
