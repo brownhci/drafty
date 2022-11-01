@@ -203,7 +203,10 @@ export function activateCommentSection(uniqueId = -1) {
   populateComments(uniqueId);
   commentIcon!.style.display = 'none';
   commentsDiv!.style.display = 'flex';
-  document.getElementById('newCommentTextbox')!.focus();
+  activeTableCellElement.focus();
+  commentsDiv!.onclick = function() {
+    document.getElementById('newCommentTextbox')!.focus();
+  };
 }
 
 export function activateCommentIcon() {
@@ -270,7 +273,7 @@ function postNewComment(idrow: string | number, comment: string) {
     'input[name=\'_csrf\']'
   )!;
   let url = '';
-  const urlRegex = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
+  const urlRegex = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
   if (comment.includes('https://')) {
       const idx = comment.indexOf('https://');
       const substring = comment.substring(idx);
