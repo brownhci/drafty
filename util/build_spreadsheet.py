@@ -141,10 +141,10 @@ def build_table_datarow_cell(row, cellindex):
     return f'<td id="{id_suggestion}" tabindex="-1" {content_editable}>{suggestion}</td>'
 
 
-def build_table_cell(idSuggestion, suggestion, column_index):
+def build_table_cell(idSuggestion, suggestion, column_index, comment):
     suggestion = ''.join(chr(c) for c in suggestion.encode('ascii', 'xmlcharrefreplace') if c != 0)
     content_editable = 'contenteditable="false"' if column_index in noneditable_indices else ""
-    return f'<td id="{idSuggestion}" tabindex="-1" {content_editable}>{suggestion}</td>'
+    return f'<td id="{idSuggestion}" tabindex="-1" {content_editable}>{suggestion}{comment}</td>'
 
 
 def pad_iterator(orig_iter, filler, target_len):
@@ -165,10 +165,10 @@ def build_table_data_sections(cursor):
         for row in rows[i:lookup]:
             idSuggestion = row['idSuggestion']
             suggestion = row['suggestion']
-            new_cell = build_table_cell(idSuggestion,suggestion,column_index)
+            comment = ''
             if idRow in comments and row['idSuggestionType'] == 1:
-                profname_end_idx = new_cell[1:].find('<')
-                new_cell = new_cell[:profname_end_idx] + '<div id="comment-indicator-' + str(idRow) + '" class="triangle-topleft"/>' + new_cell[profname_end_idx + 1:]
+                comment = '<div id="comment-indicator-' + str(idRow) + '" class="triangle-comments"/>'
+            new_cell = build_table_cell(idSuggestion,suggestion,column_index,comment)
             current_row += new_cell
             column_index += 1
         data_rows.append(f'<tr data-id="{idRow}">{current_row}</tr>')

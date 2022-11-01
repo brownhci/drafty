@@ -13773,16 +13773,13 @@ span.dyk-col-search {
 #edit-caret:hover {
   color: darkgrey; }
 
-.triangle-topleft {
-  position: absolute;
-  left: 223px;
-  margin-top: -27px;
-  float: left;
-  width: 0;
-  height: 0;
+.triangle-comments {
+  float: right;
   border-top: 10px solid #ffb52e;
   border-left: 10px solid transparent;
   z-index: -1;
+  margin-top: -8px;
+  margin-right: -8px;
 }
 
 #table-container table th,

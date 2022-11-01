@@ -52,10 +52,8 @@ const timestampToDate = (timestamp: string) => {
 
 const getVotingElementIds = function (id: number) {
   const thumbsUpId = 'thumbs-up-' + id.toString();
-  const thumbsDownId = 'thumbs-down-' + id.toString();
   const upvoteId = 'upvote-' + id.toString();
-  const downvoteId = 'downvote-' + id.toString();
-  return [thumbsUpId, thumbsDownId, upvoteId, downvoteId];
+  return [thumbsUpId, upvoteId];
 };
 
 const commentsDiv = document.getElementById('comments');
@@ -83,7 +81,6 @@ function voteOnclick(
   button1: HTMLElement,
   // button2: HTMLElement,
   id1: string,
-  id2: string,
   commentId: number
 ) {
   if (button1.classList.contains(commentUnselected)) {
@@ -93,14 +90,6 @@ function voteOnclick(
       ? postCommentVoteUp(commentId, 'voteUp')
       : postCommentVoteDown(commentId, 'voteDown');
     increment(id1);
-    // if (button2.classList.contains(commentSelected)) {
-    //   button2.classList.remove(commentSelected);
-    //   button2.classList.add(commentUnselected);
-    //   decrement(id2);
-    //   id1.includes('upvote')
-    //     ? postCommentVoteUp(commentId, 'voteDown-deselect')
-    //     : postCommentVoteDown(commentId, 'voteUp-deselect');
-    // }
     return;
   }
 
@@ -120,10 +109,9 @@ function createVotingFunctionality(
   new_comment: boolean = false,
   vote_dict?: Map<number, string>
 ) {
-  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] =
+  const [thumbsUpId, upvoteId] =
     getVotingElementIds(id);
   const thumbsUpButton: HTMLElement | null = document.getElementById(thumbsUpId);
-  // const thumbsDownButton: HTMLElement | null = document.getElementById(thumbsDownId);
 
   if (vote_dict && !new_comment) {
     thumbsUpButton?.classList.add(
@@ -139,7 +127,7 @@ function createVotingFunctionality(
 
   //make this into separate function and just use for downvote also
   thumbsUpButton!.onclick = function () {
-    voteOnclick(thumbsUpButton!, upvoteId, downvoteId, id);
+    voteOnclick(thumbsUpButton!, upvoteId, id);
   };
 
   // thumbsDownButton!.onclick = function () {
@@ -182,8 +170,7 @@ export function populateComments(uniqueId = -1) {
                 timestampToDate(comment.timestamp),
                 comment.username,
                 comment.comment,
-                comment.voteUp,
-                comment.voteDown
+                comment.voteUp
               );
             if (key !== data.length - 1) {
               document.getElementById(
@@ -193,7 +180,7 @@ export function populateComments(uniqueId = -1) {
           })
         : (document.getElementById(
             'commentsContainer'
-          )!.innerHTML = `<div id="no-comment">no comments yet - be the first to comment! :)</div>`);
+          )!.innerHTML = `<div id="no-comment">No note yet - be the first to add a note! :)</div>`);
       handleVoteIds(ids, vote_dict);
     })
     .catch((error) => console.error(error));
@@ -216,12 +203,8 @@ export function activateCommentIcon() {
 }
 
 export function changeCommentLabel(element = activeTableCellElement) {
-  const fullNameCell: string =
-    getTableRow(element).getElementsByTagName('*')[0].innerHTML;
-  const profName: string = fullNameCell.includes('<')
-    ? fullNameCell.slice(0, fullNameCell.indexOf('<') - 1)
-    : fullNameCell;
-  commentLabel!.innerHTML = 'Comments about ' + profName;
+  const fullNameCell: string | null = getTableRow(element).getElementsByTagName('*')[0].textContent;
+  commentLabel!.innerHTML = 'Notes about Professor ' + fullNameCell;
 }
 
 commentIcon!.onclick = function () {
@@ -239,10 +222,13 @@ const commentHTML = function (
   author: string,
   content: string,
   numUpvote: number,
-  numDownvote: number
 ) {
-  const [thumbsUpId, thumbsDownId, upvoteId, downvoteId] =
-    getVotingElementIds(id);
+  const anon = 'anonymous';
+  let authorNote = author ? author : anon;
+  if(authorNote === 'system') {
+    authorNote = anon;
+  }
+  const [thumbsUpId, upvoteId] = getVotingElementIds(id);
   return `
   <div id="commentContainer">
     <div id="contentContainer">

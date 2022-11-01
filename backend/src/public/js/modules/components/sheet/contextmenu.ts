@@ -151,7 +151,7 @@ tableDataContextMenu.addEventListener('click', function(event: MouseEvent) {
       //createDidYouKnow(activeTableCellElement);
       activateDatabait(activeTableCellElement, InteractionTypeDatabaitCreate.right_click, DatabaitCreateType.right_click);
       break;
-    case 'Comment':
+    case 'Notes':
       activateCommentSection();
       break;
   }
