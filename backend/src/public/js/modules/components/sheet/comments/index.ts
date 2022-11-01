@@ -308,18 +308,25 @@ function postNewComment(idrow: string | number, comment: string) {
     });
 }
 
-//logic to add new comment post
-document.getElementById('comment-button')!.onclick = function () {
+function submitNewComment() {
   const content: string = (<HTMLInputElement>(
     document.getElementById('newCommentTextbox')
   )).value;
-  postNewComment(getUniqueId(), content);
+  if (content !== '') postNewComment(getUniqueId(), content);
   (<HTMLInputElement>document.getElementById('newCommentTextbox')).value = '';
+}
+
+//logic to add new comment post
+document.getElementById('comment-button')!.onclick = function () {
+  submitNewComment();
 };
 
 //esc closes comment section
 document.addEventListener('keydown', (evt) => {
   if (evt.key === 'Escape' && commentsDiv!.style.display === 'flex') {
     activateCommentIcon();
+  }
+  if (evt.key === 'Enter' && commentsDiv!.style.display === 'flex') {
+    submitNewComment();
   }
 });
