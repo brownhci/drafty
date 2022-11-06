@@ -89,6 +89,7 @@ inner join (
     select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_NewRow es
     inner join Suggestions s on s.idSuggestion = es.idSuggestion
     inner join SuggestionType st on st.idSuggestionType = s.idSuggestionType
+    where isCorrect < 3
 ) e1 on e1.idEdit = e.idEdit
 inner join (
     select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
@@ -218,6 +219,7 @@ sql_edits_new = """
         select es.idEdit, s.suggestion, s.idUniqueID, st.name from Edit_NewRow es
         inner join Suggestions s on s.idSuggestion = es.idSuggestion
         inner join SuggestionType st on st.idSuggestionType = s.idSuggestionType
+        where isCorrect < 3
     ) e1 on e1.idEdit = e.idEdit
     inner join (
         select s.idSuggestion, s.idUniqueID, s.idSuggestionType, s.suggestion, s.confidence
