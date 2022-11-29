@@ -193,6 +193,7 @@ model Edit_DelRow {
   Edit       Edit     @relation(fields: [idEdit], references: [idEdit], onUpdate: Restrict, map: "ALTER TABLE `Edit_DelRow` ADD  CONSTRAINT `_fk_edit_akjdhaas` FO")
   UniqueId   UniqueId @relation(fields: [idUniqueID], references: [idUniqueID], onUpdate: Restrict, map: "_fk_UniqueID_1027836asda")
 
+  @@unique([idEdit], map: "idEdit")
   @@index([idEdit], map: "ALTER TABLE `Edit_DelRow` ADD  CONSTRAINT `_fk_edit_akjdhaas` FO")
   @@index([idUniqueID], map: "_fk_UniqueID_1027836asda")
   @@ignore
@@ -324,6 +325,7 @@ model Search {
   SearchType       SearchType     @relation(fields: [idSearchType], references: [idSearchType], onUpdate: Restrict, map: "fk_id_search_type_1")
   SuggestionType   SuggestionType @relation(fields: [idSuggestionType], references: [idSuggestionType], onUpdate: Restrict, map: "search_ibfk_1")
 
+  @@unique([idInteraction], map: "idInteraction_fk_interaction_98asdfg")
   @@index([idSuggestionType], map: "_fk_idSuggestionType_12835gv")
   @@index([idSearchType], map: "_index_idSearchType_182356")
   @@index([idInteraction], map: "fk_Search_Interaction1_idx")
@@ -371,6 +373,7 @@ model SelectRange {
   idSuggestion  Int
   rowvalues     String? @db.VarChar(500)
 
+  @@unique([idInteraction], map: "idInteraction_fk_selectrange_98asdfg")
   @@index([idInteraction], map: "fk_Click_Interaction2_idx")
   @@index([idSuggestion], map: "fk_Click_Suggestion2_idx")
   @@ignore

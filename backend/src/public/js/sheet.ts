@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 import { recordCellClick, recordCellDoubleClick } from './modules/api/record-interactions';
 import { activeClass, activeAccompanyClass } from './modules/constants/css-classes';
 import './modules/components/welcome-screen';
@@ -20,6 +21,7 @@ import { tableElement, tableHeadTopRowElement, tableBodyElement, getColumnLabel,
 import { isInput, isTableData, isTableHead, isTableCell, isColumnSearchInput } from './modules/dom/types';
 import { cellEditNewRow } from './modules/components/sheet/cell-editor-new-row';
 import { activateCommentIcon, activateCommentSection, changeCommentLabel } from './modules/components/sheet/comments/';
+// import { getCommentsURL } from './modules/api/endpoints';
 
 /* // testing function logic
 const startTime = performance.now();
@@ -65,7 +67,7 @@ function activateEditCaret() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   editCaretElement.addEventListener('click', (event: MouseEvent) => {
     activateCellEditor();
-  });
+  });  
 }
 function deactivateEditCaret() {
   const editCaretElement = document.getElementById(editCaretId);
@@ -73,6 +75,33 @@ function deactivateEditCaret() {
     editCaretElement.remove();
   }
 }
+
+// function activateCommentIndicator() {
+//   const profNameElements: HTMLTableCellElement[] = getAllProfNameElements();
+//   for (const e of profNameElements) {
+//     const uniqueId = getIdUniqueID(e);
+//     const commentIndicator = `<div id="comment-indicator-${uniqueId}" class="triangle-comments"/>`;
+//     if (!isNaN(uniqueId)) fetch(getCommentsURL(uniqueId))
+//       .then((response) => {
+//         const contentType = response.headers.get('content-type');
+//         if (!contentType || !contentType.includes('application/json')) {
+//           throw new TypeError(`Oops, we did not get JSON!`);
+//         }
+//         return response.json();
+//       })
+//       .then((data) => {
+//         const commentIndicatorElement = document.getElementById('comment-indicator-' + uniqueId);
+//         if (data.length !== 0 && !e.innerHTML.includes(commentIndicator)) {
+//           e.innerHTML += commentIndicator;
+//         }
+//         commentIndicatorElement?.addEventListener('click', (event: MouseEvent) => {
+//           activateCommentSection(uniqueId);
+//           changeCommentLabel(e);
+//         });
+//       })
+//       .catch((error) => console.error(error));
+//   }
+// }
 
 /**
  * renew the timestamp on the active table cell element.
@@ -88,7 +117,8 @@ function activateTableData(shouldUpdateTimestamp = true, shouldGetFocus = true) 
   if (shouldGetFocus) {
     activeTableCellElement.focus();
     activateEditCaret();
-    document.getElementById('comments').style.display === 'none' ? activateCommentIcon(): activateCommentSection();
+    if (activeTableCellElement.innerHTML.includes('comment-indicator'))  activateCommentSection();
+    document.getElementById('comments')!.style.display === 'none' ? activateCommentIcon(): activateCommentSection();
     changeCommentLabel();
   }
 }
@@ -290,7 +320,12 @@ interface ConsumableKeyboardEvent extends KeyboardEvent {
   consumed?: boolean;
 }
 function tableDataElementOnInput(tableDataElement: HTMLTableCellElement, event: ConsumableKeyboardEvent) {
-  const initialSearchValue = event.key;
+  let initialSearchValue = event.key;
+  if(event.key == 'Enter') {
+    initialSearchValue = tableDataElement.innerText.trim();
+  } else if (event.key == 'Backspace') {
+    initialSearchValue = '';
+  }
   cellEditor.activateForm(tableDataElement, initialSearchValue);
   event.consumed = true;
 }
@@ -361,6 +396,9 @@ function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event
     case 'v':
       tableCellElementOnPasteKeyPressed(tableCellElement, event);
       break;
+    case 'a':
+        tableCellElementOnPasteKeyPressed(tableCellElement, event);
+        break;
     case 'Escape':
       deactivateSortPanel();
     // fallthrough
@@ -378,12 +416,22 @@ function tableCellElementOnKeyDown(tableCellElement: HTMLTableCellElement, event
     case 'Super':
     case 'Symbol':
     case 'SymbolLock':
+      console.log('key down');
+      console.log(event.key);
       event.consumed = true;
   }
+  /*
+  if (event.shiftKey) {console.log('shift is down');}
+  if (event.altKey) {console.log('alt is down');}
+  if (event.ctrlKey) {console.log('ctrl is down');}
+  if (event.metaKey) {console.log('cmd is down');}
+  */
   if (event.consumed) {
     event.preventDefault();
   } else {
-    tableCellElementOnInput(event);
+    if(!event.ctrlKey && !event.metaKey) {
+      tableCellElementOnInput(event);
+    }
   }
 }
 tableElement.addEventListener('keydown', function (event: KeyboardEvent) {

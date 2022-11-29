@@ -16,6 +16,18 @@ inset 0px -1px 0px 0px $table-border-color;
   color: darkgrey;
 }
 
+.triangle-comments {
+  position: absolute;
+  left: 223px;
+  margin-top: -27px;
+  float: left;
+  width: 0;
+  height: 0;
+  border-top: 10px solid #ffb52e;
+  border-left: 10px solid transparent;
+  z-index: -1;
+}
+
 %cell-overflow {
   @extend .overflow-hidden;
   @extend .text-nowrap;
@@ -642,6 +654,8 @@ inset 0px -1px 0px 0px $table-border-color;
           @extend .px-4;
           @extend .py-2;
           @extend .rounded;
+          margin-right: 1em;
+          vertical-align: sub;
         }
       }
     }
