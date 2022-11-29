@@ -2,13 +2,21 @@ import { tableDataManager } from '../../../sheet';
 import { recordCellEdit } from '../../api/record-interactions';
 import { getCellInTableRow } from '../../dom/navigate';
 
+
+enum HelpusType {
+    EMPTYCELL,
+    EMPTYCOMMENT
+}
+
 interface HelpUsInterface {
+    typeId: HelpusType,
     university: string,
     professor: string,
-    emptyCell: number
+    emptyCell?: number
 }
 
 const generateSentence = (i: HelpUsInterface) => {
+if (i.typeId === 0){
     switch (i.emptyCell) {
         case 2:
             return 'Do you know when ' + i.professor + ' joined ' + i.university + ' as a professor?';
@@ -18,16 +26,29 @@ const generateSentence = (i: HelpUsInterface) => {
             return 'Do you know where ' + i.professor + ' from ' + i.university + ' got their bachelors degree?';
         case 5:
             return 'Do you know where ' + i.professor + ' from ' + i.university + ' got their doctorate degree?';
+        default: 
+            return 'error';
+    }
+} else {
+    const rand = Math.floor(Math.random() * 2);
+    switch (rand) {
+        case 0:
+            return 'Do you know if ' + i.professor + ' from ' + i.university + ' is looking for PhD students?';
+        case 1:
+            return 'Do you know the personal website for ' + i.professor + ' from ' + i.university + '?';
+        default: 
+            return 'error';
+        }
     }
 };
 
-const helpusModal: HTMLElement = document.getElementById('helpus-screen');
+const helpusModal = <HTMLElement> document.getElementById('helpus-screen');
 const helpusNextButton = <HTMLButtonElement> document.getElementById('btn-helpus-next');
 const helpusModalClose = <HTMLButtonElement>document.getElementById('helpusModalClose');
-const helpusText: HTMLElement = document.getElementById('helpus-text');
+const helpusText = <HTMLElement>document.getElementById('helpus-text');
 //disable submit button when cell not filled out
 const helpusSubmit = <HTMLButtonElement>document.getElementById('btn-helpus-submit');
-const helpusInput: HTMLElement = document.getElementById('helpus-input');
+const helpusInput = <HTMLElement> document.getElementById('helpus-input');
 
 
 function updateHelpusHTML(sentence: string) {
@@ -63,7 +84,7 @@ function getEmptyCell() {
     for (let row = 0; row < n; ++row) {
         const rowEle = tableDataManager.source[shuffled[row]].element_ as HTMLTableRowElement;
         for (let col = 2; col < 6; ++col) {
-            const cellValue = getCellInTableRow(rowEle, col)?.textContent.trim();
+            const cellValue = getCellInTableRow(rowEle, col)!.textContent?.trim();
             if (!cellValue) {
                 return [shuffled[row], col];
             }
@@ -72,21 +93,38 @@ function getEmptyCell() {
     return [];
 }
 
+function getNoCommentRow() : HelpUsInterface | null {
+    const n: number = tableDataManager.source.length;
+    const arr = range(n);
+    const shuffled = shuffle(arr);
+    for (let row = 0; row < n; ++row) {
+        const rowEle = tableDataManager.source[shuffled[row]].element_ as HTMLTableRowElement;
+        const targetCell = rowEle.firstChild as HTMLTableCellElement;
+        const profName = getCellInTableRow(rowEle, 0)?.textContent?.trim();
+        const profUniversity = getCellInTableRow(rowEle, 1)?.textContent?.trim();
+        if (!targetCell.innerHTML.includes('comment-indicator')) return {typeId: 1, university: profUniversity!, professor: profName!};
+    }
+    return null;
+}
+
 function updateCellInfo (rowElement: HTMLTableRowElement, col: number) {
     const cellElement = getCellInTableRow(rowElement, col);
-    recordCellEdit(cellElement, helpusInput.innerHTML);
+    cellElement ? recordCellEdit(cellElement, helpusInput.innerHTML) : console.log('error');
 }
 
 function openModal() {
     helpusModal.style.display = 'block';
+    console.log(getNoCommentRow());
     const emptyCell: number[] = getEmptyCell();
     if (emptyCell.length != 2) return; // prob should generate error statement
     const rowEle = tableDataManager.source[emptyCell[0]].element_ as HTMLTableRowElement;
     const col = emptyCell[1];
-    const profName = getCellInTableRow(rowEle, 0)?.textContent.trim();
-    const profUniversity = getCellInTableRow(rowEle, 1)?.textContent.trim();
-    const info : HelpUsInterface = {university: profUniversity, professor: profName, emptyCell: col};
-    updateHelpusHTML(generateSentence(info));
+    const profName = getCellInTableRow(rowEle, 0)?.textContent?.trim();
+    const profUniversity = getCellInTableRow(rowEle, 1)?.textContent?.trim();
+    const info : HelpUsInterface = {typeId: 0, university: profUniversity!, professor: profName!, emptyCell: col};
+    const commentInfo : HelpUsInterface = getNoCommentRow()!;
+    //updateHelpusHTML(generateSentence(info));
+    updateHelpusHTML(generateSentence(commentInfo));
     helpusSubmit.addEventListener('click', function(event: MouseEvent) {
         updateCellInfo(rowEle, col);
         event.stopPropagation();
