@@ -2,6 +2,7 @@
 #helpus-input:focus {
   outline: none;
 }
+
 #helpus-close {
   height:32px;
   color:#ced4da;
@@ -19,23 +20,26 @@
       <h5 id="helpus-modal-title" class="modal-title" style="/* font-size: 1.75em; */">Help us!</h5>
       <i class="fas fa-times" id="helpus-close"></i>
     </div>
-
-    <div class="modal-body" style="padding-top: 21px !important;">
-      <p id="helpus-text" style="font-size: 20px; margin: 0em; min-height: 6em; border-radius: 3.5px; padding: 1em; background-image: linear-gradient(to right, rgba(0,0,0,0.03), rgb(0,0,0,0.01), rgba(0,0,0,.03));">
-      </p>
-      <div id= "helpus-interaction">
-        <div id= "helpus-yes" style="display: flex; font-size: 16px; color: #1089ff; justify-content: center; align-items: center; margin: 1em; outline: none;}">
-          Yes!
-          <input type="text" id="helpus-input" style="align-items: flex-start; margin: 0em 1em; border: none; border-bottom: 2px solid #1089ff;">
+    <div class="modal-body" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding-top: 21px !important;">
+      <p id="helpus-text" style="font-size: 20px; margin: 0em; min-height: 6em; border-radius: 3.5px; padding: 1em; background-image: linear-gradient(to right, rgba(0,0,0,0.03), rgb(0,0,0,0.01), rgba(0,0,0,.03));"></p>
+      <div id= "helpus-default-interaction" style="display: flex; font-size: 16px; color: #1089ff; justify-content: center; align-items: center; margin: 1em; outline: none;}">
+        Yes!
+        <input type="text" id="helpus-input" placeholder = 'type here...' style="align-items: flex-start; margin: 0em 1em; border: none; border-bottom: 2px solid #1089ff;"></input>
+      </div>
+      <div id= "helpus-phd-interaction" style="display: none; font-size: 16px; color: #1089ff; justify-content: center; align-items: center; margin: 1em; outline: none;}">
+        <div id= "helpus-button-wrapper" style="display: flex; font-size: 16px; color: #1089ff; justify-content: center; align-items: center; margin: 1em; outline: none;}">
+          <input type="button" value="Yes, they are!" id="helpus-phd-yes" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
           </input>
-          <button type="button" id="btn-helpus-submit" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
-            submit
-          </button>
+          <input type="button" value="No, not now." id="helpus-phd-no" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
+          </input>
         </div>
       </div>
+      <button type="button" id="btn-helpus-submit" class="btn btn btn-outline-primary btn-block" style="width: 8em; margin: 0.5em 0.25em 0.5em 0em;">
+        submit
+      </button>
       <div style="display: flex;">
         <button type="button" id="btn-helpus-next" class="btn btn btn-outline-secondary btn-block" style="align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
-          I'm not sure, but show me another
+          I am not sure, but show me another
         </button>
       </div>
     </div>

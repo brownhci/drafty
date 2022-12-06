@@ -1,7 +1,7 @@
 import { tableDataManager } from '../../../sheet';
+import { postNewCommentURL } from '../../api/endpoints';
 import { recordCellEdit, getIdUniqueID } from '../../api/record-interactions';
 import { getCellInTableRow } from '../../dom/navigate';
-import { postNewComment } from './comments';
 
 enum HelpusType {
   PHD_NOTE,
@@ -34,28 +34,41 @@ const helpusText = <HTMLElement>document.getElementById('helpus-text');
 const helpusSubmit = <HTMLButtonElement>(
   document.getElementById('btn-helpus-submit')
 );
-const helpusInput = <HTMLElement>document.getElementById('helpus-input');
-const helpusInteraction = <HTMLElement>(
-  document.getElementById('helpus-interaction')
+const helpusInput = <HTMLInputElement>document.getElementById('helpus-input');
+const helpusDefaultInteraction = <HTMLDivElement>(
+  document.getElementById('helpus-default-interaction')
 );
 
-const defaultHTML = `<div id= "helpus-yes" style="display: flex; font-size: 16px; color: #1089ff; justify-content: center; align-items: center; margin: 1em; outline: none;}">
-Yes!
-<input type="text" id="helpus-input" style="align-items: flex-start; margin: 0em 1em; border: none; border-bottom: 2px solid #1089ff;">
-</input>
-<button type="button" id="btn-helpus-submit" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
-submit
-</button>
-</div>`;
+const helpusPhdInteraction = <HTMLDivElement>(
+  document.getElementById('helpus-phd-interaction')
+);
 
-const PhDHTML = `<div id= "helpus-yes" style="display: flex; font-size: 16px; color: #1089ff; justify-content: center; align-items: center; margin: 1em; outline: none;}">
-<button type="button" id="btn-helpus-submit-yes" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
-Yes, they are!
-</button>
-<button type="button" id="btn-helpus-submit-no" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
-No, not now.
-</button>
-</div>`;
+
+// function disableSubmitButton () {
+//   helpusInput.innerHTML === '' ? helpusSubmit.disabled = true : helpusSubmit.disabled = false;
+// }
+
+// helpusInput.onkeyup = disableSubmitButton;
+
+// const defaultDisplay = `
+// Yes!
+// <input type="text" id="helpus-input" placeholder="enter value here..." style="align-items: flex-start; margin: 0em 1em; border: none; border-bottom: 2px solid #1089ff;">
+// </input>
+// `;
+
+// const websiteDisplay = `
+// Yes!
+// <input type="text" id="helpus-input" placeholder="https://..." style="align-items: flex-start; margin: 0em 1em; border: none; border-bottom: 2px solid #1089ff;">
+// </input>
+// `;
+
+// const phDDisplay= `
+// <div id= "helpus-button-wrapper" style="display: flex; font-size: 16px; color: #1089ff; justify-content: center; align-items: center; margin: 1em; outline: none;}">
+//   <input type="button" value="Yes, they are!" id="helpus-phd-yes" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
+//   </input>
+//   <input type="button" value="No, not now." id="helpus-phd-no" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
+//   </input>
+// </div>`;
 
 const generateSentence = (i: HelpUsInterface) => {
   switch (i.typeId) {
@@ -130,6 +143,42 @@ function shuffle(array: Array<number>) {
   return array;
 }
 
+function postNewComment(idrow: string | number, comment: string) {
+  const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector(
+    'input[name=\'_csrf\']'
+  )!;
+  let url = '';
+  const urlRegex = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
+  if (comment.includes('https://')) {
+      const idx = comment.indexOf('https://');
+      const substring = comment.substring(idx);
+      url = substring.replace(/\n/g, ' ').split(' ')[0];
+      let tag = '';
+      if (urlRegex.test(url)) {
+        tag = '<a href=' + url + '>' + url + '</a>';
+        comment = comment.replace(url, tag);
+      }
+  }
+  const bodyData = {
+    idrow: idrow,
+    comment: comment,
+    _csrf: tableCellInputFormCSRFInput.value,
+  };
+  const options = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(bodyData),
+  };
+  fetch(postNewCommentURL(), options)
+    .then((response) => {
+      return response.json();
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+
+
 function getEmptyCell(): HelpUsInterface | null {
   const n: number = tableDataManager.source.length;
   const arr = range(n);
@@ -181,62 +230,67 @@ function getNoCommentRow(): HelpUsInterface | null {
   return null;
 }
 
-function updateSubmitButton(i: HelpUsInterface) {
-  console.log(i.typeId);
+function updateInteractionDisplay(i: HelpUsInterface) {
   if (i.typeId === HelpusType.PHD_NOTE) {
-    helpusInteraction.innerHTML = PhDHTML;
-    helpusSubmit.addEventListener(
-      'click',
-      function (event: MouseEvent) {
-        postNewComment(
-          getIdUniqueID(i.targetCell),
-          'This professor is looking for PhD students to start in the next academic year.'
-        );
-        event.stopPropagation();
-      },
-      true
-    );
+    helpusDefaultInteraction.style.display = 'none';
+    helpusPhdInteraction.style.display = 'flex';
   } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
-    helpusInteraction.innerHTML = defaultHTML;
-    console.log('first' + getIdUniqueID(i.targetCell));
-    console.log(helpusSubmit);
-    helpusSubmit.onclick = function () {
+    helpusInput.placeholder = 'https:// ...';
+    helpusDefaultInteraction.style.display = 'flex';
+    helpusPhdInteraction.style.display = 'none';
+  } else {
+    helpusInput.placeholder = 'enter value here ...';
+    helpusDefaultInteraction.style.display = 'flex';
+    helpusPhdInteraction.style.display = 'none';
+  }
+}
+
+function updateSubmitButton(i: HelpUsInterface) {
+  if (i.typeId === HelpusType.PHD_NOTE) {
+    helpusSubmit.onclick = function (event: MouseEvent) {
+      postNewComment(
+        getIdUniqueID(i.targetCell),
+        'This professor is looking for PhD students to start in the next academic year.'
+      );
+      event.stopPropagation();
+    };
+  } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
+    helpusSubmit.onclick = function (event: MouseEvent) {
+      const input = helpusInput.value;
+      console.log(getIdUniqueID(i.targetCell));
+      console.log(input);
+      if (input === '') {
+        alert ('You need to enter a valid value.');
+        return;
+      }
       const note: string = 'Website at: ' + helpusInput.innerHTML;
+      console.log(note);
       console.log(getIdUniqueID(i.targetCell));
       postNewComment(getIdUniqueID(i.targetCell), note);
-      getIdUniqueID(i.targetCell);
-      alert('submitted');
+      event.stopPropagation();
     };
-    // helpusSubmit.addEventListener(
-    //   'click',
-    //   function (event: MouseEvent) {
-    //     const note: string = 'Website at: ' + helpusInput.innerHTML;
-    //     console.log(getIdUniqueID(i.targetCell));
-    //     postNewComment(getIdUniqueID(i.targetCell), note);
-    //     getIdUniqueID(i.targetCell);
-    //     event.stopPropagation();
-    //   },
-    //   true
-    // );
   } else {
-    helpusInteraction.innerHTML = defaultHTML;
-    helpusSubmit.addEventListener(
-      'click',
-      function (event: MouseEvent) {
-        recordCellEdit(i.targetCell, helpusInput.innerHTML);
-        event.stopPropagation();
-      },
-      true
-    );
+    helpusSubmit.onclick = function (event: MouseEvent) {
+      const input = helpusInput.value;
+      console.log(input);
+      if (input === '') {
+        alert ('You need to enter a valid value.');
+        return;
+      }
+      recordCellEdit(i.targetCell, helpusInput.innerHTML);
+      event.stopPropagation();
+    };
   }
 }
 
 function openModal() {
   helpusModal.style.display = 'block';
+  helpusInput.value = '';
   const rand = Math.floor(Math.random() * 2);
   let info: HelpUsInterface;
   rand === 0 ? (info = getEmptyCell()!) : (info = getNoCommentRow()!);
   updateHelpusHTML(generateSentence(info));
+  updateInteractionDisplay(info);
   updateSubmitButton(info);
 }
 
