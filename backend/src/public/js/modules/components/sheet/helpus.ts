@@ -19,61 +19,6 @@ interface HelpUsInterface {
   targetCell: HTMLTableCellElement;
 }
 
-const generateSentence = (i: HelpUsInterface) => {
-  switch (i.typeId) {
-    case 0:
-      return (
-        'Do you know if ' +
-        i.professor +
-        ' from ' +
-        i.university +
-        ' is looking for PhD students for the next academic year?'
-      );
-    case 1:
-      return (
-        'Do you know the personal website for ' +
-        i.professor +
-        ' from ' +
-        i.university +
-        '?'
-      );
-    case 2:
-      return (
-        'Do you know when ' +
-        i.professor +
-        ' joined ' +
-        i.university +
-        ' as a professor?'
-      );
-    case 3:
-      return (
-        'Do you know what the subfield of ' +
-        i.professor +
-        ' from ' +
-        i.university +
-        ' is?'
-      );
-    case 4:
-      return (
-        'Do you know where ' +
-        i.professor +
-        ' from ' +
-        i.university +
-        ' got their bachelors degree?'
-      );
-    case 5:
-      return (
-        'Do you know where ' +
-        i.professor +
-        ' from ' +
-        i.university +
-        ' got their doctorate degree?'
-      );
-    default:
-      return 'error';
-  }
-};
-
 const helpusModal = <HTMLElement>document.getElementById('helpus-screen');
 const helpusNextButton = <HTMLButtonElement>(
   document.getElementById('btn-helpus-next')
@@ -111,6 +56,61 @@ Yes, they are!
 No, not now.
 </button>
 </div>`;
+
+const generateSentence = (i: HelpUsInterface) => {
+    switch (i.typeId) {
+      case 0:
+        return (
+          'Do you know if ' +
+          i.professor +
+          ' from ' +
+          i.university +
+          ' is looking for PhD students for the next academic year?'
+        );
+      case 1:
+        return (
+          'Do you know the personal website for ' +
+          i.professor +
+          ' from ' +
+          i.university +
+          '?'
+        );
+      case 2:
+        return (
+          'Do you know when ' +
+          i.professor +
+          ' joined ' +
+          i.university +
+          ' as a professor?'
+        );
+      case 3:
+        return (
+          'Do you know what the subfield of ' +
+          i.professor +
+          ' from ' +
+          i.university +
+          ' is?'
+        );
+      case 4:
+        return (
+          'Do you know where ' +
+          i.professor +
+          ' from ' +
+          i.university +
+          ' got their bachelors degree?'
+        );
+      case 5:
+        return (
+          'Do you know where ' +
+          i.professor +
+          ' from ' +
+          i.university +
+          ' got their doctorate degree?'
+        );
+      default:
+        return 'error';
+    }
+  };
 
 function updateHelpusHTML(sentence: string) {
   helpusText.innerHTML = sentence;
