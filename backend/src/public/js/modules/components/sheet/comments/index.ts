@@ -254,7 +254,7 @@ const commentHTML = function (
 commentIcon!.style.display = 'none';
 commentsDiv!.style.display = 'none';
 
-function postNewComment(idrow: string | number, comment: string) {
+export function postNewComment(idrow: string | number, comment: string) {
   const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector(
     'input[name=\'_csrf\']'
   )!;
