@@ -90,7 +90,9 @@ const helpusSubmit = <HTMLButtonElement>(
   document.getElementById('btn-helpus-submit')
 );
 const helpusInput = <HTMLElement>document.getElementById('helpus-input');
-const helpusInteraction = <HTMLElement>document.getElementById('helpus-interaction');
+const helpusInteraction = <HTMLElement>(
+  document.getElementById('helpus-interaction')
+);
 
 const defaultHTML = `<div id= "helpus-yes" style="display: flex; font-size: 16px; color: #1089ff; justify-content: center; align-items: center; margin: 1em; outline: none;}">
 Yes!
@@ -102,8 +104,11 @@ submit
 </div>`;
 
 const PhDHTML = `<div id= "helpus-yes" style="display: flex; font-size: 16px; color: #1089ff; justify-content: center; align-items: center; margin: 1em; outline: none;}">
-<button type="button" id="btn-helpus-submit" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
+<button type="button" id="btn-helpus-submit-yes" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
 Yes, they are!
+</button>
+<button type="button" id="btn-helpus-submit-no" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
+No, not now.
 </button>
 </div>`;
 
@@ -185,6 +190,7 @@ function getNoCommentRow(): HelpUsInterface | null {
 }
 
 function updateSubmitButton(i: HelpUsInterface) {
+    console.log(i.typeId);
   if (i.typeId === 0) {
     helpusInteraction.innerHTML = PhDHTML;
     helpusSubmit.addEventListener(
@@ -199,16 +205,27 @@ function updateSubmitButton(i: HelpUsInterface) {
       true
     );
   } else if (i.typeId === 1) {
-    helpusSubmit.addEventListener(
-      'click',
-      function (event: MouseEvent) {
+    helpusInteraction.innerHTML = defaultHTML;
+    console.log('first' + getIdUniqueID(i.targetCell));
+    helpusSubmit.onclick = function () {
         const note: string = 'Website at: ' + helpusInput.innerHTML;
+        console.log(getIdUniqueID(i.targetCell));
         postNewComment(getIdUniqueID(i.targetCell), note);
-        event.stopPropagation();
-      },
-      true
-    );
+        getIdUniqueID(i.targetCell);
+    };
+    // helpusSubmit.addEventListener(
+    //   'click',
+    //   function (event: MouseEvent) {
+    //     const note: string = 'Website at: ' + helpusInput.innerHTML;
+    //     console.log(getIdUniqueID(i.targetCell));
+    //     postNewComment(getIdUniqueID(i.targetCell), note);
+    //     getIdUniqueID(i.targetCell);
+    //     event.stopPropagation();
+    //   },
+    //   true
+    // );
   } else {
+    helpusInteraction.innerHTML = defaultHTML;
     helpusSubmit.addEventListener(
       'click',
       function (event: MouseEvent) {
@@ -220,8 +237,6 @@ function updateSubmitButton(i: HelpUsInterface) {
   }
 }
 
-//add close button on top
-//add close
 function openModal() {
   helpusModal.style.display = 'block';
   const rand = Math.floor(Math.random() * 2);
@@ -234,6 +249,10 @@ function openModal() {
 export async function activateHelpUs() {
   openModal();
 }
+
+helpusModal.addEventListener('keydown', function (event: KeyboardEvent) {
+  if (event.key === 'Escape') helpusModal.style.display = 'none';
+});
 
 helpusNextButton.addEventListener(
   'click',
