@@ -207,6 +207,7 @@ function updateSubmitButton(i: HelpUsInterface) {
   } else if (i.typeId === 1) {
     helpusInteraction.innerHTML = defaultHTML;
     console.log('first' + getIdUniqueID(i.targetCell));
+    console.log(helpusSubmit);
     helpusSubmit.onclick = function () {
         const note: string = 'Website at: ' + helpusInput.innerHTML;
         console.log(getIdUniqueID(i.targetCell));
