@@ -58,59 +58,51 @@ No, not now.
 </div>`;
 
 const generateSentence = (i: HelpUsInterface) => {
-    switch (i.typeId) {
-      case 0:
-        return (
-          'Do you know if ' +
-          i.professor +
-          ' from ' +
-          i.university +
-          ' is looking for PhD students for the next academic year?'
-        );
-      case 1:
-        return (
-          'Do you know the personal website for ' +
-          i.professor +
-          ' from ' +
-          i.university +
-          '?'
-        );
-      case 2:
-        return (
-          'Do you know when ' +
-          i.professor +
-          ' joined ' +
-          i.university +
-          ' as a professor?'
-        );
-      case 3:
-        return (
-          'Do you know what the subfield of ' +
-          i.professor +
-          ' from ' +
-          i.university +
-          ' is?'
-        );
-      case 4:
-        return (
-          'Do you know where ' +
-          i.professor +
-          ' from ' +
-          i.university +
-          ' got their bachelors degree?'
-        );
-      case 5:
-        return (
-          'Do you know where ' +
-          i.professor +
-          ' from ' +
-          i.university +
-          ' got their doctorate degree?'
-        );
-      default:
-        return 'error';
-    }
-  };
+  switch (i.typeId) {
+    case 0:
+      return (
+        `Do you know if ${i.professor} from ${i.university} is looking for PhD students for the next academic year?`
+      );
+    case 1:
+      return (
+        `Do you know the personal website for ${i.professor} from ${i.university}?`
+      );
+    case 2:
+      return (
+        'Do you know when ' +
+        i.professor +
+        ' joined ' +
+        i.university +
+        ' as a professor?'
+      );
+    case 3:
+      return (
+        'Do you know what the subfield of ' +
+        i.professor +
+        ' from ' +
+        i.university +
+        ' is?'
+      );
+    case 4:
+      return (
+        'Do you know where ' +
+        i.professor +
+        ' from ' +
+        i.university +
+        ' got their bachelors degree?'
+      );
+    case 5:
+      return (
+        'Do you know where ' +
+        i.professor +
+        ' from ' +
+        i.university +
+        ' got their doctorate degree?'
+      );
+    default:
+      return 'error';
+  }
+};
 
 function updateHelpusHTML(sentence: string) {
   helpusText.innerHTML = sentence;
@@ -190,8 +182,8 @@ function getNoCommentRow(): HelpUsInterface | null {
 }
 
 function updateSubmitButton(i: HelpUsInterface) {
-    console.log(i.typeId);
-  if (i.typeId === 0) {
+  console.log(i.typeId);
+  if (i.typeId === HelpusType.PHD_NOTE) {
     helpusInteraction.innerHTML = PhDHTML;
     helpusSubmit.addEventListener(
       'click',
@@ -204,15 +196,16 @@ function updateSubmitButton(i: HelpUsInterface) {
       },
       true
     );
-  } else if (i.typeId === 1) {
+  } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
     helpusInteraction.innerHTML = defaultHTML;
     console.log('first' + getIdUniqueID(i.targetCell));
     console.log(helpusSubmit);
     helpusSubmit.onclick = function () {
-        const note: string = 'Website at: ' + helpusInput.innerHTML;
-        console.log(getIdUniqueID(i.targetCell));
-        postNewComment(getIdUniqueID(i.targetCell), note);
-        getIdUniqueID(i.targetCell);
+      const note: string = 'Website at: ' + helpusInput.innerHTML;
+      console.log(getIdUniqueID(i.targetCell));
+      postNewComment(getIdUniqueID(i.targetCell), note);
+      getIdUniqueID(i.targetCell);
+      alert('submitted');
     };
     // helpusSubmit.addEventListener(
     //   'click',
