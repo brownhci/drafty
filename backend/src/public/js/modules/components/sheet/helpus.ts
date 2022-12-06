@@ -30,7 +30,7 @@ const helpusCloseIcon = <HTMLButtonElement>(
   document.getElementById('helpus-close')
 );
 const helpusText = <HTMLElement>document.getElementById('helpus-text');
-//disable submit button when cell not filled out
+
 const helpusSubmit = <HTMLButtonElement>(
   document.getElementById('btn-helpus-submit')
 );
@@ -42,33 +42,6 @@ const helpusDefaultInteraction = <HTMLDivElement>(
 const helpusPhdInteraction = <HTMLDivElement>(
   document.getElementById('helpus-phd-interaction')
 );
-
-
-// function disableSubmitButton () {
-//   helpusInput.innerHTML === '' ? helpusSubmit.disabled = true : helpusSubmit.disabled = false;
-// }
-
-// helpusInput.onkeyup = disableSubmitButton;
-
-// const defaultDisplay = `
-// Yes!
-// <input type="text" id="helpus-input" placeholder="enter value here..." style="align-items: flex-start; margin: 0em 1em; border: none; border-bottom: 2px solid #1089ff;">
-// </input>
-// `;
-
-// const websiteDisplay = `
-// Yes!
-// <input type="text" id="helpus-input" placeholder="https://..." style="align-items: flex-start; margin: 0em 1em; border: none; border-bottom: 2px solid #1089ff;">
-// </input>
-// `;
-
-// const phDDisplay= `
-// <div id= "helpus-button-wrapper" style="display: flex; font-size: 16px; color: #1089ff; justify-content: center; align-items: center; margin: 1em; outline: none;}">
-//   <input type="button" value="Yes, they are!" id="helpus-phd-yes" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
-//   </input>
-//   <input type="button" value="No, not now." id="helpus-phd-no" class="btn btn btn-outline-primary btn-block" style="width: 8em; align-items: flex-start; margin: 0.5em 0.25em 0.5em 0em;">
-//   </input>
-// </div>`;
 
 const generateSentence = (i: HelpUsInterface) => {
   switch (i.typeId) {
@@ -177,7 +150,6 @@ function postNewComment(idrow: string | number, comment: string) {
       console.error(error);
     });
 }
-
 
 function getEmptyCell(): HelpUsInterface | null {
   const n: number = tableDataManager.source.length;
@@ -328,3 +300,9 @@ helpusCloseIcon.addEventListener(
   },
   true
 );
+
+function enableSubmitButton () {
+  helpusSubmit.disabled = helpusInput.value === '';
+}
+
+helpusInput.onkeyup = enableSubmitButton;
