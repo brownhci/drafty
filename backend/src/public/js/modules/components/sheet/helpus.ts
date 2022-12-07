@@ -30,7 +30,6 @@ const helpusCloseIcon = <HTMLButtonElement>(
   document.getElementById('helpus-close')
 );
 const helpusText = <HTMLElement>document.getElementById('helpus-text');
-
 const helpusSubmit = <HTMLButtonElement>(
   document.getElementById('btn-helpus-submit')
 );
@@ -38,29 +37,26 @@ const helpusInput = <HTMLInputElement>document.getElementById('helpus-input');
 const helpusDefaultInteraction = <HTMLDivElement>(
   document.getElementById('helpus-default-interaction')
 );
-
 const helpusPhdInteraction = <HTMLDivElement>(
   document.getElementById('helpus-phd-interaction')
+);
+
+const helpusYesRadio = <HTMLInputElement>(
+  document.getElementById('helpus-phd-yes')
+);
+
+const helpusNoRadio = <HTMLInputElement>(
+  document.getElementById('helpus-phd-no')
 );
 
 const generateSentence = (i: HelpUsInterface) => {
   switch (i.typeId) {
     case 0:
-      return (
-        `Do you know if ${i.professor} from ${i.university} is looking for PhD students for the next academic year?`
-      );
+      return `Do you know if ${i.professor} from ${i.university} is looking for PhD students for the next academic year?`;
     case 1:
-      return (
-        `Do you know the personal website for ${i.professor} from ${i.university}?`
-      );
+      return `Do you know the personal website for ${i.professor} from ${i.university}?`;
     case 2:
-      return (
-        'Do you know when ' +
-        i.professor +
-        ' joined ' +
-        i.university +
-        ' as a professor?'
-      );
+      return `Do you know when ${i.professor} joined ${i.university} as a professor?`;
     case 3:
       return (
         'Do you know what the subfield of ' +
@@ -89,6 +85,14 @@ const generateSentence = (i: HelpUsInterface) => {
       return 'error';
   }
 };
+
+function showThankyouScreen () {
+  helpusText.innerHTML = 'Your response has been recorded. Thank you for contributing to Drafty!';
+  helpusNextButton.innerHTML = 'Show me another Help Us';
+  helpusDefaultInteraction.style.display = 'none';
+  helpusPhdInteraction.style.display = 'none';
+  helpusSubmit.style.display = 'none';
+}
 
 function updateHelpusHTML(sentence: string) {
   helpusText.innerHTML = sentence;
@@ -121,16 +125,17 @@ function postNewComment(idrow: string | number, comment: string) {
     'input[name=\'_csrf\']'
   )!;
   let url = '';
-  const urlRegex = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
+  const urlRegex =
+    /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
   if (comment.includes('https://')) {
-      const idx = comment.indexOf('https://');
-      const substring = comment.substring(idx);
-      url = substring.replace(/\n/g, ' ').split(' ')[0];
-      let tag = '';
-      if (urlRegex.test(url)) {
-        tag = '<a href=' + url + '>' + url + '</a>';
-        comment = comment.replace(url, tag);
-      }
+    const idx = comment.indexOf('https://');
+    const substring = comment.substring(idx);
+    url = substring.replace(/\n/g, ' ').split(' ')[0];
+    let tag = '';
+    if (urlRegex.test(url)) {
+      tag = '<a href=' + url + '>' + url + '</a>';
+      comment = comment.replace(url, tag);
+    }
   }
   const bodyData = {
     idrow: idrow,
@@ -222,42 +227,49 @@ function updateSubmitButton(i: HelpUsInterface) {
     helpusSubmit.onclick = function (event: MouseEvent) {
       postNewComment(
         getIdUniqueID(i.targetCell),
-        'This professor is looking for PhD students to start in the next academic year.'
+        helpusYesRadio.checked
+          ? 'This professor is looking for PhD students to start in the next academic year.'
+          : 'This professor is not looking for PhD students right now.'
       );
+      showThankyouScreen();
       event.stopPropagation();
     };
   } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
     helpusSubmit.onclick = function (event: MouseEvent) {
       const input = helpusInput.value;
-      console.log(getIdUniqueID(i.targetCell));
-      console.log(input);
       if (input === '') {
-        alert ('You need to enter a valid value.');
+        alert('You need to enter a valid value.');
         return;
       }
       const note: string = 'Website at: ' + helpusInput.innerHTML;
-      console.log(note);
-      console.log(getIdUniqueID(i.targetCell));
       postNewComment(getIdUniqueID(i.targetCell), note);
+      showThankyouScreen();
       event.stopPropagation();
     };
   } else {
     helpusSubmit.onclick = function (event: MouseEvent) {
       const input = helpusInput.value;
-      console.log(input);
       if (input === '') {
-        alert ('You need to enter a valid value.');
+        alert('You need to enter a valid value.');
         return;
       }
       recordCellEdit(i.targetCell, helpusInput.innerHTML);
+      showThankyouScreen();
       event.stopPropagation();
     };
   }
 }
 
 function openModal() {
+  //reset
   helpusModal.style.display = 'block';
+  helpusSubmit.style.display = 'block';
   helpusInput.value = '';
+  helpusSubmit.disabled = true;
+  helpusYesRadio.checked = false;
+  helpusNoRadio.checked = false;
+  helpusNextButton.innerHTML = 'I am not sure, but show me another';
+
   const rand = Math.floor(Math.random() * 2);
   let info: HelpUsInterface;
   rand === 0 ? (info = getEmptyCell()!) : (info = getNoCommentRow()!);
@@ -301,8 +313,17 @@ helpusCloseIcon.addEventListener(
   true
 );
 
-function enableSubmitButton () {
-  helpusSubmit.disabled = helpusInput.value === '';
+function enableSubmitButton() {
+  if (
+    helpusDefaultInteraction.style.display === 'none' &&
+    helpusPhdInteraction.style.display === 'flex'
+  ) {
+    helpusSubmit.disabled = !helpusYesRadio.checked && !helpusNoRadio.checked;
+  } else {
+    helpusSubmit.disabled = helpusInput.value === '';
+  }
 }
 
 helpusInput.onkeyup = enableSubmitButton;
+helpusYesRadio.onclick = enableSubmitButton;
+helpusNoRadio.onclick = enableSubmitButton;
