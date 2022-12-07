@@ -8627,7 +8627,7 @@ nav .navbar-nav-sm li {
 .font-italic, #homepage-container section#description-section #introduction #project-name {
   font-style: italic !important; }
 
-.text-white, nav .navbar-brand, nav .navbar-toggler, nav .navbar-nav-sm li, nav .nav-item:hover #navbar-sheet, nav .nav-item:hover #navbar-sheets, nav .nav-item:hover #navbar-credits, nav .nav-item:hover #navbar-addrow, nav .nav-item:hover #navbar-delrow, nav .nav-item:hover #navbar-didyouknow, nav .nav-item:hover #navbar-user, #table-container table thead th.active, #table-container table thead .dropdown .dropdown-menu th.dropdown-item:hover, .dropdown .dropdown-menu #table-container table thead th.dropdown-item:hover, #table-container table thead th.inputting,
+.text-white, nav .navbar-brand, nav .navbar-toggler, nav .navbar-nav-sm li, nav .nav-item:hover #navbar-sheet, nav .nav-item:hover #navbar-sheets, nav .nav-item:hover #navbar-credits, nav .nav-item:hover #navbar-addrow, nav .nav-item:hover #navbar-delrow, nav .nav-item:hover #navbar-didyouknow, nav .nav-item:hover #navbar-helpus, nav .nav-item:hover #navbar-user, #table-container table thead th.active, #table-container table thead .dropdown .dropdown-menu th.dropdown-item:hover, .dropdown .dropdown-menu #table-container table thead th.dropdown-item:hover, #table-container table thead th.inputting,
 #table-container table tfoot th.active, #table-container table tfoot .dropdown .dropdown-menu th.dropdown-item:hover, .dropdown .dropdown-menu #table-container table tfoot th.dropdown-item:hover,
 #table-container table tfoot th.inputting, #table-container table thead th.copied,
 #table-container table tfoot th.copied, #table-container table tfoot tr:nth-child(2).insertion-success th, #table-container table tfoot tr:nth-child(2).insertion-failure th, #table-container table tfoot tr:nth-child(2).delete-success th, #table-container table tfoot tr:nth-child(2).delete-failure th, #table-container table tfoot tr:nth-child(2) #newrow-error, #account-container #editor-identifier::selection {
@@ -8792,6 +8792,7 @@ nav .nav-item #navbar-credits:before,
 nav .nav-item #navbar-addrow:before,
 nav .nav-item #navbar-delrow:before,
 nav .nav-item #navbar-didyouknow:before,
+nav .nav-item #navbar-helpus:before,
 nav .nav-item #navbar-user:before,
 nav .nav-item #navbar-user:after,
 #flash-messages #flash-errors [role="alert"] .flash-dismiss,
@@ -8815,7 +8816,7 @@ nav .nav-item #navbar-user:after,
   text-rendering: auto;
   line-height: 1; }
 
-nav .navbar-toggler:before, nav .nav-item #navbar-sheet:before, nav .nav-item #navbar-sheets:before, nav .nav-item #navbar-sheets:after, nav .nav-item #navbar-credits:before, nav .nav-item #navbar-addrow:before, nav .nav-item #navbar-delrow:before, nav .nav-item #navbar-didyouknow:before, nav .nav-item #navbar-user:before, nav .nav-item #navbar-user:after {
+nav .navbar-toggler:before, nav .nav-item #navbar-sheet:before, nav .nav-item #navbar-sheets:before, nav .nav-item #navbar-sheets:after, nav .nav-item #navbar-credits:before, nav .nav-item #navbar-addrow:before, nav .nav-item #navbar-delrow:before, nav .nav-item #navbar-didyouknow:before, nav .nav-item #navbar-helpus:before, nav .nav-item #navbar-user:before, nav .nav-item #navbar-user:after {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   display: inline-block;
@@ -8904,6 +8905,7 @@ nav .nav-item .fa-pull-left#navbar-credits:before,
 nav .nav-item .fa-pull-left#navbar-addrow:before,
 nav .nav-item .fa-pull-left#navbar-delrow:before,
 nav .nav-item .fa-pull-left#navbar-didyouknow:before,
+nav .nav-item .fa-pull-left#navbar-helpus:before,
 nav .nav-item .fa-pull-left#navbar-user:before,
 nav .nav-item .fa-pull-left#navbar-user:after,
 #flash-messages #flash-errors [role="alert"] .fa-pull-left.flash-dismiss,
@@ -8930,6 +8932,7 @@ nav .nav-item .fa-pull-right#navbar-credits:before,
 nav .nav-item .fa-pull-right#navbar-addrow:before,
 nav .nav-item .fa-pull-right#navbar-delrow:before,
 nav .nav-item .fa-pull-right#navbar-didyouknow:before,
+nav .nav-item .fa-pull-right#navbar-helpus:before,
 nav .nav-item .fa-pull-right#navbar-user:before,
 nav .nav-item .fa-pull-right#navbar-user:after,
 #flash-messages #flash-errors [role="alert"] .fa-pull-right.flash-dismiss,
@@ -13240,6 +13243,7 @@ nav .nav-item #navbar-credits:before,
 nav .nav-item #navbar-addrow:before,
 nav .nav-item #navbar-delrow:before,
 nav .nav-item #navbar-didyouknow:before,
+nav .nav-item #navbar-helpus:before,
 nav .nav-item #navbar-user:before,
 nav .nav-item #navbar-user:after,
 #flash-messages #flash-errors [role="alert"] .flash-dismiss,
@@ -13400,6 +13404,10 @@ nav {
     color: rgba(255, 255, 255, 0.8) !important; }
   nav .nav-item #navbar-didyouknow:before {
     content: "\f059"; }
+  nav .nav-item #navbar-helpus {
+    color: rgba(255, 255, 255, 0.8) !important; }
+  nav .nav-item #navbar-helpus:before {
+    content: "\f118"; }
   nav .nav-item #navbar-user {
     color: rgba(255, 255, 255, 0.8) !important; }
   nav .nav-item #navbar-user:before {
