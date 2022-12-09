@@ -54,7 +54,7 @@ const generateSentence = (i: HelpUsInterface) => {
     case 0:
       return `Do you know if ${i.professor} from ${i.university} is looking for PhD students for the next academic year?`;
     case 1:
-      return `Do you know the personal website for ${i.professor} from ${i.university}?`;
+      return `Do you know the URL for ${i.professor}'s website? They are a professor from ${i.university}.`;
     case 2:
       return `Do you know when ${i.professor} joined ${i.university} as a professor?`;
     case 3:
@@ -212,11 +212,11 @@ function updateInteractionDisplay(i: HelpUsInterface) {
     helpusDefaultInteraction.style.display = 'none';
     helpusPhdInteraction.style.display = 'flex';
   } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
-    helpusInput.placeholder = 'https:// ...';
+    helpusInput.placeholder = 'Please enter the URL...';
     helpusDefaultInteraction.style.display = 'flex';
     helpusPhdInteraction.style.display = 'none';
   } else {
-    helpusInput.placeholder = 'enter value here ...';
+    helpusInput.placeholder = 'Please enter the value here ...';
     helpusDefaultInteraction.style.display = 'flex';
     helpusPhdInteraction.style.display = 'none';
   }
