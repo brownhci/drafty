@@ -114,7 +114,6 @@ export function postCommentVoteDownURL() {
   return '/comments/vote/update/down';
 }
 
-
 export function postHelpusStartURL() {
   return '/helpus/start';
 }
