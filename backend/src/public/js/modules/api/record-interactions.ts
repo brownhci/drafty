@@ -8,6 +8,7 @@ import { isTableData } from '../dom/types';
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
 import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction, postCommentVoteDownURL, postCommentVoteUpURL, postTweet, postTweetNextAction, postHelpusEndURL, postHelpusStartURL } from './endpoints';
 import { DatabaitAction } from '../../../../types/databaits';
+import { updateHelpusID } from '../components/sheet/helpus';
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
 
@@ -275,10 +276,12 @@ export function postHelpusStart(helpUsType: string, idUniqueID: number, question
   };
   fetch(postHelpusStartURL(), options)
     .then((response) => {
-      return response.json();
+      console.log(response);
+      //return response.json();
     })
     .then((data) => {
       console.log(`we should do something with ${data}`);
+      updateHelpusID(data!);
       return data;
     })
     .catch((error) => {

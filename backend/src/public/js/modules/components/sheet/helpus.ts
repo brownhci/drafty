@@ -19,7 +19,7 @@ interface HelpUsInterface {
   university: string;
   professor: string;
   targetCell: HTMLTableCellElement | null;
-  idInteraction?: number;
+  idHelpus?: number;
 }
 
 let currHelpus: HelpUsInterface = {
@@ -27,7 +27,7 @@ let currHelpus: HelpUsInterface = {
   university: '',
   professor: '',
   targetCell: null,
-  idInteraction: -1,
+  idHelpus: -1,
 };
 
 const helpusModal = <HTMLElement>document.getElementById('helpus-screen');
@@ -243,7 +243,7 @@ function updateSubmitButton(i: HelpUsInterface) {
         getIdUniqueID(i.targetCell!),
         answer
       );
-      postHelpusEnd(i.idInteraction!, answer, 'submit');
+      postHelpusEnd(i.idHelpus!, answer, 'submit');
       showThankyouScreen();
     };
   } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
@@ -255,7 +255,7 @@ function updateSubmitButton(i: HelpUsInterface) {
       }
       const note: string = 'Website at: ' + helpusInput.innerHTML;
       postNewComment(getIdUniqueID(i.targetCell!), note);
-      postHelpusEnd(i.idInteraction!, helpusInput.innerHTML, 'submit');
+      postHelpusEnd(i.idHelpus!, helpusInput.innerHTML, 'submit');
       showThankyouScreen();
     };
   } else {
@@ -266,13 +266,13 @@ function updateSubmitButton(i: HelpUsInterface) {
         return;
       }
       recordCellEdit(i.targetCell!, helpusInput.innerHTML);
-      postHelpusEnd(i.idInteraction!, helpusInput.innerHTML, 'submit');
+      postHelpusEnd(i.idHelpus!, helpusInput.innerHTML, 'submit');
       showThankyouScreen();
     };
   }
 }
 
-function openModal() {
+async function openModal() {
   //reset
   helpusModal.style.display = 'block';
   helpusSubmit.style.display = 'block';
@@ -290,24 +290,29 @@ function openModal() {
   updateInteractionDisplay(info);
   updateSubmitButton(info);
   console.log(info);
-  const idInteraction = postHelpusStart(helpusDict[info.typeId], getIdUniqueID(info.targetCell!), question);
-  console.log(idInteraction);
-  currHelpus.idInteraction = idInteraction!;
+  const idHelpus = await postHelpusStart(helpusDict[info.typeId], getIdUniqueID(info.targetCell!), question);
+  console.log(idHelpus);
+  currHelpus.idHelpus = idHelpus!;
 }
 
 export async function activateHelpUs() {
   openModal();
 }
 
+export function updateHelpusID (id: number) {
+  currHelpus.idHelpus = id;
+  console.log(id);
+}
+
 helpusModal.addEventListener('keydown', function (event: KeyboardEvent) {
-  postHelpusEnd(currHelpus.idInteraction!, null, 'close');
+  postHelpusEnd(currHelpus.idHelpus!, null, 'close');
   if (event.key === 'Escape') helpusModal.style.display = 'none';
 });
 
 helpusNextButton.addEventListener(
   'click',
   function (event: MouseEvent) {
-    postHelpusEnd(currHelpus.idInteraction!, null, 'next');
+    postHelpusEnd(currHelpus.idHelpus!, null, 'next');
     openModal();
     event.stopPropagation();
   },
@@ -318,7 +323,7 @@ helpusCloseButton.addEventListener(
   'click',
   function (event: MouseEvent) {
     helpusModal.style.display = 'none';
-    postHelpusEnd(currHelpus.idInteraction!, null, 'close');
+    postHelpusEnd(currHelpus.idHelpus!, null, 'close');
     event.stopPropagation();
   },
   true
@@ -328,7 +333,7 @@ helpusCloseIcon.addEventListener(
   'click',
   function (event: MouseEvent) {
     helpusModal.style.display = 'none';
-    postHelpusEnd(currHelpus.idInteraction!, null, 'close');
+    postHelpusEnd(currHelpus.idHelpus!, null, 'close');
     event.stopPropagation();
   },
   true
