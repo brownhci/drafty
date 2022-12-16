@@ -22,11 +22,13 @@ export async function insertHelpUs(idSession: string, idUniqueID: string, helpUs
 }
 
 export async function updateHelpUs(idSession: string, idHelpUs: string | number, nextAction: string, answer: string) {
+    console.log(nextAction, answer, idHelpUs);
     try {
-        // UPDATE HelpUs SET end = CURRENT_TIMESTAMP, nextAction = ?, answer = ?, WHERE idHelpUs = ?
-        await db.query(stmtUpdateHelpUs, [nextAction, answer, idHelpUs]);
-        const idInteractionType: number = 40; // update new HelpUs
-        db.query(stmtUpdateHelpUs_UpdateInteraction, [idSession, idInteractionType]);
+        // UPDATE HelpUs SET end = CURRENT_TIMESTAMP, nextAction = ?, answer = ? WHERE idHelpUs = ?
+        db.query(stmtUpdateHelpUs, [nextAction, answer, idHelpUs]);
+
+        //const idInteractionType: number = 40; // update new HelpUs
+        //db.query(stmtUpdateHelpUs_UpdateInteraction, [idSession, idInteractionType]);
     } catch (error) {
         logDbErr(error, 'error during updateHelpUs', 'warn');
     }
