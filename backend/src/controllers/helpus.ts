@@ -13,6 +13,7 @@ import { updateHelpUs,insertHelpUs } from '../database/helpus';
   if (error) {
     return next(error);
   }
+
   return res.status(200).json(results.insertId);
 };
 
