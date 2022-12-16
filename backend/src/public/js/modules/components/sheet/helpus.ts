@@ -272,7 +272,7 @@ function updateSubmitButton(i: HelpUsInterface) {
   }
 }
 
-async function openModal() {
+function openModal() {
   //reset
   helpusModal.style.display = 'block';
   helpusSubmit.style.display = 'block';
@@ -290,9 +290,7 @@ async function openModal() {
   updateInteractionDisplay(info);
   updateSubmitButton(info);
   console.log(info);
-  const idHelpus = await postHelpusStart(helpusDict[info.typeId], getIdUniqueID(info.targetCell!), question);
-  console.log(idHelpus);
-  currHelpus.idHelpus = idHelpus!;
+  postHelpusStart(helpusDict[info.typeId], getIdUniqueID(info.targetCell!), question);
 }
 
 export async function activateHelpUs() {
