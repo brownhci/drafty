@@ -250,15 +250,11 @@ export function postCommentVoteDown(idComment: number, vote: string) {
 }
 
 export function postHelpusStartOld(helpUsType: string, idUniqueID: number, question: string) {
-  console.log(helpUsType);
-  console.log(idUniqueID);
-  console.log(question);
   const response = recordInteraction(postHelpusStartURL(), {
     helpUsType,
     idUniqueID,
     question,
   });
-  console.log(response);
   return response;
 }
 
@@ -280,7 +276,6 @@ export function postHelpusStart(helpUsType: string, idUniqueID: number, question
     })
     .then((data) => {
       updateHelpusID(data!);
-      return data;
     })
     .catch((error) => {
       // TODO: in the future,
@@ -290,9 +285,6 @@ export function postHelpusStart(helpUsType: string, idUniqueID: number, question
   }
 
 export function postHelpusEnd(idHelpUs: number, answer: string | null, nextAction: string) {
-  console.log(idHelpUs);
-  console.log(answer);
-  console.log(nextAction);
   recordInteraction(postHelpusEndURL(), {
     idHelpUs,
     answer,
