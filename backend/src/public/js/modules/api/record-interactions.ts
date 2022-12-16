@@ -277,7 +277,7 @@ export function postHelpusStart(helpUsType: string, idUniqueID: number, question
   fetch(postHelpusStartURL(), options)
     .then((response) => {
       console.log(response);
-      //return response.json();
+      return response.json();
     })
     .then((data) => {
       console.log(`we should do something with ${data}`);
