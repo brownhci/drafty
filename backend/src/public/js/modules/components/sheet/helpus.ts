@@ -12,15 +12,23 @@ enum HelpusType {
   EMPTY_DOCTORATE,
 }
 
+const helpusDict = {0: 'PHD_NOTE', 1: 'WEBSITE_NOTE', 2: 'EMPTY_YEAR', 3: 'EMPTY_SUBFIELD', 4: 'EMPTY_BACHELORS', 5: 'EMPTY_DOCTORATE'};
+
 interface HelpUsInterface {
   typeId: HelpusType;
   university: string;
   professor: string;
-  targetCell: HTMLTableCellElement;
+  targetCell: HTMLTableCellElement | null;
   idInteraction?: number;
 }
 
-let currHelpus: HelpUsInterface;
+let currHelpus: HelpUsInterface = {
+  typeId: HelpusType.PHD_NOTE,
+  university: '',
+  professor: '',
+  targetCell: null,
+  idInteraction: -1,
+};
 
 const helpusModal = <HTMLElement>document.getElementById('helpus-screen');
 const helpusNextButton = <HTMLButtonElement>(
@@ -228,13 +236,14 @@ function updateInteractionDisplay(i: HelpUsInterface) {
 function updateSubmitButton(i: HelpUsInterface) {
   if (i.typeId === HelpusType.PHD_NOTE) {
     helpusSubmit.onclick = function () {
+      const answer = helpusYesRadio.checked
+      ? 'This professor is looking for PhD students to start in the next academic year.'
+      : 'This professor is not looking for PhD students right now.';
       postNewComment(
-        getIdUniqueID(i.targetCell),
-        helpusYesRadio.checked
-          ? 'This professor is looking for PhD students to start in the next academic year.'
-          : 'This professor is not looking for PhD students right now.'
+        getIdUniqueID(i.targetCell!),
+        answer
       );
-      postHelpusEnd(i.idInteraction!, helpusInput.innerHTML, 'submit');
+      postHelpusEnd(i.idInteraction!, answer, 'submit');
       showThankyouScreen();
     };
   } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
@@ -245,7 +254,7 @@ function updateSubmitButton(i: HelpUsInterface) {
         return;
       }
       const note: string = 'Website at: ' + helpusInput.innerHTML;
-      postNewComment(getIdUniqueID(i.targetCell), note);
+      postNewComment(getIdUniqueID(i.targetCell!), note);
       postHelpusEnd(i.idInteraction!, helpusInput.innerHTML, 'submit');
       showThankyouScreen();
     };
@@ -256,7 +265,7 @@ function updateSubmitButton(i: HelpUsInterface) {
         alert('You need to enter a valid value.');
         return;
       }
-      recordCellEdit(i.targetCell, helpusInput.innerHTML);
+      recordCellEdit(i.targetCell!, helpusInput.innerHTML);
       postHelpusEnd(i.idInteraction!, helpusInput.innerHTML, 'submit');
       showThankyouScreen();
     };
@@ -280,8 +289,10 @@ function openModal() {
   updateHelpusHTML(question);
   updateInteractionDisplay(info);
   updateSubmitButton(info);
-  const idInteraction = postHelpusStart(info.typeId, getIdUniqueID(info.targetCell), question);
-  info.idInteraction = idInteraction!;
+  console.log(info);
+  const idInteraction = postHelpusStart(helpusDict[info.typeId], getIdUniqueID(info.targetCell!), question);
+  console.log(idInteraction);
+  currHelpus.idInteraction = idInteraction!;
 }
 
 export async function activateHelpUs() {

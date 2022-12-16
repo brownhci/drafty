@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from '../dom/navigate';
 import { isTableData } from '../dom/types';
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction, postCommentVoteDownURL, postCommentVoteUpURL, postTweet, postTweetNextAction, postHelpusURL, postHelpusEndURL, postHelpusStartURL } from './endpoints';
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction, postCommentVoteDownURL, postCommentVoteUpURL, postTweet, postTweetNextAction, postHelpusEndURL, postHelpusStartURL } from './endpoints';
 import { DatabaitAction } from '../../../../types/databaits';
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
@@ -248,16 +248,21 @@ export function postCommentVoteDown(idComment: number, vote: string) {
   });
 }
 
-export function postHelpusStart(idHelpusType: number, idUniqueID: number, question: string) {
+export function postHelpusStart(helpUsType: string, idUniqueID: number, question: string) {
+  console.log(helpUsType);
+  console.log(idUniqueID);
+  console.log(question);
   const response = recordInteraction(postHelpusStartURL(), {
-    idHelpusType,
+    helpUsType,
     idUniqueID,
     question,
   });
+  console.log(response);
   return response;
 }
 
 export function postHelpusEnd(idInteraction: number, answer: string | null, nextAction: string) {
+  console.log(idInteraction);
   recordInteraction(postHelpusEndURL(), {
     idInteraction,
     answer,

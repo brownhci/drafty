@@ -13,6 +13,7 @@ export const postHelpUsStart = async (req: Request, res: Response) => {
 
     try {
       const idInteraction = await insertHelpUs(idSession, idUniqueID, helpUsType, question);
+      console.log(idInteraction);
       return res.status(200).json({
         idInteraction: idInteraction 
       });
