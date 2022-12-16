@@ -277,8 +277,9 @@ export function postHelpusStart(helpUsType: string, idUniqueID: number, question
     .then((response) => {
       return response.json();
     })
-    .then(() => {
-      console.log('we should do something');
+    .then((data) => {
+      console.log(`we should do something with ${data}`);
+      return data;
     })
     .catch((error) => {
       // TODO: in the future,
