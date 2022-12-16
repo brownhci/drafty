@@ -1,6 +1,6 @@
 import { tableDataManager } from '../../../sheet';
 import { postNewCommentURL } from '../../api/endpoints';
-import { recordCellEdit, getIdUniqueID } from '../../api/record-interactions';
+import { recordCellEdit, getIdUniqueID, postHelpusStart, postHelpusEnd } from '../../api/record-interactions';
 import { getCellInTableRow } from '../../dom/navigate';
 
 enum HelpusType {
@@ -17,7 +17,10 @@ interface HelpUsInterface {
   university: string;
   professor: string;
   targetCell: HTMLTableCellElement;
+  idInteraction?: number;
 }
+
+let currHelpus: HelpUsInterface;
 
 const helpusModal = <HTMLElement>document.getElementById('helpus-screen');
 const helpusNextButton = <HTMLButtonElement>(
@@ -54,7 +57,7 @@ const generateSentence = (i: HelpUsInterface) => {
     case 0:
       return `Do you know if ${i.professor} from ${i.university} is looking for PhD students for the next academic year?`;
     case 1:
-      return `Do you know the personal website for ${i.professor} from ${i.university}?`;
+      return `Do you know the URL for ${i.professor}'s website? They are a professor from ${i.university}.`;
     case 2:
       return `Do you know when ${i.professor} joined ${i.university} as a professor?`;
     case 3:
@@ -212,11 +215,11 @@ function updateInteractionDisplay(i: HelpUsInterface) {
     helpusDefaultInteraction.style.display = 'none';
     helpusPhdInteraction.style.display = 'flex';
   } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
-    helpusInput.placeholder = 'https:// ...';
+    helpusInput.placeholder = 'Please enter the URL...';
     helpusDefaultInteraction.style.display = 'flex';
     helpusPhdInteraction.style.display = 'none';
   } else {
-    helpusInput.placeholder = 'enter value here ...';
+    helpusInput.placeholder = 'Please enter the value here ...';
     helpusDefaultInteraction.style.display = 'flex';
     helpusPhdInteraction.style.display = 'none';
   }
@@ -224,18 +227,16 @@ function updateInteractionDisplay(i: HelpUsInterface) {
 
 function updateSubmitButton(i: HelpUsInterface) {
   if (i.typeId === HelpusType.PHD_NOTE) {
-    helpusSubmit.onclick = function (event: MouseEvent) {
+    helpusSubmit.onclick = function () {
       postNewComment(
         getIdUniqueID(i.targetCell),
         helpusYesRadio.checked
           ? 'This professor is looking for PhD students to start in the next academic year.'
           : 'This professor is not looking for PhD students right now.'
       );
-      showThankyouScreen();
-      event.stopPropagation();
     };
   } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
-    helpusSubmit.onclick = function (event: MouseEvent) {
+    helpusSubmit.onclick = function () {
       const input = helpusInput.value;
       if (input === '') {
         alert('You need to enter a valid value.');
@@ -243,21 +244,19 @@ function updateSubmitButton(i: HelpUsInterface) {
       }
       const note: string = 'Website at: ' + helpusInput.innerHTML;
       postNewComment(getIdUniqueID(i.targetCell), note);
-      showThankyouScreen();
-      event.stopPropagation();
     };
   } else {
-    helpusSubmit.onclick = function (event: MouseEvent) {
+    helpusSubmit.onclick = function () {
       const input = helpusInput.value;
       if (input === '') {
         alert('You need to enter a valid value.');
         return;
       }
       recordCellEdit(i.targetCell, helpusInput.innerHTML);
-      showThankyouScreen();
-      event.stopPropagation();
     };
   }
+  postHelpusEnd(i.idInteraction!, helpusInput.innerHTML, 'submit');
+  showThankyouScreen();
 }
 
 function openModal() {
@@ -271,11 +270,14 @@ function openModal() {
   helpusNextButton.innerHTML = 'I am not sure, but show me another';
 
   const rand = Math.floor(Math.random() * 2);
-  let info: HelpUsInterface;
-  rand === 0 ? (info = getEmptyCell()!) : (info = getNoCommentRow()!);
-  updateHelpusHTML(generateSentence(info));
+  rand === 0 ? (currHelpus = getEmptyCell()!) : (currHelpus = getNoCommentRow()!);
+  const info = currHelpus;
+  const question = generateSentence(info);
+  updateHelpusHTML(question);
   updateInteractionDisplay(info);
   updateSubmitButton(info);
+  const idInteraction = postHelpusStart(info.typeId, getIdUniqueID(info.targetCell), question);
+  info.idInteraction = idInteraction!;
 }
 
 export async function activateHelpUs() {
@@ -283,12 +285,14 @@ export async function activateHelpUs() {
 }
 
 helpusModal.addEventListener('keydown', function (event: KeyboardEvent) {
+  postHelpusEnd(currHelpus.idInteraction!, null, 'close');
   if (event.key === 'Escape') helpusModal.style.display = 'none';
 });
 
 helpusNextButton.addEventListener(
   'click',
   function (event: MouseEvent) {
+    postHelpusEnd(currHelpus.idInteraction!, null, 'next');
     openModal();
     event.stopPropagation();
   },
@@ -299,6 +303,7 @@ helpusCloseButton.addEventListener(
   'click',
   function (event: MouseEvent) {
     helpusModal.style.display = 'none';
+    postHelpusEnd(currHelpus.idInteraction!, null, 'close');
     event.stopPropagation();
   },
   true
@@ -308,6 +313,7 @@ helpusCloseIcon.addEventListener(
   'click',
   function (event: MouseEvent) {
     helpusModal.style.display = 'none';
+    postHelpusEnd(currHelpus.idInteraction!, null, 'close');
     event.stopPropagation();
   },
   true

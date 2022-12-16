@@ -113,3 +113,12 @@ export function postCommentVoteUpURL() {
 export function postCommentVoteDownURL() {
   return '/comments/vote/update/down';
 }
+
+
+export function postHelpusStartURL() {
+  return '/helpus/start';
+}
+
+export function postHelpusEndURL() {
+  return '/helpus/end';
+}

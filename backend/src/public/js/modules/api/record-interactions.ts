@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from '../dom/navigate';
 import { isTableData } from '../dom/types';
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction, postCommentVoteDownURL, postCommentVoteUpURL, postTweet, postTweetNextAction } from './endpoints';
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction, postCommentVoteDownURL, postCommentVoteUpURL, postTweet, postTweetNextAction, postHelpusURL, postHelpusEndURL, postHelpusStartURL } from './endpoints';
 import { DatabaitAction } from '../../../../types/databaits';
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
@@ -245,5 +245,22 @@ export function postCommentVoteDown(idComment: number, vote: string) {
   recordInteraction(postCommentVoteDownURL(), {
     idComment: idComment,
     vote: vote
+  });
+}
+
+export function postHelpusStart(idHelpusType: number, idUniqueID: number, question: string) {
+  const response = recordInteraction(postHelpusStartURL(), {
+    idHelpusType,
+    idUniqueID,
+    question,
+  });
+  return response;
+}
+
+export function postHelpusEnd(idInteraction: number, answer: string | null, nextAction: string) {
+  recordInteraction(postHelpusEndURL(), {
+    idInteraction,
+    answer,
+    nextAction
   });
 }
