@@ -248,7 +248,7 @@ export function postCommentVoteDown(idComment: number, vote: string) {
   });
 }
 
-export function postHelpusStart(helpUsType: string, idUniqueID: number, question: string) {
+export function postHelpusStartOld(helpUsType: string, idUniqueID: number, question: string) {
   console.log(helpUsType);
   console.log(idUniqueID);
   console.log(question);
@@ -260,6 +260,32 @@ export function postHelpusStart(helpUsType: string, idUniqueID: number, question
   console.log(response);
   return response;
 }
+
+export function postHelpusStart(helpUsType: string, idUniqueID: number, question: string) {   
+  const bodyData = {
+    helpUsType: helpUsType,
+    idUniqueID: idUniqueID,
+    question: question,
+    _csrf: tableCellInputFormCSRFInput.value,
+  };
+  const options = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(bodyData),
+  };
+  fetch(postHelpusStartURL(), options)
+    .then((response) => {
+      return response.json();
+    })
+    .then(() => {
+      console.log('we should do something');
+    })
+    .catch((error) => {
+      // TODO: in the future,
+      // consider how we should communicate to the user there was an error
+      console.error(error);
+    });
+  }
 
 export function postHelpusEnd(idInteraction: number, answer: string | null, nextAction: string) {
   console.log(idInteraction);
