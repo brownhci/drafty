@@ -4,7 +4,7 @@ create table HelpUs
     idUniqueID      int(11) not null,
     helpUsType      varchar(200)  not null,
     question        varchar(2500) not null,
-    nextAction      varchar(200)  not null,
+    nextAction      varchar(200),
     answer	        varchar(2500),
     start           timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     end             timestamp,
