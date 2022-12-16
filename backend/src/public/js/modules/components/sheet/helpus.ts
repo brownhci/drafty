@@ -212,6 +212,8 @@ function getNoCommentRow(): HelpUsInterface | null {
     const profUniversity = getCellInTableRow(rowEle, 1)?.textContent?.trim();
     // will return 0 or 1 to randomly decide what kind of note to ask for
     const rand = Math.floor(Math.random() * 2);
+      // not good random, need to randomly select enum
+      //only produces 0 or 1
     if (!targetCell.innerHTML.includes('comment-indicator'))
       return {
         typeId: rand,
