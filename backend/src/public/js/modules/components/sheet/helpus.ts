@@ -289,7 +289,6 @@ function openModal() {
   updateHelpusHTML(question);
   updateInteractionDisplay(info);
   updateSubmitButton(info);
-  console.log(info);
   postHelpusStart(helpusDict[info.typeId], getIdUniqueID(info.targetCell!), question);
 }
 
@@ -299,7 +298,6 @@ export async function activateHelpUs() {
 
 export function updateHelpusID (id: number) {
   currHelpus.idHelpus = id;
-  console.log(currHelpus.idHelpus);
 }
 
 helpusModal.addEventListener('keydown', function (event: KeyboardEvent) {

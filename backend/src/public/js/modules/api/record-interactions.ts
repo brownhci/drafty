@@ -276,11 +276,9 @@ export function postHelpusStart(helpUsType: string, idUniqueID: number, question
   };
   fetch(postHelpusStartURL(), options)
     .then((response) => {
-      console.log(response);
       return response.json();
     })
     .then((data) => {
-      console.log(`we should do something with ${data}`);
       updateHelpusID(data!);
       return data;
     })
@@ -291,10 +289,12 @@ export function postHelpusStart(helpUsType: string, idUniqueID: number, question
     });
   }
 
-export function postHelpusEnd(idInteraction: number, answer: string | null, nextAction: string) {
-  console.log(idInteraction);
+export function postHelpusEnd(idHelpUs: number, answer: string | null, nextAction: string) {
+  console.log(idHelpUs);
+  console.log(answer);
+  console.log(nextAction);
   recordInteraction(postHelpusEndURL(), {
-    idInteraction,
+    idHelpUs,
     answer,
     nextAction
   });
