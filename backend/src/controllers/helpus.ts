@@ -1,25 +1,19 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { updateHelpUs,insertHelpUs } from '../database/helpus';
 
 /**
  * POST /helpus/start
  * 
- */
-export const postHelpUsStart = async (req: Request, res: Response) => {
-    const idSession = req.session.user.idSession;
+ */export const postHelpUsStart = async (req: Request, res: Response, next: NextFunction) => {
+  const idSession = req.session.user.idSession;
     const idUniqueID: string = req.body.idUniqueID;
     const helpUsType: string = req.body.helpUsType;
     const question: string = req.body.question;
-
-    try {
-      const idInteraction = await insertHelpUs(idSession, idUniqueID, helpUsType, question);
-      console.log(idInteraction);
-      return res.status(200).json({
-        idInteraction: idInteraction 
-      });
-    } catch (error) {
-      return res.sendStatus(500);
-    }
+  const [error, results] = await insertHelpUs(idSession, idUniqueID, helpUsType, question);
+  if (error) {
+    return next(error);
+  }
+  return res.status(200).json(results.insertId);
 };
 
 /**
