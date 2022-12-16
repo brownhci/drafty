@@ -301,7 +301,7 @@ export async function activateHelpUs() {
 
 export function updateHelpusID (id: number) {
   currHelpus.idHelpus = id;
-  console.log(id);
+  console.log(currHelpus.idHelpus);
 }
 
 helpusModal.addEventListener('keydown', function (event: KeyboardEvent) {
