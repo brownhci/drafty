@@ -234,6 +234,8 @@ function updateSubmitButton(i: HelpUsInterface) {
           ? 'This professor is looking for PhD students to start in the next academic year.'
           : 'This professor is not looking for PhD students right now.'
       );
+      postHelpusEnd(i.idInteraction!, helpusInput.innerHTML, 'submit');
+      showThankyouScreen();
     };
   } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
     helpusSubmit.onclick = function () {
@@ -244,6 +246,8 @@ function updateSubmitButton(i: HelpUsInterface) {
       }
       const note: string = 'Website at: ' + helpusInput.innerHTML;
       postNewComment(getIdUniqueID(i.targetCell), note);
+      postHelpusEnd(i.idInteraction!, helpusInput.innerHTML, 'submit');
+      showThankyouScreen();
     };
   } else {
     helpusSubmit.onclick = function () {
@@ -253,10 +257,10 @@ function updateSubmitButton(i: HelpUsInterface) {
         return;
       }
       recordCellEdit(i.targetCell, helpusInput.innerHTML);
+      postHelpusEnd(i.idInteraction!, helpusInput.innerHTML, 'submit');
+      showThankyouScreen();
     };
   }
-  postHelpusEnd(i.idInteraction!, helpusInput.innerHTML, 'submit');
-  showThankyouScreen();
 }
 
 function openModal() {
