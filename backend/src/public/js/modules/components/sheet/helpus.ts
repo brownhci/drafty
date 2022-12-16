@@ -195,6 +195,11 @@ function getEmptyCell(): HelpUsInterface | null {
   return null;
 }
 
+function closeModal() {
+  postHelpusEnd(currHelpus.idHelpus!, null, 'close');
+  helpusModal.style.display = 'none';
+}
+
 function getNoCommentRow(): HelpUsInterface | null {
   const n: number = tableDataManager.source.length;
   const arr = range(n);
@@ -234,6 +239,7 @@ function updateInteractionDisplay(i: HelpUsInterface) {
 }
 
 function updateSubmitButton(i: HelpUsInterface) {
+  console.log('updateSubmitButton');
   if (i.typeId === HelpusType.PHD_NOTE) {
     helpusSubmit.onclick = function () {
       const answer = helpusYesRadio.checked
@@ -244,7 +250,6 @@ function updateSubmitButton(i: HelpUsInterface) {
         answer
       );
       postHelpusEnd(i.idHelpus!, answer, 'submit');
-      showThankyouScreen();
     };
   } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
     helpusSubmit.onclick = function () {
@@ -256,7 +261,6 @@ function updateSubmitButton(i: HelpUsInterface) {
       const note: string = 'Website at: ' + helpusInput.innerHTML;
       postNewComment(getIdUniqueID(i.targetCell!), note);
       postHelpusEnd(i.idHelpus!, helpusInput.innerHTML, 'submit');
-      showThankyouScreen();
     };
   } else {
     helpusSubmit.onclick = function () {
@@ -267,9 +271,9 @@ function updateSubmitButton(i: HelpUsInterface) {
       }
       recordCellEdit(i.targetCell!, helpusInput.innerHTML);
       postHelpusEnd(i.idHelpus!, helpusInput.innerHTML, 'submit');
-      showThankyouScreen();
     };
   }
+  showThankyouScreen();
 }
 
 function openModal() {
@@ -301,8 +305,7 @@ export function updateHelpusID (id: number) {
 }
 
 helpusModal.addEventListener('keydown', function (event: KeyboardEvent) {
-  postHelpusEnd(currHelpus.idHelpus!, null, 'close');
-  if (event.key === 'Escape') helpusModal.style.display = 'none';
+  if (event.key === 'Escape') closeModal();
 });
 
 helpusNextButton.addEventListener(
@@ -318,8 +321,7 @@ helpusNextButton.addEventListener(
 helpusCloseButton.addEventListener(
   'click',
   function (event: MouseEvent) {
-    helpusModal.style.display = 'none';
-    postHelpusEnd(currHelpus.idHelpus!, null, 'close');
+    closeModal();
     event.stopPropagation();
   },
   true
@@ -328,8 +330,7 @@ helpusCloseButton.addEventListener(
 helpusCloseIcon.addEventListener(
   'click',
   function (event: MouseEvent) {
-    helpusModal.style.display = 'none';
-    postHelpusEnd(currHelpus.idHelpus!, null, 'close');
+    closeModal();
     event.stopPropagation();
   },
   true
