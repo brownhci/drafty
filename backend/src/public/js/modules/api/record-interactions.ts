@@ -249,16 +249,18 @@ export function postCommentVoteDown(idComment: number, vote: string) {
 }
 
 export function postHelpusStart(helpUsType: string, idUniqueID: number, question: string) {
-  console.log(helpUsType);
-  console.log(idUniqueID);
-  console.log(question);
-  const response = recordInteraction(postHelpusStartURL(), {
+  // const response = recordInteraction(postHelpusStartURL(), {
+  //   helpUsType,
+  //   idUniqueID,
+  //   question,
+  // });
+  recordInteraction(postHelpusStartURL(), {
     helpUsType,
     idUniqueID,
     question,
-  });
-  console.log(response);
-  return response;
+  }, (response) => response.json().then(console.log(helpUsType)));
+  // console.log(response);
+  // return response;
 }
 
 export function postHelpusEnd(idInteraction: number, answer: string | null, nextAction: string) {
