@@ -248,19 +248,18 @@ export function postCommentVoteDown(idComment: number, vote: string) {
   });
 }
 
-export function postHelpusStart(idHelpusType: number, idUniqueID: number, question: string, started: string) {
-  recordInteraction(postHelpusStartURL(), {
+export function postHelpusStart(idHelpusType: number, idUniqueID: number, question: string) {
+  const response = recordInteraction(postHelpusStartURL(), {
     idHelpusType,
     idUniqueID,
     question,
-    started
   });
+  return response;
 }
 
-export function postHelpusEnd(idInteraction: number, completed: string, answer: string | null, nextAction: string) {
+export function postHelpusEnd(idInteraction: number, answer: string | null, nextAction: string) {
   recordInteraction(postHelpusEndURL(), {
     idInteraction,
-    completed,
     answer,
     nextAction
   });
