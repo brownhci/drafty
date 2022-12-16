@@ -249,7 +249,6 @@ export function postCommentVoteDown(idComment: number, vote: string) {
 }
 
 export function postHelpusStart(idHelpusType: number, idUniqueID: number, question: string) {
-  console.log(question);
   const response = recordInteraction(postHelpusStartURL(), {
     idHelpusType,
     idUniqueID,
@@ -259,7 +258,6 @@ export function postHelpusStart(idHelpusType: number, idUniqueID: number, questi
 }
 
 export function postHelpusEnd(idInteraction: number, answer: string | null, nextAction: string) {
-  console.log(nextAction);
   recordInteraction(postHelpusEndURL(), {
     idInteraction,
     answer,
