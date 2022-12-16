@@ -22,12 +22,12 @@ import { updateHelpUs,insertHelpUs } from '../database/helpus';
  */
 export const postHelpUsEnd = (req: Request, res: Response) => {
     const idSession = req.session.user.idSession;
-    const idInteraction: string = req.body.idInteraction;
+    const idHelpUs: string = req.body.idHelpUs;
     const nextAction: string = req.body.nextAction;
     const answer: string = req.body.answer;
 
     try {
-      updateHelpUs(idSession, idInteraction, nextAction, answer);
+      updateHelpUs(idSession, idHelpUs, nextAction, answer);
       return res.sendStatus(200);
     } catch (error) {
       return res.sendStatus(500);

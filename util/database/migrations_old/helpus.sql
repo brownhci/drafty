@@ -1,5 +1,6 @@
 create table HelpUs
 (
+    idHelpUs        int(11) auto_increment,
     idInteraction   int(11) not null,
     idUniqueID      int(11) not null,
     helpUsType      varchar(200)  not null,
@@ -8,6 +9,8 @@ create table HelpUs
     answer	        varchar(2500),
     start           timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     end             timestamp,
+    constraint HelpUs_pk
+        primary key (idHelpUs),
     constraint HelpUs___fk_interaction_idInteraction
         foreign key (idInteraction) references Interaction (idInteraction),
     constraint HelpUs___fk_interaction_idUniqueID
