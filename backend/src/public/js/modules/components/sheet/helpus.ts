@@ -70,43 +70,33 @@ const generateSentence = (i: HelpUsInterface) => {
       return `Do you know when ${i.professor} joined ${i.university} as a professor?`;
     case 3:
       return (
-        'Do you know what the subfield of ' +
-        i.professor +
-        ' from ' +
-        i.university +
-        ' is?'
+        `Do you know what the subfield of ${i.professor} from ${i.university} is?`
       );
     case 4:
       return (
-        'Do you know where ' +
-        i.professor +
-        ' from ' +
-        i.university +
-        ' got their bachelors degree?'
+        `Do you know where ${i.professor} from ${i.university} got their bachelors degree?`
       );
     case 5:
       return (
-        'Do you know where ' +
-        i.professor +
-        ' from ' +
-        i.university +
-        ' got their doctorate degree?'
+        `Do you know where ${i.professor} from ${i.university} got their doctorate degree?`
       );
     default:
-      return 'error';
+      return `Oh we are so sorry, something went wrong! Please try again. :)`;
   }
 };
 
+function updateHelpusHTML(sentence: string) {
+  console.log(`updateHelpusHTML -> ${sentence}`);
+  helpusText.innerHTML = sentence;
+}
+
 function showThankyouScreen () {
-  helpusText.innerHTML = 'Your response has been recorded. Thank you for contributing to Drafty!';
+  console.log(`Show Thank You Screen`);
+  updateHelpusHTML(`Your response has been recorded. Thank you for contributing to Drafty!`);
   helpusNextButton.innerHTML = 'Show me another Help Us';
   helpusDefaultInteraction.style.display = 'none';
   helpusPhdInteraction.style.display = 'none';
   helpusSubmit.style.display = 'none';
-}
-
-function updateHelpusHTML(sentence: string) {
-  helpusText.innerHTML = sentence;
 }
 
 function range(size: number, startAt: number = 0): Array<number> {
@@ -241,8 +231,9 @@ function updateInteractionDisplay(i: HelpUsInterface) {
 }
 
 function updateSubmitButton(i: HelpUsInterface) {
-  console.log('updateSubmitButton');
+  console.log(`updateSubmitButton ${i.typeId }`);
   if (i.typeId === HelpusType.PHD_NOTE) {
+    console.log(`updateSubmitButton PHD_NOTE`);
     helpusSubmit.onclick = function () {
       const answer = helpusYesRadio.checked
       ? 'This professor is looking for PhD students to start in the next academic year.'
@@ -251,26 +242,31 @@ function updateSubmitButton(i: HelpUsInterface) {
         getIdUniqueID(i.targetCell!),
         answer
       );
+      console.log(`updateSubmitButton PHD_NOTE -- SUBMIT`);
       postHelpusEnd(i.idHelpus!, answer, 'submit');
     };
   } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
+    console.log(`updateSubmitButton WEBSITE_NOTE`);
     helpusSubmit.onclick = function () {
       const input = helpusInput.value;
       if (input === '') {
         alert('You need to enter a valid value.');
         return;
       }
-      const note: string = 'Website at: ' + helpusInput.innerHTML;
+      const note: string = `Website at: ${helpusInput.innerHTML}`;
       postNewComment(getIdUniqueID(i.targetCell!), note);
+      console.log(`updateSubmitButton WEBSITE_NOTE -- SUBMIT`);
       postHelpusEnd(i.idHelpus!, helpusInput.innerHTML, 'submit');
     };
   } else {
     helpusSubmit.onclick = function () {
+      console.log(`updateSubmitButton ELSE`);
       const input = helpusInput.value;
       if (input === '') {
         alert('You need to enter a valid value.');
         return;
       }
+      console.log(`updateSubmitButton ELSE -- SUBMIT`);
       recordCellEdit(i.targetCell!, helpusInput.innerHTML);
       postHelpusEnd(i.idHelpus!, helpusInput.innerHTML, 'submit');
     };
@@ -288,7 +284,7 @@ function openModal() {
   helpusNoRadio.checked = false;
   helpusNextButton.innerHTML = 'I am not sure, but show me another';
 
-  const rand = Math.floor(Math.random() * 2);
+  const rand = Math.floor(Math.random() * 2); // sw: what does this do? -- way too hard coded
   rand === 0 ? (currHelpus = getEmptyCell()!) : (currHelpus = getNoCommentRow()!);
   const info = currHelpus;
   const question = generateSentence(info);
@@ -298,7 +294,7 @@ function openModal() {
   postHelpusStart(helpusDict[info.typeId], getIdUniqueID(info.targetCell!), question);
 }
 
-export async function activateHelpUs() {
+export function activateHelpUs() {
   openModal();
 }
 
@@ -313,6 +309,7 @@ helpusModal.addEventListener('keydown', function (event: KeyboardEvent) {
 helpusNextButton.addEventListener(
   'click',
   function (event: MouseEvent) {
+    console.log(`helpusNextButton see another`);
     postHelpusEnd(currHelpus.idHelpus!, null, 'next');
     openModal();
     event.stopPropagation();
@@ -323,6 +320,7 @@ helpusNextButton.addEventListener(
 helpusCloseButton.addEventListener(
   'click',
   function (event: MouseEvent) {
+    console.log(`helpusCloseButton click close`);
     closeModal();
     event.stopPropagation();
   },
@@ -332,6 +330,7 @@ helpusCloseButton.addEventListener(
 helpusCloseIcon.addEventListener(
   'click',
   function (event: MouseEvent) {
+    console.log(`helpusCloseIcon click close`);
     closeModal();
     event.stopPropagation();
   },
