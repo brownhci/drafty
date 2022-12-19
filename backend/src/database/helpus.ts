@@ -27,8 +27,8 @@ export async function updateHelpUs(idSession: string, idHelpUs: string | number,
         // UPDATE HelpUs SET end = CURRENT_TIMESTAMP, nextAction = ?, answer = ? WHERE idHelpUs = ?
         db.query(stmtUpdateHelpUs, [nextAction, answer, idHelpUs]);
 
-        //const idInteractionType: number = 40; // update new HelpUs
-        //db.query(stmtUpdateHelpUs_UpdateInteraction, [idSession, idInteractionType]);
+        const idInteractionType: number = 40; // update new HelpUs
+        db.query(stmtUpdateHelpUs_UpdateInteraction, [idSession, idInteractionType]);
     } catch (error) {
         logDbErr(error, 'error during updateHelpUs', 'warn');
     }

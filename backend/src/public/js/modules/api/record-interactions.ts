@@ -285,6 +285,7 @@ export function postHelpusStart(helpUsType: string, idUniqueID: number, question
   }
 
 export function postHelpusEnd(idHelpUs: number, answer: string | null, nextAction: string) {
+  console.log(`postHelpusEnd...`);
   recordInteraction(postHelpusEndURL(), {
     idHelpUs,
     answer,
