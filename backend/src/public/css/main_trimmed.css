@@ -13960,29 +13960,30 @@ span.dyk-col-search {
   box-shadow: 0px -1px 3px black 5%; }
 
 #account-container #editor-identifier:hover {
-  border-bottom: solid medium #1089ff; }
+  border-bottom: solid medium #1089ff; 
+}
 
-  #helpus-input:focus {
-    outline: none;
-  }
-  
-  #helpus-close {
-    height:32px;
-    color:#ced4da;
-    cursor:pointer
-  }
-  
-  #helpus-close:hover {
-    color:#adb5bd
-  }
-  
-  .helpus-phd-interaction input[type="radio"] {
-    opacity: 0;
-    position: fixed;
-    width: 0;
-  }
+#helpus-input:focus {
+  outline: none;
+}
 
-.helpus-modal-body {
+#helpus-close {
+  height:32px;
+  color:#ced4da;
+  cursor:pointer
+}
+
+#helpus-close:hover {
+  color:#adb5bd
+}
+  
+#helpus-phd-interaction input[type="radio"] {
+  opacity: 0;
+  position: fixed;
+  width: 0;
+}
+
+#helpus-modal-body {
   display: flex; 
   flex-direction: column; 
   justify-content: center; 
@@ -13990,12 +13991,12 @@ span.dyk-col-search {
   padding-top: 21px !important;
 }
 
-.helpus-modal-content {
+#helpus-modal-content {
   padding-top: 0.5em; 
   padding-bottom: 0em;
 }
 
-.helpus-text {
+#helpus-text {
   font-size: 20px; 
   margin: 0em; 
   min-height: 6em; 
@@ -14004,7 +14005,7 @@ span.dyk-col-search {
   background-image: linear-gradient(to right, rgba(0,0,0,0.03), rgb(0,0,0,0.01), rgba(0,0,0,.03));
 }
 
-.helpus-default-interaction {
+#helpus-default-interaction {
   display: flex; 
   font-size: 16px; 
   color: #1089ff; 
@@ -14015,7 +14016,7 @@ span.dyk-col-search {
   width: 100%;
 }
 
-.helpus-input {
+#helpus-input {
   align-items: flex-start; 
   margin: 0em 1em; 
   border: none; 
@@ -14023,7 +14024,7 @@ span.dyk-col-search {
   width: 80%
 }
 
-.helpus-phd-interaction {
+#helpus-phd-interaction {
   display: none; 
   font-size: 16px; 
   color: #1089ff; 
@@ -14034,34 +14035,34 @@ span.dyk-col-search {
   width: 100%;
 }
 
-.helpus-phd-yes {
+#helpus-phd-yes {
   width: 100%; 
   align-items: flex; 
   margin: 0.5em 1em;
 }
 
-.helpus-phd-no {
+#helpus-phd-no {
   width: 100%; 
   align-items: flex; 
   margin: 0.5em 1em;
 }
 
-.btn-helpus-submit {
+#btn-helpus-submit {
   width: 100%; 
   margin: 0.5em 0.25em 0.5em 0em;
 }
 
-.btn-helpus-next {
+#btn-helpus-next {
   width: 100%; 
   align-items: flex-start; 
   margin: 0.5em;
 }
 
-.helpus-close-help {
+#helpus-close-help {
   padding-top: 0px !important;
 }
 
-.helpus-contribution-confirmation {
+#helpus-contribution-confirmation {
   text-align: center; 
   font-size: 1.25em; 
   color: gray; 
