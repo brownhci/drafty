@@ -244,6 +244,7 @@ function updateSubmitButton(i: HelpUsInterface) {
       );
       console.log(`updateSubmitButton PHD_NOTE -- SUBMIT`);
       postHelpusEnd(i.idHelpus!, answer, 'submit');
+      showThankyouScreen();
     };
   } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
     console.log(`updateSubmitButton WEBSITE_NOTE`);
@@ -257,6 +258,7 @@ function updateSubmitButton(i: HelpUsInterface) {
       postNewComment(getIdUniqueID(i.targetCell!), note);
       console.log(`updateSubmitButton WEBSITE_NOTE -- SUBMIT`);
       postHelpusEnd(i.idHelpus!, helpusInput.innerHTML, 'submit');
+      showThankyouScreen();
     };
   } else {
     helpusSubmit.onclick = function () {
@@ -269,9 +271,9 @@ function updateSubmitButton(i: HelpUsInterface) {
       console.log(`updateSubmitButton ELSE -- SUBMIT`);
       recordCellEdit(i.targetCell!, helpusInput.innerHTML);
       postHelpusEnd(i.idHelpus!, helpusInput.innerHTML, 'submit');
+      showThankyouScreen();
     };
   }
-  showThankyouScreen();
 }
 
 function openModal() {
