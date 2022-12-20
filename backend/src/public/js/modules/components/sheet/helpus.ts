@@ -218,7 +218,7 @@ function getNoCommentRow(): HelpUsInterface | null {
 function updateInteractionDisplay(i: HelpUsInterface) {
   if (i.typeId === HelpusType.PHD_NOTE) {
     helpusDefaultInteraction.style.display = 'none';
-    helpusPhdInteraction.style.display = 'flex';
+    helpusPhdInteraction.style.display = 'block';
   } else if (i.typeId === HelpusType.WEBSITE_NOTE) {
     helpusInput.placeholder = 'Please enter the URL...';
     helpusDefaultInteraction.style.display = 'flex';
@@ -284,7 +284,7 @@ function openModal() {
   helpusSubmit.disabled = true;
   helpusYesRadio.checked = false;
   helpusNoRadio.checked = false;
-  helpusNextButton.innerHTML = 'I am not sure, but show me another';
+  helpusNextButton.innerHTML = 'I am not sure, please show me another';
 
   const rand = Math.floor(Math.random() * 2); // sw: what does this do? -- way too hard coded
   rand === 0 ? (currHelpus = getEmptyCell()!) : (currHelpus = getNoCommentRow()!);
