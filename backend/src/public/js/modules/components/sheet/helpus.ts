@@ -1,6 +1,6 @@
 import { tableDataManager } from '../../../sheet';
 import { postNewCommentURL } from '../../api/endpoints';
-import { recordCellEdit, getIdUniqueID, postHelpusStart, postHelpusEnd } from '../../api/record-interactions';
+import { recordCellEdit, getIdUniqueID, postHelpusStart, postHelpusClosed, postHelpusAnswered, postHelpusShowAnother } from '../../api/record-interactions';
 import { getCellInTableRow } from '../../dom/navigate';
 
 const helpUsOptionIDs = [
@@ -253,7 +253,7 @@ function getEmptyCell(col: number = 2): HelpUsInterface {
 }
 
 function closeModal() {
-  postHelpusEnd(currHelpus.idHelpus!, null, 'close');
+  postHelpusClosed(currHelpus.idHelpus!);
   helpusModal.style.display = 'none';
 }
 
@@ -275,7 +275,7 @@ function updateSubmitButton(i: HelpUsInterface) {
       ? 'This professor is looking for PhD students to start in the next academic year.'
       : 'This professor is not looking for PhD students for the next academic year.';
       postNewComment(getIdUniqueID(i.targetCell!),answer);
-      postHelpusEnd(i.idHelpus!, answer, 'submit');
+      postHelpusAnswered(i.idHelpus!, answer);
       showThankyouScreen();
     };
   } else if (i.helpUsOptionID === helpUsOptions.WEBSITE_NOTE.id) {
@@ -283,7 +283,7 @@ function updateSubmitButton(i: HelpUsInterface) {
       const note: string = `Website: ${helpusInput.innerHTML}`;
       console.log(`updateSubmitButton WEBSITE_NOTE -- SUBMIT = ${note}`);
       postNewComment(getIdUniqueID(i.targetCell!), note);
-      postHelpusEnd(i.idHelpus!, note, 'submit');
+      postHelpusAnswered(i.idHelpus!, note);
       showThankyouScreen();
     };
   } else if (i.helpUsOptionID === helpUsOptions.EMPTY_YEAR.id) {
@@ -291,7 +291,7 @@ function updateSubmitButton(i: HelpUsInterface) {
       const year: string = helpusInput.value.trim();
       console.log(`updateSubmitButton EMPTY_YEAR -- SUBMIT = ${year}`);
       recordCellEdit(i.targetCell!, year);
-      postHelpusEnd(i.idHelpus!, year, 'submit');
+      postHelpusAnswered(i.idHelpus!, year);
       showThankyouScreen();
     };
   } else if (i.helpUsOptionID === helpUsOptions.FUN_NOTE.id) {
@@ -299,7 +299,7 @@ function updateSubmitButton(i: HelpUsInterface) {
       const note: string = helpusInput.value.trim();
       console.log(`updateSubmitButton FUN_NOTE -- SUBMIT = ${note}`);
       recordCellEdit(i.targetCell!, note);
-      postHelpusEnd(i.idHelpus!, note, 'submit');
+      postHelpusAnswered(i.idHelpus!, note);
       showThankyouScreen();
     };
   }
@@ -345,7 +345,7 @@ helpusNextButton.addEventListener(
   'click',
   function (event: MouseEvent) {
     console.log(`helpusNextButton see another`);
-    postHelpusEnd(currHelpus.idHelpus!, null, 'next');
+    postHelpusShowAnother(currHelpus.idHelpus!);
     openModal();
     event.stopPropagation();
   },
@@ -374,11 +374,11 @@ helpusCloseIcon.addEventListener(
 
 function enableSubmitButton() {
   let disable: boolean = true;
-  //console.log(`enableSubmitButton - is helpusSubmit disabled? ${helpusSubmit.disabled}`);
+  console.log(`enableSubmitButton - is helpusSubmit disabled? ${helpusSubmit.disabled}`);
   if(currHelpus.helpUsOptionID === helpUsOptions.PHD_NOTE.id) {
     disable = !helpusYesRadio.checked && !helpusNoRadio.checked;
   } else {
-    //console.log(`helpusInput.value.length = ${helpusInput.value.length}`);
+    console.log(`helpusInput.value.length = ${helpusInput.value.length}`);
     // check inputs
     if(currHelpus.helpUsOptionID === helpUsOptions.EMPTY_YEAR.id) {
       disable = helpusInput.value.length !== 4;
