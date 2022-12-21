@@ -1,8 +1,8 @@
 import { db, logDbErr } from './mysql';
 
 const stmtInsertHelpUs: string = `INSERT INTO HelpUs (idInteraction, idUniqueID, helpUsType, question, answer, start) VALUES (insert_interaction(?,?), ?, ?, ?, null, CURRENT_TIMESTAMP);`;
-const stmtUpdateHelpUsClosed: string = `UPDATE HelpUs SET closed = CURRENT_TIMESTAMP WHERE idHelpUs = ?`;
-const stmtUpdateHelpUsAnswered: string = `UPDATE HelpUs SET answered = CURRENT_TIMESTAMP answer = ? WHERE idHelpUs = ?`;
+const stmtUpdateHelpUsClosed: string =      `UPDATE HelpUs SET closed = CURRENT_TIMESTAMP WHERE idHelpUs = ?`;
+const stmtUpdateHelpUsAnswered: string =    `UPDATE HelpUs SET answered = CURRENT_TIMESTAMP, answer = ? WHERE idHelpUs = ?`;
 const stmtUpdateHelpUsShowAnother: string = `UPDATE HelpUs SET showAnother = CURRENT_TIMESTAMP WHERE idHelpUs = ?`;
 const stmtUpdateHelpUs_UpdateInteraction: string = 'INSERT INTO Interaction (idSession, idInteractionType) VALUES (?,?);';
 
