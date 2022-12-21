@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { updateHelpUs,insertHelpUs } from '../database/helpus';
+import { updateHelpUsClosed,updateHelpUsAnswered,updateHelpUsShowAnother,insertHelpUs } from '../database/helpus';
 
 /**
  * POST /helpus/start
@@ -18,19 +18,50 @@ import { updateHelpUs,insertHelpUs } from '../database/helpus';
 };
 
 /**
- * POST /helpus/end
+ * POST /helpus/closed
  * 
  */
-export const postHelpUsEnd = (req: Request, res: Response) => {
+export const postHelpUsClosed = (req: Request, res: Response) => {
     const idSession = req.session.user.idSession;
     const idHelpUs: string = req.body.idHelpUs;
-    const nextAction: string = req.body.nextAction;
-    const answer: string = req.body.answer;
 
     try {
-      updateHelpUs(idSession, idHelpUs, nextAction, answer);
+      updateHelpUsClosed(idSession, idHelpUs);
       return res.sendStatus(200);
     } catch (error) {
       return res.sendStatus(500);
     }
+};
+
+/**
+ * POST /helpus/answered
+ * 
+ */
+export const postHelpUsAnswered = (req: Request, res: Response) => {
+  const idSession = req.session.user.idSession;
+  const idHelpUs: string = req.body.idHelpUs;
+  const answer: string = req.body.answer;
+
+  try {
+    updateHelpUsAnswered(idSession, idHelpUs, answer);
+    return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
+};
+
+/**
+ * POST /helpus/showanother
+ * 
+ */
+export const postHelpUsShowAnother = (req: Request, res: Response) => {
+  const idSession = req.session.user.idSession;
+  const idHelpUs: string = req.body.idHelpUs;
+
+  try {
+    updateHelpUsShowAnother(idSession, idHelpUs);
+    return res.sendStatus(200);
+  } catch (error) {
+    return res.sendStatus(500);
+  }
 };

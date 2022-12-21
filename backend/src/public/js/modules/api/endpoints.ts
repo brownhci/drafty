@@ -118,6 +118,14 @@ export function postHelpusStartURL() {
   return '/helpus/start';
 }
 
-export function postHelpusEndURL() {
-  return '/helpus/end';
+export function postHelpusClosedURL() {
+  return '/helpus/closed';
+}
+
+export function postHelpusAnsweredURL() {
+  return '/helpus/answered';
+}
+
+export function postHelpusShowAnotherURL() {
+  return '/helpus/showanother';
 }
