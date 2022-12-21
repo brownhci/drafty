@@ -6,8 +6,9 @@
 import { getEnclosingTableRow } from '../dom/navigate';
 import { isTableData } from '../dom/types';
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction, postCommentVoteDownURL, postCommentVoteUpURL, postTweet, postTweetNextAction } from './endpoints';
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction, postCommentVoteDownURL, postCommentVoteUpURL, postTweet, postTweetNextAction, postHelpusClosedURL, postHelpusAnsweredURL, postHelpusShowAnotherURL, postHelpusStartURL } from './endpoints';
 import { DatabaitAction } from '../../../../types/databaits';
+import { updateHelpusID } from '../components/sheet/helpus';
 
 const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector('input[name=\'_csrf\']');
 
@@ -245,5 +246,62 @@ export function postCommentVoteDown(idComment: number, vote: string) {
   recordInteraction(postCommentVoteDownURL(), {
     idComment: idComment,
     vote: vote
+  });
+}
+
+export function postHelpusStartOld(helpUsType: string, idUniqueID: number, question: string) {
+  const response = recordInteraction(postHelpusStartURL(), {
+    helpUsType,
+    idUniqueID,
+    question,
+  });
+  return response;
+}
+
+export function postHelpusStart(helpUsType: string, idUniqueID: number, question: string) {   
+  const bodyData = {
+    helpUsType: helpUsType,
+    idUniqueID: idUniqueID,
+    question: question,
+    _csrf: tableCellInputFormCSRFInput.value,
+  };
+  const options = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(bodyData),
+  };
+  fetch(postHelpusStartURL(), options)
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      updateHelpusID(data!);
+    })
+    .catch((error) => {
+      // TODO: in the future,
+      // consider how we should communicate to the user there was an error
+      console.error(error);
+    });
+  }
+
+  export function postHelpusClosed(idHelpUs: number) {
+    console.log(`postHelpusClosed...`);
+    recordInteraction(postHelpusClosedURL(), {
+      idHelpUs
+    });
+  }
+
+export function postHelpusAnswered(idHelpUs: number, answer: string | null) {
+  console.log(`postHelpusAnswered...`);
+  recordInteraction(postHelpusAnsweredURL(), {
+    idHelpUs,
+    answer
+  });
+}
+
+export function postHelpusShowAnother(idHelpUs: number) {
+  console.log(`postHelpusShowAnother...`);
+  recordInteraction(postHelpusShowAnotherURL(), {
+    idHelpUs
   });
 }

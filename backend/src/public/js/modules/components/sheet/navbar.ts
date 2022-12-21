@@ -1,12 +1,14 @@
 import { StatusMode, tableFoot } from './table-foot';
 import { deleteRow, deleteRowModalErrorActivate } from './delete-row';
 import { activateDatabait } from './databaits';
+import { activateHelpUs } from './helpus';
 import { activeTableCellElement } from '../../../sheet';
 import { DatabaitCreateType, InteractionTypeDatabaitCreate } from '../../../../../types/databaits';
 
 const navBarNewRow: HTMLElement = document.getElementById('navbar-addrow-select');
 const navBarDelRow: HTMLElement = document.getElementById('navbar-delrow-select');
 const navBarDidYouKnow: HTMLElement = document.getElementById('navbar-didyouknow-select');
+const navBarHelpUs: HTMLElement = document.getElementById('navbar-helpus-select');
 const navBarNewRowMobile: HTMLElement = document.getElementById('navbar-addrow-select-mobile');
 const navBarDelRowMobile: HTMLElement = document.getElementById('navbar-delrow-select-mobile');
 const navBarDidYouKnowMobile: HTMLElement = document.getElementById('navbar-didyouknow-select-mobile');
@@ -50,4 +52,14 @@ navBarDidYouKnow.addEventListener('click', function(event: MouseEvent) {
 }, true);
 navBarDidYouKnowMobile.addEventListener('click', function(event: MouseEvent) {
     didYouKnowSelect(event);
+}, true);
+
+function helpUsSelect(event: MouseEvent) {
+    event.preventDefault();
+    // activateDatabait(activeTableCellElement,InteractionTypeDatabaitCreate.navbar_menu,DatabaitCreateType.navbar_menu);
+    activateHelpUs();
+    event.stopPropagation();
+}
+navBarHelpUs.addEventListener('click', function(event: MouseEvent) {
+    helpUsSelect(event);
 }, true);

@@ -27,6 +27,7 @@ import * as dataSharingCtrl from './controllers/datasharing';
 import * as dataPrivacyCtrl from './controllers/dataprivacy';
 import * as databaitsCtrl from './controllers/databaits';
 import * as commentsCtrl from './controllers/comments';
+import * as helpusCtrl from './controllers/helpus';
 import * as experimentsCtrl from './controllers/experiments';
 // import * as middlewareTests from "./util/middlewaretests";
 
@@ -195,6 +196,12 @@ app.get('/comments/row/:idrow', commentsCtrl.getComments);
 app.post('/comments/new', commentsCtrl.postNewComment);
 app.post('/comments/vote/update/up', commentsCtrl.postCommentVoteUp);
 app.post('/comments/vote/update/down', commentsCtrl.postCommentVoteDown);
+
+//helpus
+app.post('/helpus/start', helpusCtrl.postHelpUsStart);
+app.post('/helpus/closed', helpusCtrl.postHelpUsClosed);
+app.post('/helpus/answered', helpusCtrl.postHelpUsAnswered);
+app.post('/helpus/showanother', helpusCtrl.postHelpUsShowAnother);
 
 // suggestions
 app.post('/newrow', suggestionCtrl.postNewRow);

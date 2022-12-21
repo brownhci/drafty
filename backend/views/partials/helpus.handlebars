@@ -1,0 +1,44 @@
+<div id="helpus-screen" class="modal" tabindex="-1" role="dialog" data-backdrop="static" style="display:none">
+  <div id="helpus-modal-content" class="modal-content">
+    <div class="modal-header">
+      <h5 id="helpus-modal-title" class="modal-title">Help Us</h5>
+      <i class="fas fa-times" id="helpus-close"></i>
+    </div>
+    <div id="helpus-modal-body" class="modal-body">
+      <p id="helpus-text"></p>
+      <div id= "helpus-default-interaction">
+        Yes!
+        <input type="text" id="helpus-input" placeholder = 'type here...' autocomplete="off"></input>
+      </div>
+      <div id="helpus-phd-interaction">
+        <div class="form-check-inline cursor-pointer">
+          <label class="form-check-label" for="helpus-phd-yes">
+            <input class="form-check-input" type="radio" value="Yes, they are!" id="helpus-phd-yes" name="yesno">
+            Yes, they are!
+          </label>
+        </div>
+        <div class="form-check-inline cursor-pointer">
+          <label class="form-check-label" for="helpus-phd-no">
+            <input class="form-check-input" type="radio" value="No, they are not." id="helpus-phd-no" name="yesno">
+            No, they are not.
+          </label>
+        </div>
+      </div>
+      <button type="button" id="btn-helpus-submit" class="btn btn btn-outline-primary btn-block disabled" disabled>
+        Submit
+      </button>
+      <button type="button" id="btn-helpus-next" class="btn btn btn-outline-secondary btn-block mb-0">
+        I am not sure, please show me another
+      </button>
+    </div>
+
+    <div id="helpus-close-help" class="modal-body">
+      <!--<p style="border-bottom: 1px solid #dee2e6 !important;"></p>-->
+      <hr class="mt-0">
+      <button type="button" id="helpusModalClose" class="btn btn btn-outline-secondary btn-block" data-dismiss="modal">
+          Close
+      </button>
+      <p id="helpus-contribution-confirmation"></p>
+    </div>
+  </div>
+</div>
