@@ -6,7 +6,7 @@
 import { getEnclosingTableRow } from '../dom/navigate';
 import { isTableData } from '../dom/types';
 import { getTableRowCellValues, getTableCellTextsInColumn, getTableCellElementsInRow, tableColumnSearches, isColumnSearchFilled, getColumnLabel, getColumnSearchInput } from '../dom/sheet';
-import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction, postCommentVoteDownURL, postCommentVoteUpURL, postTweet, postTweetNextAction, postHelpusEndURL, postHelpusStartURL } from './endpoints';
+import { postCellClickURL, postCellDoubleClickURL, postPasteURL, postCellCopyURL, postColumnCopyURL, postColumnSortURL, postColumnPartialSearchURL, postColumnCompleteSearchURL, postNewRowURL, postDelRowURL, postGoogleSearchURL, postDatabaitVisit, postSearchColVisit, postDatabaitNextAction, postCommentVoteDownURL, postCommentVoteUpURL, postTweet, postTweetNextAction, postHelpusClosedURL, postHelpusAnsweredURL, postHelpusShowAnotherURL, postHelpusStartURL } from './endpoints';
 import { DatabaitAction } from '../../../../types/databaits';
 import { updateHelpusID } from '../components/sheet/helpus';
 
@@ -284,11 +284,24 @@ export function postHelpusStart(helpUsType: string, idUniqueID: number, question
     });
   }
 
-export function postHelpusEnd(idHelpUs: number, answer: string | null, nextAction: string) {
-  console.log(`postHelpusEnd...`);
-  recordInteraction(postHelpusEndURL(), {
+  export function postHelpusClosed(idHelpUs: number) {
+    console.log(`postHelpusClosed...`);
+    recordInteraction(postHelpusClosedURL(), {
+      idHelpUs
+    });
+  }
+
+export function postHelpusAnswered(idHelpUs: number, answer: string | null) {
+  console.log(`postHelpusAnswered...`);
+  recordInteraction(postHelpusAnsweredURL(), {
     idHelpUs,
-    answer,
-    nextAction
+    answer
+  });
+}
+
+export function postHelpusShowAnother(idHelpUs: number) {
+  console.log(`postHelpusShowAnother...`);
+  recordInteraction(postHelpusShowAnotherURL(), {
+    idHelpUs
   });
 }

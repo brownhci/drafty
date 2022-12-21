@@ -199,7 +199,9 @@ app.post('/comments/vote/update/down', commentsCtrl.postCommentVoteDown);
 
 //helpus
 app.post('/helpus/start', helpusCtrl.postHelpUsStart);
-app.post('/helpus/end', helpusCtrl.postHelpUsEnd);
+app.post('/helpus/closed', helpusCtrl.postHelpUsClosed);
+app.post('/helpus/answered', helpusCtrl.postHelpUsAnswered);
+app.post('/helpus/showanother', helpusCtrl.postHelpUsShowAnother);
 
 // suggestions
 app.post('/newrow', suggestionCtrl.postNewRow);
