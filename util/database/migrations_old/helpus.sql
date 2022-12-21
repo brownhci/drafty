@@ -20,4 +20,6 @@ create table HelpUs
 );
 
 INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES (39, 'helpUs-create');
-INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES (40, 'helpUs-end');
+INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES (40, 'helpUs-closed');
+INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES (41, 'helpUs-showAnother');
+INSERT INTO csprofessors.InteractionType (idInteractionType, interaction) VALUES (42, 'helpUs-answered');

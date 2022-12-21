@@ -27,7 +27,7 @@ export async function insertHelpUs(idSession: string, idUniqueID: string, helpUs
 export async function updateHelpUsClosed(idSession: string, idHelpUs: string | number) {
     try {
         db.query(stmtUpdateHelpUsClosed, [idHelpUs]);
-        const idInteractionType: number = 40; // update new HelpUs
+        const idInteractionType: number = 40; // update closed HelpUs
         db.query(stmtUpdateHelpUs_UpdateInteraction, [idSession, idInteractionType]);
     } catch (error) {
         logDbErr(error, 'error during updateHelpUs', 'warn');
@@ -37,6 +37,8 @@ export async function updateHelpUsClosed(idSession: string, idHelpUs: string | n
 export async function updateHelpUsAnswered(idSession: string, idHelpUs: string | number, answer: string) {
     try {
         db.query(stmtUpdateHelpUsAnswered, [answer, idHelpUs]);
+        const idInteractionType: number = 41; // update answered HelpUs
+        db.query(stmtUpdateHelpUs_UpdateInteraction, [idSession, idInteractionType]);
     } catch (error) {
         logDbErr(error, 'error during updateHelpUs', 'warn');
     }
@@ -45,6 +47,8 @@ export async function updateHelpUsAnswered(idSession: string, idHelpUs: string |
 export async function updateHelpUsShowAnother(idSession: string, idHelpUs: string | number) {
     try {
         db.query(stmtUpdateHelpUsShowAnother, [idHelpUs]);
+        const idInteractionType: number = 42; // update show another HelpUs
+        db.query(stmtUpdateHelpUs_UpdateInteraction, [idSession, idInteractionType]);
     } catch (error) {
         logDbErr(error, 'error during updateHelpUs', 'warn');
     }
