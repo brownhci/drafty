@@ -1,7 +1,9 @@
 import { db, logDbErr } from './mysql';
 
-const stmtInsertHelpUs: string = `INSERT INTO HelpUs (idInteraction, idUniqueID, helpUsType, question, nextAction, answer, start) VALUES (insert_interaction(?,?), ?, ?, ?, null, null, CURRENT_TIMESTAMP);`;
-const stmtUpdateHelpUs: string = `UPDATE HelpUs SET end = CURRENT_TIMESTAMP, nextAction = ?, answer = ? WHERE idHelpUs = ?`;
+const stmtInsertHelpUs: string = `INSERT INTO HelpUs (idInteraction, idUniqueID, helpUsType, question, answer, start) VALUES (insert_interaction(?,?), ?, ?, ?, null, CURRENT_TIMESTAMP);`;
+const stmtUpdateHelpUsClosed: string = `UPDATE HelpUs SET closed = CURRENT_TIMESTAMP WHERE idHelpUs = ?`;
+const stmtUpdateHelpUsAnswered: string = `UPDATE HelpUs SET answered = CURRENT_TIMESTAMP answer = ? WHERE idHelpUs = ?`;
+const stmtUpdateHelpUsShowAnother: string = `UPDATE HelpUs SET showAnother = CURRENT_TIMESTAMP WHERE idHelpUs = ?`;
 const stmtUpdateHelpUs_UpdateInteraction: string = 'INSERT INTO Interaction (idSession, idInteractionType) VALUES (?,?);';
 
 
@@ -22,14 +24,27 @@ export async function insertHelpUs(idSession: string, idUniqueID: string, helpUs
     }
 }
 
-export async function updateHelpUs(idSession: string, idHelpUs: string | number, nextAction: string, answer: string) {
-    console.log(nextAction, answer, idHelpUs);
+export async function updateHelpUsClosed(idSession: string, idHelpUs: string | number) {
     try {
-        // UPDATE HelpUs SET end = CURRENT_TIMESTAMP, nextAction = ?, answer = ? WHERE idHelpUs = ?
-        db.query(stmtUpdateHelpUs, [nextAction, answer, idHelpUs]);
-
+        db.query(stmtUpdateHelpUsClosed, [idHelpUs]);
         const idInteractionType: number = 40; // update new HelpUs
         db.query(stmtUpdateHelpUs_UpdateInteraction, [idSession, idInteractionType]);
+    } catch (error) {
+        logDbErr(error, 'error during updateHelpUs', 'warn');
+    }
+}
+
+export async function updateHelpUsAnswered(idSession: string, idHelpUs: string | number, answer: string) {
+    try {
+        db.query(stmtUpdateHelpUsAnswered, [answer, idHelpUs]);
+    } catch (error) {
+        logDbErr(error, 'error during updateHelpUs', 'warn');
+    }
+}
+
+export async function updateHelpUsShowAnother(idSession: string, idHelpUs: string | number) {
+    try {
+        db.query(stmtUpdateHelpUsShowAnother, [idHelpUs]);
     } catch (error) {
         logDbErr(error, 'error during updateHelpUs', 'warn');
     }
