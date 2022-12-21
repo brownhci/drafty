@@ -1,3 +1,4 @@
+drop table if exists HelpUs;
 create table HelpUs
 (
     idHelpUs        int(11) auto_increment,
@@ -5,10 +6,11 @@ create table HelpUs
     idUniqueID      int(11) not null,
     helpUsType      varchar(200)  not null,
     question        varchar(2500) not null,
-    nextAction      varchar(200),
     answer	        varchar(2500),
     start           timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    end             timestamp,
+    answered        timestamp,
+    showAnother     timestamp,
+    closed          timestamp,
     constraint HelpUs_pk
         primary key (idHelpUs),
     constraint HelpUs___fk_interaction_idInteraction
