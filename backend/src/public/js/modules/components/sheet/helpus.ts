@@ -121,12 +121,10 @@ const helpusNoRadio = <HTMLInputElement>(
 );
 
 function updateHelpusHTML(sentence: string) {
-  console.log(`updateHelpusHTML -> ${sentence}`);
   helpusText.innerHTML = sentence;
 }
 
 function showThankyouScreen () {
-  console.log(`Show Thank You Screen`);
   updateHelpusHTML(`Your response has been recorded. Thank you for contributing to Drafty!`);
   helpusNextButton.innerHTML = 'Show me another Help Us';
   helpusDefaultInteraction.style.display = 'none';
@@ -280,8 +278,8 @@ function updateSubmitButton(i: HelpUsInterface) {
     };
   } else if (i.helpUsOptionID === helpUsOptions.WEBSITE_NOTE.id) {
     helpusSubmit.onclick = function () {
-      const note: string = `Website: ${helpusInput.innerHTML}`;
-      console.log(`updateSubmitButton WEBSITE_NOTE -- SUBMIT = ${note}`);
+      const note: string = `Website: ${helpusInput.value.trim()}`;
+      //console.log(`updateSubmitButton WEBSITE_NOTE -- SUBMIT = ${note}`);
       postNewComment(getIdUniqueID(i.targetCell!), note);
       postHelpusAnswered(i.idHelpus!, note);
       showThankyouScreen();
@@ -289,7 +287,7 @@ function updateSubmitButton(i: HelpUsInterface) {
   } else if (i.helpUsOptionID === helpUsOptions.EMPTY_YEAR.id) {
     helpusSubmit.onclick = function () {
       const year: string = helpusInput.value.trim();
-      console.log(`updateSubmitButton EMPTY_YEAR -- SUBMIT = ${year}`);
+      //console.log(`updateSubmitButton EMPTY_YEAR -- SUBMIT = ${year}`);
       recordCellEdit(i.targetCell!, year);
       postHelpusAnswered(i.idHelpus!, year);
       showThankyouScreen();
@@ -297,7 +295,7 @@ function updateSubmitButton(i: HelpUsInterface) {
   } else if (i.helpUsOptionID === helpUsOptions.FUN_NOTE.id) {
     helpusSubmit.onclick = function () {
       const note: string = helpusInput.value.trim();
-      console.log(`updateSubmitButton FUN_NOTE -- SUBMIT = ${note}`);
+      //console.log(`updateSubmitButton FUN_NOTE -- SUBMIT = ${note}`);
       recordCellEdit(i.targetCell!, note);
       postHelpusAnswered(i.idHelpus!, note);
       showThankyouScreen();
@@ -344,7 +342,7 @@ helpusModal.addEventListener('keydown', function (event: KeyboardEvent) {
 helpusNextButton.addEventListener(
   'click',
   function (event: MouseEvent) {
-    console.log(`helpusNextButton see another`);
+    //console.log(`helpusNextButton see another`);
     postHelpusShowAnother(currHelpus.idHelpus!);
     openModal();
     event.stopPropagation();
@@ -355,7 +353,7 @@ helpusNextButton.addEventListener(
 helpusCloseButton.addEventListener(
   'click',
   function (event: MouseEvent) {
-    console.log(`helpusCloseButton click close`);
+    //console.log(`helpusCloseButton click close`);
     closeModal();
     event.stopPropagation();
   },
@@ -365,7 +363,7 @@ helpusCloseButton.addEventListener(
 helpusCloseIcon.addEventListener(
   'click',
   function (event: MouseEvent) {
-    console.log(`helpusCloseIcon click close`);
+    //console.log(`helpusCloseIcon click close`);
     closeModal();
     event.stopPropagation();
   },
@@ -374,11 +372,9 @@ helpusCloseIcon.addEventListener(
 
 function enableSubmitButton() {
   let disable: boolean = true;
-  console.log(`enableSubmitButton - is helpusSubmit disabled? ${helpusSubmit.disabled}`);
   if(currHelpus.helpUsOptionID === helpUsOptions.PHD_NOTE.id) {
     disable = !helpusYesRadio.checked && !helpusNoRadio.checked;
   } else {
-    console.log(`helpusInput.value.length = ${helpusInput.value.length}`);
     // check inputs
     if(currHelpus.helpUsOptionID === helpUsOptions.EMPTY_YEAR.id) {
       disable = helpusInput.value.length !== 4;
