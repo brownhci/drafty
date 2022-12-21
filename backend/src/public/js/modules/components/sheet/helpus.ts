@@ -3,36 +3,38 @@ import { postNewCommentURL } from '../../api/endpoints';
 import { recordCellEdit, getIdUniqueID, postHelpusStart, postHelpusEnd } from '../../api/record-interactions';
 import { getCellInTableRow } from '../../dom/navigate';
 
-const helpUsIDs = [
+const helpUsOptionIDs = [
   'PHD_NOTE', 
   'WEBSITE_NOTE', 
   'EMPTY_YEAR', 
   'EMPTY_SUBFIELD', 
   'EMPTY_BACHELORS', 
-  'EMPTY_DOCTORATE'
+  'EMPTY_DOCTORATE',
+  'FUN_NOTE'
 ] as const;
 
-type HelpUsID = typeof helpUsIDs[number];
+type HelpUsOptionID = typeof helpUsOptionIDs[number];
 
 type HelpUsOption = {
-  id: HelpUsID;
+  id: HelpUsOptionID;
   active: boolean;
   comment: boolean;
   sentence?: string;
   placeholder?: string;
 }
 
-const helpUsOptions: Record<HelpUsID, HelpUsOption> = {
+const helpUsOptions: Record<HelpUsOptionID, HelpUsOption> = {
   PHD_NOTE: {id: 'PHD_NOTE', active: true, comment: true, sentence: '', placeholder: ''},
   WEBSITE_NOTE: {id: 'WEBSITE_NOTE', active: true, comment: true, sentence: '', placeholder: 'Please enter the URL...'},
   EMPTY_YEAR: {id: 'EMPTY_YEAR', active: true, comment: false, sentence: '', placeholder: 'Please enter the 4-digit year...'},
-  EMPTY_SUBFIELD: {id: 'EMPTY_SUBFIELD', active: false, comment: false, sentence: '', placeholder: 'Please enter the university name here ...'},
-  EMPTY_BACHELORS: {id: 'EMPTY_BACHELORS', active: false, comment: false, sentence: '', placeholder: 'Please enter the university name here ...'},
-  EMPTY_DOCTORATE: {id: 'EMPTY_DOCTORATE', active: false, comment: false, sentence: '', placeholder: 'Please enter the university name here ...'},
+  EMPTY_SUBFIELD: {id: 'EMPTY_SUBFIELD', active: false, comment: false, sentence: '', placeholder: 'Please enter the university name...'},
+  EMPTY_BACHELORS: {id: 'EMPTY_BACHELORS', active: false, comment: false, sentence: '', placeholder: 'Please enter the university name...'},
+  EMPTY_DOCTORATE: {id: 'EMPTY_DOCTORATE', active: false, comment: false, sentence: '', placeholder: 'Please enter the university name...'},
+  FUN_NOTE: {id: 'FUN_NOTE', active: true, comment: true, sentence: '', placeholder: 'Please enter a fun fact about this professor...'},
 } as const;
 
 interface HelpUsInterface {
-  helpUsID: HelpUsID;
+  helpUsOptionID: HelpUsOptionID;
   university: string;
   professor: string;
   targetCell: HTMLTableCellElement | null;
@@ -40,7 +42,7 @@ interface HelpUsInterface {
 }
 
 let currHelpus: HelpUsInterface = {
-  helpUsID: helpUsOptions.PHD_NOTE.id,
+  helpUsOptionID: helpUsOptions.PHD_NOTE.id,
   university: '',
   professor: '',
   targetCell: null,
@@ -48,7 +50,7 @@ let currHelpus: HelpUsInterface = {
 };
 
 const generateSentence = (i: HelpUsInterface) => {
-  switch (i.helpUsID) {
+  switch (i.helpUsOptionID) {
     case helpUsOptions.PHD_NOTE.id:
       return `Do you know if ${i.professor} from ${i.university} is looking for PhD students for the next academic year?`;
     case helpUsOptions.WEBSITE_NOTE.id:
@@ -67,21 +69,25 @@ const generateSentence = (i: HelpUsInterface) => {
       return (
         `Do you know where ${i.professor} from ${i.university} got their doctorate degree?`
       );
+    case helpUsOptions.FUN_NOTE.id:
+        return (
+          `Please share a fun fact or something interesting about ${i.professor} from ${i.university}.`
+        );
     default:
       return `Oh we are so sorry, something went wrong! Please try again. :)`;
   }
 };
 
-function getRandomHelpUsOption() {
+function getRandomHelpUsOption(): HelpUsOptionID {
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  const key = (shuffle(Object.keys(helpUsOptions)) as Array<HelpUsID>).find(key => helpUsOptions[key].active === true);
-  return key;
+  const key = (shuffle(Object.keys(helpUsOptions)) as Array<HelpUsOptionID>).find(key => helpUsOptions[key].active === true);
+  return key!;
 }
 
-function getRandomHelpUsOptionComment() {
+function getRandomHelpUsOptionComment(): HelpUsOptionID {
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  const key = (shuffle(Object.keys(helpUsOptions)) as Array<HelpUsID>).find(key => helpUsOptions[key].active === true && helpUsOptions[key].comment === true);
-  return key;
+  const key = (shuffle(Object.keys(helpUsOptions)) as Array<HelpUsOptionID>).find(key => helpUsOptions[key].active === true && helpUsOptions[key].comment === true);
+  return key!;
 }
 
 const helpusModal = <HTMLElement>document.getElementById('helpus-screen');
@@ -186,14 +192,46 @@ function postNewComment(idrow: string | number, comment: string) {
     });
 }
 
-function getEmptyCell(): HelpUsInterface | null {
+
+function getNoCommentRow(helpUsOptionID: HelpUsOptionID): HelpUsInterface {
+  const n: number = tableDataManager.source.length;
+  const arr = range(n);
+  const shuffled = shuffle(arr);
+  for (let row = 0; row < n; ++row) {
+    const rowEle = tableDataManager.source[shuffled[row]].element_ as HTMLTableRowElement;
+    const targetCell = rowEle.firstChild as HTMLTableCellElement;
+    const profName = getCellInTableRow(rowEle, 0)?.textContent?.trim();
+    const profUniversity = getCellInTableRow(rowEle, 1)?.textContent?.trim();
+    if (!targetCell.innerHTML.includes('comment-indicator'))
+      return {
+        helpUsOptionID: helpUsOptionID,
+        university: profUniversity!,
+        professor: profName!,
+        targetCell: targetCell,
+        idHelpus: -1
+      };
+  }
+  // nothing found so grab first random row
+  const rowEle = tableDataManager.source[shuffled[0]].element_ as HTMLTableRowElement;
+  const targetCell = rowEle.firstChild as HTMLTableCellElement;
+  const profName = getCellInTableRow(rowEle, 0)?.textContent?.trim();
+  const profUniversity = getCellInTableRow(rowEle, 1)?.textContent?.trim();
+  return {
+    helpUsOptionID: helpUsOptionID,
+    university: profUniversity!,
+    professor: profName!,
+    targetCell: targetCell,
+    idHelpus: -1
+  };
+}
+
+function getEmptyCell(col: number = 2): HelpUsInterface {
   const n: number = tableDataManager.source.length;
   const arr = range(n);
   const shuffled = shuffle(arr);
   for (let row = 0; row < n; ++row) {
     const rowEle = tableDataManager.source[shuffled[row]]
       .element_ as HTMLTableRowElement;
-    const col = 2; // join year --- sw should not be hardcoded
     const targetCell = getCellInTableRow(rowEle, col);
     const cellValue = targetCell!.textContent?.trim();
     if (!cellValue) {
@@ -203,14 +241,15 @@ function getEmptyCell(): HelpUsInterface | null {
         1
       )?.textContent?.trim();
       return {
-        helpUsID: helpUsOptions.EMPTY_YEAR.id,
+        helpUsOptionID: helpUsOptions.EMPTY_YEAR.id,
         university: profUniversity!,
         professor: profName!,
         targetCell: targetCell!,
+        idHelpus: -1
       };
     }
   }
-  return null;
+  return getNoCommentRow(getRandomHelpUsOptionComment());
 }
 
 function closeModal() {
@@ -218,77 +257,49 @@ function closeModal() {
   helpusModal.style.display = 'none';
 }
 
-function getNoCommentRow(): HelpUsInterface | null {
-  const n: number = tableDataManager.source.length;
-  const arr = range(n);
-  const shuffled = shuffle(arr);
-  for (let row = 0; row < n; ++row) {
-    const rowEle = tableDataManager.source[shuffled[row]]
-      .element_ as HTMLTableRowElement;
-    const targetCell = rowEle.firstChild as HTMLTableCellElement;
-    const profName = getCellInTableRow(rowEle, 0)?.textContent?.trim();
-    const profUniversity = getCellInTableRow(rowEle, 1)?.textContent?.trim();
-    if (!targetCell.innerHTML.includes('comment-indicator'))
-      return {
-        helpUsID: getRandomHelpUsOptionComment()!,
-        university: profUniversity!,
-        professor: profName!,
-        targetCell: targetCell,
-      };
-  }
-  return null;
-}
-
 function updateInteractionDisplay(i: HelpUsInterface) {
-  if (i.helpUsID === helpUsOptions.PHD_NOTE.id) {
+  if (i.helpUsOptionID === helpUsOptions.PHD_NOTE.id) {
     helpusDefaultInteraction.style.display = 'none';
     helpusPhdInteraction.style.display = 'block';
-  } else if (i.helpUsID === helpUsOptions.WEBSITE_NOTE.id) {
-    helpusDefaultInteraction.style.display = 'flex';
-    helpusPhdInteraction.style.display = 'none';
   } else {
     helpusDefaultInteraction.style.display = 'flex';
     helpusPhdInteraction.style.display = 'none';
   }
-  helpusInput.placeholder = helpUsOptions[i.helpUsID].placeholder!;
+  helpusInput.placeholder = helpUsOptions[i.helpUsOptionID].placeholder!;
 }
 
 function updateSubmitButton(i: HelpUsInterface) {
-  if (i.helpUsID === helpUsOptions.PHD_NOTE.id) {
+  if (i.helpUsOptionID === helpUsOptions.PHD_NOTE.id) {
     helpusSubmit.onclick = function () {
       const answer = helpusYesRadio.checked
       ? 'This professor is looking for PhD students to start in the next academic year.'
-      : 'This professor is not looking for PhD students right now.';
-      postNewComment(
-        getIdUniqueID(i.targetCell!),
-        answer
-      );
+      : 'This professor is not looking for PhD students for the next academic year.';
+      postNewComment(getIdUniqueID(i.targetCell!),answer);
       postHelpusEnd(i.idHelpus!, answer, 'submit');
       showThankyouScreen();
     };
-  } else if (i.helpUsID === helpUsOptions.WEBSITE_NOTE.id) {
+  } else if (i.helpUsOptionID === helpUsOptions.WEBSITE_NOTE.id) {
     helpusSubmit.onclick = function () {
-      const input = helpusInput.value;
-      if (input === '') {
-        alert('You need to enter a valid value.');
-        return;
-      }
-      const note: string = `Website at: ${helpusInput.innerHTML}`;
+      const note: string = `Website: ${helpusInput.innerHTML}`;
+      console.log(`updateSubmitButton WEBSITE_NOTE -- SUBMIT = ${note}`);
       postNewComment(getIdUniqueID(i.targetCell!), note);
-      postHelpusEnd(i.idHelpus!, helpusInput.innerHTML, 'submit');
+      postHelpusEnd(i.idHelpus!, note, 'submit');
       showThankyouScreen();
     };
-  } else {
+  } else if (i.helpUsOptionID === helpUsOptions.EMPTY_YEAR.id) {
     helpusSubmit.onclick = function () {
-      console.log(`updateSubmitButton ELSE`);
-      const input = helpusInput.value;
-      if (input === '') {
-        alert('You need to enter a valid value.');
-        return;
-      }
-      console.log(`updateSubmitButton ELSE -- SUBMIT`);
-      recordCellEdit(i.targetCell!, helpusInput.innerHTML);
-      postHelpusEnd(i.idHelpus!, helpusInput.innerHTML, 'submit');
+      const year: string = helpusInput.value.trim();
+      console.log(`updateSubmitButton EMPTY_YEAR -- SUBMIT = ${year}`);
+      recordCellEdit(i.targetCell!, year);
+      postHelpusEnd(i.idHelpus!, year, 'submit');
+      showThankyouScreen();
+    };
+  } else if (i.helpUsOptionID === helpUsOptions.FUN_NOTE.id) {
+    helpusSubmit.onclick = function () {
+      const note: string = helpusInput.value.trim();
+      console.log(`updateSubmitButton FUN_NOTE -- SUBMIT = ${note}`);
+      recordCellEdit(i.targetCell!, note);
+      postHelpusEnd(i.idHelpus!, note, 'submit');
       showThankyouScreen();
     };
   }
@@ -304,14 +315,18 @@ function openModal() {
   helpusNoRadio.checked = false;
   helpusNextButton.innerHTML = 'I am not sure, please show me another';
 
-  const rand = Math.floor(Math.random() * 2); // sw: what does this do? -- way too hard coded
-  rand === 0 ? (currHelpus = getEmptyCell()!) : (currHelpus = getNoCommentRow()!);
-  const currentHelpUs = currHelpus;
-  const question = generateSentence(info);
+  currHelpus.helpUsOptionID = getRandomHelpUsOption();
+  if(!helpUsOptions[currHelpus.helpUsOptionID].comment) {
+    currHelpus = getEmptyCell();
+  } else {
+    currHelpus = getNoCommentRow(currHelpus.helpUsOptionID);
+  }
+  const question = generateSentence(currHelpus);
+
   updateHelpusHTML(question);
-  updateInteractionDisplay(info);
-  updateSubmitButton(info);
-  postHelpusStart(helpusDict[info.typeId], getIdUniqueID(info.targetCell!), question);
+  updateInteractionDisplay(currHelpus);
+  updateSubmitButton(currHelpus);
+  postHelpusStart(currHelpus.helpUsOptionID, getIdUniqueID(currHelpus.targetCell!), question);
 }
 
 export function activateHelpUs() {
@@ -358,13 +373,25 @@ helpusCloseIcon.addEventListener(
 );
 
 function enableSubmitButton() {
-  if (
-    helpusDefaultInteraction.style.display === 'none' &&
-    helpusPhdInteraction.style.display === 'flex'
-  ) {
-    helpusSubmit.disabled = !helpusYesRadio.checked && !helpusNoRadio.checked;
+  let disable: boolean = true;
+  //console.log(`enableSubmitButton - is helpusSubmit disabled? ${helpusSubmit.disabled}`);
+  if(currHelpus.helpUsOptionID === helpUsOptions.PHD_NOTE.id) {
+    disable = !helpusYesRadio.checked && !helpusNoRadio.checked;
   } else {
-    helpusSubmit.disabled = helpusInput.value === '';
+    //console.log(`helpusInput.value.length = ${helpusInput.value.length}`);
+    // check inputs
+    if(currHelpus.helpUsOptionID === helpUsOptions.EMPTY_YEAR.id) {
+      disable = helpusInput.value.length !== 4;
+    } else {
+      disable = helpusInput.value.length < 5;
+    }
+  }
+  // update UI
+  helpusSubmit.disabled = disable;
+  if(disable) {
+    helpusSubmit.classList.add('disabled');
+  } else {
+    helpusSubmit.classList.remove('disabled');
   }
 }
 
