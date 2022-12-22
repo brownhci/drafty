@@ -155,6 +155,7 @@ function shuffle(array: Array<any>) {
 }
 
 function postNewComment(idrow: string | number, comment: string) {
+  console.log(`postNewComment -> ${idrow} - comment ${comment}`);
   const tableCellInputFormCSRFInput: HTMLInputElement = document.querySelector(
     'input[name=\'_csrf\']'
   )!;
@@ -296,7 +297,7 @@ function updateSubmitButton(i: HelpUsInterface) {
     helpusSubmit.onclick = function () {
       const note: string = helpusInput.value.trim();
       //console.log(`updateSubmitButton FUN_NOTE -- SUBMIT = ${note}`);
-      recordCellEdit(i.targetCell!, note);
+      postNewComment(getIdUniqueID(i.targetCell!), note);
       postHelpusAnswered(i.idHelpus!, note);
       showThankyouScreen();
     };
