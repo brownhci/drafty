@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+echo "clean oversized docker install"
+echo "this will cause downtime"
+
+systemctl stop docker
+rm -rf /var/lib/docker
+systemctl start docker
+
+cd /vol/drafty_source/drafty/docker/production
+docker-compose up -d --remove-orphans
