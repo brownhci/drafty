@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+pm2 install pm2-logrotate
+pm2 set pm2-logrotate:max_size 1G
+
+echo "checking size of logs in /root/.pm2 ..."
+cd /root/.pm2
+du -sh *
