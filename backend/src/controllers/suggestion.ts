@@ -114,7 +114,7 @@ export const postNewRow = async (req: Request, res: Response) => {
   const idProfile: number = Number.parseInt(req.session.user.idProfile);
   const idSession: number = req.session.user.idSession;
 
-  const idInteractionType = 6; // 6 = editRecord
+  const idInteractionType = 5; // 5 = newRecord
   const idEntryType = 1; // 1 = NewRow
   const mode = 'normal'; // normal is default
 
