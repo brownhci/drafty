@@ -17,7 +17,7 @@ import { Request, Response } from 'express';
         // pilot
         //const link = `https://brown.co1.qualtrics.com/jfe/form/SV_8JswNQ78QUfkDlA?trackId=pilot1${idSession}a${idProfile}`;
         // full
-        const link = `https://brownwallace.qualtrics.com/jfe/form/SV_a9Q0CsmKHGJpZEatrackId=full1${idSession}a${idProfile}`;
+        const link = `https://brownwallace.qualtrics.com/jfe/form/SV_a9Q0CsmKHGJpZEa?trackId=full1${idSession}a${idProfile}`;
         results.link = link;
         results.active = true;
         return res.status(200).json(results);
