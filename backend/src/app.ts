@@ -169,7 +169,8 @@ app.post('/account/password', passportConfig.isAuthenticated, userCtrl.postUpdat
 // data privacy
 app.post('/account/delete', dataPrivacyCtrl.postRemoveData);
 
-app.post('/experiment/survey/link', experimentsCtrl.postLink);
+app.post('/experiment/survey/link', experimentsCtrl.postLinkPilot);
+app.post('/experiment/survey/link/full', experimentsCtrl.postLink);
 
 // data sharing
 //app.get('/data/edithistory', dataSharingCtrl.getEditHistory); // unused

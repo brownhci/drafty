@@ -21,7 +21,7 @@ const data: Record<any, any> = {'_csrf': CSRFInput?.value};
   };
 
   // 
-  fetch('/experiment/survey/link', options)
+  fetch('/experiment/survey/link/full', options)
     .then(async response => {
         const isJson = response.headers.get('content-type')?.includes('application/json');
         const data = isJson && await response.json();
