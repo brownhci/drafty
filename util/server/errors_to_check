@@ -1,0 +1,20 @@
+### ERRORS and FIXES
+# this file contains odd errors encountered in production over time and how to assess/fix them
+
+
+### inotify limit reached
+
+# error?
+systemctl status caddy
+# source of error
+Failed to add /run/systemd/ask-password to directory watch: inotify watch limit reached
+
+# what is hitting inotify
+lsof -K | grep inotify | (less||more||pg)
+
+# fix
+echo 1048576 > /proc/sys/fs/inotify/max_user_watches
+
+# permanent fix
+nano /etc/sysctl.conf 
+fs.inotify.max_user_watches=1048576
