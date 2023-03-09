@@ -2,10 +2,10 @@
 drafty.cs.brown.edu
 
 route /analytics.html {
-    uri strip_prefix /static
-    file_server {
-        root /vol/static
-    }
+        uri strip_prefix /static
+        file_server {
+            root /vol/static
+        }
 }
 
 reverse_proxy localhost:3000
