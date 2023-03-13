@@ -172,6 +172,9 @@ app.post('/account/delete', dataPrivacyCtrl.postRemoveData);
 app.post('/experiment/survey/link', experimentsCtrl.postLinkPilot);
 app.post('/experiment/survey/link/full', experimentsCtrl.postLink);
 
+// edit history per user (prolific codes)
+app.post('/contribution/history', interactionCtrl.getContributionHistory);
+
 // data sharing
 //app.get('/data/edithistory', dataSharingCtrl.getEditHistory); // unused
 app.get('/data/csv/:name/:token', dataSharingCtrl.getCSV);

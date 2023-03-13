@@ -1,3 +1,4 @@
+import { RowDataPacket } from 'mysql2/promise';
 import { db, logDbErr } from './mysql';
 
 const pipeDelim: string = '|';
@@ -41,6 +42,21 @@ const stmtUpdateCommentVoteUpCountADD: string = 'UPDATE Comments t SET t.voteUp 
 const stmtUpdateCommentVoteUpCountSUB: string = 'UPDATE Comments t SET t.voteUp = (t.voteUp - 1) WHERE t.idComment = ?;';
 const stmtUpdateCommentVoteDownCountADD: string = 'UPDATE Comments t SET t.voteDown = (t.voteDown + 1) WHERE t.idComment = ?;';
 const stmtUpdateCommentVoteDownCountSUB: string = 'UPDATE Comments t SET t.voteDown = (t.voteDown - 1) WHERE t.idComment = ?;';
+const stmtContributionHistory: string = `
+select i.idSession, addRow.interaction as addRow, IF(editCell.interaction>1,1,null) as editCell, IF(editCell.interaction=1,1,null) as editEmptyCell, delRow.interaction as delRow, note.interaction as note, helpus.interaction as helpus
+from (select idSession from Interaction where idSession = ?) i
+left join (select idSession, 1 as interaction from Interaction where idInteractionType = 5 and idSession = ?) addRow
+    on addRow.idSession = i.idSession
+left join (select idSession, count(*) as interaction from Interaction where idInteractionType = 6 and idSession = ?) editCell
+    on editCell.idSession = i.idSession
+left join (select idSession, 1 as interaction from Interaction where idInteractionType = 17 and idSession = ?) delRow
+    on delRow.idSession = i.idSession
+left join (select idSession, 1 as interaction from Interaction where idInteractionType = 19 and idSession = ?) note
+    on note.idSession = i.idSession
+left join (select idSession, 1 as interaction from Interaction where idInteractionType = 17 and idSession = ?) helpus
+    on helpus.idSession = i.idSession
+group by i.idSession, addRow.interaction, editCell.interaction, delRow.interaction
+`;
 
 /**
  * save new click
@@ -207,6 +223,49 @@ export async function insertDataBaitVisit(idSession: string, idDataBait: string,
     }
 }
 
+interface Contributions extends RowDataPacket {
+    idSession: string;
+    addRow: number;
+    editCell: number;
+    editEmptyCell: number;
+    delRow: number;
+    note: number;
+    helpus: number;
+}
+
+/**
+ * get all contribution interactions
+ */
+//DB Code
+export async function getUserContributionHistory(idSession: string) {
+    try {
+        const [results] = await db.query<Contributions[]>(stmtContributionHistory, [idSession,idSession,idSession,idSession,idSession,idSession]);
+        console.log(results);
+        let mainContribution: string = 'C1JT25I0'; //nothing
+        const interactions = results[0].addRow + results[0].delRow + results[0].editCell + results[0].editEmptyCell + results[0].note + results[0].helpus;
+        if (interactions >= 2) {
+            mainContribution = 'C1JT25IM';
+        } else if (results[0].addRow) {
+            mainContribution = 'C1JT25I1';
+        } else if (results[0].delRow) {
+            mainContribution = 'C1JT25I2';
+        } else if (results[0].editCell) {
+            mainContribution = 'C1JT25I3';
+        } else if (results[0].editEmptyCell) {
+            mainContribution = 'C1JT25I4';
+        } else if (results[0].note) {
+            mainContribution = 'C1JT25I5';
+        } else if (results[0].helpus) {
+            mainContribution = 'C1JT25I6';
+        }
+        //console.log(interactions);
+        //console.log(mainContribution);
+        return mainContribution;
+    } catch (error) {
+        logDbErr(error, 'error during stmtContributionHistory', 'warn');
+        return [error];
+    }
+}
 
 /**
  * get all comments for a row
@@ -219,7 +278,7 @@ export async function selectComments(idSession: string, idUniqueID: string | num
         const [ results ] = await db.query(stmtSelectComments, [idSession, idUniqueID]);
         return [null, results];
     } catch (error) {
-        logDbErr(error, 'error during insert selectComments', 'warn');
+        logDbErr(error, 'error during selectComments', 'warn');
         return [error];
     }
 }

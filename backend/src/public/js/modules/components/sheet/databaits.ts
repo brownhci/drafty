@@ -62,6 +62,12 @@ async function getIdSession() {
     return idSession;
 }
 
+async function getProlificCode() {
+    const prolificCode = await getJSON('/contribution/history');
+    return prolificCode;
+}
+
+const prolificCode: HTMLElement = document.getElementById('prolific-code');
 const dataBaitTitle: HTMLElement = document.getElementById('databait-modal-title');
 const dataBaitModal: HTMLElement = document.getElementById('databait-screen');
 const dataBaitText: HTMLElement = document.getElementById('databait-text');
@@ -306,12 +312,13 @@ createRandomBtn.addEventListener('click', async function() {
     }
 }, true);
 
-function openModal() {
+async function openModal() {
     dataBaitText.innerHTML = loadingHTML;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     activateKeyListener();
     dataBaitModal.style.display = 'block';
     dataBaitModal.focus();
+    prolificCode.innerHTML = await getProlificCode();
 }
 
 export async function activateDatabait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {
@@ -356,7 +363,6 @@ export async function activateDatabait(tableCellElement: HTMLTableCellElement, i
             postDatabait(apiUrlRandom, baseUrl);
         }
     }
-    console.log(databaitsSeen);
     if(showUserModal) { openModal(); }
 }
 

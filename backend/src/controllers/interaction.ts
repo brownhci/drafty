@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertSearch, insertSort, insertSearchGoogle } from '../database/interaction';
+import { insertClick, insertDoubleClick, insertPasteCell, insertCopyCell, insertSearch, insertSort, insertSearchGoogle, getUserContributionHistory } from '../database/interaction';
 
 /**
  * POST /click
@@ -185,3 +185,8 @@ export const postCopyCell = (req: Request, res: Response) => {
     return res.sendStatus(500);
   }
 };
+
+export async function getContributionHistory(idSession: string) {
+  const contributionHistory = await getUserContributionHistory(idSession);
+  return contributionHistory;
+}
