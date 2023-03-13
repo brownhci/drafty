@@ -38,8 +38,10 @@
       {{#if source}}
         <hr>
           <p style="text-align: center; font-size: 1.25em; color: black; margin-top: 1em !important;margin-bottom: 0.5em !important;">
-              To receive credit at Prolific, please use this <b>completion code</b>: <h3 style="text-align: center;">C1JT25IJ</h3>
+              To receive credit at Prolific, please use this <b>completion code</b>: <h3 id="prolific-code" style="text-align: center;">{{prolificCode}}</h3>
           </p>
+      {{else}}
+        <h3 id="prolific-code" style="text-align: center; display: none;">{{prolificCode}}</h3>
       {{/if}}
     </div>
   </div>
