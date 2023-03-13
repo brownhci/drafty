@@ -90,7 +90,6 @@ export const postTweet = (req: Request, res: Response) => {
             if (error) {
                 return res.sendStatus(500);
             }
-            console.log(results);
             const data = {
                 tweetURL: tweetURL,
                 idDatabaitTweet: results.insertId
