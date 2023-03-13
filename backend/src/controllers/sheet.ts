@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { sheetsData, getRequestedSheetName, getRequestedSheetPath, getRequestedEditHistorySheetPath } from '../models/sheet';
 import { makeRenderObject } from '../config/handlebars-helpers';
-// import { genSheets } from "../database/gen_spreadsheets";
+import { getContributionHistory } from './interaction';
 
 /**
  * GET /sheet/:sheet
@@ -30,10 +30,13 @@ export async function getSheet(req: Request, res: Response) {
     const [sheetName, sheetTitle] = await getRequestedSheetName(sheetURL);
     const sheetPath = await getRequestedSheetPath(sheetURL);
     let source = false;
+    let prolificCode: string | any[] = 'C1JT25IN';
     if(req.session.user.source && req.session.user.source.includes('prolific')) {
       source = true;
+      const idSession = req.session.user.idSession;
+      prolificCode = await getContributionHistory(idSession);
     }
-    res.render('pages/sheet', makeRenderObject({ title: `${sheetTitle}`, sheetName: sheetName, sheetPath: sheetPath, sheetURL: sheetURL, sheetActive: 1, sheetOrEditHistoryActive: 1, source: source }, req));
+    res.render('pages/sheet', makeRenderObject({ title: `${sheetTitle}`, sheetName: sheetName, sheetPath: sheetPath, sheetURL: sheetURL, sheetActive: 1, sheetOrEditHistoryActive: 1, source: source, prolificCode:  prolificCode}, req));
   }
 }
 
@@ -62,3 +65,5 @@ export async function getSheetEditHistory(req: Request, res: Response) {
     res.render('pages/edit_history', makeRenderObject({ title: `${sheetTitle}`, sheetName: sheetName, sheetURL: sheetURL, editHistoryPath: editHistoryPath, sheetActive: 0, sheetOrEditHistoryActive: 1 }, req));
   }
 }
+
+

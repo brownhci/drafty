@@ -12,6 +12,7 @@ import { encryptPassword } from '../util/encrypt';
 import { makeRenderObject } from '../config/handlebars-helpers';
 import '../config/passport';
 import { throws } from 'assert';
+import { getContributionHistory } from './interaction';
 
 /**
  * GET /login
@@ -164,21 +165,22 @@ export async function createSessionDB(idProfile: number, idExpressSession: strin
  * GET /account
  * Profile page.
  */
-export const getAccount = (req: Request, res: Response) => {
+export async function getAccount(req: Request, res: Response) {
   let username = 'Anonymous User';
   if (req.session.user.isAuth) {
     username = req.session.user.username;
   }
   let source = false;
-  console.log('req.session.user.source');
-  console.log(req.session.user.source);
+  let prolificCode: string | any[] = 'C1JT25IN';
   if(req.session.user.source) {
-    console.log(typeof req.session.user.source);
     if(req.session.user.source.includes('prolific')) {
-    source = true;
-  }}
-  res.render('account/profile', makeRenderObject({ title: 'Account Management', username: username, idProfile: req.session.user.idProfile, idSession: req.session.user.idSession, idExpress: req.sessionID, source: source }, req));
-};
+      source = true;
+      const idSession = req.session.user.idSession;
+      prolificCode = await getContributionHistory(idSession);
+    }
+  }
+  res.render('account/profile', makeRenderObject({ title: 'Account Management', username: username, idProfile: req.session.user.idProfile, idSession: req.session.user.idSession, idExpress: req.sessionID, source: source, prolificCode: prolificCode }, req));
+}
 
 /**
  * POST /account/password
