@@ -241,22 +241,22 @@ export async function getUserContributionHistory(idSession: string) {
     try {
         const [results] = await db.query<Contributions[]>(stmtContributionHistory, [idSession,idSession,idSession,idSession,idSession,idSession]);
         console.log(results);
-        let mainContribution: string = 'C1JT25I0'; //nothing
+        let mainContribution: string = 'COXYHI8H'; //nothing
         const interactions = results[0].addRow + results[0].delRow + results[0].editCell + results[0].editEmptyCell + results[0].note + results[0].helpus;
         if (interactions >= 2) {
-            mainContribution = 'C1JT25IM';
+            mainContribution = 'C199VGDK';
         } else if (results[0].addRow) {
-            mainContribution = 'C1JT25I1';
+            mainContribution = 'C13LZHQF';
         } else if (results[0].delRow) {
-            mainContribution = 'C1JT25I2';
+            mainContribution = 'C1L8MH5R';
         } else if (results[0].editCell) {
-            mainContribution = 'C1JT25I3';
+            mainContribution = 'C16SZZ9F';
         } else if (results[0].editEmptyCell) {
-            mainContribution = 'C1JT25I4';
+            mainContribution = 'C18JKUNH';
         } else if (results[0].note) {
-            mainContribution = 'C1JT25I5';
+            mainContribution = 'C141HZH1';
         } else if (results[0].helpus) {
-            mainContribution = 'C1JT25I6';
+            mainContribution = 'C1IFA3R2';
         }
         //console.log(interactions);
         //console.log(mainContribution);

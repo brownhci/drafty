@@ -171,7 +171,7 @@ export async function getAccount(req: Request, res: Response) {
     username = req.session.user.username;
   }
   let source = false;
-  let prolificCode: string | any[] = 'C1JT25IN';
+  let prolificCode: string | any[] = 'C14S73E5';
   if(req.session.user.source) {
     if(req.session.user.source.includes('prolific')) {
       source = true;
