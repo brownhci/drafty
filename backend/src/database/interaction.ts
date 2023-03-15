@@ -242,27 +242,29 @@ export async function getUserContributionHistory(idSession: string) {
         const [results] = await db.query<Contributions[]>(stmtContributionHistory, [idSession,idSession,idSession,idSession,idSession,idSession]);
         console.log(results);
         let mainContribution: string = 'COXYHI8H'; //nothing
-        const interactions = results[0].addRow + results[0].delRow + results[0].editCell + results[0].editEmptyCell + results[0].note + results[0].helpus;
-        if (interactions >= 2) {
-            mainContribution = 'C199VGDK';
-        } else if (results[0].addRow) {
-            mainContribution = 'C13LZHQF';
-        } else if (results[0].delRow) {
-            mainContribution = 'C1L8MH5R';
-        } else if (results[0].editCell) {
-            mainContribution = 'C16SZZ9F';
-        } else if (results[0].editEmptyCell) {
-            mainContribution = 'C18JKUNH';
-        } else if (results[0].note) {
-            mainContribution = 'C141HZH1';
-        } else if (results[0].helpus) {
-            mainContribution = 'C1IFA3R2';
+        if(results.length > 0) {
+            const interactions = results[0].addRow + results[0].delRow + results[0].editCell + results[0].editEmptyCell + results[0].note + results[0].helpus;
+            if (interactions >= 2) {
+                mainContribution = 'C199VGDK';
+            } else if (results[0].addRow) {
+                mainContribution = 'C13LZHQF';
+            } else if (results[0].delRow) {
+                mainContribution = 'C1L8MH5R';
+            } else if (results[0].editCell) {
+                mainContribution = 'C16SZZ9F';
+            } else if (results[0].editEmptyCell) {
+                mainContribution = 'C18JKUNH';
+            } else if (results[0].note) {
+                mainContribution = 'C141HZH1';
+            } else if (results[0].helpus) {
+                mainContribution = 'C1IFA3R2';
+            }
         }
         //console.log(interactions);
         //console.log(mainContribution);
         return mainContribution;
     } catch (error) {
-        logDbErr(error, 'error during stmtContributionHistory', 'warn');
+        logDbErr(error, 'error during stmtContributionHistory ' + idSession, 'warn');
         return [error];
     }
 }
