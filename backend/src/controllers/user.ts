@@ -12,7 +12,7 @@ import { encryptPassword } from '../util/encrypt';
 import { makeRenderObject } from '../config/handlebars-helpers';
 import '../config/passport';
 import { throws } from 'assert';
-import { getContributionHistory } from './interaction';
+import { getUserContributionHistory } from '../database/interaction';
 
 /**
  * GET /login
@@ -176,7 +176,7 @@ export async function getAccount(req: Request, res: Response) {
     if(req.session.user.source.includes('prolific')) {
       source = true;
       const idSession = req.session.user.idSession;
-      prolificCode = await getContributionHistory(idSession);
+      prolificCode = await getUserContributionHistory(idSession);
     }
   }
   res.render('account/profile', makeRenderObject({ title: 'Account Management', username: username, idProfile: req.session.user.idProfile, idSession: req.session.user.idSession, idExpress: req.sessionID, source: source, prolificCode: prolificCode }, req));

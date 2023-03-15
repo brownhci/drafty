@@ -173,7 +173,7 @@ app.post('/experiment/survey/link', experimentsCtrl.postLinkPilot);
 app.post('/experiment/survey/link/full', experimentsCtrl.postLink);
 
 // edit history per user (prolific codes)
-app.post('/contribution/history', interactionCtrl.getContributionHistory);
+app.get('/contribution/history', interactionCtrl.getContributionHistory);
 
 // data sharing
 //app.get('/data/edithistory', dataSharingCtrl.getEditHistory); // unused

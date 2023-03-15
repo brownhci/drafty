@@ -63,7 +63,10 @@ async function getIdSession() {
 }
 
 async function getProlificCode() {
-    const prolificCode = await getJSON('/contribution/history');
+    let prolificCode = await getJSON('/contribution/history');
+    if (prolificCode == null) {
+        prolificCode = 'COXYHI8E'; // error
+    }
     return prolificCode;
 }
 
@@ -132,7 +135,7 @@ function addContributionMessageHTML() {
     dataBaitTitle.innerHTML = 'Thank you, did you know?';
 }
 
-function activateCtrls() {
+async function activateCtrls() {
     if(!databaitCurrent.tweetActive) {
         tweetBtn.disabled = false;
     }
@@ -208,36 +211,42 @@ function createBodyDataJSON(urlData: urlBase | urlSimilar) {
 }
 
 async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
-    deactivateCtrls();
-    const bodyData = JSON.stringify(createBodyDataJSON(urlData));
-    const options = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: bodyData
-    };
-    fetch(apiUrl, options)
-    .then(response => { return response.json(); })
-    .then(data => {
-       /* DO SOMETHING HERE :) */
-       //console.log(data[0]);
-       const databait = data[0];
-       databaitCurrent.idDatabait = databait.idDatabait;
-       databaitCurrent.sentence = databait.sentence;
-       databaitCurrent.labels = databait.labels;
-       databaitCurrent.columns = databait.columns;
-       databaitCurrent.candidate_values = databait.candidate_values;
-       databaitCurrent.idDatabaitTweet = '';
-       databaitCurrent.tweetActive = false;
-       databaitCurrent.tweetURL = '';
-       updateDatabaitHTML(convertSentenceToHTML(databait.sentence, databait.candidate_values));
-       addClickListenersToDatabaitsValues();
-       activateCtrls();
+    const databaitError = `Oh we are sorry, there was an issue creating a new did you know. Please try again.`;
+    try {
+        prolificCode.innerHTML = await getProlificCode();
+        deactivateCtrls();
+        const bodyData = JSON.stringify(createBodyDataJSON(urlData));
+        const options = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: bodyData
+        };
+        fetch(apiUrl, options)
+            .then(response => { return response.json(); })
+            .then(data => {
+            /* DO SOMETHING HERE :) */
+            //console.log(data[0]);
+            const databait = data[0];
+            databaitCurrent.idDatabait = databait.idDatabait;
+            databaitCurrent.sentence = databait.sentence;
+            databaitCurrent.labels = databait.labels;
+            databaitCurrent.columns = databait.columns;
+            databaitCurrent.candidate_values = databait.candidate_values;
+            databaitCurrent.idDatabaitTweet = '';
+            databaitCurrent.tweetActive = false;
+            databaitCurrent.tweetURL = '';
+            updateDatabaitHTML(convertSentenceToHTML(databait.sentence, databait.candidate_values));
+            addClickListenersToDatabaitsValues();
+            activateCtrls();
      }).catch(error => {
         console.error(error);
-        dataBaitText.innerHTML = `Oh we are sorry, there was an issue creating a new did you know. Please try again.`;
+        dataBaitText.innerHTML = databaitError;
         activateCtrls();
         tweetBtn.disabled = false;
      });
+    } catch (error) {
+        dataBaitText.innerHTML = databaitError;
+    }
 }
 
 async function postDatabaitTweet(idDatabait: string | number, sentence: string, labels: Array<string>, datasetname: string = 'csprofessors') {
@@ -318,7 +327,6 @@ async function openModal() {
     activateKeyListener();
     dataBaitModal.style.display = 'block';
     dataBaitModal.focus();
-    prolificCode.innerHTML = await getProlificCode();
 }
 
 export async function activateDatabait(tableCellElement: HTMLTableCellElement, idInteractionType: InteractionTypeDatabaitCreate, idDatabaitCreateType: DatabaitCreateType) {

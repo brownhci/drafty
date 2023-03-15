@@ -186,7 +186,8 @@ export const postCopyCell = (req: Request, res: Response) => {
   }
 };
 
-export async function getContributionHistory(idSession: string) {
+export async function getContributionHistory(req: Request, res: Response) {
+  const idSession = req.session.user.idSession;
   const contributionHistory = await getUserContributionHistory(idSession);
-  return contributionHistory;
+  return res.status(200).json(contributionHistory);
 }
