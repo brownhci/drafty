@@ -32,7 +32,6 @@ For additional scripts, the server folder has numerous scripts to update and man
 
 ### Update Drafty and Restart Drafty’s Web Server
 
-
     cd <file_directory_of_this_repo>
     git stash
     git pull
