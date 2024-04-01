@@ -100,7 +100,7 @@
         "@types/twitter": "^1.7.1",
         "@typescript-eslint/parser": "^5.3.1",
         "concurrently": "^7.0.0",
-        "cypress": "^8.7.0",
+        "cypress": "^13.4.0",
         "eslint": "^8.2.0",
         "nodemon": "^2.0.15",
         "prisma": "^3.15.2",
