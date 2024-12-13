@@ -75,7 +75,6 @@ const dataBaitTitle: HTMLElement = document.getElementById('databait-modal-title
 const dataBaitModal: HTMLElement = document.getElementById('databait-screen');
 const dataBaitText: HTMLElement = document.getElementById('databait-text');
 const dataBaitModalClose = <HTMLButtonElement>document.getElementById('dataBaitModalClose');
-const tweetBtn = <HTMLButtonElement>document.getElementById('btn-databait-tweet');
 const createSimilarBtn = <HTMLButtonElement>document.getElementById('btn-databait-similar');
 const createRandomBtn = <HTMLButtonElement>document.getElementById('btn-databait-random');
 const conntributionMessage = <HTMLSpanElement>document.getElementById('databait-contribution-confirmation');
@@ -136,15 +135,11 @@ function addContributionMessageHTML() {
 }
 
 async function activateCtrls() {
-    if(!databaitCurrent.tweetActive) {
-        tweetBtn.disabled = false;
-    }
     createSimilarBtn.disabled = false;
     createRandomBtn.disabled = false;
 }
 
 function deactivateCtrls() {
-    tweetBtn.disabled = true;
     createSimilarBtn.disabled = true;
     createRandomBtn.disabled = true;
 }
@@ -242,7 +237,6 @@ async function postDatabait(apiUrl: string, urlData: urlBase | urlSimilar) {
         console.error(error);
         dataBaitText.innerHTML = databaitError;
         activateCtrls();
-        tweetBtn.disabled = false;
      });
     } catch (error) {
         dataBaitText.innerHTML = databaitError;
@@ -287,11 +281,6 @@ dataBaitModalClose.addEventListener('click', function(event: MouseEvent) {
         recordDatabaitTweetNextAction(databaitCurrent.idDatabaitTweet, DatabaitAction.window_closed);
     }
     event.stopPropagation();
-}, true);
-
-tweetBtn.addEventListener('click', async function() {
-    deactivateCtrls();
-    postDatabaitTweet(databaitCurrent.idDatabait, databaitCurrent.sentence, databaitCurrent.labels, 'csprofessors');
 }, true);
 
 createSimilarBtn.addEventListener('click', async function() {
