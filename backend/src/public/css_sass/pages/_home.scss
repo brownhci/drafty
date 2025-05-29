@@ -37,8 +37,8 @@
   }
 
   section#thumbnail-section {
-  	@extend .d-none;
-  	@extend .d-md-flex;
+    @extend .d-none;
+    @extend .d-md-flex;
     min-width: $img-width;
     min-height: 350px;
     background-image: linear-gradient(45deg,#003aff 0%,#00b9ff 100%);
@@ -76,10 +76,7 @@
         @extend .mt-4;
       }
     }
-    .spreadsheet-related-content {
-      @extend %aside-text;
-    }
-    .publication-link + p {
+    li p {
       @extend %aside-text;
     }
     .footer {

@@ -22,7 +22,7 @@ function escKeyListener(event: KeyboardEvent) {
     if(event.key === 'Escape'){
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         modalsClose();
-	}
+    }
 }
 
 function activateKeyListener() {
@@ -36,7 +36,7 @@ function deactivateKeyListener() {
 function modalsClose() {
     deactivateKeyListener();
     deleteRowModal.style.display = 'none';
-	deleteRowModalError.style.display = 'none';
+    deleteRowModalError.style.display = 'none';
 }
 
 deleteModalClose.addEventListener('click', function(event: MouseEvent) {

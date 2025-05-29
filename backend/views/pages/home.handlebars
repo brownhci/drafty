@@ -28,29 +28,29 @@
                         <a class="spreadsheet-link" href="/csprofessors">
                             Computer Science Professors
                         </a>
+                        <p>
+                            Used for an <a href="https://jeffhuang.com/computer_science_professors.html" target="_blank">analysis of computer science hiring trends <i class="fa fa-external-link-alt" aria-hidden="true"></i></a>
+                        </p>
                     </li>
-                    <div class="spreadsheet-related-content">
-                        <p>Used for an <a href="https://jeffhuang.com/computer_science_professors.html" target="_blank">analysis of computer science hiring trends <i class="fa fa-external-link-alt" aria-hidden="true"></i></a></p>
-                    </div>
                     <!-- CS Open Rankings -->
                     <li class="spreadsheet">
                         <a class="spreadsheet-link" href="/csopenrankings">
                             CS Open Rankings
                         </a>
+                        <p>
+                            A new approach to computer science rankings. A meta ranker using real-time data from CS Professors as one of its sources.
+                        </p>
                     </li>
-                    <div class="spreadsheet-related-content">
-                        <p>A new approach to computer science rankings. A meta ranker using real-time data from CS Professors as one of its sources.</p>
-                    </div>
                 </ul>
             </div>
             <div id="articles">
                 <ul>
                     {{#each publications}}
                         <li class="publication">
-                            <a class="publication-link" href="{{link}}">{{name}}</a>
+                            <a href="{{link}}">{{name}}</a>
                             <p>{{description}}
                             {{#if source}}
-                            	<a href="https://github.com/brownhci/drafty" target="_blank">[source code] <i class="fa fa-external-link-alt" aria-hidden="true"></i></a>
+                                <a href="https://github.com/brownhci/drafty" target="_blank">[source code] <i class="fa fa-external-link-alt" aria-hidden="true"></i></a>
                             {{/if}}
                             </p>
                         </li>

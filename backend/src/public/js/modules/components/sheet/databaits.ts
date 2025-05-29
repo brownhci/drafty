@@ -376,8 +376,8 @@ function closeModal() {
 
 function escKeyListener(event: KeyboardEvent) {
     if(event.key === 'Escape'){
-		closeModal();
-	}
+        closeModal();
+    }
 }
 
 function activateKeyListener() {

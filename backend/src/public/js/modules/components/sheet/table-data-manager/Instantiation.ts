@@ -3,8 +3,8 @@
  *
  * This module provide instantiations of Abstraction class:
  *
- * 		+ ForwardingInstantiation: allows access/modification to registered properties to be resolved with a registered target `forwardingTo_`. More, specifically, these operations are regulated by a ForwardingPropertyDescriptor, a descriptor which could contain callbacks that receives additional arguments including `forwardingTo_` and the Instantiation instance.
- * 		+ DOMForwardingInstantiation: extends ForwardingInstantiation with default descriptor that treat registered properties as a DOM attribute or JS property of the forwarding target.
+ *     + ForwardingInstantiation: allows access/modification to registered properties to be resolved with a registered target `forwardingTo_`. More, specifically, these operations are regulated by a ForwardingPropertyDescriptor, a descriptor which could contain callbacks that receives additional arguments including `forwardingTo_` and the Instantiation instance.
+ *     + DOMForwardingInstantiation: extends ForwardingInstantiation with default descriptor that treat registered properties as a DOM attribute or JS property of the forwarding target.
  */
 
 import { Abstraction, Prop } from './Abstraction';
@@ -67,8 +67,8 @@ export class ForwardingInstantiation extends Abstraction {
 
   /**
    * Transform a ForwardingPropertyDescriptor into a PropertyDescriptor. More specifically, it creates wrapper getter and setter that invoke the ForwardingPropertyDescriptor's getter and setter by supplying additional arguments through scoping.
-	 * @example
-	 * 		To transform into an empty property descriptor, simply pass `{}` as `descriptor`.
+   * @example
+   *     To transform into an empty property descriptor, simply pass `{}` as `descriptor`.
    *
    * @param {Partial<ForwardingPropertyDescriptor>} descriptor - An object containing partial implementation of a ForwardingPropertyDescriptor.
    * @param {ForwardingInstantiation} thisArgument - The invoking context: an ForwardingInstantiation which provides a forwarding target.
@@ -76,16 +76,16 @@ export class ForwardingInstantiation extends Abstraction {
    */
   private static __transformPropertyDescriptor(descriptor: Partial<ForwardingPropertyDescriptor>, thisArgument: ForwardingInstantiation): Partial<PropertyDescriptor> {
     const accessFunctions: AccessFunctions = { };
-		if ('get' in descriptor) {
+    if ('get' in descriptor) {
       accessFunctions.get = () => {
         return descriptor.get(thisArgument.forwardingTo_, thisArgument);
       };
-		}
-		if ('set' in descriptor) {
-			accessFunctions.set = (v: any) => {
+    }
+    if ('set' in descriptor) {
+      accessFunctions.set = (v: any) => {
         return descriptor.set(v, thisArgument.forwardingTo_, thisArgument);
-			};
-		}
+      };
+    }
     return Object.assign({}, descriptor, accessFunctions);
   }
 
@@ -100,7 +100,7 @@ export class ForwardingInstantiation extends Abstraction {
   private static __transformPropertyDescriptors(props: Record<Prop, Partial<ForwardingPropertyDescriptor>>, thisArgument: ForwardingInstantiation): Record<Prop, Partial<PropertyDescriptor>> {
     const _props: Record<Prop, Partial<PropertyDescriptor>> = {};
     for (const property in props) {
-			const descriptor = props[property];
+      const descriptor = props[property];
       _props[property] = this.__transformPropertyDescriptor(descriptor, thisArgument);
     }
     return _props;
@@ -145,19 +145,19 @@ export class ForwardingInstantiation extends Abstraction {
  *
  * The property will be resolved in the following order:
  *
- * 		1. a HTML attribute like `class` for a `<div class="active></div>`
- * 		2. a JS property like `classList`, `textContent`
- * 		3. a custom property
+ *     1. a HTML attribute like `class` for a `<div class="active></div>`
+ *     2. a JS property like `classList`, `textContent`
+ *     3. a custom property
  *
  * Some caveats:
  *
- * 		+ The property has to be a string.
- * 		+ If the element does not have the DOM property {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/hasAttribute}, the operation will not stop, rather it will try to resolve the property as a JS property then a custom property. But suppose this DOM attribute comes into existence because of user action or script execution, next operation will resolve this property as a DOM attribute even if a same-named JS property or custom property exists. The opposite is also true where a DOM attribute no longer exists. To avoid such situations, you are recommended to
- * 			+ predefine the DOM attribute,
- * 				@example `element.class = ""`
- * 			+ use the JS property equivalent
- * 				@example `class` can be substituted with `className`
- * 		+ If you need to define a custom property, you should avoid clashing with potential HTML attributes and JS properties
+ *     + The property has to be a string.
+ *     + If the element does not have the DOM property {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/hasAttribute}, the operation will not stop, rather it will try to resolve the property as a JS property then a custom property. But suppose this DOM attribute comes into existence because of user action or script execution, next operation will resolve this property as a DOM attribute even if a same-named JS property or custom property exists. The opposite is also true where a DOM attribute no longer exists. To avoid such situations, you are recommended to
+ *       + predefine the DOM attribute,
+ *         @example `element.class = ""`
+ *       + use the JS property equivalent
+ *         @example `class` can be substituted with `className`
+ *     + If you need to define a custom property, you should avoid clashing with potential HTML attributes and JS properties
  *
  * @augments ForwardingInstantiation
  */
@@ -181,9 +181,9 @@ export class DOMForwardingInstantiation extends ForwardingInstantiation {
 
   /**
    * Creates a default access descriptor that
-	 *
-	 * 		+ for a [[GET]] operation, attempts to query same-named property from the HTML element that is the forward target {@link getProperty}
-	 * 		+ for a [[SET]] operation, attempts to modify same-named property from the HTML element that is the forward target {@link setProperty}
+   *
+   *     + for a [[GET]] operation, attempts to query same-named property from the HTML element that is the forward target {@link getProperty}
+   *     + for a [[SET]] operation, attempts to modify same-named property from the HTML element that is the forward target {@link setProperty}
    *
    * @public
    * @param {string} property - Name of property.
@@ -192,31 +192,31 @@ export class DOMForwardingInstantiation extends ForwardingInstantiation {
   static defaultForwardingDescriptor__(property: string): Partial<ForwardingPropertyDescriptor> {
     return {
         get(forwardingTo: HTMLElement): any {
-					return getProperty(forwardingTo, property);
+          return getProperty(forwardingTo, property);
         },
         set(newValue: any, forwardingTo: HTMLElement) {
-					setProperty(forwardingTo, property, newValue);
+          setProperty(forwardingTo, property, newValue);
         }
       };
   }
 
-	/**
-	 * For each property, supplies default access descriptor if none has been provided.
-	 *
-	 * More specifically, it iterates through each property, descriptor pair and replace falsy descriptor value with default descriptor.
-	 *
-	 * @see {@link DOMForwardingInstantiation.defaultForwardingDescriptor__}
-	 * @param {Record<string, Partial<ForwardingPropertyDescriptor>>} props - An object containing mapping from properties to their descriptors.
-	 * @return An object containing mapping from properties to their descriptors where default descriptor has replaced falsy descriptor value.
-	 */
-	private static __fillDefaultDescriptor(props: Record<string, Partial<ForwardingPropertyDescriptor>>): Record<string, Partial<ForwardingPropertyDescriptor>> {
+  /**
+   * For each property, supplies default access descriptor if none has been provided.
+   *
+   * More specifically, it iterates through each property, descriptor pair and replace falsy descriptor value with default descriptor.
+   *
+   * @see {@link DOMForwardingInstantiation.defaultForwardingDescriptor__}
+   * @param {Record<string, Partial<ForwardingPropertyDescriptor>>} props - An object containing mapping from properties to their descriptors.
+   * @return An object containing mapping from properties to their descriptors where default descriptor has replaced falsy descriptor value.
+   */
+  private static __fillDefaultDescriptor(props: Record<string, Partial<ForwardingPropertyDescriptor>>): Record<string, Partial<ForwardingPropertyDescriptor>> {
     const _props: Record<Prop, Partial<ForwardingPropertyDescriptor>> = {};
     for (const property in props) {
-			const descriptor = props[property];
-			_props[property] = descriptor ? descriptor : this.defaultForwardingDescriptor__(property);
+      const descriptor = props[property];
+      _props[property] = descriptor ? descriptor : this.defaultForwardingDescriptor__(property);
     }
     return _props;
-	}
+  }
 
   /**
    * @override

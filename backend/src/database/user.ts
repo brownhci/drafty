@@ -12,14 +12,14 @@ const stmtUpdateSession: string = 'UPDATE users.Session SET idProfile = ? WHERE 
 const stmtSelExperiments: string = `
 SELECT ers.idSession, ers.role, e.experiment, e.idExperiment, e.active, err.randrole
 FROM (
-	SELECT *
+    SELECT *
     FROM users.Experiment e
     WHERE e.active = 1
 ) e
 LEFT JOIN (
-	SELECT er.idExperiment, er.role, ers.idSession
+    SELECT er.idExperiment, er.role, ers.idSession
     FROM users.Experiment_Role_Session ers
-	INNER JOIN users.ExperimentRole er ON er.idExperimentRole = ers.idExperimentRole
+    INNER JOIN users.ExperimentRole er ON er.idExperimentRole = ers.idExperimentRole
     WHERE ers.idSession = ?
 ) ers ON ers.idExperiment = e.idExperiment
 LEFT JOIN (

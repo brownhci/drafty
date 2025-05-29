@@ -6,7 +6,7 @@ create table HelpUs
     idUniqueID      int(11) not null,
     helpUsType      varchar(200)  not null,
     question        varchar(2500) not null,
-    answer	        varchar(2500),
+    answer          varchar(2500),
     start           timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     answered        timestamp,
     showAnother     timestamp,

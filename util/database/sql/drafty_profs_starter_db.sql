@@ -139,7 +139,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `new_suggestion_new_row`(
     OUT idSuggestion INT
 )
 BEGIN
-	DECLARE idSuggestion_var INT;
+    DECLARE idSuggestion_var INT;
     DECLARE confidence_var INT DEFAULT 1;
 
 START TRANSACTION;  

@@ -24,8 +24,8 @@ function getTextWidthMeasureElement(): HTMLElement {
     // initialize text width measure
     textWidthMeasureElement = document.createElement('span');
     textWidthMeasureElement.id = 'text-width-measure';
-		const bodyElement = document.body;
-		bodyElement.prepend(textWidthMeasureElement);
+    const bodyElement = document.body;
+    bodyElement.prepend(textWidthMeasureElement);
   }
   return textWidthMeasureElement;
 }
