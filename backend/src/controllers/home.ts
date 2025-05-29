@@ -40,6 +40,11 @@ export const index = (req: Request, res: Response) => {
         name: 'Case Studies on the Motivation and Performance of Contributors Who Verify and Maintain In-Flux Tabular Datasets',
         description: 'Shaun Wallace, Alexandra Papoutsaki, Neilly H. Tan, Hua Guo, Jeff Huang. CSCW 2021'
       },
+      {
+        link: 'https://jeffhuang.com/papers/MotivatingCrowd_CHI25.pdf',
+        name: 'Towards Fair and Equitable Incentives to Motivate Paid and Unpaid Crowd Contributions',
+        description: 'Shaun Wallace, Talie Massachi, Jiaqi Su, Dave B Miller, Jeff Huang. CHI 2025'
+      },
     ]
   }, req));
 };
